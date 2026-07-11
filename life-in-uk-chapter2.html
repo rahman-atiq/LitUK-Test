@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life in the UK · Chapter 2: What is the UK?</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --serif: "Baskerville", "Iowan Old Style", "Palatino Linotype", "Palatino", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+      --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+      --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+    --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+    --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"] {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    margin: 0; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 22px; }
+  a { color: inherit; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 40px; }
+  .eyebrow {
+    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-2); margin: 0 0 18px; font-weight: 600;
+  }
+  .eyebrow .sep { color: var(--ink-3); padding: 0 .5em; }
+  h1 {
+    font-family: var(--serif); font-weight: 500; text-wrap: balance;
+    font-size: clamp(2.5rem, 6.2vw, 4.3rem); line-height: 1.04; margin: 0 0 8px;
+    letter-spacing: -.01em;
+  }
+  h1 em { font-style: italic; }
+  .lede {
+    max-width: 62ch; color: var(--ink-2); font-size: 1.05rem; margin: 18px 0 0;
+  }
+  .lede strong { color: var(--ink); }
+
+  /* ---------- Section timeline / nav ---------- */
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 40px 0 10px; }
+  .tl-seg {
+    display: block; text-decoration: none; border-radius: 6px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line);
+    transition: transform .18s ease;
+  }
+  .tl-seg:hover { transform: translateY(-3px); }
+  .tl-bar { height: 10px; background: var(--era); }
+  .tl-body { padding: 12px 12px 14px; }
+  .tl-num { font-family: var(--serif); font-size: 1.5rem; color: var(--era); line-height: 1; }
+  .tl-name { font-weight: 600; font-size: .86rem; margin: 6px 0 2px; line-height: 1.25; }
+  .tl-years { font-size: .74rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tl-note { text-align: center; font-size: .74rem; color: var(--ink-3); margin: 10px 0 0; }
+  @media (max-width: 480px) { .timeline { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .tl-seg { transition: none; } .tl-seg:hover { transform: none; } }
+
+  /* ---------- How to study strip ---------- */
+  .howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 34px 0 0; }
+  .howto div { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: .88rem; color: var(--ink-2); }
+  .howto b { color: var(--ink); display: block; margin-bottom: 3px; }
+  @media (max-width: 720px) { .howto { grid-template-columns: 1fr; } }
+
+  /* ---------- Sections ---------- */
+  .era { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .era-head { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  .era-num {
+    font-family: var(--serif); font-size: clamp(3.4rem, 7vw, 5rem); line-height: .9;
+    color: var(--era); font-variant-numeric: tabular-nums;
+  }
+  .era-title h2 {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    margin: 0; line-height: 1.1; text-wrap: balance;
+  }
+  .era-title .era-span {
+    font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+    color: var(--era); margin-top: 6px; font-variant-numeric: tabular-nums;
+  }
+  .era-sub { color: var(--ink-2); max-width: 68ch; margin: 14px 0 0; font-size: .96rem; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 18px 14px; box-shadow: var(--shadow);
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h3 {
+    margin: 0 0 10px; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--era); font-weight: 700;
+  }
+  .facts { list-style: none; margin: 0; padding: 0; }
+  .facts li {
+    padding: 7px 0; border-top: 1px dotted var(--line); font-size: .9rem; color: var(--ink-2);
+  }
+  .facts li:first-child { border-top: 0; padding-top: 0; }
+  .facts b, .facts strong { color: var(--ink); font-weight: 650; }
+  .y { color: var(--era); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* union arithmetic */
+  .eq {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 30px 26px; margin-top: 20px; box-shadow: var(--shadow); text-align: center;
+  }
+  .eq-line { font-family: var(--serif); font-size: clamp(1.15rem, 2.9vw, 1.8rem); line-height: 1.6; margin: 0; }
+  .eq-line + .eq-line { margin-top: 10px; padding-top: 14px; border-top: 1px dotted var(--line); }
+  .eq .op { color: var(--ink-3); padding: 0 .35em; }
+  .eq .n { font-weight: 600; }
+  .eq .n.e { color: var(--era1); }
+  .eq .n.s { color: var(--era4); }
+  .eq .n.w { color: var(--era3); }
+  .eq .n.gb { color: var(--era2); }
+  .eq .n.ni { color: var(--era5); }
+  .eq .n.uk { color: var(--ink); border-bottom: 3px solid var(--era2); }
+  .eq-note { font-size: .8rem; color: var(--ink-3); margin: 16px 0 0; }
+
+  /* nation tiles */
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 14px; text-align: center; box-shadow: var(--shadow); border-top: 4px solid var(--tc); }
+  .tile .who { font-family: var(--serif); font-size: 1.15rem; }
+  .tile .of { font-size: .74rem; color: var(--ink-2); margin-top: 4px; line-height: 1.35; }
+  .tile .badge {
+    display: inline-block; margin-top: 10px; font-size: .66rem; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px;
+    background: color-mix(in srgb, var(--tc) 14%, var(--card)); color: var(--tc);
+  }
+  @media (max-width: 720px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+
+  /* callouts */
+  .hook, .trap { border-radius: 10px; padding: 14px 18px; margin-top: 14px; font-size: .92rem; }
+  .hook {
+    background: color-mix(in srgb, var(--era) 8%, var(--card));
+    border: 1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color: var(--ink-2);
+  }
+  .hook b, .trap b { color: inherit; font-weight: 700; }
+  .hook .lab, .trap .lab {
+    display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 5px; color: var(--era);
+  }
+  .hook .big { font-family: var(--serif); font-size: 1.25rem; color: var(--ink); display: block; margin: 2px 0 4px; }
+  .trap { background: var(--trap-bg); color: var(--trap-ink); }
+  .trap .lab { color: var(--trap-ink); opacity: .7; }
+  .trap b { font-weight: 700; }
+
+  /* cheat sheet */
+  .cheat { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .cheat h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin: 0 0 6px; }
+  .cheat > .wrap > p { color: var(--ink-2); max-width: 62ch; margin-top: 0; }
+  .cs-cols { columns: 3 300px; column-gap: 18px; margin-top: 22px; }
+  .cs-group { break-inside: avoid; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 0 0 14px; box-shadow: var(--shadow); }
+  .cs-group h3 { margin: 0 0 8px; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--era); }
+  .cs-row { display: flex; gap: 12px; padding: 4px 0; border-top: 1px dotted var(--line); font-size: .84rem; }
+  .cs-row:first-of-type { border-top: 0; }
+  .cs-year { flex: 0 0 110px; font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; }
+  .cs-event { color: var(--ink-2); }
+
+  footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 48px; }
+  footer p { font-size: .78rem; color: var(--ink-3); max-width: 70ch; }
+  .chapnav { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+  .chapnav a { color: var(--ink-2); text-decoration-color: var(--ink-3); }
+  .chapnav .here { font-weight: 700; color: var(--ink); }
+
+  ::selection { background: color-mix(in srgb, var(--era2) 25%, transparent); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Life in the UK Test<span class="sep">·</span>Official Study Guide<span class="sep">·</span>Chapter 2</p>
+    <h1>What <em>is</em> the UK?</h1>
+    <p class="lede">The shortest chapter in the book — one section, a handful of facts, and some of the easiest marks on the test <strong>if</strong> you keep four confusingly similar names straight: <strong>UK, Great Britain, Britain, and the British Isles</strong>. This page is pure terminology. Master the arithmetic below and you cannot be tricked.</p>
+
+    <nav class="timeline" aria-label="Chapter sections">
+      <a class="tl-seg" href="#era1" style="--era: var(--era1)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">1</div><div class="tl-name">Four Nations, One Union</div><div class="tl-years">England · Scotland · Wales · NI</div></div>
+      </a>
+      <a class="tl-seg" href="#era2" style="--era: var(--era2)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">2</div><div class="tl-name">Say It Right</div><div class="tl-years">UK vs Great Britain vs Britain</div></div>
+      </a>
+      <a class="tl-seg" href="#era3" style="--era: var(--era3)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">3</div><div class="tl-name">Linked, Not Part of It</div><div class="tl-years">Dependencies &amp; territories</div></div>
+      </a>
+    </nav>
+    <p class="tl-note">One handbook section, split into three bites. The who's-in-who's-out table is at the bottom.</p>
+
+    <div class="howto">
+      <div><b>Learn the equation.</b> E + S + W = Great Britain; GB + NI = UK. Every trick question in this chapter is a rearrangement of that line.</div>
+      <div><b>Watch the word “Great”.</b> “Great Britain” never includes Northern Ireland. The official country name needs both halves: “…Great Britain <em>and</em> Northern Ireland”.</div>
+      <div><b>Near vs far.</b> Crown dependencies are the close islands with their own governments; overseas territories are the far-away ones. Neither is part of the UK.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ SECTION 1 · FOUR NATIONS ═══════════════ -->
+<section class="era" id="era1" style="--era: var(--era1)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">1</div>
+      <div class="era-title">
+        <h2>Four Nations, One Union</h2>
+        <div class="era-span">The countries of the United Kingdom</div>
+      </div>
+    </div>
+    <p class="era-sub">The UK is made up of <strong>England, Scotland, Wales and Northern Ireland</strong>. The official name of the country is the <strong>United Kingdom of Great Britain and Northern Ireland</strong>. The rest of Ireland is <strong>an independent country</strong>.</p>
+
+    <div class="eq">
+      <p class="eq-line"><span class="n e">England</span><span class="op">+</span><span class="n s">Scotland</span><span class="op">+</span><span class="n w">Wales</span><span class="op">=</span><span class="n gb">Great Britain</span></p>
+      <p class="eq-line"><span class="n gb">Great Britain</span><span class="op">+</span><span class="n ni">Northern Ireland</span><span class="op">=</span><span class="n uk">the United Kingdom</span></p>
+      <p class="eq-note">Official name: “United Kingdom of <b>Great Britain and Northern Ireland</b>” — the name itself proves NI is not in Great Britain.</p>
+    </div>
+
+    <div class="tiles">
+      <div class="tile" style="--tc: var(--era1)">
+        <div class="who">England</div>
+        <div class="of">In Great Britain, in the UK</div>
+        <span class="badge">Nation</span>
+      </div>
+      <div class="tile" style="--tc: var(--era4)">
+        <div class="who">Scotland</div>
+        <div class="of">In Great Britain, in the UK</div>
+        <span class="badge">Nation</span>
+      </div>
+      <div class="tile" style="--tc: var(--era3)">
+        <div class="who">Wales</div>
+        <div class="of">In Great Britain, in the UK</div>
+        <span class="badge">Nation</span>
+      </div>
+      <div class="tile" style="--tc: var(--era5)">
+        <div class="who">Northern Ireland</div>
+        <div class="of">In the UK — <b>not</b> in Great Britain</div>
+        <span class="badge">Nation</span>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Three make Great, four make United</span>
+      <b>Three</b> nations share the big island — that's <b>Great</b> Britain. Add the <b>fourth</b>, Northern Ireland, and you get the <b>United</b> Kingdom. Great = geography (one island). United = politics (the whole country).
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      “The rest of Ireland is <b>an independent country</b>” — the Republic of Ireland is <b>not</b> in the UK, not a dependency, not a territory. Any answer that pulls the whole island of Ireland into the UK is wrong.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 2 · SAY IT RIGHT ═══════════════ -->
+<section class="era" id="era2" style="--era: var(--era2)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">2</div>
+      <div class="era-title">
+        <h2>Say It Right</h2>
+        <div class="era-span">What each name does — and does not — include</div>
+      </div>
+    </div>
+    <p class="era-sub">The handbook is fussy about names, and the test copies its fussiness. Learn what each label covers before you learn anything else.</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>“Great Britain”</h3>
+        <ul class="facts">
+          <li>Refers <b>only to England, Scotland and Wales</b>.</li>
+          <li><b>Never includes Northern Ireland.</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>“The United Kingdom”</h3>
+        <ul class="facts">
+          <li><b>England + Scotland + Wales + Northern Ireland.</b></li>
+          <li>Official name: <b>United Kingdom of Great Britain and Northern Ireland</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>“Britain” / “British” in the handbook</h3>
+        <ul class="facts">
+          <li>The handbook uses <b>“Britain”, “British Isles” or “British”</b> to refer to <b>everyone in the UK</b> — all four nations.</li>
+          <li>So a “British” fact in the study guide applies to Northern Ireland too.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Great = 3 · United = 4</span>
+      If the question says <b>“Great”</b>, count to <b>three</b> (E, S, W). If it says <b>“United”</b>, count to <b>four</b>. If it just says <b>“Britain”</b> in this handbook, it means everybody.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      <b>“Is Northern Ireland part of Great Britain?” — No.</b> It is part of the <b>UK</b>. This single distinction is the most reliably asked fact in Chapter 2. Don't donate the mark.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 3 · LINKED, NOT PART OF IT ═══════════════ -->
+<section class="era" id="era3" style="--era: var(--era3)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">3</div>
+      <div class="era-title">
+        <h2>Linked, Not Part of It</h2>
+        <div class="era-span">Crown dependencies · overseas territories · who governs</div>
+      </div>
+    </div>
+    <p class="era-sub">A ring of islands and territories is <strong>closely linked to the UK without being part of it</strong>. The test wants you to sort them into the right box — and to know where the actual governing happens.</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Crown dependencies — close to home</h3>
+        <ul class="facts">
+          <li><b>The Channel Islands</b> and <b>the Isle of Man</b>.</li>
+          <li>Closely linked with the UK but <b>not part of it</b>.</li>
+          <li>They have <b>their own governments</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>British overseas territories — far away</h3>
+        <ul class="facts">
+          <li>Several territories <b>in other parts of the world</b> — for example <b>St Helena</b> and <b>the Falkland Islands</b>.</li>
+          <li>Also <b>linked to the UK but not part of it</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Who governs what</h3>
+        <ul class="facts">
+          <li>The UK is governed by <b>the parliament sitting in Westminster</b>.</li>
+          <li><b>Scotland, Wales and Northern Ireland</b> also have <b>parliaments or assemblies of their own</b>, with <b>devolved powers in defined areas</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Near islands, own governments · far islands, “territories”</span>
+      <b>Crown dependencies</b> sit next door (Channel Islands, Isle of Man) and run <b>their own governments</b>. <b>Overseas territories</b> are the far-flung dots on the map (St Helena, Falklands). Both are <b>linked to</b> — never <b>part of</b> — the UK.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Don't swap the labels: the <b>Isle of Man is a Crown dependency</b>, not an overseas territory; <b>the Falklands are an overseas territory</b>, not a dependency. And devolved parliaments exist for <b>Scotland, Wales and Northern Ireland</b> — England has no separate one; Westminster governs the UK.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CHEAT SHEET ═══════════════ -->
+<section class="cheat" style="--era: var(--era2)">
+  <div class="wrap">
+    <h2>Chapter 2 — who's in, who's out</h2>
+    <p>One glance before the exam. If a name is on the left, its status on the right must be automatic.</p>
+    <div class="cs-cols">
+      <div class="cs-group" style="--era: var(--era1)">
+        <h3>In the UK</h3>
+        <div class="cs-row"><div class="cs-year">England</div><div class="cs-event">UK ✓ · Great Britain ✓</div></div>
+        <div class="cs-row"><div class="cs-year">Scotland</div><div class="cs-event">UK ✓ · Great Britain ✓ · own parliament (devolved)</div></div>
+        <div class="cs-row"><div class="cs-year">Wales</div><div class="cs-event">UK ✓ · Great Britain ✓ · own assembly (devolved)</div></div>
+        <div class="cs-row"><div class="cs-year">N. Ireland</div><div class="cs-event">UK ✓ · Great Britain ✗ · own assembly (devolved)</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era3)">
+        <h3>Linked, not part of the UK</h3>
+        <div class="cs-row"><div class="cs-year">Channel Is.</div><div class="cs-event">Crown dependency — own government</div></div>
+        <div class="cs-row"><div class="cs-year">Isle of Man</div><div class="cs-event">Crown dependency — own government</div></div>
+        <div class="cs-row"><div class="cs-year">St Helena</div><div class="cs-event">British overseas territory</div></div>
+        <div class="cs-row"><div class="cs-year">Falklands</div><div class="cs-event">British overseas territory</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era2)">
+        <h3>Not British at all</h3>
+        <div class="cs-row"><div class="cs-year">Ireland</div><div class="cs-event">the rest of Ireland is an independent country</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era4)">
+        <h3>Names, decoded</h3>
+        <div class="cs-row"><div class="cs-year">Great Britain</div><div class="cs-event">England + Scotland + Wales only</div></div>
+        <div class="cs-row"><div class="cs-year">United Kingdom</div><div class="cs-event">Great Britain + Northern Ireland</div></div>
+        <div class="cs-row"><div class="cs-year">Official name</div><div class="cs-event">United Kingdom of Great Britain and Northern Ireland</div></div>
+        <div class="cs-row"><div class="cs-year">“Britain”</div><div class="cs-event">handbook shorthand for everyone in the UK</div></div>
+        <div class="cs-row"><div class="cs-year">Westminster</div><div class="cs-event">the parliament that governs the UK</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="chapnav">The set: <a href="life-in-uk-chapter1.html">Chapter 1</a> · <span class="here">Chapter 2</span> · <a href="life-in-uk-chapter3.html">Chapter 3</a> · <a href="life-in-uk-chapter4.html">Chapter 4</a> · <a href="life-in-uk-chapter5.html">Chapter 5</a></p>
+    <p>Built from the Life in the UK study guide, Chapter 2: “What is the UK?”. The test follows the handbook's wording — so should your answers.</p>
+  </div>
+</footer>
+
+</body>
+</html>

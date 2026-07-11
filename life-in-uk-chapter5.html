@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life in the UK · Chapter 5: The UK Government, the Law and Your Role</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --serif: "Baskerville", "Iowan Old Style", "Palatino Linotype", "Palatino", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+      --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+      --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+    --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+    --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"] {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    margin: 0; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 22px; }
+  a { color: inherit; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 40px; }
+  .eyebrow {
+    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-2); margin: 0 0 18px; font-weight: 600;
+  }
+  .eyebrow .sep { color: var(--ink-3); padding: 0 .5em; }
+  h1 {
+    font-family: var(--serif); font-weight: 500; text-wrap: balance;
+    font-size: clamp(2.5rem, 6.2vw, 4.3rem); line-height: 1.04; margin: 0 0 8px;
+    letter-spacing: -.01em;
+  }
+  h1 em { font-style: italic; }
+  .lede {
+    max-width: 62ch; color: var(--ink-2); font-size: 1.05rem; margin: 18px 0 0;
+  }
+  .lede strong { color: var(--ink); }
+
+  /* ---------- Section timeline / nav ---------- */
+  .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 40px 0 10px; }
+  .tl-seg {
+    display: block; text-decoration: none; border-radius: 6px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line);
+    transition: transform .18s ease;
+  }
+  .tl-seg:hover { transform: translateY(-3px); }
+  .tl-bar { height: 10px; background: var(--era); }
+  .tl-body { padding: 12px 12px 14px; }
+  .tl-num { font-family: var(--serif); font-size: 1.5rem; color: var(--era); line-height: 1; }
+  .tl-name { font-weight: 600; font-size: .86rem; margin: 6px 0 2px; line-height: 1.25; }
+  .tl-years { font-size: .74rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tl-note { text-align: center; font-size: .74rem; color: var(--ink-3); margin: 10px 0 0; }
+  @media (max-width: 780px) { .timeline { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .timeline { grid-template-columns: repeat(2, 1fr); } }
+  @media (prefers-reduced-motion: reduce) { .tl-seg { transition: none; } .tl-seg:hover { transform: none; } }
+
+  /* ---------- How to study strip ---------- */
+  .howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 34px 0 0; }
+  .howto div { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: .88rem; color: var(--ink-2); }
+  .howto b { color: var(--ink); display: block; margin-bottom: 3px; }
+  @media (max-width: 720px) { .howto { grid-template-columns: 1fr; } }
+
+  /* ---------- Sections ---------- */
+  .era { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .era-head { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  .era-num {
+    font-family: var(--serif); font-size: clamp(3.4rem, 7vw, 5rem); line-height: .9;
+    color: var(--era); font-variant-numeric: tabular-nums;
+  }
+  .era-title h2 {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    margin: 0; line-height: 1.1; text-wrap: balance;
+  }
+  .era-title .era-span {
+    font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+    color: var(--era); margin-top: 6px; font-variant-numeric: tabular-nums;
+  }
+  .era-sub { color: var(--ink-2); max-width: 68ch; margin: 14px 0 0; font-size: .96rem; }
+
+  /* key facts rail */
+  .kd { display: flex; gap: 8px; overflow-x: auto; padding: 22px 2px 8px; }
+  .kd-item {
+    flex: 0 0 auto; background: color-mix(in srgb, var(--era) 9%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--era) 28%, var(--line));
+    border-radius: 7px; padding: 8px 12px; min-width: 86px;
+  }
+  .kd-year { font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; font-size: 1.02rem; }
+  .kd-what { font-size: .74rem; color: var(--ink-2); line-height: 1.3; margin-top: 2px; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 18px 14px; box-shadow: var(--shadow);
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h3 {
+    margin: 0 0 10px; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--era); font-weight: 700;
+  }
+  .facts { list-style: none; margin: 0; padding: 0; }
+  .facts li {
+    padding: 7px 0; border-top: 1px dotted var(--line); font-size: .9rem; color: var(--ink-2);
+  }
+  .facts li:first-child { border-top: 0; padding-top: 0; }
+  .facts b, .facts strong { color: var(--ink); font-weight: 650; }
+  .y { color: var(--era); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* quote block (anthem / oath) */
+  .pledge {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 26px 28px; margin-top: 18px; box-shadow: var(--shadow);
+    border-left: 4px solid var(--era);
+  }
+  .pledge .lab {
+    display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 10px; color: var(--era);
+  }
+  .pledge blockquote {
+    font-family: var(--serif); font-size: clamp(1.02rem, 2vw, 1.25rem); line-height: 1.55;
+    margin: 0; color: var(--ink); font-style: italic;
+  }
+  .pledge .src { font-size: .78rem; color: var(--ink-3); margin: 10px 0 0; }
+
+  /* number wall */
+  .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 14px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 14px 12px; text-align: center; box-shadow: var(--shadow); }
+  .tile .n { font-family: var(--serif); color: var(--era); font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .tile .who { font-weight: 650; font-size: .84rem; margin: 8px 0 2px; line-height: 1.25; }
+  .tile .of { font-size: .72rem; color: var(--ink-2); line-height: 1.35; }
+  @media (max-width: 860px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+
+  /* callouts */
+  .hook, .trap { border-radius: 10px; padding: 14px 18px; margin-top: 14px; font-size: .92rem; }
+  .hook {
+    background: color-mix(in srgb, var(--era) 8%, var(--card));
+    border: 1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color: var(--ink-2);
+  }
+  .hook b, .trap b { color: inherit; font-weight: 700; }
+  .hook .lab, .trap .lab {
+    display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 5px; color: var(--era);
+  }
+  .hook .big { font-family: var(--serif); font-size: 1.25rem; color: var(--ink); display: block; margin: 2px 0 4px; }
+  .trap { background: var(--trap-bg); color: var(--trap-ink); }
+  .trap .lab { color: var(--trap-ink); opacity: .7; }
+  .trap b { font-weight: 700; }
+
+  /* cheat sheet */
+  .cheat { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .cheat h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin: 0 0 6px; }
+  .cheat > .wrap > p { color: var(--ink-2); max-width: 62ch; margin-top: 0; }
+  .cs-cols { columns: 3 300px; column-gap: 18px; margin-top: 22px; }
+  .cs-group { break-inside: avoid; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 0 0 14px; box-shadow: var(--shadow); }
+  .cs-group h3 { margin: 0 0 8px; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--era); }
+  .cs-row { display: flex; gap: 12px; padding: 4px 0; border-top: 1px dotted var(--line); font-size: .84rem; }
+  .cs-row:first-of-type { border-top: 0; }
+  .cs-year { flex: 0 0 96px; font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; }
+  .cs-event { color: var(--ink-2); }
+
+  footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 48px; }
+  footer p { font-size: .78rem; color: var(--ink-3); max-width: 70ch; }
+  .chapnav { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+  .chapnav a { color: var(--ink-2); text-decoration-color: var(--ink-3); }
+  .chapnav .here { font-weight: 700; color: var(--ink); }
+
+  ::selection { background: color-mix(in srgb, var(--era4) 25%, transparent); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Life in the UK Test<span class="sep">·</span>Official Study Guide<span class="sep">·</span>Chapter 5</p>
+    <h1>The Government, the Law &amp; <em>Your Role</em></h1>
+    <p class="lede">How Britain is actually run — the unwritten constitution, Westminster's machinery, the courts, your rights, and what's expected of you. This chapter carries <strong>more “how many / which year / who does what” questions than any other</strong>. Six colour-coded sections; learn the colour, learn the section.</p>
+
+    <nav class="timeline" aria-label="Chapter sections">
+      <a class="tl-seg" href="#era1" style="--era: var(--era1)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">1</div><div class="tl-name">The Constitution</div><div class="tl-years">Monarchy · Parliament</div></div>
+      </a>
+      <a class="tl-seg" href="#era2" style="--era: var(--era2)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">2</div><div class="tl-name">The Government</div><div class="tl-years">PM · devolution · voting</div></div>
+      </a>
+      <a class="tl-seg" href="#era3" style="--era: var(--era3)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">3</div><div class="tl-name">The UK &amp; the World</div><div class="tl-years">54 · 27 · 47 · 15 · 5</div></div>
+      </a>
+      <a class="tl-seg" href="#era4" style="--era: var(--era4)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">4</div><div class="tl-name">Respecting the Law</div><div class="tl-years">Police · courts · juries</div></div>
+      </a>
+      <a class="tl-seg" href="#era5" style="--era: var(--era5)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">5</div><div class="tl-name">Fundamental Principles</div><div class="tl-years">Rights · tax · driving</div></div>
+      </a>
+      <a class="tl-seg" href="#era6" style="--era: var(--era6)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">6</div><div class="tl-name">Your Role</div><div class="tl-years">Jury · schools · giving</div></div>
+      </a>
+    </nav>
+    <p class="tl-note">Tap any section to jump to it. The full numbers cheat-sheet is at the bottom.</p>
+
+    <div class="howto">
+      <div><b>Follow the power.</b> Monarch appoints but doesn't rule → PM decides → cabinet runs departments → Parliament checks → judges check everyone. Most questions ask “who does X?”.</div>
+      <div><b>Memorise the member counts.</b> 60 AMs, 129 MSPs, 108 MLAs, ~20 cabinet, 15 Security Council, 12 vs 15 jurors. Counting questions are free marks.</div>
+      <div><b>Know your two lanes.</b> Criminal law vs civil law, magistrates vs Crown Court, arranged vs forced marriage, PAYE vs self-assessment. The test lives in the gap between pairs.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ SECTION 1 · THE CONSTITUTION ═══════════════ -->
+<section class="era" id="era1" style="--era: var(--era1)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">1</div>
+      <div class="era-title">
+        <h2>The British Constitution</h2>
+        <div class="era-span">Unwritten · monarchy · Commons &amp; Lords · elections</div>
+      </div>
+    </div>
+    <p class="era-sub">A constitution is <strong>a set of principles by which a country is governed</strong>. Britain's is <strong>unwritten — not codified in a single document</strong> — because the country avoided revolution and its institutions <strong>developed gradually over centuries</strong>. Its parts: the monarchy, Parliament (Commons and Lords), the Prime Minister, the cabinet, the judiciary, the police, the civil service, local government — plus the devolved governments.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">1952</div><div class="kd-what">Elizabeth II becomes Queen</div></div>
+      <div class="kd-item"><div class="kd-year">2012</div><div class="kd-what">Diamond Jubilee — 60 years</div></div>
+      <div class="kd-item"><div class="kd-year">1958</div><div class="kd-what">life peers created</div></div>
+      <div class="kd-item"><div class="kd-year">1999</div><div class="kd-what">hereditary peers lose automatic seats</div></div>
+      <div class="kd-item"><div class="kd-year">5 yrs</div><div class="kd-what">maximum gap between general elections</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>The monarchy</h3>
+        <ul class="facts">
+          <li><b>Queen Elizabeth II</b> — head of state of the UK <b>and many Commonwealth countries</b>; queen since <b>her father's death in 1952</b>; <b>Diamond Jubilee (60 years) in 2012</b>.</li>
+          <li>Married to <b>Prince Philip, Duke of Edinburgh</b>; heir: <b>Prince Charles, the Prince of Wales</b>.</li>
+          <li>A <b>constitutional monarchy</b>: the monarch <b>does not rule</b> — she <b>appoints the government the people have elected</b>, inviting the leader who commands most MPs (or a coalition) to be PM.</li>
+          <li>Meets the PM regularly and may <b>“advise, warn and encourage”</b> — but policy belongs to the PM and cabinet.</li>
+          <li><b>Opens Parliament each year with the Queen's Speech</b> (the government's plans); all Acts of Parliament are made <b>in her name</b>.</li>
+          <li>Receives <b>foreign ambassadors</b>, hosts visiting <b>heads of state</b>, makes <b>state visits</b> — the focus for <b>national identity and pride</b>, stability while governments change.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>House of Commons</h3>
+        <ul class="facts">
+          <li>The <b>more important</b> chamber — because its members are <b>democratically elected</b>.</li>
+          <li>Each <b>MP represents a parliamentary constituency</b>.</li>
+          <li>The <b>PM and almost all cabinet members are MPs</b>.</li>
+          <li>MPs: represent everyone in their constituency, <b>help create new laws</b>, <b>scrutinise and question government</b>, debate the big issues.</li>
+          <li><b>The Speaker</b> — chairs debates, is <b>neutral</b> despite being an MP, is chosen by <b>other MPs in a secret ballot</b>, keeps order, <b>guarantees the opposition debate time</b>, represents Parliament on ceremonial occasions.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>House of Lords</h3>
+        <ul class="facts">
+          <li>Members are <b>peers — not elected, no constituency</b>.</li>
+          <li>Until <b>1958</b>: hereditary title-holders, senior judges, Church of England bishops.</li>
+          <li>Since <b>1958</b>: <b>life peers</b> — nominated by the <b>PM</b> (also other party leaders and an <b>independent Appointments Commission</b>), appointed by the monarch, for their lifetime.</li>
+          <li>Since <b>1999</b>: hereditary peers <b>lost the automatic right to attend</b> — they now <b>elect a few representatives</b>.</li>
+          <li>Role: <b>more independent</b> than the Commons; proposes amendments, <b>checks laws</b>, holds government to account, brings <b>specialist knowledge</b>.</li>
+          <li>The Commons <b>can overrule the Lords</b> — but rarely does.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Elections</h3>
+        <ul class="facts">
+          <li><b>General elections at least every five years</b>; the party with a majority of constituencies forms the government — no majority may mean <b>a coalition</b>.</li>
+          <li><b>By-election</b> — held when an MP <b>dies or resigns</b>.</li>
+          <li>Voting system: <b>first past the post</b> — most votes in the constituency wins the seat.</li>
+          <li><b>European Parliament</b> elections: every five years, by <b>proportional representation</b>; members are <b>MEPs</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pledge">
+      <span class="lab">The National Anthem — first verse (learn it; it gets quoted)</span>
+      <blockquote>“God save our gracious Queen! Long live our noble Queen! God save the Queen! Send her victorious, happy and glorious, long to reign over us, God save the Queen!”</blockquote>
+      <p class="src">New citizens <b>swear (oath) or affirm</b> loyalty at the citizenship ceremony: “…I will be faithful and bear true allegiance to Her Majesty Queen Elizabeth the Second, her Heirs and Successors, according to law.”</p>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">1958 gives life · 1999 takes inheritance</span>
+      Lords reform in two beats: <b>1958 — life peers arrive</b> (PM nominates, monarch appoints). <b>1999 — hereditary peers lose their automatic seats</b>. And the monarch's three verbs: <b>advise, warn, encourage</b> — never “decide”.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      The constitution is unwritten because Britain <b>never had a revolution</b> — not because nobody wrote it down. <b>First past the post</b> elects MPs; <b>proportional representation</b> elects MEPs (and the devolved bodies). The <b>Speaker is neutral</b> and chosen by <b>secret ballot of MPs</b> — not appointed by the PM or the Queen.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 2 · THE GOVERNMENT ═══════════════ -->
+<section class="era" id="era2" style="--era: var(--era2)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">2</div>
+      <div class="era-title">
+        <h2>The Government</h2>
+        <div class="era-span">PM &amp; cabinet · devolution · media · voting &amp; visiting</div>
+      </div>
+    </div>
+    <p class="era-sub">From Downing Street to your polling station: who runs what, which powers went to Cardiff, Edinburgh and Belfast — and exactly who is allowed to vote and stand.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">No. 10</div><div class="kd-what">Downing Street — the PM (plus Chequers)</div></div>
+      <div class="kd-item"><div class="kd-year">~20</div><div class="kd-what">senior MPs in cabinet</div></div>
+      <div class="kd-item"><div class="kd-year">1997</div><div class="kd-what">devolution begins</div></div>
+      <div class="kd-item"><div class="kd-year">60</div><div class="kd-what">AMs — Wales</div></div>
+      <div class="kd-item"><div class="kd-year">129</div><div class="kd-what">MSPs — Scotland (1999)</div></div>
+      <div class="kd-item"><div class="kd-year">108</div><div class="kd-what">MLAs — N. Ireland</div></div>
+      <div class="kd-item"><div class="kd-year">18</div><div class="kd-what">voting age — set in 1969</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>PM, cabinet &amp; opposition</h3>
+        <ul class="facts">
+          <li><b>The Prime Minister</b> — leader of the party in power; appoints the <b>cabinet</b> and controls <b>important public appointments</b>; lives at <b>10 Downing Street</b> with a country house, <b>Chequers</b>; can be changed by party MPs or by resignation (usually after losing an election).</li>
+          <li><b>Cabinet</b> — about <b>20 senior MPs</b> made ministers in charge of departments; meets <b>weekly</b>; big decisions often need Parliament.</li>
+          <li><b>Chancellor of the Exchequer — the economy</b> · <b>Home Secretary — crime, policing, immigration</b> · <b>Foreign Secretary — relations with foreign countries</b> · other <b>Secretaries of State</b> (education, health, defence). Departments also have <b>Ministers of State</b> and <b>Parliamentary Under-Secretaries</b>.</li>
+          <li><b>The opposition</b> — the <b>second-largest party</b>; its leader challenges the PM at <b>Prime Minister's Questions every sitting week</b> and appoints a <b>shadow cabinet</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Parties, civil service &amp; councils</h3>
+        <ul class="facts">
+          <li>Main parties: <b>Conservative, Labour, Liberal Democrats</b>, plus parties for Scottish, Welsh and Northern Irish interests; <b>independents</b> stand on local issues.</li>
+          <li><b>Pressure and lobby groups</b> try to influence policy — e.g. the <b>CBI</b> (business), <b>Greenpeace</b> (environment), <b>Liberty</b> (human rights).</li>
+          <li><b>Civil servants</b> — deliver and develop policy, <b>accountable to ministers</b>, chosen <b>on merit</b>, <b>politically neutral</b>; values: <b>integrity, honesty, objectivity, impartiality</b>.</li>
+          <li><b>Local authorities</b> — elected councils funded by <b>central government and local taxes</b>; some areas have <b>district and county</b> councils; many appoint a <b>ceremonial mayor</b>; <b>London has 33 local authorities</b> plus the <b>Greater London Authority and Mayor of London</b>; council elections are held in <b>May</b>.</li>
+        </ul>
+      </div>
+      <div class="card wide">
+        <h3>Devolved administrations — since 1997</h3>
+        <ul class="facts">
+          <li>Powers stay in Westminster for <b>defence, foreign affairs, immigration, taxation and social security</b> — the devolved bodies run much of the rest, including education.</li>
+          <li><b>Wales</b> — the National Assembly in <b>Cardiff</b>: <b>60 Assembly Members (AMs)</b>, elected every <b>four years</b> by <b>proportional representation</b>; works in <b>Welsh and English</b>; since <b>2011</b> it can pass laws in <b>20 areas without the UK Parliament's agreement</b>.</li>
+          <li><b>Scotland</b> — the Scottish Parliament (est. <b>1999</b>) at <b>Holyrood, Edinburgh</b>: <b>129 MSPs</b>, elected by proportional representation; legislates on everything not reserved, including <b>civil and criminal law, health, education, planning — and can raise taxes</b>.</li>
+          <li><b>Northern Ireland</b> — an earlier NI Parliament (<b>1922</b>) was <b>abolished in 1972</b>; today's Assembly followed the <b>Belfast (Good Friday) Agreement, 1998</b>: <b>108 MLAs</b> at <b>Stormont</b>, elected by proportional representation, governing by <b>power-sharing</b>; the UK government <b>can suspend it</b> — it has run continuously <b>since 2007</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The media &amp; government</h3>
+        <ul class="facts">
+          <li>Parliamentary proceedings are <b>broadcast on TV</b> and published in <b>Hansard</b> (in large libraries and at www.parliament.uk).</li>
+          <li>The UK has a <b>free press</b> — newspapers are free of government control (owners and editors may campaign).</li>
+          <li><b>Radio and TV coverage must be balanced</b> — rival viewpoints get <b>equal time</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Who votes, who stands</h3>
+        <ul class="facts">
+          <li>Voting age: <b>18, set in 1969</b>.</li>
+          <li>Can vote: <b>UK-born and naturalised citizens</b>, plus resident <b>Commonwealth and Irish citizens</b>; resident <b>EU citizens can vote in all elections EXCEPT general elections</b>.</li>
+          <li><b>Electoral register</b> — register via your council's <b>electoral registration office</b> (find it at www.aboutmyvote.co.uk); a form goes to <b>every household each September/October</b>; <b>Northern Ireland registers individually</b>; the register can be <b>viewed under supervision</b>.</li>
+          <li><b>Polling stations</b> (<b>polling places</b> in Scotland) open <b>7 am–10 pm</b>; you get a <b>polling card</b>; NI voters need <b>photo ID</b>; <b>postal voting</b> is available.</li>
+          <li><b>Standing for office</b> — <b>18+</b> and a <b>UK, Irish or Commonwealth citizen</b>; exceptions include <b>armed forces, civil servants</b> and people with certain convictions; Lords members can't stand for the Commons.</li>
+          <li><b>Visiting</b>: public galleries in both Houses — write to <b>your MP</b> for tickets or <b>queue</b> (Commons 1–2 hours; Lords easier). Holyrood, the Senedd (Cardiff Bay) and Stormont all take visitors too.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">The devolution phone number: 60 – 129 – 108</span>
+      West to east then across the water: <b>Wales 60</b>, <b>Scotland 129</b>, <b>NI 108</b>. Scotland got its parliament in <b>1999</b>, NI's deal was <b>1998</b> (Good Friday), Wales levelled up in <b>2011</b> (laws in 20 areas). Westminster keeps <b>D-F-I-T-S</b>: defence, foreign affairs, immigration, taxation, social security.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      <b>EU citizens vote in local and devolved elections but NOT general elections</b> — Commonwealth and Irish citizens can vote in all. The <b>Home Secretary handles immigration</b> (not the Foreign Secretary); the <b>Chancellor handles the economy</b>. Only <b>Scotland's parliament can raise taxes</b> among the devolved bodies named here.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 3 · THE UK & THE WORLD ═══════════════ -->
+<section class="era" id="era3" style="--era: var(--era3)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">3</div>
+      <div class="era-title">
+        <h2>The UK &amp; International Institutions</h2>
+        <div class="era-span">Five clubs, five membership numbers</div>
+      </div>
+    </div>
+    <p class="era-sub">This whole section is <strong>five organisations and their numbers</strong>. Learn the wall below and you have every likely question covered.</p>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="n">54</div>
+        <div class="who">The Commonwealth</div>
+        <div class="of">The Queen is its head; voluntary; <b>no power over members</b> but can suspend membership; values: democracy, good government, rule of law</div>
+      </div>
+      <div class="tile">
+        <div class="n">27</div>
+        <div class="who">European Union</div>
+        <div class="of">Began as the EEC — <b>Treaty of Rome, 25 March 1957</b>, six founders; <b>UK joined 1973</b>; EU law (directives, regulations, framework decisions) is binding</div>
+      </div>
+      <div class="tile">
+        <div class="n">47</div>
+        <div class="who">Council of Europe</div>
+        <div class="of"><b>Separate from the EU</b>; protects human rights; <b>cannot make laws</b> — draws up conventions and charters, incl. the <b>European Convention on Human Rights</b></div>
+      </div>
+      <div class="tile">
+        <div class="n">190+</div>
+        <div class="who">United Nations</div>
+        <div class="of">Founded <b>after WWII</b> to prevent war and promote peace; the UK is <b>one of five permanent members</b> of the <b>15-seat Security Council</b></div>
+      </div>
+      <div class="tile">
+        <div class="n">—</div>
+        <div class="who">NATO</div>
+        <div class="of">North Atlantic Treaty Organization; members <b>agree to defend each other if attacked</b> and to keep the peace</div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card wide">
+        <h3>The EU story in one line each</h3>
+        <ul class="facts">
+          <li><b>25 March 1957</b> — six countries sign the <b>Treaty of Rome</b>: <b>Belgium, France, Germany, Italy, Luxembourg, the Netherlands</b> — creating the <b>EEC</b>.</li>
+          <li><b>1973</b> — the UK joins.</li>
+          <li>Today: <b>27 member states</b>; EU law is <b>legally binding in the UK and every member state</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Descending staircase: 190+ → 54 → 47 → 27 → 15 → 5</span>
+      UN members → Commonwealth → Council of Europe → EU → UN Security Council seats → its permanent members (UK included). Six numbers, biggest to smallest — recite it as one breath.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      The <b>Council of Europe is NOT the EU</b> — it has <b>47</b> members, makes <b>no laws</b>, and wrote the <b>European Convention on Human Rights</b>. The <b>Commonwealth has no power over members</b> (it can only suspend). Rome was signed in <b>1957 without the UK</b>; Britain arrived <b>16 years later, in 1973</b>.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 4 · RESPECTING THE LAW ═══════════════ -->
+<section class="era" id="era4" style="--era: var(--era4)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">4</div>
+      <div class="era-title">
+        <h2>Respecting the Law</h2>
+        <div class="era-span">Criminal vs civil · police · courts · juries</div>
+      </div>
+    </div>
+    <p class="era-sub">Knowing and obeying the law is a core responsibility of every resident — breaking it can cost you settlement. <strong>The law applies equally to everyone</strong>, police and government included.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">Nov 2012</div><div class="kd-what">first PCC elections (England &amp; Wales)</div></div>
+      <div class="kd-item"><div class="kd-year">12</div><div class="kd-what">jurors — England, Wales, NI</div></div>
+      <div class="kd-item"><div class="kd-year">15</div><div class="kd-what">jurors — Scotland</div></div>
+      <div class="kd-item"><div class="kd-year">10–17</div><div class="kd-what">Youth Court age range</div></div>
+      <div class="kd-item"><div class="kd-year">£5,000</div><div class="kd-what">small-claims limit, England &amp; Wales</div></div>
+      <div class="kd-item"><div class="kd-year">£3,000</div><div class="kd-what">small-claims limit, Scotland &amp; NI</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Criminal law — investigated &amp; punished</h3>
+        <ul class="facts">
+          <li><b>Carrying a weapon of any kind — even for self-defence</b> — is an offence.</li>
+          <li><b>Drugs</b>: selling or buying heroin, cocaine, ecstasy, cannabis.</li>
+          <li><b>Racial crime</b>: causing harassment, alarm or distress because of religion or ethnic origin.</li>
+          <li>Selling <b>tobacco or alcohol to under-18s</b>; <b>smoking in nearly every enclosed public place</b>.</li>
+          <li>Drinking in <b>alcohol-free zones</b> — police can confiscate or fine.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Civil law — disputes between people</h3>
+        <ul class="facts">
+          <li><b>Housing</b> — landlord–tenant disputes.</li>
+          <li><b>Consumer rights</b> — faulty goods or services.</li>
+          <li><b>Employment</b> — wages, unfair dismissal, discrimination.</li>
+          <li><b>Debt</b> — money owed.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The police</h3>
+        <ul class="facts">
+          <li>Three duties: <b>protect life and property · keep the peace · prevent and detect crime</b>.</li>
+          <li>Forces are <b>independent of government</b>, led by <b>Chief Constables</b>.</li>
+          <li><b>Police and Crime Commissioners (PCCs)</b> — first elected <b>November 2012</b> in England &amp; Wales; they set <b>local priorities and budgets</b> and <b>appoint Chief Constables</b>.</li>
+          <li>Officers must <b>obey the law themselves</b> — no misuse of authority, false statements, rudeness or racial discrimination.</li>
+          <li><b>PCSOs</b> (community support officers) patrol, work with the public, support officers at crime scenes.</li>
+          <li>Complaints go to the station or Chief Constable — or the <b>Independent Police Complaints Commission</b> (E&amp;W), <b>Police Complaints Commissioner</b> (Scotland), <b>Police Ombudsman</b> (NI).</li>
+          <li>Terror threats: <b>Al Qa'ida and like-minded groups; Northern Ireland-related terrorism</b> — report extremist recruiters to <b>your local police</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Judges &amp; the courts</h3>
+        <ul class="facts">
+          <li><b>Judges interpret the law and keep trials fair — government cannot interfere</b>; if the government acts illegally, it must <b>change its policies or ask Parliament to change the law</b>.</li>
+          <li>Minor crime: <b>Magistrates' Courts</b> (E, W, NI) / <b>Justice of the Peace Courts</b> (Scotland). Magistrates and JPs are <b>unpaid, need no legal qualifications</b>; NI uses <b>paid, legally qualified District Judges</b>.</li>
+          <li>Serious crime: <b>Crown Court</b> (E, W, NI) / <b>Sheriff Court</b> (Scotland) — <b>judge and jury</b>.</li>
+          <li>Jury: <b>12 members</b> (E, W, NI), <b>15 in Scotland</b>; verdicts: guilty / not guilty — Scotland adds <b>“not proven”</b>. Jury service is compulsory for those summoned, unless ineligible or excused for good reason.</li>
+          <li><b>Youth Court</b> — ages <b>10–17</b>, up to <b>three specially trained magistrates</b>; <b>parents must attend</b>; <b>public excluded</b>; the young person <b>cannot be named or photographed</b>. Scotland: <b>Children's Hearings</b>; NI: <b>youth conferencing</b>.</li>
+          <li>Civil cases: <b>County Courts</b> (Sheriff Court in Scotland); big cases go to the <b>High Court</b> (<b>Court of Session</b> in Scotland).</li>
+          <li><b>Small claims</b> — informal, in an ordinary room before a judge: under <b>£5,000 in England &amp; Wales</b>, under <b>£3,000 in Scotland &amp; NI</b>; claims can start at <b>Money Claims Online</b>.</li>
+          <li><b>Solicitors</b> — trained lawyers who advise, act and represent; fees usually follow <b>time spent</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Scotland does everything a bit differently</span>
+      One rule of thumb saves eight facts: in Scotland it's <b>JP Courts</b> (not magistrates'), the <b>Sheriff Court</b> (not Crown/County), <b>15 jurors</b> (not 12), <b>three verdicts</b> (“not proven”), a <b>£3,000</b> small-claims limit, and <b>Children's Hearings</b> for the young.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Carrying a weapon is criminal <b>“even if it is for self-defence”</b> — the handbook's exact bait. Magistrates are <b>unpaid and unqualified</b>, but <b>NI's District Judges are paid and legally qualified</b>. PCCs are <b>elected by the public</b> and <b>appoint</b> Chief Constables — not the other way round.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 5 · FUNDAMENTAL PRINCIPLES ═══════════════ -->
+<section class="era" id="era5" style="--era: var(--era5)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">5</div>
+      <div class="era-title">
+        <h2>Fundamental Principles</h2>
+        <div class="era-span">Rights · protection · tax · driving</div>
+      </div>
+    </div>
+    <p class="era-sub">Britain's rights tradition runs from <strong>Magna Carta</strong> through the <strong>Habeas Corpus Act</strong> to the <strong>Bill of Rights of 1689</strong>. British experts helped draft the <strong>European Convention on Human Rights</strong>, which the UK signed in <strong>1950</strong> — and the <strong>Human Rights Act 1998</strong> wrote it into UK law.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">1689</div><div class="kd-what">Bill of Rights</div></div>
+      <div class="kd-item"><div class="kd-year">1950</div><div class="kd-what">UK signs the ECHR</div></div>
+      <div class="kd-item"><div class="kd-year">1998</div><div class="kd-what">Human Rights Act</div></div>
+      <div class="kd-item"><div class="kd-year">2008</div><div class="kd-what">Forced Marriage Protection Orders</div></div>
+      <div class="kd-item"><div class="kd-year">17 / 16</div><div class="kd-what">driving age: car / moped</div></div>
+      <div class="kd-item"><div class="kd-year">70</div><div class="kd-what">licence runs to — then 3-year renewals</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>The Convention rights to list</h3>
+        <ul class="facts">
+          <li><b>Right to life</b></li>
+          <li><b>Prohibition of torture</b></li>
+          <li><b>Prohibition of slavery and forced labour</b></li>
+          <li><b>Right to liberty and security</b></li>
+          <li><b>Right to a fair trial</b></li>
+          <li><b>Freedom of thought, conscience and religion</b></li>
+          <li><b>Freedom of expression (speech)</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Equality &amp; protection</h3>
+        <ul class="facts">
+          <li>Discrimination is unlawful on grounds of <b>age, disability, sex, pregnancy and maternity, race, religion or belief, sexuality or marital status</b>. Help: <b>Citizens Advice Bureau</b>, the <b>Equality and Human Rights Commission</b> and NI/Scotland equivalents.</li>
+          <li><b>Domestic violence is a serious crime</b> — including forced sexual relations; 24-hour <b>National Domestic Violence Freephone Helpline: 0808 2000 247</b>; refuges and shelters exist.</li>
+          <li><b>Female genital mutilation (FGM) is illegal</b> — and so is taking someone abroad for it.</li>
+          <li><b>Arranged marriage</b> (both parties agree) is <b>acceptable</b>; <b>forced marriage</b> (no free consent) is <b>a crime</b>. <b>Forced Marriage Protection Orders</b> since <b>2008</b> (E, W, NI; Scotland Nov 2011); breaching one: <b>up to two years in prison</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Income tax &amp; National Insurance</h3>
+        <ul class="facts">
+          <li>Income tax applies to <b>wages, self-employed profits, taxable benefits, pensions, property, savings, dividends</b>.</li>
+          <li>It pays for <b>roads, education, police and the armed forces</b>.</li>
+          <li>Employees pay via <b>PAYE (Pay As You Earn)</b>; the self-employed file <b>self-assessment</b> with <b>HMRC</b>.</li>
+          <li><b>Almost everyone in paid work — including the self-employed — pays National Insurance Contributions</b>, which fund <b>state benefits and the NHS</b> (e.g. the state retirement pension). Too few contributions → possibly <b>no Jobseeker's Allowance or full pension</b>.</li>
+          <li>Your <b>National Insurance number</b> — a unique personal account number, given <b>just before age 16</b>; non-UK nationals get one via the <b>DWP</b>, proving identity and the right to work.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Driving — the rulebook</h3>
+        <ul class="facts">
+          <li>Drive a <b>car or motorcycle at 17</b>; a <b>moped at 16</b>.</li>
+          <li>Pass a <b>theory test</b> (multiple choice + hazard perception) and a <b>practical test</b>.</li>
+          <li>Licence valid <b>until age 70</b> — then renew <b>every three years</b>.</li>
+          <li><b>Northern Ireland:</b> newly qualified drivers show an <b>R (restricted) plate for one year</b>.</li>
+          <li>Foreign licences: <b>EU / Iceland / Liechtenstein / Norway — valid as long as the licence is</b>; all others — <b>12 months</b>, then you need a UK licence.</li>
+          <li>Your car must be <b>registered with the DVLA</b>, have <b>road tax</b> (disc displayed), <b>insurance</b> — driving uninsured is <b>a serious criminal offence</b> — and an annual <b>MOT test if over three years old</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Rights timeline: 1689 → 1950 → 1998</span>
+      <b>Bill of Rights (1689)</b> starts the tradition, the UK <b>signs the ECHR in 1950</b>, the <b>Human Rights Act 1998</b> brings it home. Driving ladder: <b>16 moped → 17 car → 70 renewals begin → every 3 years after</b>.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      <b>Arranged ≠ forced</b>: arranged marriage is legal; forced marriage is criminal. Income tax builds <b>roads and schools</b>; <b>National Insurance funds the NHS and state pension</b> — different taxes, different jobs. The MOT is for cars <b>over three years old</b>, and it's <b>annual</b>.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 6 · YOUR ROLE ═══════════════ -->
+<section class="era" id="era6" style="--era: var(--era6)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">6</div>
+      <div class="era-title">
+        <h2>Your Role in the Community</h2>
+        <div class="era-span">Values · volunteering · giving back</div>
+      </div>
+    </div>
+    <p class="era-sub">The chapter closes with what Britain asks of you — the shared values, plus concrete ways to take part. The test asks for <strong>ages, time commitments and charity names</strong>.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">18–70</div><div class="kd-what">jury service age range (from the electoral register)</div></div>
+      <div class="kd-item"><div class="kd-year">18+</div><div class="kd-what">school governor — no upper limit</div></div>
+      <div class="kd-item"><div class="kd-year">16–17</div><div class="kd-what">National Citizen Service</div></div>
+      <div class="kd-item"><div class="kd-year">~1 hr</div><div class="kd-what">time it takes to give blood</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>The shared values</h3>
+        <ul class="facts">
+          <li><b>Obey and respect the law</b>; be aware of and <b>respect others' rights</b>; <b>treat others with fairness</b>; <b>behave responsibly</b>.</li>
+          <li><b>Help and protect your family</b>; <b>respect and preserve the environment</b>.</li>
+          <li>Treat everyone equally; <b>work to support yourself and your family</b>; help others; <b>vote in local and national elections</b>.</li>
+          <li>Being a <b>good neighbour</b>: introduce yourself, respect privacy, keep noise down, tend your garden, put refuse out on <b>collection days</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Civic duties &amp; schools</h3>
+        <ul class="facts">
+          <li><b>Jury service</b> — anyone on the <b>electoral register aged 18–70</b> can be <b>randomly selected</b>.</li>
+          <li>Help in schools: <b>listen to children read</b>, help in class, support sports days, <b>fundraise via the PTA</b>.</li>
+          <li>Become a <b>school governor</b> (a <b>school board member</b> in Scotland) at <b>18+ — no upper age limit</b>: set <b>strategic direction</b>, ensure <b>accountability</b>, <b>monitor performance</b>; apply direct to a school or via the <b>School Governors' One-Stop Shop</b>.</li>
+          <li>Support a party: <b>canvassing</b>; stand for office if you're a <b>British, Irish or eligible Commonwealth citizen</b> (EU citizens: some non-MP roles).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Giving — blood, organs, time</h3>
+        <ul class="facts">
+          <li><b>Giving blood takes about an hour</b>; separate registration services for England &amp; North Wales, Wales, Scotland, NI.</li>
+          <li><b>Organ donation</b> — join the NHS register; <b>living donors can give a kidney</b>.</li>
+          <li>Volunteer with <b>local services</b>: hospitals, youth projects, <b>special constables</b>, <b>lay magistrates</b>.</li>
+          <li>Charities to recognise: <b>British Red Cross, Age UK, NSPCC, Crisis, Shelter, Cancer Research UK, National Trust, Friends of the Earth, PDSA</b>.</li>
+          <li><b>National Citizen Service</b> — for <b>16–17-year-olds</b>: outdoor activities and community projects.</li>
+          <li>Environment: <b>recycle</b> (less energy, less landfill), <b>shop locally</b>, <b>walk or take public transport</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Jury 18–70 · governor 18–∞ · NCS 16–17</span>
+      Three age brackets carry this section. Jury duty has a ceiling (<b>70</b>); school governing doesn't; the NCS is the teenagers' door in.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Jury selection comes <b>from the electoral register</b> — another reason registering matters. Match the charity to its cause: <b>NSPCC — children</b>, <b>Age UK — older people</b>, <b>Shelter/Crisis — homelessness</b>, <b>PDSA — animals</b>, <b>Friends of the Earth — environment</b>.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CHEAT SHEET ═══════════════ -->
+<section class="cheat" style="--era: var(--era4)">
+  <div class="wrap">
+    <h2>Chapter 5 — every number on one sheet</h2>
+    <p>The counting chapter. Cover a column, recite, check.</p>
+    <div class="cs-cols">
+      <div class="cs-group" style="--era: var(--era1)">
+        <h3>Constitution years</h3>
+        <div class="cs-row"><div class="cs-year">1952</div><div class="cs-event">Elizabeth II becomes Queen (Diamond Jubilee 2012)</div></div>
+        <div class="cs-row"><div class="cs-year">1958</div><div class="cs-event">life peers introduced</div></div>
+        <div class="cs-row"><div class="cs-year">1999</div><div class="cs-event">hereditary peers lose automatic seats</div></div>
+        <div class="cs-row"><div class="cs-year">5 years</div><div class="cs-event">maximum term between general elections</div></div>
+        <div class="cs-row"><div class="cs-year">1969</div><div class="cs-event">voting age set at 18</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era2)">
+        <h3>Government counts</h3>
+        <div class="cs-row"><div class="cs-year">~20</div><div class="cs-event">senior MPs in the cabinet</div></div>
+        <div class="cs-row"><div class="cs-year">60</div><div class="cs-event">AMs — National Assembly for Wales (laws in 20 areas since 2011)</div></div>
+        <div class="cs-row"><div class="cs-year">129</div><div class="cs-event">MSPs — Scottish Parliament, Holyrood, since 1999</div></div>
+        <div class="cs-row"><div class="cs-year">108</div><div class="cs-event">MLAs — NI Assembly, Stormont, Good Friday Agreement 1998</div></div>
+        <div class="cs-row"><div class="cs-year">33</div><div class="cs-event">London local authorities + the GLA</div></div>
+        <div class="cs-row"><div class="cs-year">1997</div><div class="cs-event">devolution begins; 1922 NI Parliament (abolished 1972)</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era3)">
+        <h3>The world stage</h3>
+        <div class="cs-row"><div class="cs-year">54</div><div class="cs-event">Commonwealth members — Queen at its head</div></div>
+        <div class="cs-row"><div class="cs-year">27</div><div class="cs-event">EU states; Treaty of Rome 25 Mar 1957; UK joined 1973</div></div>
+        <div class="cs-row"><div class="cs-year">47</div><div class="cs-event">Council of Europe members — wrote the ECHR</div></div>
+        <div class="cs-row"><div class="cs-year">190+</div><div class="cs-event">UN members; Security Council 15; UK 1 of 5 permanent</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era4)">
+        <h3>Law &amp; courts</h3>
+        <div class="cs-row"><div class="cs-year">Nov 2012</div><div class="cs-event">first Police and Crime Commissioner elections</div></div>
+        <div class="cs-row"><div class="cs-year">12 / 15</div><div class="cs-event">jurors: England, Wales, NI / Scotland (+ “not proven”)</div></div>
+        <div class="cs-row"><div class="cs-year">10–17</div><div class="cs-event">Youth Court — parents attend, public barred, no naming</div></div>
+        <div class="cs-row"><div class="cs-year">£5,000</div><div class="cs-event">small-claims ceiling in England &amp; Wales</div></div>
+        <div class="cs-row"><div class="cs-year">£3,000</div><div class="cs-event">small-claims ceiling in Scotland &amp; NI</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era5)">
+        <h3>Rights &amp; money</h3>
+        <div class="cs-row"><div class="cs-year">1689</div><div class="cs-event">Bill of Rights (after Magna Carta, Habeas Corpus)</div></div>
+        <div class="cs-row"><div class="cs-year">1950</div><div class="cs-event">UK signs the European Convention on Human Rights</div></div>
+        <div class="cs-row"><div class="cs-year">1998</div><div class="cs-event">Human Rights Act brings the ECHR into UK law</div></div>
+        <div class="cs-row"><div class="cs-year">2008</div><div class="cs-event">Forced Marriage Protection Orders (Scotland: Nov 2011)</div></div>
+        <div class="cs-row"><div class="cs-year">0808 2000 247</div><div class="cs-event">24-hr National Domestic Violence Helpline</div></div>
+        <div class="cs-row"><div class="cs-year">16</div><div class="cs-event">NI number arrives just before this birthday; moped age</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era5)">
+        <h3>Driving</h3>
+        <div class="cs-row"><div class="cs-year">17 / 16</div><div class="cs-event">car &amp; motorcycle / moped</div></div>
+        <div class="cs-row"><div class="cs-year">70</div><div class="cs-event">licence valid until — then renew every 3 years</div></div>
+        <div class="cs-row"><div class="cs-year">1 year</div><div class="cs-event">NI “R” plate for new drivers</div></div>
+        <div class="cs-row"><div class="cs-year">12 months</div><div class="cs-event">non-EU foreign licences valid in the UK</div></div>
+        <div class="cs-row"><div class="cs-year">3 years</div><div class="cs-event">car age at which annual MOT becomes due</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era6)">
+        <h3>Your role</h3>
+        <div class="cs-row"><div class="cs-year">18–70</div><div class="cs-event">jury service (random pick from electoral register)</div></div>
+        <div class="cs-row"><div class="cs-year">18+</div><div class="cs-event">school governor / school board — no upper limit</div></div>
+        <div class="cs-row"><div class="cs-year">16–17</div><div class="cs-event">National Citizen Service</div></div>
+        <div class="cs-row"><div class="cs-year">~1 hour</div><div class="cs-event">giving blood</div></div>
+        <div class="cs-row"><div class="cs-year">7am–10pm</div><div class="cs-event">polling station hours; NI needs photo ID</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="chapnav">The set: <a href="life-in-uk-chapter1.html">Chapter 1</a> · <a href="life-in-uk-chapter2.html">Chapter 2</a> · <a href="life-in-uk-chapter3.html">Chapter 3</a> · <a href="life-in-uk-chapter4.html">Chapter 4</a> · <span class="here">Chapter 5</span></p>
+    <p>Built from the Life in the UK study guide, Chapter 5: “The UK Government, the Law and Your Role”. Institutional facts (EU membership, the Queen, agency names) are as printed in the official handbook's edition — the test follows the handbook's wording, so should your answers.</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life in the UK · Chapter 1: The Values and Principles of the UK</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --serif: "Baskerville", "Iowan Old Style", "Palatino Linotype", "Palatino", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+      --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+      --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+    --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+    --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"] {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    margin: 0; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 22px; }
+  a { color: inherit; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 40px; }
+  .eyebrow {
+    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-2); margin: 0 0 18px; font-weight: 600;
+  }
+  .eyebrow .sep { color: var(--ink-3); padding: 0 .5em; }
+  h1 {
+    font-family: var(--serif); font-weight: 500; text-wrap: balance;
+    font-size: clamp(2.5rem, 6.2vw, 4.3rem); line-height: 1.04; margin: 0 0 8px;
+    letter-spacing: -.01em;
+  }
+  h1 em { font-style: italic; }
+  .lede {
+    max-width: 62ch; color: var(--ink-2); font-size: 1.05rem; margin: 18px 0 0;
+  }
+  .lede strong { color: var(--ink); }
+
+  /* ---------- Section timeline / nav ---------- */
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 40px 0 10px; }
+  .tl-seg {
+    display: block; text-decoration: none; border-radius: 6px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line);
+    transition: transform .18s ease;
+  }
+  .tl-seg:hover { transform: translateY(-3px); }
+  .tl-bar { height: 10px; background: var(--era); }
+  .tl-body { padding: 12px 12px 14px; }
+  .tl-num { font-family: var(--serif); font-size: 1.5rem; color: var(--era); line-height: 1; }
+  .tl-name { font-weight: 600; font-size: .86rem; margin: 6px 0 2px; line-height: 1.25; }
+  .tl-years { font-size: .74rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tl-note { text-align: center; font-size: .74rem; color: var(--ink-3); margin: 10px 0 0; }
+  @media (max-width: 480px) { .timeline { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .tl-seg { transition: none; } .tl-seg:hover { transform: none; } }
+
+  /* ---------- How to study strip ---------- */
+  .howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 34px 0 0; }
+  .howto div { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: .88rem; color: var(--ink-2); }
+  .howto b { color: var(--ink); display: block; margin-bottom: 3px; }
+  @media (max-width: 720px) { .howto { grid-template-columns: 1fr; } }
+
+  /* ---------- Sections ---------- */
+  .era { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .era-head { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  .era-num {
+    font-family: var(--serif); font-size: clamp(3.4rem, 7vw, 5rem); line-height: .9;
+    color: var(--era); font-variant-numeric: tabular-nums;
+  }
+  .era-title h2 {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    margin: 0; line-height: 1.1; text-wrap: balance;
+  }
+  .era-title .era-span {
+    font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+    color: var(--era); margin-top: 6px; font-variant-numeric: tabular-nums;
+  }
+  .era-sub { color: var(--ink-2); max-width: 68ch; margin: 14px 0 0; font-size: .96rem; }
+
+  /* key facts rail */
+  .kd { display: flex; gap: 8px; overflow-x: auto; padding: 22px 2px 8px; }
+  .kd-item {
+    flex: 0 0 auto; background: color-mix(in srgb, var(--era) 9%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--era) 28%, var(--line));
+    border-radius: 7px; padding: 8px 12px; min-width: 86px;
+  }
+  .kd-year { font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; font-size: 1.02rem; }
+  .kd-what { font-size: .74rem; color: var(--ink-2); line-height: 1.3; margin-top: 2px; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 18px 14px; box-shadow: var(--shadow);
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h3 {
+    margin: 0 0 10px; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--era); font-weight: 700;
+  }
+  .facts { list-style: none; margin: 0; padding: 0; }
+  .facts li {
+    padding: 7px 0; border-top: 1px dotted var(--line); font-size: .9rem; color: var(--ink-2);
+  }
+  .facts li:first-child { border-top: 0; padding-top: 0; }
+  .facts b, .facts strong { color: var(--ink); font-weight: 650; }
+  .y { color: var(--era); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* the pledge */
+  .pledge {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 26px 28px; margin-top: 18px; box-shadow: var(--shadow);
+    border-left: 4px solid var(--era);
+  }
+  .pledge .lab {
+    display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 10px; color: var(--era);
+  }
+  .pledge blockquote {
+    font-family: var(--serif); font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.5;
+    margin: 0; color: var(--ink); font-style: italic;
+  }
+  .pledge .src { font-size: .78rem; color: var(--ink-3); margin: 10px 0 0; }
+
+  /* callouts */
+  .hook, .trap { border-radius: 10px; padding: 14px 18px; margin-top: 14px; font-size: .92rem; }
+  .hook {
+    background: color-mix(in srgb, var(--era) 8%, var(--card));
+    border: 1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color: var(--ink-2);
+  }
+  .hook b, .trap b { color: inherit; font-weight: 700; }
+  .hook .lab, .trap .lab {
+    display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 5px; color: var(--era);
+  }
+  .hook .big { font-family: var(--serif); font-size: 1.25rem; color: var(--ink); display: block; margin: 2px 0 4px; }
+  .trap { background: var(--trap-bg); color: var(--trap-ink); }
+  .trap .lab { color: var(--trap-ink); opacity: .7; }
+  .trap b { font-weight: 700; }
+
+  /* cheat sheet */
+  .cheat { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .cheat h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin: 0 0 6px; }
+  .cheat > .wrap > p { color: var(--ink-2); max-width: 62ch; margin-top: 0; }
+  .cs-cols { columns: 3 300px; column-gap: 18px; margin-top: 22px; }
+  .cs-group { break-inside: avoid; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 0 0 14px; box-shadow: var(--shadow); }
+  .cs-group h3 { margin: 0 0 8px; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--era); }
+  .cs-row { display: flex; gap: 12px; padding: 4px 0; border-top: 1px dotted var(--line); font-size: .84rem; }
+  .cs-row:first-of-type { border-top: 0; }
+  .cs-year { flex: 0 0 84px; font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; }
+  .cs-event { color: var(--ink-2); }
+
+  footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 48px; }
+  footer p { font-size: .78rem; color: var(--ink-3); max-width: 70ch; }
+  .chapnav { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+  .chapnav a { color: var(--ink-2); text-decoration-color: var(--ink-3); }
+  .chapnav .here { font-weight: 700; color: var(--ink); }
+
+  ::selection { background: color-mix(in srgb, var(--era2) 25%, transparent); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Life in the UK Test<span class="sep">·</span>Official Study Guide<span class="sep">·</span>Chapter 1</p>
+    <h1>The Values &amp; <em>Principles</em> of the UK</h1>
+    <p class="lede">The shortest chapter with the highest fact density. It is built around <strong>three lists of five</strong> — principles, responsibilities, freedoms — plus the small print of how you become a permanent resident and how the test itself works. Everything on this page is examinable, including this handbook's introduction.</p>
+
+    <nav class="timeline" aria-label="Chapter sections">
+      <a class="tl-seg" href="#era1" style="--era: var(--era1)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">1</div><div class="tl-name">Values &amp; Principles</div><div class="tl-years">5 principles · 5 duties · 5 freedoms</div></div>
+      </a>
+      <a class="tl-seg" href="#era2" style="--era: var(--era2)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">2</div><div class="tl-name">Becoming a Permanent Resident</div><div class="tl-years">Two routes · 2013 rules</div></div>
+      </a>
+      <a class="tl-seg" href="#era3" style="--era: var(--era3)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">3</div><div class="tl-name">Taking the Test</div><div class="tl-years">24 questions · ~60 centres</div></div>
+      </a>
+    </nav>
+    <p class="tl-note">Tap any section to jump to it. The number cheat-sheet is at the bottom.</p>
+
+    <div class="howto">
+      <div><b>Think in fives.</b> Five fundamental principles, five responsibilities, five freedoms. If you can recite the three lists, this chapter is done.</div>
+      <div><b>Know the two routes.</b> Life in the UK test <em>or</em> ESOL with citizenship — and what changed in October 2013. Dates and levels are exam bait.</div>
+      <div><b>Learn the test logistics.</b> How many questions, where you book, what you bring. The test loves asking about itself.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ SECTION 1 · VALUES & PRINCIPLES ═══════════════ -->
+<section class="era" id="era1" style="--era: var(--era1)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">1</div>
+      <div class="era-title">
+        <h2>The Values &amp; Principles of British Life</h2>
+        <div class="era-span">Foundations · applies to everyone living in the UK</div>
+      </div>
+    </div>
+    <p class="era-sub">British society is founded on <strong>fundamental values and principles</strong> which all those living in the UK should respect and support. They are rooted in <strong>history, traditions, law, customs and expectations</strong>. There is <strong>no place in British society for extremism or intolerance</strong>.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">5</div><div class="kd-what">fundamental principles</div></div>
+      <div class="kd-item"><div class="kd-year">5</div><div class="kd-what">responsibilities</div></div>
+      <div class="kd-item"><div class="kd-year">5</div><div class="kd-what">freedoms in return</div></div>
+      <div class="kd-item"><div class="kd-year">0</div><div class="kd-what">place for extremism or intolerance</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>The 5 fundamental principles</h3>
+        <ul class="facts">
+          <li><b>1 · Democracy</b></li>
+          <li><b>2 · The rule of law</b></li>
+          <li><b>3 · Individual liberty</b></li>
+          <li><b>4 · Tolerance</b> of those with different faiths and beliefs</li>
+          <li><b>5 · Participation in community life</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Your 5 responsibilities</h3>
+        <ul class="facts">
+          <li><b>Respect and obey the law</b></li>
+          <li><b>Respect the rights of others</b>, including their right to their own opinions</li>
+          <li><b>Treat others with fairness</b></li>
+          <li><b>Look after yourself and your family</b></li>
+          <li><b>Look after the area</b> in which you live, and the environment</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>In return, the UK offers</h3>
+        <ul class="facts">
+          <li><b>Freedom of belief and religion</b></li>
+          <li><b>Freedom of speech</b></li>
+          <li><b>Freedom from unfair discrimination</b></li>
+          <li><b>A right to a fair trial</b></li>
+          <li><b>A right to join in the election</b> of a government</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pledge">
+      <span class="lab">The citizenship pledge — recited by new citizens at their ceremony</span>
+      <blockquote>“I will give my loyalty to the United Kingdom and respect its rights and freedoms. I will uphold its democratic values. I will observe its laws faithfully and fulfil my duties and obligations as a British citizen.”</blockquote>
+      <p class="src">The values and responsibilities above are a direct expansion of this pledge — learn them as one unit.</p>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">The rule of fives — “D-R-I-T-P”</span>
+      <b>D</b>emocracy, <b>R</b>ule of law, <b>I</b>ndividual liberty, <b>T</b>olerance, <b>P</b>articipation. Five principles, matched by five duties you owe and five freedoms you get. Three lists of five: fifteen facts, one chapter.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      <b>“Participation in community life” is a fundamental principle</b> — it's the one candidates forget. And the freedoms list includes <b>the right to a fair trial</b> and <b>the right to join in electing a government</b> — both count as “freedoms offered by the UK”, not just legal details.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 2 · BECOMING A PERMANENT RESIDENT ═══════════════ -->
+<section class="era" id="era2" style="--era: var(--era2)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">2</div>
+      <div class="era-title">
+        <h2>Becoming a Permanent Resident</h2>
+        <div class="era-span">Requirements · routes · the 2013 changes</div>
+      </div>
+    </div>
+    <p class="era-sub">To apply for permanent residence or citizenship you must be able to <strong>speak and read English</strong> and <strong>have a good understanding of life in the UK</strong>. Since January 2013 there are two ways to prove it — and from October 2013 the rules tightened.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">Jan 2013</div><div class="kd-what">two routes introduced</div></div>
+      <div class="kd-item"><div class="kd-year">Oct 2013</div><div class="kd-what">test + B1 English both required</div></div>
+      <div class="kd-item"><div class="kd-year">Entry 3</div><div class="kd-what">ESOL level built into the test</div></div>
+      <div class="kd-item"><div class="kd-year">Tier 1 &amp; 2</div><div class="kd-what">must take the LitUK test</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Route A · The Life in the UK test</h3>
+        <ul class="facts">
+          <li>Questions are written to require English at <b>ESOL Entry Level 3</b> — so passing means <b>no separate English test</b> is needed.</li>
+          <li><b>Mandatory</b> for work-visa holders on <b>Tier 1 and Tier 2</b> of the points-based system.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Route B · ESOL course with citizenship</h3>
+        <ul class="facts">
+          <li>For applicants whose English is <b>below ESOL Entry Level 3</b>.</li>
+          <li>A course that improves your English <b>and</b> teaches you about life in the UK — ending with <b>a test/assessment</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>From October 2013 — settlement needs both</h3>
+        <ul class="facts">
+          <li><b>Pass the Life in the UK test</b>, <b>and</b></li>
+          <li>Provide evidence of <b>speaking and listening</b> in English at <b>B1</b> of the Common European Framework of Reference (CEFR) — the equivalent of ESOL Entry Level 3.</li>
+        </ul>
+      </div>
+      <div class="card wide">
+        <h3>Applying</h3>
+        <ul class="facts">
+          <li>After passing, you send in <b>application forms and supporting evidence</b>; what you need depends on your circumstances.</li>
+          <li>A <b>fee</b> applies, and it <b>varies by application type</b>.</li>
+          <li>All forms and the list of fees are on the <b>UK Border Agency website — www.ukba.homeoffice.gov.uk</b>.</li>
+          <li>Requirements <b>can change</b> — always check the UK Border Agency website before applying.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">B1 and Entry Level 3 are the same rung</span>
+      Two ladders, one height: <b>B1 (CEFR)</b> is the European name, <b>ESOL Entry Level 3</b> is the British name. January 2013 gave you <b>a choice of routes</b>; October 2013 said <b>“test AND B1, both”</b>.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      The ESOL route is not a shortcut past knowledge — the course covers <b>English AND life in the UK</b>, and still ends in a test. And note who has <b>no choice</b>: <b>Tier 1 and Tier 2</b> visa holders must take the Life in the UK test itself.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 3 · TAKING THE TEST ═══════════════ -->
+<section class="era" id="era3" style="--era: var(--era3)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">3</div>
+      <div class="era-title">
+        <h2>Taking the Life in the UK Test</h2>
+        <div class="era-span">Format · booking · what to bring</div>
+      </div>
+    </div>
+    <p class="era-sub">The test asks about itself surprisingly often. Its format, its languages, its booking rules and its ID requirements are all fair game — memorise the logistics like any other fact.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">24</div><div class="kd-what">questions in the test</div></div>
+      <div class="kd-item"><div class="kd-year">~60</div><div class="kd-what">registered test centres in the UK</div></div>
+      <div class="kd-item"><div class="kd-year">3</div><div class="kd-what">languages: English, Welsh, Scottish Gaelic</div></div>
+      <div class="kd-item"><div class="kd-year">2</div><div class="kd-what">documents: ID + proof of address</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>The format</h3>
+        <ul class="facts">
+          <li>The test consists of <b>24 questions</b> about important aspects of life in the UK.</li>
+          <li>Questions are based on <b>ALL parts of the handbook</b> — <b>including the introduction</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Languages</h3>
+        <ul class="facts">
+          <li>Usually taken in <b>English</b>.</li>
+          <li>Special arrangements can be made to take it in <b>Welsh</b> or <b>Scottish Gaelic</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Where</h3>
+        <ul class="facts">
+          <li>Only at a <b>registered and approved</b> Life in the UK test centre — there are <b>about 60</b> around the UK.</li>
+          <li>The UK Border Agency <b>only accepts certificates from registered centres</b> — never take it anywhere else.</li>
+          <li><b>Isle of Man</b> and <b>Channel Islands</b> residents: special arrangements apply.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Booking &amp; the day itself</h3>
+        <ul class="facts">
+          <li>Booking is <b>online only</b>, at <b>www.lifeintheuktest.gov.uk</b> — read the instructions and enter your details correctly.</li>
+          <li>Bring <b>identification</b> and <b>proof of your address</b>. Without them, <b>you will not be allowed to take the test</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">24 · 60 · 3 · 2</span>
+      <b>24</b> questions, <b>60</b> centres, <b>3</b> possible languages, <b>2</b> documents in your pocket. One string of four numbers covers the whole section.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Questions come from the <b>whole handbook including the introduction</b> — not just the “testable chapters”. Booking is <b>online only</b> — a question offering phone or in-person booking is lying to you.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CHEAT SHEET ═══════════════ -->
+<section class="cheat" style="--era: var(--era2)">
+  <div class="wrap">
+    <h2>Chapter 1 — the numbers that matter</h2>
+    <p>Cover the right-hand column and quiz yourself. If you can produce every fact from its number, you're done with Chapter 1.</p>
+    <div class="cs-cols">
+      <div class="cs-group" style="--era: var(--era1)">
+        <h3>The three fives</h3>
+        <div class="cs-row"><div class="cs-year">5</div><div class="cs-event">principles: democracy · rule of law · individual liberty · tolerance · participation</div></div>
+        <div class="cs-row"><div class="cs-year">5</div><div class="cs-event">duties: obey law · respect rights · fairness · your family · your area</div></div>
+        <div class="cs-row"><div class="cs-year">5</div><div class="cs-event">freedoms: belief · speech · no unfair discrimination · fair trial · elect government</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era2)">
+        <h3>Residence rules</h3>
+        <div class="cs-row"><div class="cs-year">Jan 2013</div><div class="cs-event">two routes: LitUK test or ESOL-with-citizenship course</div></div>
+        <div class="cs-row"><div class="cs-year">Oct 2013</div><div class="cs-event">settlement = LitUK test + B1 speaking &amp; listening</div></div>
+        <div class="cs-row"><div class="cs-year">Entry 3</div><div class="cs-event">ESOL level of the test's English = B1 CEFR</div></div>
+        <div class="cs-row"><div class="cs-year">Tier 1+2</div><div class="cs-event">points-based visa holders must take the LitUK test</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era3)">
+        <h3>Test logistics</h3>
+        <div class="cs-row"><div class="cs-year">24</div><div class="cs-event">questions, drawn from the whole handbook incl. introduction</div></div>
+        <div class="cs-row"><div class="cs-year">~60</div><div class="cs-event">registered test centres — the only valid certificates</div></div>
+        <div class="cs-row"><div class="cs-year">3</div><div class="cs-event">languages: English (usual), Welsh, Scottish Gaelic</div></div>
+        <div class="cs-row"><div class="cs-year">2</div><div class="cs-event">must-brings: ID + proof of address, or no test</div></div>
+        <div class="cs-row"><div class="cs-year">online</div><div class="cs-event">only way to book: www.lifeintheuktest.gov.uk</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="chapnav">The set: <span class="here">Chapter 1</span> · <a href="life-in-uk-chapter2.html">Chapter 2</a> · <a href="life-in-uk-chapter3.html">Chapter 3</a> · <a href="life-in-uk-chapter4.html">Chapter 4</a> · <a href="life-in-uk-chapter5.html">Chapter 5</a></p>
+    <p>Built from the Life in the UK study guide, Chapter 1: “The Values and Principles of the UK”. Websites and agency names (UK Border Agency) are as printed in the official handbook — the test follows the handbook's wording, so should your answers.</p>
+  </div>
+</footer>
+
+</body>
+</html>

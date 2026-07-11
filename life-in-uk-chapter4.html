@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life in the UK · Chapter 4: A Modern, Thriving Society</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --serif: "Baskerville", "Iowan Old Style", "Palatino Linotype", "Palatino", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+      --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+      --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+    --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+    --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"] {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    margin: 0; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 22px; }
+  a { color: inherit; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 40px; }
+  .eyebrow {
+    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-2); margin: 0 0 18px; font-weight: 600;
+  }
+  .eyebrow .sep { color: var(--ink-3); padding: 0 .5em; }
+  h1 {
+    font-family: var(--serif); font-weight: 500; text-wrap: balance;
+    font-size: clamp(2.5rem, 6.2vw, 4.3rem); line-height: 1.04; margin: 0 0 8px;
+    letter-spacing: -.01em;
+  }
+  h1 em { font-style: italic; }
+  .lede {
+    max-width: 62ch; color: var(--ink-2); font-size: 1.05rem; margin: 18px 0 0;
+  }
+  .lede strong { color: var(--ink); }
+
+  /* ---------- Section timeline / nav ---------- */
+  .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 40px 0 10px; }
+  .tl-seg {
+    display: block; text-decoration: none; border-radius: 6px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line);
+    transition: transform .18s ease;
+  }
+  .tl-seg:hover { transform: translateY(-3px); }
+  .tl-bar { height: 10px; background: var(--era); }
+  .tl-body { padding: 12px 12px 14px; }
+  .tl-num { font-family: var(--serif); font-size: 1.5rem; color: var(--era); line-height: 1; }
+  .tl-name { font-weight: 600; font-size: .86rem; margin: 6px 0 2px; line-height: 1.25; }
+  .tl-years { font-size: .74rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tl-note { text-align: center; font-size: .74rem; color: var(--ink-3); margin: 10px 0 0; }
+  @media (max-width: 780px) { .timeline { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .timeline { grid-template-columns: repeat(2, 1fr); } }
+  @media (prefers-reduced-motion: reduce) { .tl-seg { transition: none; } .tl-seg:hover { transform: none; } }
+
+  /* ---------- How to study strip ---------- */
+  .howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 34px 0 0; }
+  .howto div { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: .88rem; color: var(--ink-2); }
+  .howto b { color: var(--ink); display: block; margin-bottom: 3px; }
+  @media (max-width: 720px) { .howto { grid-template-columns: 1fr; } }
+
+  /* ---------- Sections ---------- */
+  .era { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .era-head { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  .era-num {
+    font-family: var(--serif); font-size: clamp(3.4rem, 7vw, 5rem); line-height: .9;
+    color: var(--era); font-variant-numeric: tabular-nums;
+  }
+  .era-title h2 {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    margin: 0; line-height: 1.1; text-wrap: balance;
+  }
+  .era-title .era-span {
+    font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+    color: var(--era); margin-top: 6px; font-variant-numeric: tabular-nums;
+  }
+  .era-sub { color: var(--ink-2); max-width: 68ch; margin: 14px 0 0; font-size: .96rem; }
+
+  /* key facts rail */
+  .kd { display: flex; gap: 8px; overflow-x: auto; padding: 22px 2px 8px; }
+  .kd-item {
+    flex: 0 0 auto; background: color-mix(in srgb, var(--era) 9%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--era) 28%, var(--line));
+    border-radius: 7px; padding: 8px 12px; min-width: 86px;
+  }
+  .kd-year { font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; font-size: 1.02rem; }
+  .kd-what { font-size: .74rem; color: var(--ink-2); line-height: 1.3; margin-top: 2px; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 18px 14px; box-shadow: var(--shadow);
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h3 {
+    margin: 0 0 10px; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--era); font-weight: 700;
+  }
+  .facts { list-style: none; margin: 0; padding: 0; }
+  .facts li {
+    padding: 7px 0; border-top: 1px dotted var(--line); font-size: .9rem; color: var(--ink-2);
+  }
+  .facts li:first-child { border-top: 0; padding-top: 0; }
+  .facts b, .facts strong { color: var(--ink); font-weight: 650; }
+  .y { color: var(--era); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* population bars */
+  .pop { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-top: 18px; box-shadow: var(--shadow); }
+  .pop h3 { margin: 0 0 12px; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--era); font-weight: 700; }
+  .pop-row { display: grid; grid-template-columns: 52px 1fr 88px; gap: 10px; align-items: center; padding: 3px 0; }
+  .pop-year { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; font-size: .84rem; }
+  .pop-track { background: var(--chip); border-radius: 4px; height: 12px; overflow: hidden; }
+  .pop-bar { height: 100%; background: var(--era); border-radius: 4px; }
+  .pop-val { font-size: .8rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .pop-note { font-size: .76rem; color: var(--ink-3); margin: 10px 0 0; }
+
+  /* people */
+  .people { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 14px; }
+  .person { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .p-name { font-family: var(--serif); font-size: 1.12rem; margin: 0; }
+  .p-life { font-size: .74rem; color: var(--era); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .04em; margin: 2px 0 8px; }
+  .p-note { font-size: .85rem; color: var(--ink-2); margin: 0; }
+  .p-note b { color: var(--ink); }
+
+  /* saints / tiles strip */
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 12px; text-align: center; box-shadow: var(--shadow); }
+  .tile .n { font-family: var(--serif); color: var(--era); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+  .tile .who { font-weight: 650; font-size: .82rem; margin: 4px 0 2px; line-height: 1.25; }
+  .tile .of { font-size: .72rem; color: var(--ink-3); }
+  .tile .fate {
+    display: inline-block; margin-top: 8px; font-size: .68rem; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px;
+    background: var(--chip); color: var(--ink-2);
+  }
+  .tile .fate.x { background: color-mix(in srgb, var(--era) 14%, var(--card)); color: var(--era); }
+  @media (max-width: 720px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+
+  /* callouts */
+  .hook, .trap { border-radius: 10px; padding: 14px 18px; margin-top: 14px; font-size: .92rem; }
+  .hook {
+    background: color-mix(in srgb, var(--era) 8%, var(--card));
+    border: 1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color: var(--ink-2);
+  }
+  .hook b, .trap b { color: inherit; font-weight: 700; }
+  .hook .lab, .trap .lab {
+    display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 5px; color: var(--era);
+  }
+  .hook .big { font-family: var(--serif); font-size: 1.25rem; color: var(--ink); display: block; margin: 2px 0 4px; }
+  .trap { background: var(--trap-bg); color: var(--trap-ink); }
+  .trap .lab { color: var(--trap-ink); opacity: .7; }
+  .trap b { font-weight: 700; }
+
+  /* landmarks / film grid */
+  .inv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 14px; }
+  .inv { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .inv .iy { font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; font-size: .95rem; }
+  .inv .iw { font-weight: 650; font-size: .9rem; margin: 2px 0; }
+  .inv .ii { font-size: .78rem; color: var(--ink-2); }
+
+  /* cheat sheet */
+  .cheat { padding: 58px 0 30px; border-top: 1px solid var(--line); margin-top: 44px; }
+  .cheat h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin: 0 0 6px; }
+  .cheat > .wrap > p { color: var(--ink-2); max-width: 62ch; margin-top: 0; }
+  .cs-cols { columns: 3 300px; column-gap: 18px; margin-top: 22px; }
+  .cs-group { break-inside: avoid; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 0 0 14px; box-shadow: var(--shadow); }
+  .cs-group h3 { margin: 0 0 8px; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--era); }
+  .cs-row { display: flex; gap: 12px; padding: 4px 0; border-top: 1px dotted var(--line); font-size: .84rem; }
+  .cs-row:first-of-type { border-top: 0; }
+  .cs-year { flex: 0 0 84px; font-weight: 700; color: var(--era); font-variant-numeric: tabular-nums; }
+  .cs-event { color: var(--ink-2); }
+
+  footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 48px; }
+  footer p { font-size: .78rem; color: var(--ink-3); max-width: 70ch; }
+  .chapnav { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+  .chapnav a { color: var(--ink-2); text-decoration-color: var(--ink-3); }
+  .chapnav .here { font-weight: 700; color: var(--ink); }
+
+  ::selection { background: color-mix(in srgb, var(--era4) 25%, transparent); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Life in the UK Test<span class="sep">·</span>Official Study Guide<span class="sep">·</span>Chapter 4</p>
+    <h1>A Modern, <em>Thriving</em> Society</h1>
+    <p class="lede">The biggest chapter — population, religion, festivals, sport, the arts, leisure and landmarks. It looks like trivia; it is actually <strong>lists of names, dates and percentages</strong>, and the test picks straight from them. Organised here into <strong>six colour-coded sections</strong> (the handbook's sections 6 and 7 share a colour). Learn the colour, learn the section.</p>
+
+    <nav class="timeline" aria-label="Chapter sections">
+      <a class="tl-seg" href="#era1" style="--era: var(--era1)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">1</div><div class="tl-name">The UK Today</div><div class="tl-years">Cities · money · people</div></div>
+      </a>
+      <a class="tl-seg" href="#era2" style="--era: var(--era2)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">2</div><div class="tl-name">Religion</div><div class="tl-years">Churches &amp; saints</div></div>
+      </a>
+      <a class="tl-seg" href="#era3" style="--era: var(--era3)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">3</div><div class="tl-name">Customs &amp; Traditions</div><div class="tl-years">The festival calendar</div></div>
+      </a>
+      <a class="tl-seg" href="#era4" style="--era: var(--era4)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">4</div><div class="tl-name">Sport</div><div class="tl-years">Champions &amp; venues</div></div>
+      </a>
+      <a class="tl-seg" href="#era5" style="--era: var(--era5)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">5</div><div class="tl-name">Arts &amp; Culture</div><div class="tl-years">Music · art · books</div></div>
+      </a>
+      <a class="tl-seg" href="#era6" style="--era: var(--era6)">
+        <div class="tl-bar"></div>
+        <div class="tl-body"><div class="tl-num">6</div><div class="tl-name">Leisure &amp; Places</div><div class="tl-years">Food · film · landmarks</div></div>
+      </a>
+    </nav>
+    <p class="tl-note">Tap any section to jump to it. The full numbers cheat-sheet is at the bottom.</p>
+
+    <div class="howto">
+      <div><b>Percentages first.</b> 84-8-5-3 (population) and 70-21-4-2-1 (religion) answer a disproportionate number of questions. Learn them as chants.</div>
+      <div><b>Names → one fact each.</b> Every sportsperson, composer, painter and author in the handbook is attached to exactly one achievement. Learn the pairs, not biographies.</div>
+      <div><b>Dates in the year beat dates in history.</b> This chapter's dates are mostly calendar days — saints' days, festivals, 14 April, 5 November, 11 November. Picture one year, place everything on it.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ SECTION 1 · THE UK TODAY ═══════════════ -->
+<section class="era" id="era1" style="--era: var(--era1)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">1</div>
+      <div class="era-title">
+        <h2>The UK Today</h2>
+        <div class="era-span">Capitals · currency · languages · population</div>
+      </div>
+    </div>
+    <p class="era-sub">The warm-up section: where people live, what they spend, what they speak — and a population curve the test loves to quiz decade by decade.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">London</div><div class="kd-what">capital of the UK</div></div>
+      <div class="kd-item"><div class="kd-year">Edinburgh</div><div class="kd-what">capital of Scotland</div></div>
+      <div class="kd-item"><div class="kd-year">Cardiff</div><div class="kd-what">capital of Wales</div></div>
+      <div class="kd-item"><div class="kd-year">Belfast</div><div class="kd-what">capital of N. Ireland</div></div>
+      <div class="kd-item"><div class="kd-year">£ = 100p</div><div class="kd-what">pound sterling</div></div>
+      <div class="kd-item"><div class="kd-year">84%</div><div class="kd-what">of the population lives in England</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Major cities</h3>
+        <ul class="facts">
+          <li><b>England:</b> Birmingham, Liverpool, Leeds, Sheffield, Bristol, Manchester, Bradford, Newcastle upon Tyne, Plymouth, Southampton, Norwich</li>
+          <li><b>Wales:</b> Swansea, Newport</li>
+          <li><b>Scotland:</b> Glasgow, Dundee, Aberdeen</li>
+          <li><b>Northern Ireland:</b> Belfast</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Currency</h3>
+        <ul class="facts">
+          <li>The <b>pound sterling (£)</b> — <b>100 pence</b> in a pound.</li>
+          <li><b>Coins:</b> 1p, 2p, 5p, 10p, 20p, 50p, £1, £2</li>
+          <li><b>Notes:</b> £5, £10, £20, £50</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Languages &amp; dialects</h3>
+        <ul class="facts">
+          <li><b>Welsh</b> — spoken in Wales, taught in schools and universities</li>
+          <li><b>Gaelic</b> — spoken in the Scottish <b>Highlands and Islands</b></li>
+          <li><b>Irish Gaelic</b> — spoken in Northern Ireland</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Who lives where</h3>
+        <ul class="facts">
+          <li><b>England 84%</b> · <b>Scotland 8%</b> · <b>Wales 5%</b> · <b>Northern Ireland less than 3%</b></li>
+          <li>Post-war immigration: <b>nearly 10%</b> of the population has a <b>parent or grandparent born outside the UK</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Women &amp; equality</h3>
+        <ul class="facts">
+          <li>Discrimination is <b>against the law</b>.</li>
+          <li>Women make up <b>about half the workforce</b>.</li>
+          <li>Girls leave school, on average, with <b>better qualifications than boys</b>.</li>
+          <li><b>More women than men</b> study at university.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pop">
+      <h3>Population growth — the curve to memorise</h3>
+      <div class="pop-row"><div class="pop-year">1600</div><div class="pop-track"><div class="pop-bar" style="width:7%"></div></div><div class="pop-val">just over 4m</div></div>
+      <div class="pop-row"><div class="pop-year">1700</div><div class="pop-track"><div class="pop-bar" style="width:8%"></div></div><div class="pop-val">5m</div></div>
+      <div class="pop-row"><div class="pop-year">1801</div><div class="pop-track"><div class="pop-bar" style="width:13%"></div></div><div class="pop-val">8m</div></div>
+      <div class="pop-row"><div class="pop-year">1851</div><div class="pop-track"><div class="pop-bar" style="width:32%"></div></div><div class="pop-val">20m</div></div>
+      <div class="pop-row"><div class="pop-year">1901</div><div class="pop-track"><div class="pop-bar" style="width:65%"></div></div><div class="pop-val">40m</div></div>
+      <div class="pop-row"><div class="pop-year">1951</div><div class="pop-track"><div class="pop-bar" style="width:81%"></div></div><div class="pop-val">50m</div></div>
+      <div class="pop-row"><div class="pop-year">1998</div><div class="pop-track"><div class="pop-bar" style="width:92%"></div></div><div class="pop-val">57m</div></div>
+      <div class="pop-row"><div class="pop-year">2005</div><div class="pop-track"><div class="pop-bar" style="width:96%"></div></div><div class="pop-val">just under 60m</div></div>
+      <div class="pop-row"><div class="pop-year">2010</div><div class="pop-track"><div class="pop-bar" style="width:100%"></div></div><div class="pop-val">just over 62m</div></div>
+      <p class="pop-note">Watch the 19th century: it starts at 8 million and ends at 40 million — a five-fold Victorian boom.</p>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">“84 – 8 – 5 – 3” and “8 → 20 → 40”</span>
+      Population share: chant <b>84-8-5-3</b> (England, Scotland, Wales, NI). Growth: <b>1801 = 8m, 1851 = 20m, 1901 = 40m</b> — the population <b>more than doubles twice</b> in one century.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Scotland's capital is <b>Edinburgh</b> — Glasgow is its biggest listed city, not its capital. Wales beats Northern Ireland on population (<b>5% vs under 3%</b>), and the £ note ladder stops at <b>£50</b>.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 2 · RELIGION ═══════════════ -->
+<section class="era" id="era2" style="--era: var(--era2)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">2</div>
+      <div class="era-title">
+        <h2>Religion</h2>
+        <div class="era-span">The percentages · two churches · four saints</div>
+      </div>
+    </div>
+    <p class="era-sub">The UK is historically Christian but multi-faith — and the test wants the survey numbers, the difference between the two national churches, and the four patron saints in calendar order.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">70%</div><div class="kd-what">Christian</div></div>
+      <div class="kd-item"><div class="kd-year">21%</div><div class="kd-what">no religion</div></div>
+      <div class="kd-item"><div class="kd-year">4%</div><div class="kd-what">Muslim</div></div>
+      <div class="kd-item"><div class="kd-year">2%</div><div class="kd-what">Hindu</div></div>
+      <div class="kd-item"><div class="kd-year">1%</div><div class="kd-what">Sikh</div></div>
+      <div class="kd-item"><div class="kd-year">&lt;0.5%</div><div class="kd-what">Jewish · Buddhist (each)</div></div>
+      <div class="kd-item"><div class="kd-year">2%</div><div class="kd-what">another religion</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Church of England</h3>
+        <ul class="facts">
+          <li>The <b>official Church of the state</b> (established church) — Protestant, created during the <b>Reformation in the 1530s</b>.</li>
+          <li>Known as the <b>Anglican Church</b> in other countries, and the <b>Episcopal Church</b> in Scotland and the USA.</li>
+          <li><b>The monarch is the head</b> of the Church of England.</li>
+          <li>The <b>spiritual leader</b> is the <b>Archbishop of Canterbury</b> — chosen with the involvement of <b>the Prime Minister and a Church-appointed committee</b> (the monarch makes the appointment).</li>
+          <li><b>Several Church of England bishops sit in the House of Lords.</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Church of Scotland &amp; the rest</h3>
+        <ul class="facts">
+          <li>The national church of Scotland is <b>Presbyterian</b>.</li>
+          <li>Governed by <b>ministers and elders</b>; its head is the <b>Moderator</b>, appointed <b>annually</b>.</li>
+          <li><b>No established church</b> in <b>Wales</b> or <b>Northern Ireland</b>.</li>
+          <li>Other Christian groups: <b>Baptists, Methodists, Presbyterians, Quakers, Roman Catholics</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="n">1 March</div>
+        <div class="who">St David</div>
+        <div class="of">Wales</div>
+        <span class="fate">works normally</span>
+      </div>
+      <div class="tile">
+        <div class="n">17 March</div>
+        <div class="who">St Patrick</div>
+        <div class="of">Northern Ireland</div>
+        <span class="fate x">official holiday</span>
+      </div>
+      <div class="tile">
+        <div class="n">23 April</div>
+        <div class="who">St George</div>
+        <div class="of">England</div>
+        <span class="fate">works normally</span>
+      </div>
+      <div class="tile">
+        <div class="n">30 November</div>
+        <div class="who">St Andrew</div>
+        <div class="of">Scotland</div>
+        <span class="fate x">official holiday</span>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">“David, Patrick, George… then a long wait for Andrew”</span>
+      Calendar order: <b>1 Mar → 17 Mar → 23 Apr → 30 Nov</b>. Two saints in March, one in April, one alone in November. Only the <b>Celtic-fringe pair with holidays</b> — Patrick (NI) and Andrew (Scotland) — get the day off.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      The <b>monarch is the head</b> of the Church of England; the <b>Archbishop of Canterbury is only its spiritual leader</b> — don't swap them. And “Episcopal Church” is the <b>Church of England's</b> name in Scotland — the <b>Church of Scotland</b> itself is <b>Presbyterian</b>.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 3 · CUSTOMS & TRADITIONS ═══════════════ -->
+<section class="era" id="era3" style="--era: var(--era3)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">3</div>
+      <div class="era-title">
+        <h2>Customs &amp; Traditions</h2>
+        <div class="era-span">One year of festivals — fixed days vs moving feasts</div>
+      </div>
+    </div>
+    <p class="era-sub">Picture a single year and pin every festival to it. The test asks two things: <strong>when</strong> is it, and <strong>what does it celebrate</strong>.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">1 Jan</div><div class="kd-what">New Year (holiday)</div></div>
+      <div class="kd-item"><div class="kd-year">14 Feb</div><div class="kd-what">Valentine's Day</div></div>
+      <div class="kd-item"><div class="kd-year">1 Apr</div><div class="kd-what">April Fool — until midday</div></div>
+      <div class="kd-item"><div class="kd-year">14 Apr</div><div class="kd-what">Vaisakhi (fixed)</div></div>
+      <div class="kd-item"><div class="kd-year">31 Oct</div><div class="kd-what">Halloween</div></div>
+      <div class="kd-item"><div class="kd-year">5 Nov</div><div class="kd-what">Bonfire Night</div></div>
+      <div class="kd-item"><div class="kd-year">11 Nov</div><div class="kd-what">Remembrance Day</div></div>
+      <div class="kd-item"><div class="kd-year">25 Dec</div><div class="kd-what">Christmas Day</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>The Christmas season</h3>
+        <ul class="facts">
+          <li><b>Christmas Day, 25 December</b> — public holiday celebrating <b>the birth of Jesus Christ</b>. Roast <b>turkey, Christmas pudding, mince pies</b>; gifts, cards, decorated trees.</li>
+          <li>Children hang stockings for <b>Father Christmas (Santa Claus)</b>.</li>
+          <li><b>Christmas Eve (24 Dec)</b> — many Christians attend church.</li>
+          <li><b>Boxing Day (26 Dec)</b> — the day after Christmas, also a <b>public holiday</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Easter &amp; Lent</h3>
+        <ul class="facts">
+          <li><b>Easter</b> (March or April) marks <b>Christ's death on Good Friday and rising on Easter Sunday</b>.</li>
+          <li><b>Good Friday and Easter Monday are public holidays.</b></li>
+          <li><b>Lent</b> — the <b>40 days</b> before Easter; people traditionally fast or <b>give something up</b>.</li>
+          <li><b>Shrove Tuesday (Pancake Day)</b> — pancakes eaten the day before Lent.</li>
+          <li><b>Ash Wednesday</b> — Lent begins; churchgoers are <b>marked with an ash cross</b> on the forehead.</li>
+          <li><b>Easter eggs</b> symbolise <b>new life</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Faith festivals</h3>
+        <ul class="facts">
+          <li><b>Diwali</b> (Oct/Nov, lasts 5 days) — <b>“Festival of Lights”</b>, celebrated by <b>Hindus and Sikhs</b>; victory of <b>good over evil</b> and the gaining of knowledge. Famous celebrations in <b>Leicester</b>.</li>
+          <li><b>Hannukah</b> (Nov/Dec, 8 days) — Jewish struggle for <b>religious freedom</b>; a candle lit each day on the <b>menorah</b>.</li>
+          <li><b>Eid al-Fitr</b> — marks <b>the end of Ramadan</b>; Muslims thank Allah for the strength to fast.</li>
+          <li><b>Eid ul Adha</b> — remembers <b>Ibrahim's willingness to sacrifice his son</b>; in Britain animal sacrifice must happen <b>in a slaughterhouse</b>.</li>
+          <li><b>Vaisakhi (14 April, fixed)</b> — Sikh festival of the founding of <b>the Khalsa</b>; parades, dancing, singing.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The secular calendar</h3>
+        <ul class="facts">
+          <li><b>New Year, 1 January</b> — public holiday; celebrated the night of 31 December. In Scotland: <b>Hogmanay</b>, and <b>2 January is also a holiday</b>.</li>
+          <li><b>Valentine's Day, 14 February</b> — cards and gifts; sometimes <b>anonymous cards</b> to secret admirers.</li>
+          <li><b>April Fool's Day, 1 April</b> — jokes <b>only until midday</b>.</li>
+          <li><b>Mothering Sunday</b> — the Sunday <b>three weeks before Easter</b>.</li>
+          <li><b>Father's Day</b> — the <b>third Sunday in June</b>.</li>
+          <li><b>Halloween, 31 October</b> — <b>ancient pagan roots</b>; costumes, <b>trick or treat</b>, pumpkin lanterns.</li>
+          <li><b>Bonfire Night, 5 November</b> — fireworks recall <b>1605</b>, when <b>Guy Fawkes</b> and a group plotted to <b>kill the Protestant king with a bomb in the Houses of Parliament</b>.</li>
+          <li><b>Remembrance Day, 11 November</b> — honours the war dead; began with <b>WWI, which ended in 1918</b>. <b>Poppies</b>, a <b>two-minute silence at 11 am</b>, wreaths at <b>the Cenotaph in Whitehall</b>.</li>
+        </ul>
+      </div>
+      <div class="card wide">
+        <h3>Bank holidays</h3>
+        <ul class="facts">
+          <li>Public holidays with no religious meaning: <b>early May</b>, <b>late May or early June</b>, and <b>August</b>.</li>
+          <li>Northern Ireland also marks <b>the anniversary of the Battle of the Boyne in July</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Autumn's 1-2-3 punch: 31/10 · 5/11 · 11/11</span>
+      Halloween, Bonfire Night, Remembrance Day — three dates twelve days apart. And keep <b>Vaisakhi</b> as the only faith festival with a <b>fixed date (14 April)</b>; Easter, Diwali, Hannukah and both Eids all move.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      <b>Diwali is celebrated by Hindus AND Sikhs</b> — not Hindus alone. <b>Eid al-Fitr ends Ramadan</b>; <b>Eid ul Adha is about Ibrahim's sacrifice</b> — the test loves swapping them. Mothering Sunday floats with Easter; Father's Day is fixed to a weekday pattern (3rd Sunday of June).
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 4 · SPORT ═══════════════ -->
+<section class="era" id="era4" style="--era: var(--era4)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">4</div>
+      <div class="era-title">
+        <h2>Sport</h2>
+        <div class="era-span">Three Olympics · sixteen champions · nine sports</div>
+      </div>
+    </div>
+    <p class="era-sub">Big venues: <strong>Wembley Stadium</strong> and the <strong>Millennium Stadium, Cardiff</strong>. The UK has hosted the Olympics <strong>three times — 1908, 1948 and 2012</strong> (main site: <strong>Stratford, East London</strong>; Britain finished <strong>third</strong> in the 2012 medal table). The Paralympics grew from the work of <strong>Dr Sir Ludwig Guttmann</strong>, a German refugee, at <strong>Stoke Mandeville hospital</strong>.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">1908</div><div class="kd-what">1st London Olympics</div></div>
+      <div class="kd-item"><div class="kd-year">1948</div><div class="kd-what">2nd London Olympics</div></div>
+      <div class="kd-item"><div class="kd-year">2012</div><div class="kd-what">3rd — Stratford, E. London</div></div>
+      <div class="kd-item"><div class="kd-year">1954</div><div class="kd-what">Bannister's 4-minute mile</div></div>
+      <div class="kd-item"><div class="kd-year">1966</div><div class="kd-what">England wins World Cup</div></div>
+      <div class="kd-item"><div class="kd-year">1872</div><div class="kd-what">first tennis club, Leamington Spa</div></div>
+      <div class="kd-item"><div class="kd-year">1902</div><div class="kd-what">first UK motor race</div></div>
+    </div>
+
+    <div class="people">
+      <div class="person"><p class="p-name">Sir Roger Bannister</p><p class="p-life">1929– · athletics</p><p class="p-note"><b>First man to run a mile in under four minutes</b>, in <b>1954</b>.</p></div>
+      <div class="person"><p class="p-name">Sir Jackie Stewart</p><p class="p-life">1939– · motor racing</p><p class="p-note">Scottish driver who won the <b>Formula 1 championship three times</b>.</p></div>
+      <div class="person"><p class="p-name">Bobby Moore</p><p class="p-life">1941–93 · football</p><p class="p-note"><b>Captained England to the 1966 World Cup</b>, hosted in the UK.</p></div>
+      <div class="person"><p class="p-name">Sir Ian Botham</p><p class="p-life">1955– · cricket</p><p class="p-note"><b>Captained the England cricket team</b> and set batting and bowling records.</p></div>
+      <div class="person"><p class="p-name">Torvill &amp; Dean</p><p class="p-life">1957– / 1958– · ice dance</p><p class="p-note">Jayne Torvill and Christopher Dean won <b>Olympic ice-dancing gold in 1984</b>.</p></div>
+      <div class="person"><p class="p-name">Sir Steve Redgrave</p><p class="p-life">1962– · rowing</p><p class="p-note">Rowing gold at <b>five consecutive Olympic Games</b>.</p></div>
+      <div class="person"><p class="p-name">Baroness Tanni Grey-Thompson</p><p class="p-life">1969– · wheelchair athletics</p><p class="p-note"><b>16 Paralympic medals</b> and <b>six London Marathon wins</b>.</p></div>
+      <div class="person"><p class="p-name">Dame Kelly Holmes</p><p class="p-life">1970– · athletics</p><p class="p-note"><b>Two running golds at the 2004 Olympics</b>.</p></div>
+      <div class="person"><p class="p-name">Dame Ellen MacArthur</p><p class="p-life">1976– · sailing</p><p class="p-note"><b>Fastest person to sail around the world single-handed</b> (2004).</p></div>
+      <div class="person"><p class="p-name">Sir Chris Hoy</p><p class="p-life">1976– · cycling</p><p class="p-note">Scottish cyclist: <b>six Olympic golds and one silver</b>.</p></div>
+      <div class="person"><p class="p-name">David Weir</p><p class="p-life">1979– · wheelchair athletics</p><p class="p-note"><b>Six golds over two Paralympic Games</b> and <b>six London Marathon wins</b>.</p></div>
+      <div class="person"><p class="p-name">Sir Bradley Wiggins</p><p class="p-life">1980– · cycling</p><p class="p-note"><b>First Briton to win the Tour de France</b> (2012).</p></div>
+      <div class="person"><p class="p-name">Sir Mo Farah</p><p class="p-life">1983– · athletics</p><p class="p-note">2012 Olympic gold in the <b>5,000 and 10,000 metres</b>.</p></div>
+      <div class="person"><p class="p-name">Dame Jessica Ennis</p><p class="p-life">1986– · athletics</p><p class="p-note"><b>2012 Olympic heptathlon gold</b> — seven events.</p></div>
+      <div class="person"><p class="p-name">Sir Andy Murray</p><p class="p-life">1987– · tennis</p><p class="p-note">Won the <b>2012 US Open</b> — <b>first British man to win a Grand Slam singles title since 1936</b>.</p></div>
+      <div class="person"><p class="p-name">Ellie Simmonds</p><p class="p-life">1994– · swimming</p><p class="p-note">Paralympic <b>swimming golds in 2008 and 2012</b>.</p></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Cricket &amp; football</h3>
+        <ul class="facts">
+          <li><b>Cricket originated in England</b>; matches can last <b>up to five days — and still end in a draw</b>.</li>
+          <li>The most famous series: <b>the Ashes</b>, England vs <b>Australia</b>.</li>
+          <li><b>Football is the UK's most popular sport</b>; first professional clubs formed in the <b>late 19th century</b>.</li>
+          <li>Each UK nation has <b>its own leagues and national team</b>.</li>
+          <li>England's only international trophy: the <b>1966 World Cup</b>, hosted in the UK.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Rugby &amp; horse racing</h3>
+        <ul class="facts">
+          <li><b>Rugby originated in England in the early 19th century</b>; two codes — <b>union and league</b>.</li>
+          <li>Top competitions: the <b>Six Nations Championship</b> (union) and the <b>Super League</b> (league).</li>
+          <li>Horse racing goes back to <b>Roman times</b>; key events: <b>Royal Ascot</b>, the <b>Grand National at Aintree</b>, the <b>Scottish Grand National at Ayr</b>.</li>
+          <li><b>National Horseracing Museum — Newmarket, Suffolk</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Golf &amp; tennis</h3>
+        <ul class="facts">
+          <li>Golf traces to <b>15th-century Scotland</b>; <b>St Andrews is the home of golf</b>.</li>
+          <li><b>The Open Championship</b> — the only golf “Major” held <b>outside the United States</b>.</li>
+          <li>Modern tennis <b>evolved in England, late 19th century</b>; the <b>first tennis club: Leamington Spa, 1872</b>.</li>
+          <li><b>Wimbledon</b> — the <b>oldest tennis tournament in the world</b> and the only Grand Slam <b>played on grass</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Water, motor &amp; snow</h3>
+        <ul class="facts">
+          <li><b>Sir Francis Chichester</b> sailed <b>single-handed around the world in 1966/67</b>; <b>Sir Robin Knox-Johnston</b> did it <b>without stopping</b> two years later.</li>
+          <li>Rowing: the annual <b>Oxford–Cambridge boat race on the Thames</b>.</li>
+          <li><b>Motor racing in the UK began in 1902</b>; British F1 world champions include <b>Damon Hill, Lewis Hamilton, Jenson Button</b>.</li>
+          <li>Skiing: dry slopes across the UK, <b>five ski centres in Scotland</b>, and <b>Europe's longest dry ski slope near Edinburgh</b>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">2012 — the golden summer</span>
+      One year, five names: <b>Wiggins</b> (first British Tour de France), <b>Farah</b> (5k + 10k gold), <b>Ennis</b> (heptathlon gold), <b>Murray</b> (US Open), <b>Simmonds</b> (Paralympic pool). Add the venue — <b>Stratford, East London</b> — and Britain's <b>third-place</b> medal finish.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Two different wheelchair racers won the London Marathon <b>six times each</b>: <b>Tanni Grey-Thompson</b> (also 16 Paralympic medals) and <b>David Weir</b> (six golds over two Games). <b>Redgrave = 5 consecutive Games</b>, <b>Hoy = 6 golds</b> — don't let the numbers migrate between names.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 5 · ARTS & CULTURE ═══════════════ -->
+<section class="era" id="era5" style="--era: var(--era5)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">5</div>
+      <div class="era-title">
+        <h2>Arts &amp; Culture</h2>
+        <div class="era-span">Music · theatre · art · architecture · fashion · books · poems</div>
+      </div>
+    </div>
+    <p class="era-sub">The densest name-list in the handbook. Strategy: every name is welded to <strong>one work or one claim to fame</strong>. Learn the weld, ignore the rest.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">1927</div><div class="kd-what">BBC has run the Proms since</div></div>
+      <div class="kd-item"><div class="kd-year">1952</div><div class="kd-what">The Mousetrap opens — still running</div></div>
+      <div class="kd-item"><div class="kd-year">1968</div><div class="kd-what">Man Booker Prize begins</div></div>
+      <div class="kd-item"><div class="kd-year">1984</div><div class="kd-what">Turner Prize founded</div></div>
+      <div class="kd-item"><div class="kd-year">2003</div><div class="kd-what">Lord of the Rings voted best-loved novel</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Classical composers — the chain</h3>
+        <ul class="facts">
+          <li><b>Henry Purcell</b> <span class="y">1659–95</span> — organist at <b>Westminster Abbey</b>; church music and operas; a distinctly British style.</li>
+          <li><b>George Frederick Handel</b> <span class="y">1695–1759</span> — <b>German-born, became a British citizen in 1727</b>; <b>Water Music</b> (George I), <b>Music for the Royal Fireworks</b> (George II), the oratorio <b>Messiah</b>.</li>
+          <li><b>Sir Edward Elgar</b> <span class="y">1857–1934</span> — born in Worcester; <b>Pomp and Circumstance March No. 1 (“Land of Hope and Glory”)</b>, a Last Night of the Proms fixture.</li>
+          <li><b>Gustav Holst</b> <span class="y">1874–1934</span> — <b>The Planets</b>; adapted <b>Jupiter</b> into the hymn <b>“I Vow to Thee, My Country”</b>.</li>
+          <li><b>Ralph Vaughan Williams</b> <span class="y">1872–1958</span> — orchestral and choral music shaped by <b>English folk music</b>.</li>
+          <li><b>Sir William Walton</b> <span class="y">1902–83</span> — <b>coronation marches</b> for George VI and Elizabeth II; <b>Façade</b>, <b>Belshazzar's Feast</b>.</li>
+          <li><b>Benjamin Britten</b> <span class="y">1913–76</span> — operas <b>Peter Grimes</b> and <b>Billy Budd</b>; <b>A Young Person's Guide to the Orchestra</b> (on a Purcell theme); founded the <b>Aldeburgh festival, Suffolk</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pop, venues &amp; prizes</h3>
+        <ul class="facts">
+          <li><b>The Proms</b> — an <b>eight-week</b> summer season of orchestral music, run by the <b>BBC since 1927</b>; the <b>Last Night</b> (Royal Albert Hall) is televised.</li>
+          <li><b>The Beatles and The Rolling Stones</b> led the British sound from the <b>1960s</b>; <b>punk</b> hit in the <b>late 1970s</b>; <b>boy and girl bands</b> in the <b>1990s</b>.</li>
+          <li>Venues: <b>Wembley Stadium</b>, <b>The O2</b> (Greenwich, SE London), the <b>SECC in Glasgow</b>.</li>
+          <li>Festivals: <b>Glastonbury</b>, <b>Isle of Wight</b>, <b>V Festival</b>.</li>
+          <li><b>National Eisteddfod of Wales</b> — annual festival of music, dance, art and <b>Welsh-language</b> performance and poetry.</li>
+          <li><b>Mercury Music Prize</b> — each <b>September</b>, best album from the <b>UK and Ireland</b>. <b>Brit Awards</b> — best British group and solo artist.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Theatre</h3>
+        <ul class="facts">
+          <li><b>London's West End — “Theatreland”</b>.</li>
+          <li><b>The Mousetrap</b> (Agatha Christie) — running <b>since 1952</b>, the <b>longest initial run in history</b>.</li>
+          <li><b>Gilbert and Sullivan</b> — comic operas: <b>HMS Pinafore, The Pirates of Penzance, The Mikado</b>.</li>
+          <li><b>Andrew Lloyd Webber</b> — <b>Jesus Christ Superstar</b> and <b>Evita</b> (with <b>Tim Rice</b>), <b>Cats</b>, <b>The Phantom of the Opera</b>.</li>
+          <li><b>Pantomime</b> — Christmas family shows from fairy tales; the <b>Dame is a woman played by a man</b>; the panto horse is two actors.</li>
+          <li><b>Edinburgh Festival</b> each summer — its <b>Fringe</b> shows theatre and comedy, <b>often experimental</b>.</li>
+          <li><b>Laurence Olivier Awards</b> — London stage awards named after the great Shakespearean actor.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Art &amp; the Turner Prize</h3>
+        <ul class="facts">
+          <li>Medieval art was <b>religious</b>; many 16th–17th-century painters here were foreign — <b>Holbein, Van Dyck</b>.</li>
+          <li><b>Thomas Gainsborough</b> <span class="y">1727–88</span> — portraits, often in country/garden settings.</li>
+          <li><b>David Allan</b> <span class="y">1744–96</span> — Scottish portraitist; <b>The Origin of Painting</b>.</li>
+          <li><b>Joseph Turner</b> <span class="y">1775–1851</span> — modern-style <b>landscapes</b>; raised the whole genre's standing.</li>
+          <li><b>John Constable</b> <span class="y">1776–1837</span> — landscapes of <b>Dedham Vale</b> on the Suffolk–Essex border.</li>
+          <li><b>The Pre-Raphaelites</b> — late 19th century; detailed, brightly coloured religious and literary scenes — <b>Holman Hunt, Rossetti, Millais</b>.</li>
+          <li><b>Sir John Lavery</b> <span class="y">1856–1941</span> — Northern Irish portraitist; painted <b>the Royal Family</b>.</li>
+          <li><b>Henry Moore</b> <span class="y">1898–1986</span> — <b>large bronze abstract sculptures</b>.</li>
+          <li><b>John Petts</b> <span class="y">1914–91</span> — Welsh; <b>engravings and stained glass</b>.</li>
+          <li><b>Lucian Freud</b> <span class="y">1922–2011</span> — German-born; <b>portraits</b>. <b>David Hockney</b> <span class="y">1937–</span> — <b>1960s pop art</b>.</li>
+          <li>Galleries: <b>National Gallery, Tate Britain, Tate Modern</b> (London), <b>National Museum, Cardiff</b>, <b>National Gallery of Scotland, Edinburgh</b>.</li>
+          <li><b>Turner Prize</b> — founded <b>1984</b> for contemporary art; <b>four shortlisted works at Tate Britain</b>; winners include <b>Damien Hirst and Richard Wright</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Architecture &amp; gardens</h3>
+        <ul class="facts">
+          <li>Medieval cathedrals still standing: <b>Durham, Lincoln, Canterbury, Salisbury</b>; the <b>White Tower</b> (Tower of London) is a <b>Norman keep built for William the Conqueror</b>.</li>
+          <li><b>Inigo Jones</b> (17th c.) — <b>Queen's House, Greenwich</b> and <b>Banqueting House, Whitehall</b>, from classical models.</li>
+          <li><b>Sir Christopher Wren</b> — the new <b>St Paul's Cathedral</b>.</li>
+          <li><b>Robert Adam</b> (18th c., Scottish) — interiors and houses like <b>Dumfries House</b>; influenced <b>Bath's Royal Crescent</b>.</li>
+          <li>19th century — the <b>gothic revival</b>: <b>Houses of Parliament, St Pancras Station</b>, Manchester and Sheffield town halls.</li>
+          <li><b>Sir Edwin Lutyens</b> (20th c.) — designed <b>New Delhi</b> as India's seat of government and <b>the Cenotaph in Whitehall</b>.</li>
+          <li>Gardens: <b>Lancelot “Capability” Brown</b> — natural-looking landscapes; <b>Gertrude Jekyll</b> — colourful gardens, often with Lutyens; the <b>Chelsea Flower Show</b>.</li>
+          <li>Moderns: <b>Sir Norman Foster, Lord Richard Rogers, Dame Zaha Hadid</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Fashion &amp; design</h3>
+        <ul class="facts">
+          <li><b>Thomas Chippendale</b> — 18th-century <b>furniture</b>.</li>
+          <li><b>Clarice Cliff</b> — <b>Art Deco ceramics</b>.</li>
+          <li><b>Sir Terence Conran</b> — 20th-century <b>interior design</b>.</li>
+          <li>Fashion: <b>Mary Quant, Alexander McQueen, Vivienne Westwood</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Novelists — name → book</h3>
+        <ul class="facts">
+          <li><b>Jane Austen</b> <span class="y">1775–1817</span> — <b>Pride and Prejudice</b>, <b>Sense and Sensibility</b>; marriage and family.</li>
+          <li><b>Charles Dickens</b> <span class="y">1812–70</span> — <b>Oliver Twist</b>, <b>Great Expectations</b>; gave English <b>Scrooge</b> and <b>Mr Micawber</b>.</li>
+          <li><b>Thomas Hardy</b> <span class="y">1840–1928</span> — <b>Far from the Madding Crowd</b>, <b>Jude the Obscure</b>; rural settings.</li>
+          <li><b>Robert Louis Stevenson</b> <span class="y">1850–94</span> — <b>Treasure Island, Kidnapped, Dr Jekyll and Mr Hyde</b>.</li>
+          <li><b>Sir Arthur Conan Doyle</b> <span class="y">1859–1930</span> — Scottish doctor who created <b>Sherlock Holmes</b>.</li>
+          <li><b>Evelyn Waugh</b> <span class="y">1903–66</span> — satire: <b>Decline and Fall, Scoop, Brideshead Revisited</b>.</li>
+          <li><b>Graham Greene</b> <span class="y">1904–91</span> — <b>The Heart of the Matter, The Honorary Consul, Brighton Rock, Our Man in Havana</b>.</li>
+          <li><b>Sir Kingsley Amis</b> <span class="y">1922–95</span> — 20+ novels; <b>Lucky Jim</b>.</li>
+          <li><b>J.K. Rowling</b> <span class="y">1965–</span> — <b>Harry Potter</b>; now also writes for adults.</li>
+          <li><b>Agatha Christie</b> — detective stories <b>read worldwide</b>; <b>Ian Fleming</b> — <b>James Bond</b>; <b>Tolkien's Lord of the Rings</b> — voted the nation's <b>best-loved novel in 2003</b>.</li>
+          <li>Nobel literature laureates: <b>Sir William Golding, Seamus Heaney, Harold Pinter</b>.</li>
+          <li><b>Man Booker Prize</b> — since <b>1968</b>, best fiction from the Commonwealth, Ireland or Zimbabwe; winners include <b>Ian McEwan, Hilary Mantel, Julian Barnes</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Poets — the roll call</h3>
+        <ul class="facts">
+          <li><b>Beowulf</b> — Anglo-Saxon epic, still translated today.</li>
+          <li><b>Chaucer — The Canterbury Tales</b>; <b>Sir Gawain and the Green Knight</b> tells of King Arthur's court.</li>
+          <li><b>John Milton — Paradise Lost</b>, born of Protestant ideas.</li>
+          <li><b>Shakespeare</b> — plays, long poems, and <b>sonnets (14 lines)</b>.</li>
+          <li>Nature poets: <b>William Wordsworth</b>; <b>Sir Walter Scott</b> — poems (and novels) inspired by Scotland and border ballads.</li>
+          <li>19th century: <b>Blake, Keats, Byron, Shelley, Tennyson, Robert and Elizabeth Browning</b>.</li>
+          <li>WWI poets: <b>Wilfred Owen and Siegfried Sassoon</b> wrote from the trenches.</li>
+          <li>Moderns: <b>Walter de la Mare, John Masefield, Sir John Betjeman, Ted Hughes</b>.</li>
+          <li>Many rest in <b>Poets' Corner, Westminster Abbey</b>.</li>
+          <li>Quoted lines to recognise: Browning's <b>“Oh, to be in England / Now that April's there”</b>; Byron's <b>“She walks in beauty, like the night”</b>; Wordsworth's <b>“I wander'd lonely as a cloud”</b>; Blake's <b>“Tyger! Tyger! Burning bright”</b>; Owen's <b>“What passing-bells for these who die as cattle?”</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">Prize triangle: Turner paints · Mercury sings · Booker writes</span>
+      <b>Turner Prize</b> = contemporary <b>art</b> (1984, Tate Britain, Hirst &amp; Wright). <b>Mercury Prize</b> = best <b>album</b> (September, UK &amp; Ireland). <b>Man Booker</b> = <b>fiction</b> (since 1968, McEwan/Mantel/Barnes). Three prizes, three art forms — never let the test cross the wires.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      Two famous <b>German-born</b> Britons: composer <b>Handel</b> (citizen 1727) and painter <b>Lucian Freud</b>. <b>Holst wrote The Planets</b>, <b>Elgar wrote Land of Hope and Glory</b> — swapped constantly. And the WWI poets are <b>Owen and Sassoon</b>; Ted Hughes and Betjeman are later.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 6 · LEISURE & PLACES ═══════════════ -->
+<section class="era" id="era6" style="--era: var(--era6)">
+  <div class="wrap">
+    <div class="era-head">
+      <div class="era-num">6</div>
+      <div class="era-title">
+        <h2>Leisure &amp; Places of Interest</h2>
+        <div class="era-span">Handbook sections 6 + 7 · food · film · rules · landmarks</div>
+      </div>
+    </div>
+    <p class="era-sub">Everyday Britain: what people eat, watch and drink — with the <strong>age limits and fines</strong> the test adores — plus the ten landmarks the handbook names.</p>
+
+    <div class="kd">
+      <div class="kd-item"><div class="kd-year">1896</div><div class="kd-what">first public film showings in the UK</div></div>
+      <div class="kd-item"><div class="kd-year">1969</div><div class="kd-what">Monty Python's Flying Circus</div></div>
+      <div class="kd-item"><div class="kd-year">18</div><div class="kd-what">alcohol &amp; betting age</div></div>
+      <div class="kd-item"><div class="kd-year">16</div><div class="kd-what">lottery age · wine/beer with a meal</div></div>
+      <div class="kd-item"><div class="kd-year">£1,000</div><div class="kd-what">max fine for no TV licence</div></div>
+      <div class="kd-item"><div class="kd-year">15</div><div class="kd-what">national parks (England, Wales, Scotland)</div></div>
+      <div class="kd-item"><div class="kd-year">1895</div><div class="kd-what">National Trust founded by 3 volunteers</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Gardens &amp; national flowers</h3>
+        <ul class="facts">
+          <li><b>England:</b> Kew Gardens, Sissinghurst, Hidcote — flower: <b>the rose</b></li>
+          <li><b>Scotland:</b> Crathes Castle, Inveraray Castle — flower: <b>the thistle</b></li>
+          <li><b>Wales:</b> Bodnant Garden — flower: <b>the daffodil</b></li>
+          <li><b>Northern Ireland:</b> Mount Stewart — flower: <b>the shamrock</b></li>
+          <li>National flowers are worn on <b>each country's saint's day</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Traditional food — one dish per nation</h3>
+        <ul class="facts">
+          <li><b>England:</b> <b>roast beef</b> with potatoes, vegetables and <b>Yorkshire pudding</b> (oven-baked batter); also <b>fish and chips</b>.</li>
+          <li><b>Wales:</b> <b>Welsh cakes</b> — flour, dried fruits, spices.</li>
+          <li><b>Scotland:</b> <b>haggis</b> — a sheep's stomach stuffed with offal, suet, onions and oatmeal.</li>
+          <li><b>Northern Ireland:</b> the <b>Ulster fry</b> — bacon, eggs, sausage, black and white pudding, tomatoes, mushrooms, soda bread, potato bread.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Film</h3>
+        <ul class="facts">
+          <li>Films <b>first shown publicly in the UK in 1896</b>.</li>
+          <li><b>Charlie Chaplin</b> — famous for his <b>tramp</b> character in silent film.</li>
+          <li><b>Alfred Hitchcock</b> directed here before moving to Hollywood; died <b>1980</b>.</li>
+          <li><b>In Which We Serve</b> boosted <b>wartime morale</b> in WWII.</li>
+          <li><b>Ealing Studios</b> — a claim to being the <b>oldest continuously working film studio in the world</b>.</li>
+          <li><b>Nick Park</b> — <b>four Oscars</b>, including three for <b>Wallace and Gromit</b>.</li>
+          <li><b>Harry Potter and James Bond</b> — the two <b>highest-grossing UK film franchises</b>.</li>
+          <li>Recent Oscar-winning actors: <b>Colin Firth, Sir Anthony Hopkins, Dame Judi Dench, Kate Winslet, Tilda Swinton</b>.</li>
+          <li>The <b>British Academy Film Awards (BAFTAs)</b> — the British Oscars.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Comedy, TV &amp; social media</h3>
+        <ul class="facts">
+          <li>The comic tradition: medieval <b>jesters</b> → Shakespeare's comic characters → 18th-century <b>political cartoons</b> → satirical magazines: <b>Punch (1840s)</b>, then <b>Private Eye</b>.</li>
+          <li><b>Monty Python's Flying Circus (1969)</b> — a new, progressive comedy; sitcoms and stand-up thrive today.</li>
+          <li><b>TV licence:</b> one covers <b>all equipment in one home</b> (separate tenancies need their own); watching without one risks a fine of <b>up to £1,000</b>.</li>
+          <li><b>Over-75s: free licence</b>; <b>blind people: 50% discount</b>.</li>
+          <li>The <b>BBC</b> — funded by the licence fee; <b>the only wholly state-funded media organisation independent of government</b>.</li>
+          <li>Social networking: <b>Facebook and Twitter</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pubs, betting &amp; pets — the rulebook</h3>
+        <ul class="facts">
+          <li><b>18</b> to buy alcohol in a pub or night club.</li>
+          <li>At <b>16</b>, you may drink <b>wine or beer with a meal</b> in a hotel or restaurant (including pub eating areas) <b>with someone over 18</b>.</li>
+          <li>Pubs usually open from <b>11.00 am</b> (<b>noon on Sundays</b>).</li>
+          <li><b>18</b> to enter betting shops or gambling clubs; <b>under-16s cannot play the National Lottery</b>.</li>
+          <li>Dogs in public must wear a <b>collar with the owner's name and address</b>; the owner must <b>control the dog and clean up after it</b>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Countryside &amp; the National Trust</h3>
+        <ul class="facts">
+          <li>A large network of <b>public footpaths</b>; mountain biking, mountaineering, hill walking.</li>
+          <li><b>15 national parks</b> in <b>England, Wales and Scotland</b>.</li>
+          <li><b>The National Trust</b> — founded <b>1895 by three volunteers</b>; now <b>over 61,000 volunteers</b>; preserves buildings, coastline and countryside.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="font-family: var(--serif); font-weight: 500; font-size: 1.4rem; margin: 34px 0 0;">The named films — year · title · director</h3>
+    <div class="inv-grid">
+      <div class="inv"><div class="iy">1935</div><div class="iw">The 39 Steps</div><div class="ii">Alfred Hitchcock</div></div>
+      <div class="inv"><div class="iy">1945</div><div class="iw">Brief Encounter</div><div class="ii">David Lean</div></div>
+      <div class="inv"><div class="iy">1949</div><div class="iw">The Third Man</div><div class="ii">Carol Reed</div></div>
+      <div class="inv"><div class="iy">1954</div><div class="iw">The Belles of St Trinian's</div><div class="ii">Frank Launder</div></div>
+      <div class="inv"><div class="iy">1962</div><div class="iw">Lawrence of Arabia</div><div class="ii">David Lean</div></div>
+      <div class="inv"><div class="iy">1969</div><div class="iw">Women in Love</div><div class="ii">Ken Russell</div></div>
+      <div class="inv"><div class="iy">1973</div><div class="iw">Don't Look Now</div><div class="ii">Nicolas Roeg</div></div>
+      <div class="inv"><div class="iy">1981</div><div class="iw">Chariots of Fire</div><div class="ii">Hugh Hudson</div></div>
+      <div class="inv"><div class="iy">1984</div><div class="iw">The Killing Fields</div><div class="ii">Roland Joffé</div></div>
+      <div class="inv"><div class="iy">1994</div><div class="iw">Four Weddings and a Funeral</div><div class="ii">Mike Newell</div></div>
+      <div class="inv"><div class="iy">2003</div><div class="iw">Touching the Void</div><div class="ii">Kevin MacDonald</div></div>
+    </div>
+
+    <h3 style="font-family: var(--serif); font-weight: 500; font-size: 1.4rem; margin: 34px 0 0;">The named landmarks — where &amp; why</h3>
+    <div class="inv-grid">
+      <div class="inv"><div class="iy">London</div><div class="iw">Big Ben</div><div class="ii">Nickname of the <b>great bell</b> at the Houses of Parliament; over 150 years old; tower renamed <b>Elizabeth Tower</b> for the 2012 Diamond Jubilee</div></div>
+      <div class="inv"><div class="iy">London</div><div class="iw">Tower of London</div><div class="ii">Built <b>1066</b> for <b>William the Conqueror</b>; home of the <b>Crown Jewels</b>; tours by <b>Yeoman Warders (Beefeaters)</b></div></div>
+      <div class="inv"><div class="iy">London</div><div class="iw">London Eye</div><div class="ii"><b>443 ft (135 m)</b> wheel on the Thames, built for the <b>millennium</b></div></div>
+      <div class="inv"><div class="iy">Cornwall</div><div class="iw">Eden Project</div><div class="ii">Giant biomes of plants from around the world; a <b>charity</b></div></div>
+      <div class="inv"><div class="iy">Scotland</div><div class="iw">Edinburgh Castle</div><div class="ii">Medieval origins; cared for by <b>Historic Scotland</b></div></div>
+      <div class="inv"><div class="iy">Scotland</div><div class="iw">Loch Lomond</div><div class="ii"><b>Largest expanse of fresh water in mainland Britain</b>; in the Loch Lomond &amp; Trossachs National Park (720 sq miles)</div></div>
+      <div class="inv"><div class="iy">N. Ireland</div><div class="iw">Giant's Causeway</div><div class="ii">Coastal rock columns formed <b>about 50 million years ago</b>; wrapped in legend</div></div>
+      <div class="inv"><div class="iy">Wales</div><div class="iw">Snowdonia</div><div class="ii">National park of <b>838 sq miles</b>; <b>Snowdon is Wales's highest mountain</b></div></div>
+      <div class="inv"><div class="iy">England</div><div class="iw">Lake District</div><div class="ii"><b>England's largest national park (885 sq miles)</b>; lakes and mountains; best-known lake: <b>Windermere</b>; Wastwater voted Britain's favourite view (2007)</div></div>
+    </div>
+
+    <div class="hook">
+      <span class="lab">Memory hook</span>
+      <span class="big">The age ladder: 16 → 18</span>
+      <b>16</b>: National Lottery, and wine/beer <b>with a meal</b> alongside an over-18. <b>18</b>: buy alcohol yourself, enter betting shops and gambling clubs. Everything self-service is 18; everything supervised is 16.
+    </div>
+
+    <div class="trap">
+      <span class="lab">Exam trap</span>
+      <b>15 national parks — in England, Wales and Scotland</b> (the handbook doesn't count NI). <b>Loch Lomond</b> is the largest fresh water in <b>mainland Britain</b>; the <b>Lake District</b> is England's largest <b>park</b>. National Trust: <b>1895, three volunteers</b> — but <b>61,000+ volunteers today</b>.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CHEAT SHEET ═══════════════ -->
+<section class="cheat" style="--era: var(--era4)">
+  <div class="wrap">
+    <h2>Chapter 4 — every number on one sheet</h2>
+    <p>Cover a column, recite, check. These are the exact figures the test pulls from this chapter.</p>
+    <div class="cs-cols">
+      <div class="cs-group" style="--era: var(--era1)">
+        <h3>Percentages</h3>
+        <div class="cs-row"><div class="cs-year">84 / 8 / 5 / 3</div><div class="cs-event">population: England / Scotland / Wales / NI (&lt;3%)</div></div>
+        <div class="cs-row"><div class="cs-year">70%</div><div class="cs-event">Christian · 21% none · 4% Muslim · 2% Hindu · 1% Sikh</div></div>
+        <div class="cs-row"><div class="cs-year">~10%</div><div class="cs-event">have a parent/grandparent born outside the UK</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era1)">
+        <h3>Population by year</h3>
+        <div class="cs-row"><div class="cs-year">1600</div><div class="cs-event">just over 4 million</div></div>
+        <div class="cs-row"><div class="cs-year">1700</div><div class="cs-event">5 million</div></div>
+        <div class="cs-row"><div class="cs-year">1801</div><div class="cs-event">8 million</div></div>
+        <div class="cs-row"><div class="cs-year">1851</div><div class="cs-event">20 million</div></div>
+        <div class="cs-row"><div class="cs-year">1901</div><div class="cs-event">40 million</div></div>
+        <div class="cs-row"><div class="cs-year">1951</div><div class="cs-event">50 million</div></div>
+        <div class="cs-row"><div class="cs-year">1998</div><div class="cs-event">57 million</div></div>
+        <div class="cs-row"><div class="cs-year">2005</div><div class="cs-event">just under 60 million</div></div>
+        <div class="cs-row"><div class="cs-year">2010</div><div class="cs-event">just over 62 million</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era2)">
+        <h3>Days of the year</h3>
+        <div class="cs-row"><div class="cs-year">1 Mar</div><div class="cs-event">St David — Wales</div></div>
+        <div class="cs-row"><div class="cs-year">17 Mar</div><div class="cs-event">St Patrick — NI (holiday)</div></div>
+        <div class="cs-row"><div class="cs-year">23 Apr</div><div class="cs-event">St George — England</div></div>
+        <div class="cs-row"><div class="cs-year">30 Nov</div><div class="cs-event">St Andrew — Scotland (holiday)</div></div>
+        <div class="cs-row"><div class="cs-year">14 Feb</div><div class="cs-event">Valentine's Day</div></div>
+        <div class="cs-row"><div class="cs-year">1 Apr</div><div class="cs-event">April Fool — jokes until midday</div></div>
+        <div class="cs-row"><div class="cs-year">14 Apr</div><div class="cs-event">Vaisakhi — the Khalsa</div></div>
+        <div class="cs-row"><div class="cs-year">31 Oct</div><div class="cs-event">Halloween</div></div>
+        <div class="cs-row"><div class="cs-year">5 Nov</div><div class="cs-event">Bonfire Night — Guy Fawkes, 1605</div></div>
+        <div class="cs-row"><div class="cs-year">11 Nov</div><div class="cs-event">Remembrance Day — WWI ended 1918</div></div>
+        <div class="cs-row"><div class="cs-year">25–26 Dec</div><div class="cs-event">Christmas Day · Boxing Day</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era4)">
+        <h3>Sport years</h3>
+        <div class="cs-row"><div class="cs-year">1872</div><div class="cs-event">first tennis club — Leamington Spa</div></div>
+        <div class="cs-row"><div class="cs-year">1902</div><div class="cs-event">first UK motor race</div></div>
+        <div class="cs-row"><div class="cs-year">1908 / 1948 / 2012</div><div class="cs-event">three London Olympics</div></div>
+        <div class="cs-row"><div class="cs-year">1954</div><div class="cs-event">Bannister runs a sub-4-minute mile</div></div>
+        <div class="cs-row"><div class="cs-year">1966</div><div class="cs-event">England wins the World Cup; Chichester sets sail</div></div>
+        <div class="cs-row"><div class="cs-year">1984</div><div class="cs-event">Torvill &amp; Dean ice-dance gold</div></div>
+        <div class="cs-row"><div class="cs-year">2004</div><div class="cs-event">Holmes' double gold; MacArthur's circumnavigation</div></div>
+        <div class="cs-row"><div class="cs-year">2012</div><div class="cs-event">Wiggins · Farah · Ennis · Murray · Simmonds</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era5)">
+        <h3>Culture years</h3>
+        <div class="cs-row"><div class="cs-year">1727</div><div class="cs-event">Handel becomes a British citizen</div></div>
+        <div class="cs-row"><div class="cs-year">1840s</div><div class="cs-event">Punch magazine first published</div></div>
+        <div class="cs-row"><div class="cs-year">1896</div><div class="cs-event">first public film showings in the UK</div></div>
+        <div class="cs-row"><div class="cs-year">1927</div><div class="cs-event">BBC starts running the Proms</div></div>
+        <div class="cs-row"><div class="cs-year">1952</div><div class="cs-event">The Mousetrap opens</div></div>
+        <div class="cs-row"><div class="cs-year">1968</div><div class="cs-event">Man Booker Prize founded</div></div>
+        <div class="cs-row"><div class="cs-year">1969</div><div class="cs-event">Monty Python's Flying Circus</div></div>
+        <div class="cs-row"><div class="cs-year">1984</div><div class="cs-event">Turner Prize founded</div></div>
+        <div class="cs-row"><div class="cs-year">2003</div><div class="cs-event">Lord of the Rings voted best-loved novel</div></div>
+      </div>
+      <div class="cs-group" style="--era: var(--era6)">
+        <h3>Rules &amp; sizes</h3>
+        <div class="cs-row"><div class="cs-year">18</div><div class="cs-event">buy alcohol · betting shops · gambling clubs</div></div>
+        <div class="cs-row"><div class="cs-year">16</div><div class="cs-event">lottery · wine/beer with a meal (with an over-18)</div></div>
+        <div class="cs-row"><div class="cs-year">11 am</div><div class="cs-event">pubs open (noon on Sundays)</div></div>
+        <div class="cs-row"><div class="cs-year">£1,000</div><div class="cs-event">max fine for watching TV without a licence</div></div>
+        <div class="cs-row"><div class="cs-year">75+</div><div class="cs-event">free TV licence; blind people get 50% off</div></div>
+        <div class="cs-row"><div class="cs-year">15</div><div class="cs-event">national parks (England, Wales, Scotland)</div></div>
+        <div class="cs-row"><div class="cs-year">1895</div><div class="cs-event">National Trust — 3 founders, 61,000+ volunteers now</div></div>
+        <div class="cs-row"><div class="cs-year">443 ft</div><div class="cs-event">London Eye (135 m)</div></div>
+        <div class="cs-row"><div class="cs-year">838 / 885</div><div class="cs-event">sq miles: Snowdonia / Lake District</div></div>
+        <div class="cs-row"><div class="cs-year">50m yrs</div><div class="cs-event">age of the Giant's Causeway</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="chapnav">The set: <a href="life-in-uk-chapter1.html">Chapter 1</a> · <a href="life-in-uk-chapter2.html">Chapter 2</a> · <a href="life-in-uk-chapter3.html">Chapter 3</a> · <span class="here">Chapter 4</span> · <a href="life-in-uk-chapter5.html">Chapter 5</a></p>
+    <p>Built from the Life in the UK study guide, Chapter 4: “A Modern, Thriving Society” (handbook sections 6 “Leisure” and 7 “Places of interest” share the sixth colour here). Figures reflect the official handbook's edition — the test follows the handbook's wording, so should your answers.</p>
+  </div>
+</footer>
+
+</body>
+</html>
