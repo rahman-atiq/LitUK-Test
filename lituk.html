@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Life in the UK — Study Quest 💛</title>
+<style>
+/* ============================================================
+   LIFE IN THE UK — STUDY QUEST
+   A single-file gamified quiz. All CSS + JS inline. Works offline.
+   ============================================================ */
+
+:root{
+  /* 💖 Pink theme — her favourite colour */
+  --bg1:#3a0d2e; --bg2:#6b1450; --bg3:#9b2168;
+  --card:rgba(255,255,255,0.09);
+  --card-solid:#4a1138;
+  --stroke:rgba(255,255,255,0.18);
+  --text:#fff2f8; --muted:#f0b9d6;
+  --accent:#ff4f9a; --accent2:#ffb347;
+  --good:#3ddc97; --good-d:#1faa74;
+  --bad:#ff6b8a;
+  --blue:#ff79c6; --gold:#ffd34d;
+  --r:22px;
+  --shadow:0 18px 50px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 700px at 15% -10%, #ff4f9a 0%, transparent 55%),
+    radial-gradient(1000px 800px at 110% 10%, #ffb34744 0%, transparent 50%),
+    linear-gradient(160deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+  background-attachment:fixed;
+  min-height:100dvh;
+  overflow-x:hidden;
+  -webkit-user-select:none; user-select:none;
+  -webkit-touch-callout:none;
+  touch-action:manipulation;
+}
+button{font-family:inherit; cursor:pointer; border:none; color:inherit;}
+.hidden{display:none !important;}
+
+/* ---------- App shell ---------- */
+#app{
+  max-width:760px; margin:0 auto; padding:16px 16px 90px;
+  min-height:100dvh; position:relative;
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  display:flex; align-items:center; gap:12px;
+  padding:10px 14px; margin-bottom:14px;
+  background:var(--card); border:1px solid var(--stroke);
+  border-radius:var(--r); backdrop-filter:blur(8px);
+  box-shadow:var(--shadow);
+}
+.avatar{
+  width:46px; height:46px; border-radius:50%; flex:0 0 auto;
+  display:grid; place-items:center; font-size:26px;
+  background:linear-gradient(145deg,var(--accent),var(--accent2));
+  box-shadow:0 6px 18px rgba(255,93,143,.45);
+}
+.topinfo{flex:1; min-width:0;}
+.topinfo .hi{font-size:13px; color:var(--muted);}
+.topinfo .lvl{font-weight:bold; font-size:16px; display:flex; align-items:center; gap:8px;}
+.xpwrap{height:9px; border-radius:9px; background:rgba(0,0,0,.3); overflow:hidden; margin-top:5px;}
+.xpbar{height:100%; width:0%; border-radius:9px;
+  background:linear-gradient(90deg,var(--gold),var(--accent2));
+  transition:width .6s cubic-bezier(.2,.9,.3,1.2);}
+.coinbox{display:flex; align-items:center; gap:5px; font-weight:bold; font-size:15px;
+  background:rgba(0,0,0,.25); padding:7px 12px; border-radius:14px;}
+.mutebtn{background:rgba(0,0,0,.25); border-radius:14px; padding:8px 11px; font-size:16px;}
+
+/* ---------- Screens ---------- */
+.screen{animation:fadeUp .45s cubic-bezier(.2,.8,.3,1.1);}
+@keyframes fadeUp{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:none;}}
+
+.hero{
+  text-align:center; padding:26px 18px;
+  background:var(--card); border:1px solid var(--stroke);
+  border-radius:26px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+  margin-bottom:18px;
+}
+.hero::before{content:""; position:absolute; inset:-40%;
+  background:conic-gradient(from 0deg, #ff5d8f33,#ffb34733,#4f7cff33,#3ddc9733,#ff5d8f33);
+  animation:spin 18s linear infinite; filter:blur(30px); opacity:.5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.hero>*{position:relative;}
+.hero .flag{font-size:42px; letter-spacing:4px;}
+.hero h1{margin:6px 0 4px; font-size:30px; line-height:1.1;
+  background:linear-gradient(90deg,#fff,#ffd9e6,#fff); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero p{margin:0; color:var(--muted); font-size:15px;}
+
+.menu{display:grid; gap:14px;}
+.tile{
+  display:flex; align-items:center; gap:16px; text-align:left;
+  padding:18px; border-radius:var(--r);
+  background:linear-gradient(135deg, var(--card), rgba(255,255,255,.03));
+  border:1px solid var(--stroke); box-shadow:var(--shadow);
+  transition:transform .12s ease, box-shadow .12s ease;
+  width:100%;
+}
+.tile:active{transform:scale(.97);}
+.tile .ti{font-size:34px; width:58px; height:58px; border-radius:18px; display:grid; place-items:center; flex:0 0 auto;}
+.t-practice .ti{background:linear-gradient(145deg,#4f7cff,#7a5cff);}
+.t-mock .ti{background:linear-gradient(145deg,#ff5d8f,#ff8a5c);}
+.t-review .ti{background:linear-gradient(145deg,#ffb347,#ffd34d);}
+.t-trophy .ti{background:linear-gradient(145deg,#3ddc97,#26b3a8);}
+.t-settings .ti{background:linear-gradient(145deg,#9a8cff,#6c2bd9);}
+.tile .tt{flex:1;}
+.tile .tt b{font-size:18px; display:block;}
+.tile .tt span{font-size:13px; color:var(--muted);}
+.tile .chev{font-size:22px; color:var(--muted);}
+
+/* section heading */
+.sec-h{display:flex; align-items:center; gap:10px; margin:6px 4px 14px;}
+.backbtn{background:var(--card); border:1px solid var(--stroke); border-radius:14px; padding:9px 14px; font-size:15px; font-weight:bold;}
+.sec-h h2{margin:0; font-size:21px;}
+
+/* chapter cards */
+.chips{display:grid; gap:13px;}
+.chap{
+  text-align:left; padding:16px; border-radius:var(--r);
+  background:var(--card); border:1px solid var(--stroke); box-shadow:var(--shadow);
+  display:flex; align-items:center; gap:14px; transition:transform .12s;
+}
+.chap:active{transform:scale(.97);}
+.chap .num{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:bold;font-size:18px;flex:0 0 auto;
+  background:linear-gradient(145deg,var(--accent),var(--accent2));}
+.chap .ci{flex:1;}
+.chap .ci b{font-size:16px; display:block;}
+.chap .ci span{font-size:12px; color:var(--muted);}
+.mini-bar{height:7px;border-radius:7px;background:rgba(0,0,0,.3);margin-top:7px;overflow:hidden;}
+.mini-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--good),#7af0c0);border-radius:7px;}
+.chap .star{font-size:18px;}
+
+/* ---------- Quiz ---------- */
+.quizhead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;}
+.qcount{font-size:14px; color:var(--muted); font-weight:bold;}
+.timer{background:var(--card);border:1px solid var(--stroke);border-radius:14px;padding:8px 13px;font-weight:bold;font-variant-numeric:tabular-nums;}
+.timer.warn{color:#ffd34d; animation:pulseT .8s infinite;}
+.timer.danger{color:#ff6b8a; animation:pulseT .5s infinite;}
+@keyframes pulseT{50%{transform:scale(1.08);}}
+
+.progrow{height:8px;border-radius:8px;background:rgba(0,0,0,.3);overflow:hidden;margin-bottom:16px;}
+.progrow i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .4s;}
+
+/* streak banner */
+.streak{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:bold;font-size:14px;
+  margin-bottom:12px;height:0;overflow:hidden;opacity:0;transition:all .35s;}
+.streak.show{height:auto;opacity:1;padding:8px;border-radius:14px;
+  background:linear-gradient(90deg,#ff5d8f33,#ffb34733);border:1px solid var(--stroke);}
+.streak .fire{animation:wobble .7s infinite;}
+@keyframes wobble{50%{transform:translateY(-3px) rotate(-6deg) scale(1.15);}}
+
+.qcard{
+  background:var(--card-solid); border:1px solid var(--stroke);
+  border-radius:24px; padding:22px 20px; box-shadow:var(--shadow); margin-bottom:16px;
+  position:relative; overflow:hidden;
+}
+.qcard.golden{box-shadow:0 0 0 2px var(--gold),0 18px 50px rgba(255,211,77,.35);}
+.golden-tag{position:absolute;top:0;right:0;background:linear-gradient(135deg,var(--gold),var(--accent2));
+  color:#3a1d00;font-weight:bold;font-size:12px;padding:6px 14px;border-bottom-left-radius:14px;}
+.qtag{display:inline-block;font-size:12px;color:var(--muted);margin-bottom:8px;
+  background:rgba(0,0,0,.25);padding:4px 10px;border-radius:10px;}
+.qtext{font-size:20px; line-height:1.4; font-weight:bold; margin:4px 0 6px;}
+
+.opts{display:grid; gap:11px; margin-top:16px;}
+.opt{
+  text-align:left; padding:15px 16px; border-radius:16px;
+  background:rgba(255,255,255,.06); border:2px solid var(--stroke);
+  font-size:16px; line-height:1.35; transition:transform .1s, background .2s, border-color .2s;
+  display:flex; align-items:center; gap:12px;
+}
+.opt:active{transform:scale(.98);}
+.opt .key{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.12);
+  display:grid;place-items:center;font-weight:bold;font-size:13px;flex:0 0 auto;}
+.opt.correct{background:linear-gradient(135deg,var(--good-d),#2bbf86);border-color:var(--good);}
+.opt.correct .key{background:rgba(0,0,0,.25);}
+.opt.wrong{background:linear-gradient(135deg,#a83a55,#8c2f49);border-color:var(--bad);}
+.opt.dim{opacity:.5;}
+.opt[disabled]{cursor:default;}
+
+/* feedback / explanation */
+.explain{margin-top:14px;padding:14px 16px;border-radius:16px;font-size:14px;line-height:1.5;
+  border:1px solid var(--stroke);animation:fadeUp .35s;}
+.explain.ok{background:linear-gradient(135deg,#1faa7433,#3ddc9722);border-color:var(--good);}
+.explain.no{background:linear-gradient(135deg,#ff6b8a22,#ff5d8f22);border-color:var(--bad);}
+.explain b{display:block;margin-bottom:4px;font-size:15px;}
+.explain .warm-line{font-size:14px;margin:2px 0 6px;color:#fff;font-weight:600;opacity:.95;}
+
+.nextbtn{
+  width:100%; padding:16px; border-radius:18px; font-size:17px; font-weight:bold; margin-top:4px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 10px 26px rgba(255,93,143,.4); transition:transform .1s;
+}
+.nextbtn:active{transform:scale(.97);}
+.nextbtn.ghost{background:var(--card);border:1px solid var(--stroke);box-shadow:none;}
+
+/* ---------- Results ---------- */
+.result{text-align:center;padding:8px;}
+.result .big{font-size:74px;line-height:1;margin:6px 0;}
+.result h2{font-size:30px;margin:6px 0;}
+.scoreRing{width:170px;height:170px;margin:14px auto;position:relative;}
+.scoreRing svg{transform:rotate(-90deg);}
+.scoreRing .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:34px;font-weight:bold;}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;}
+.stat{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:14px 6px;}
+.stat b{display:block;font-size:24px;}
+.stat span{font-size:12px;color:var(--muted);}
+.passbadge{display:inline-block;padding:8px 20px;border-radius:30px;font-weight:bold;font-size:18px;margin:6px 0;}
+.passbadge.pass{background:linear-gradient(135deg,var(--good-d),var(--good));}
+.passbadge.fail{background:linear-gradient(135deg,#7a3a5a,#a8557a);}
+
+/* ---------- Trophy cabinet ---------- */
+.trophy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:13px;}
+.tcard{background:var(--card);border:1px solid var(--stroke);border-radius:18px;padding:16px 12px;text-align:center;box-shadow:var(--shadow);}
+.tcard.locked{opacity:.45;filter:grayscale(.7);}
+.tcard .em{font-size:40px;}
+.tcard b{display:block;margin-top:6px;font-size:14px;}
+.tcard span{font-size:11px;color:var(--muted);}
+
+/* ---------- Settings ---------- */
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:15px;margin-bottom:12px;}
+.setrow label{font-weight:bold;font-size:15px;}
+.setrow input[type=text]{background:rgba(0,0,0,.3);border:1px solid var(--stroke);color:var(--text);
+  border-radius:12px;padding:10px 12px;font-size:15px;width:160px;text-align:right;font-family:inherit;}
+.toggle{width:54px;height:30px;border-radius:30px;background:rgba(0,0,0,.4);position:relative;transition:background .2s;flex:0 0 auto;}
+.toggle.on{background:var(--good-d);}
+.toggle i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s;}
+.toggle.on i{left:27px;}
+.danger-btn{width:100%;padding:14px;border-radius:16px;font-weight:bold;background:linear-gradient(135deg,#a83a55,#8c2f49);margin-top:6px;}
+
+/* ---------- Mascot ---------- */
+#mascot{position:fixed;bottom:18px;right:16px;z-index:60;width:128px;height:128px;
+  display:grid;place-items:center;cursor:pointer;transition:transform .2s;}
+#mascot .body{font-size:92px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.5));transition:transform .25s;
+  animation:idleBob 3.4s ease-in-out infinite;}
+#mascot.happy .body{animation:hop .55s ease;}
+#mascot.cheer .body{animation:cheer 1.1s ease;}
+#mascot.dance .body{animation:dance 1.1s ease;}
+#mascot.sad .body{animation:droop 1.4s ease forwards;}
+@keyframes idleBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+@keyframes hop{0%,100%{transform:translateY(0) scale(1);}30%{transform:translateY(-34px) scale(1.15);}60%{transform:translateY(0) scale(.95);}}
+@keyframes cheer{0%,100%{transform:translateY(0) scale(1) rotate(0);}25%{transform:translateY(-38px) scale(1.2) rotate(-8deg);}50%{transform:translateY(-10px) scale(1.05) rotate(8deg);}75%{transform:translateY(-30px) scale(1.15) rotate(-5deg);}}
+@keyframes dance{0%,100%{transform:rotate(0);}20%{transform:rotate(-18deg) scale(1.15);}40%{transform:rotate(16deg) scale(1.1);}60%{transform:rotate(-14deg) scale(1.12);}80%{transform:rotate(12deg) scale(1.08);}}
+@keyframes droop{to{transform:translateY(8px) rotate(5deg) scale(.9);}}
+.bubble{position:fixed;bottom:150px;right:16px;z-index:60;max-width:250px;
+  background:#fff;color:#2a1a4a;font-weight:bold;font-size:14px;line-height:1.35;
+  padding:12px 14px;border-radius:16px 16px 4px 16px;box-shadow:0 12px 30px rgba(0,0,0,.4);
+  opacity:0;transform:translateY(10px) scale(.9);transition:all .3s cubic-bezier(.2,.9,.3,1.4);pointer-events:none;}
+.bubble.show{opacity:1;transform:none;}
+.bubble::after{content:"";position:absolute;bottom:-8px;right:18px;width:0;height:0;
+  border:8px solid transparent;border-top-color:#fff;border-bottom:0;}
+
+/* ---------- Toast / popups ---------- */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-120px);z-index:80;
+  background:linear-gradient(135deg,#241552,#3a1d6e);border:1px solid var(--stroke);
+  border-radius:18px;padding:14px 20px;font-weight:bold;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:10px;max-width:90vw;transition:transform .45s cubic-bezier(.2,.9,.3,1.3);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast .em{font-size:26px;}
+
+/* love-note / surprise modal */
+.modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+  background:rgba(10,4,30,.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s;}
+.modal.show{opacity:1;pointer-events:auto;}
+.modal .box{max-width:380px;width:100%;text-align:center;padding:30px 24px;border-radius:26px;
+  background:linear-gradient(160deg,#3a1d6e,#5b2a86);border:1px solid var(--stroke);
+  box-shadow:var(--shadow);transform:scale(.85);transition:transform .4s cubic-bezier(.2,.9,.3,1.5);}
+.modal.show .box{transform:scale(1);}
+.modal .box .em{font-size:56px;}
+.modal .box h3{margin:10px 0 8px;font-size:24px;}
+.modal .box p{color:#efe8ff;font-size:16px;line-height:1.5;margin:0 0 18px;}
+.modal .box button{padding:13px 28px;border-radius:16px;font-weight:bold;font-size:16px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));}
+
+/* confetti + fireworks canvas */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:90;}
+
+/* level-up flash */
+.levelup{position:fixed;inset:0;z-index:85;display:grid;place-items:center;pointer-events:none;}
+.levelup .lu-card{text-align:center;transform:scale(.5);opacity:0;}
+.levelup.go .lu-card{animation:lu 2.4s ease forwards;}
+@keyframes lu{15%{transform:scale(1.1);opacity:1;}80%{transform:scale(1);opacity:1;}100%{opacity:0;transform:scale(1.2);}}
+.levelup .lu-card .em{font-size:80px;}
+.levelup .lu-card b{display:block;font-size:32px;
+  background:linear-gradient(90deg,var(--gold),#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+/* footer credit */
+.credit{text-align:center;color:var(--muted);font-size:12px;margin-top:22px;opacity:.7;}
+
+@media (min-width:680px){
+  .qtext{font-size:22px;}
+  .menu{grid-template-columns:1fr 1fr;}
+  .menu .t-settings,.menu .t-trophy{grid-column:auto;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+
+<div id="app">
+  <!-- top bar -->
+  <div class="topbar">
+    <div class="avatar" id="avatarEmoji">🦊</div>
+    <div class="topinfo">
+      <div class="hi" id="greet">Hello!</div>
+      <div class="lvl"><span id="lvlLabel">Level 1</span></div>
+      <div class="xpwrap"><div class="xpbar" id="xpBar"></div></div>
+    </div>
+    <div class="coinbox">⭐ <span id="coinCount">0</span></div>
+    <button class="mutebtn" id="muteBtn" title="Sound">🔊</button>
+  </div>
+
+  <div id="screens"></div>
+
+  <div class="credit">Made with 💛 just for you · Life in the UK Study Quest</div>
+</div>
+
+<!-- mascot -->
+<div id="mascot"><div class="body" id="mascotBody">🦊</div></div>
+<div class="bubble" id="bubble"></div>
+
+<!-- toast -->
+<div class="toast" id="toast"><span class="em" id="toastEm">🎉</span><span id="toastMsg"></span></div>
+
+<!-- level up -->
+<div class="levelup" id="levelup"><div class="lu-card"><div class="em">⭐</div><b id="luText">LEVEL UP!</b></div></div>
+
+<!-- modal -->
+<div class="modal" id="modal"><div class="box">
+  <div class="em" id="modalEm">💌</div>
+  <h3 id="modalTitle">Surprise!</h3>
+  <p id="modalBody"></p>
+  <button id="modalClose">Aww, thank you 💛</button>
+</div></div>
+
+<script>
+/* ============================================================
+   1. CONFIG  —  ✏️ EDIT THIS BLOCK to personalise the gift
+   ============================================================ */
+const CONFIG = {
+  PLAYER_NAME: "My Love",                        // ← EDIT ME: her real name
+  MASCOT: "🥭",                                  // ← her favourite: mango! (or pick 🦊 🐧 🐱 🐼 🦄)
+
+  // ← EDIT ME: affectionate nicknames, picked at random
+  PET_NAMES: ["my love", "darling", "sweetheart", "superstar", "my mango", "head chef", "sugar"],
+
+  // ← EDIT ME: little inside jokes that pop up in the mascot's speech bubble
+  INSIDE_JOKES: [
+    "Remember: tea first, revision second ☕",
+    "You're already more British than the King 👑",
+    "Studying is just like cooking — follow the recipe and it all comes together 🍳",
+    "Life in the UK now, mango lassi to celebrate later 🥭🥤",
+    "You season questions the way you season biryani — perfectly 🌶️",
+    "Fun fact: you're sweeter than the ripest mango 🥭💕",
+    "A watched pot never boils… but a studied chapter always sticks 😌"
+  ],
+
+  // ← EDIT ME: hidden love notes shown at milestones & the secret screen
+  LOVE_NOTES: [
+    "I'm so proud of how hard you're working. You've got this. 💖",
+    "No matter what this test says, you're a 100% in my eyes.",
+    "You're the chef of your own success — and you're cooking up something amazing! 🍳",
+    "Watching you learn is my favourite thing. Keep going, superstar! ✨",
+    "You're the sweetest mango in my whole orchard. Now go ace this! 🥭💖",
+    "You + me + a home-cooked meal = the best team there is. So proud of you. 💕"
+  ],
+
+  SECRET_NOTE: "You found the secret! 🤫 I hid this just for you: I love you more than there are mangoes in the world and more than there are facts in this whole test. Forever yours, my favourite chef. 🥭💍💖",
+
+  PASS_MARK: 0.75,          // real test pass mark = 75%
+  MOCK_QUESTIONS: 24,       // real test = 24 questions
+  MOCK_SECONDS: 45 * 60,    // real test = 45 minutes
+  GOLDEN_CHANCE: 0.07       // chance a question becomes a bonus "golden" question
+};
+
+/* ============================================================
+   2. QUESTION BANK
+   Schema per question:
+   { q:"question text", a:["opt0","opt1",...], c:correctIndex, e:"explanation" }
+   For true/false just use a:["True","False"] with c:0 or c:1.
+   Add as many as you like — chapters keyed by id below.
+   ============================================================ */
+const CHAPTERS = [
+  {
+    id:"values", title:"The Values & Principles of the UK", icon:"⚖️",
+    questions:[
+      {q:"Which of these is a fundamental principle of British life?",a:["Tolerance of those with different faiths and beliefs","Loyalty to a single political party","Compulsory military service","Avoiding all participation in society"],c:0,e:"Tolerance of different faiths and beliefs is one of the core British values, alongside democracy, the rule of law and individual liberty."},
+      {q:"TRUE or FALSE: The UK is a constitutional democracy.",a:["True","False"],c:0,e:"The UK is a parliamentary, constitutional democracy — citizens take part in choosing those who govern."},
+      {q:"Which is a responsibility you accept when you become a permanent resident?",a:["To respect and obey the law","To support one football club","To learn to play cricket","To attend church weekly"],c:0,e:"Residents agree to respect and obey the law, and to treat others with fairness and respect."},
+      {q:"What does the principle of 'individual liberty' mean?",a:["People are free to make their own choices within the law","People can do absolutely anything","Only citizens have rights","The government decides everything"],c:0,e:"Individual liberty means people are free to hold their own views and make choices, within the boundaries of the law."},
+      {q:"Which document must you sign at a citizenship ceremony, pledging to respect rights and freedoms?",a:["The oath/pledge of allegiance","A tax return","A tenancy agreement","A driving licence"],c:0,e:"At a citizenship ceremony you make an oath (or affirmation) of allegiance and a pledge to respect the UK's rights, freedoms and laws."},
+      {q:"Taking part in your community by volunteering is best described as:",a:["A good way to integrate and contribute","A legal requirement for all","Something only children do","Forbidden for new residents"],c:0,e:"Getting involved — volunteering, helping neighbours, joining local groups — is encouraged as part of being a good citizen."},
+      {q:"TRUE or FALSE: Everyone in the UK is equal before the law.",a:["True","False"],c:0,e:"The rule of law means everyone, including those in government, is equal before and subject to the law."},
+      {q:"Which of these is NOT one of the fundamental principles of British life?",a:["Forcing others to share your beliefs","Democracy","The rule of law","Individual liberty"],c:0,e:"Tolerance means respecting others' beliefs — never forcing your own on them. The core values are democracy, the rule of law, individual liberty, tolerance and participation."},
+      {q:"As a permanent resident or citizen you are expected to:",a:["Treat others with fairness and look after the environment","Avoid paying any tax","Never criticise the government","Only mix with people from your own country"],c:0,e:"Responsibilities include obeying the law, treating others fairly, respecting others' rights, and looking after the area you live in and the environment."},
+      {q:"TRUE or FALSE: You must respect the rights of others to have their own opinions, even if you disagree.",a:["True","False"],c:0,e:"Mutual respect and tolerance of different opinions is central to British values."},
+      {q:"To apply for British citizenship or permanent residence you usually must be able to:",a:["Speak and read English and have a good understanding of life in the UK","Recite the national anthem","Play a musical instrument","Own a house"],c:0,e:"Applicants generally need to demonstrate English language ability and pass the Life in the UK Test."},
+      {q:"Helping your community can include:",a:["Volunteering, joining a school board, or being a charity trustee","Only paying taxes","Watching the news","Nothing — it isn't encouraged"],c:0,e:"There are many ways to support your community: volunteering, serving as a school governor, helping at a charity, or joining local activities."},
+      {q:"What does the value of 'democracy' mean in the UK?",a:["People take part in choosing those who govern them","One person rules for life","Only the rich can vote","Decisions are made by the army"],c:0,e:"In a democracy, government is chosen by the people through elections."}
+    ]
+  },
+  {
+    id:"whatuk", title:"What is the UK?", icon:"🗺️",
+    questions:[
+      {q:"The UK is made up of which four countries?",a:["England, Scotland, Wales and Northern Ireland","England, Scotland, Wales and Ireland","England, France, Wales and Scotland","England, Scotland, Cornwall and Wales"],c:0,e:"The United Kingdom = England, Scotland, Wales and Northern Ireland. 'Great Britain' refers only to England, Scotland and Wales."},
+      {q:"What is the capital city of Scotland?",a:["Edinburgh","Glasgow","Aberdeen","Dundee"],c:0,e:"Edinburgh is the capital of Scotland. Glasgow is its largest city."},
+      {q:"What is the capital city of Wales?",a:["Cardiff","Swansea","Newport","Bangor"],c:0,e:"Cardiff is the capital of Wales."},
+      {q:"What is the capital city of Northern Ireland?",a:["Belfast","Dublin","Londonderry","Armagh"],c:0,e:"Belfast is the capital of Northern Ireland. (Dublin is the capital of the Republic of Ireland, a separate country.)"},
+      {q:"TRUE or FALSE: 'Great Britain' includes Northern Ireland.",a:["True","False"],c:1,e:"False. Great Britain = England, Scotland and Wales only. Add Northern Ireland and you get the UK."},
+      {q:"Which body of water separates England from France?",a:["The English Channel","The Irish Sea","The North Sea","The Atlantic Ocean"],c:0,e:"The English Channel separates southern England from northern France."},
+      {q:"What are the Crown Dependencies?",a:["The Channel Islands and the Isle of Man","Scotland and Wales","Gibraltar and Malta","Jersey and Ireland"],c:0,e:"The Channel Islands and the Isle of Man are Crown Dependencies — linked to the Crown but not part of the UK."},
+      {q:"What is the capital city of the UK?",a:["London","Manchester","Birmingham","Edinburgh"],c:0,e:"London is the capital of the UK and the largest city, and seat of the UK government."},
+      {q:"TRUE or FALSE: The UK is a member of the Commonwealth.",a:["True","False"],c:0,e:"The UK heads the Commonwealth, an association of countries, most of which were once part of the British Empire."},
+      {q:"Which language, spoken in Wales, is taught in schools and used on road signs there?",a:["Welsh","Gaelic","Cornish","Latin"],c:0,e:"Welsh is an official language in Wales, taught in schools and widely used on signs and in broadcasting."},
+      {q:"How many countries make up Great Britain?",a:["Three","Four","Two","Five"],c:0,e:"Great Britain is made up of three countries: England, Scotland and Wales."},
+      {q:"Which sea lies between Great Britain and Ireland?",a:["The Irish Sea","The North Sea","The Channel","The Atlantic"],c:0,e:"The Irish Sea separates Great Britain from the island of Ireland."},
+      {q:"TRUE or FALSE: The official name of the country is 'the United Kingdom of Great Britain and Northern Ireland'.",a:["True","False"],c:0,e:"That is the full official name, usually shortened to the UK."},
+      {q:"Gaelic is a language traditionally spoken in:",a:["Parts of Scotland and Northern Ireland","Cornwall only","Wales only","London"],c:0,e:"Gaelic is spoken in parts of Scotland and Northern Ireland; there are also Scots and Ulster-Scots dialects."}
+    ]
+  },
+  {
+    id:"history", title:"A Long & Illustrious History", icon:"🏰",
+    questions:[
+      {q:"Who built Hadrian's Wall and roughly when?",a:["The Romans, around AD 122","The Vikings, around AD 800","The Normans, around 1066","The Anglo-Saxons, around AD 500"],c:0,e:"Emperor Hadrian ordered the wall built around AD 122 to keep out the Picts of the north. The Romans ruled Britain for about 400 years."},
+      {q:"In which year did the Battle of Hastings take place?",a:["1066","1215","1485","1066 BC"],c:0,e:"In 1066 William of Normandy (William the Conqueror) defeated King Harold at the Battle of Hastings — the last successful foreign invasion of England."},
+      {q:"Magna Carta, signed in 1215, is important because it:",a:["Limited the power of the king","Made England a republic","Banned the monarchy","Created the United Kingdom"],c:0,e:"Magna Carta ('the Great Charter') established that even the king was subject to the law — a foundation of modern rights."},
+      {q:"The Black Death, which arrived in 1348, was:",a:["A plague that killed a large part of the population","A great fire","A naval battle","A peasants' tax"],c:0,e:"The Black Death killed roughly a third of the population of England and reshaped society and the economy."},
+      {q:"Who were the two royal houses in the Wars of the Roses?",a:["Lancaster and York","Tudor and Stuart","Normandy and Wessex","Windsor and Hanover"],c:0,e:"The Wars of the Roses (1455–1485) were fought between the House of Lancaster (red rose) and the House of York (white rose). The Tudors emerged victorious."},
+      {q:"Which king broke from the Roman Catholic Church to form the Church of England?",a:["Henry VIII","Henry V","Richard III","Charles I"],c:0,e:"Henry VIII broke with Rome in the 1530s so he could divorce, becoming head of the new Church of England."},
+      {q:"The defeat of the Spanish Armada in 1588 happened during the reign of:",a:["Elizabeth I","Victoria","Mary I","Anne"],c:0,e:"Under Elizabeth I, England defeated the Spanish Armada in 1588, a famous naval victory."},
+      {q:"Who wrote plays such as Hamlet, Macbeth and Romeo and Juliet?",a:["William Shakespeare","Geoffrey Chaucer","Charles Dickens","Robert Burns"],c:0,e:"William Shakespeare (1564–1616), from Stratford-upon-Avon, is widely regarded as the greatest playwright in the English language."},
+      {q:"What was the Gunpowder Plot of 1605?",a:["A failed plot to blow up Parliament","A great London fire","A peasants' revolt","A war with France"],c:0,e:"Guy Fawkes and others tried to blow up the Houses of Parliament. The failure is remembered every 5 November (Bonfire Night)."},
+      {q:"The English Civil War in the 1640s was fought between:",a:["Parliament and the King","England and Scotland","Catholics and Vikings","York and Lancaster"],c:0,e:"The Civil War was between the supporters of King Charles I and Parliament. Charles I was eventually executed in 1649."},
+      {q:"Who ruled as 'Lord Protector' after the monarchy was abolished?",a:["Oliver Cromwell","Horatio Nelson","Robert Walpole","Winston Churchill"],c:0,e:"Oliver Cromwell led England as a republic (the Commonwealth) until the monarchy was restored in 1660 under Charles II."},
+      {q:"The Great Fire of London occurred in which year?",a:["1666","1605","1707","1815"],c:0,e:"The Great Fire of London in 1666 destroyed much of the city, including the old St Paul's Cathedral."},
+      {q:"Who was Britain's first Prime Minister?",a:["Sir Robert Walpole","William Pitt","Benjamin Disraeli","Winston Churchill"],c:0,e:"Sir Robert Walpole is generally regarded as the first British Prime Minister, serving from 1721."},
+      {q:"The Act of Union of 1707 joined which two together?",a:["England and Scotland","England and Ireland","Wales and Scotland","Britain and France"],c:0,e:"The 1707 Act of Union united England (with Wales) and Scotland to create the Kingdom of Great Britain."},
+      {q:"Admiral Nelson is famous for victory at which 1805 battle?",a:["The Battle of Trafalgar","The Battle of Waterloo","The Battle of Hastings","The Battle of Britain"],c:0,e:"Nelson defeated the French and Spanish fleets at Trafalgar in 1805. Nelson's Column in London commemorates him."},
+      {q:"At which 1815 battle was Napoleon finally defeated?",a:["Waterloo","Trafalgar","Agincourt","Bosworth"],c:0,e:"The Duke of Wellington defeated Napoleon at the Battle of Waterloo in 1815."},
+      {q:"The Industrial Revolution made Britain known as:",a:["The first industrialised country / 'workshop of the world'","A farming nation only","A Viking kingdom","A Roman province"],c:0,e:"Britain was the first country to industrialise, with manufacturing, canals, railways and steam power transforming society."},
+      {q:"How long did Queen Victoria reign?",a:["From 1837 to 1901 (over 60 years)","Just 10 years","From 1066","From 1952"],c:0,e:"Queen Victoria reigned from 1837 to 1901. During the Victorian era the British Empire grew to its greatest extent."},
+      {q:"In which years did the First World War take place?",a:["1914 to 1918","1939 to 1945","1900 to 1910","1854 to 1856"],c:0,e:"The First World War lasted from 1914 to 1918. Remembrance Day (11 November) marks its end."},
+      {q:"Who was Prime Minister for much of the Second World War?",a:["Winston Churchill","Clement Attlee","Neville Chamberlain","Tony Blair"],c:0,e:"Winston Churchill led Britain through most of the Second World War and is remembered for his wartime leadership and speeches."},
+      {q:"The Battle of Britain (1940) was fought mainly:",a:["In the air, by the RAF","At sea","In the trenches","Underground"],c:0,e:"In 1940 the Royal Air Force defended Britain against German air attacks. Churchill praised 'The Few' who flew."},
+      {q:"Who discovered penicillin?",a:["Alexander Fleming","Isaac Newton","Charles Darwin","Tim Berners-Lee"],c:0,e:"Sir Alexander Fleming, a Scottish scientist, discovered penicillin in 1928, leading to modern antibiotics."},
+      {q:"Who developed the theory of evolution by natural selection?",a:["Charles Darwin","Isaac Newton","Ernest Rutherford","Michael Faraday"],c:0,e:"Charles Darwin published 'On the Origin of Species' in 1859, setting out evolution by natural selection."},
+      {q:"The World Wide Web was invented by which Briton?",a:["Sir Tim Berners-Lee","Alan Turing","Stephen Hawking","Isambard Kingdom Brunel"],c:0,e:"Sir Tim Berners-Lee invented the World Wide Web in 1989–90."},
+      {q:"Which engineer was famous for railways, bridges and the Great Western Railway?",a:["Isambard Kingdom Brunel","Christopher Wren","Robert Burns","Henry Moore"],c:0,e:"Isambard Kingdom Brunel was a celebrated 19th-century engineer behind tunnels, bridges, ships and the GWR."},
+      {q:"The right of women to vote (full equal suffrage) was achieved in:",a:["1928","1066","1707","1969"],c:0,e:"Women over 30 won the vote in 1918; equal voting rights with men (from age 21) came in 1928. The Suffragettes campaigned for this."},
+      {q:"Who were the first people to settle in Britain whom we know much about?",a:["Stone Age hunter-gatherers","The Romans","The Vikings","The Normans"],c:0,e:"Britain was first populated by Stone Age hunter-gatherers thousands of years ago, long before written history."},
+      {q:"Which people invaded from Scandinavia from around AD 789, raiding and later settling?",a:["The Vikings","The Romans","The Normans","The Saxons"],c:0,e:"The Vikings came from Denmark and Norway, first raiding then settling in parts of Britain and Ireland."},
+      {q:"The Domesday Book, created in 1086, was:",a:["A great survey of land and people in England","A book of laws","A religious text","A map of Europe"],c:0,e:"William the Conqueror ordered the Domesday Book — a detailed survey of who owned land and livestock across England."},
+      {q:"Which language did the Normans speak, influencing English after 1066?",a:["Norman French","Latin","Old Norse","Welsh"],c:0,e:"The Norman ruling class spoke Norman French, which blended with Anglo-Saxon to shape the English language."},
+      {q:"Geoffrey Chaucer is famous for writing:",a:["The Canterbury Tales","Hamlet","Paradise Lost","Pride and Prejudice"],c:0,e:"Chaucer wrote The Canterbury Tales in the 14th century, one of the first major works in the English language."},
+      {q:"The 'Glorious Revolution' of 1688 resulted in:",a:["William of Orange becoming king and limiting royal power","A French invasion","The end of Parliament","Catholic rule in England"],c:0,e:"In 1688 William of Orange took the throne; royal power was limited and Parliament's role strengthened — without major bloodshed."},
+      {q:"The Bill of Rights of 1689 established that:",a:["The monarch could not rule without Parliament's consent","The king had absolute power","Only nobles could vote","Religion was banned"],c:0,e:"The 1689 Bill of Rights confirmed that the monarch must work with Parliament — a key step toward constitutional monarchy."},
+      {q:"During the 18th century, Britain's trade and influence grew partly through:",a:["The expansion of the British Empire and overseas trade","Building Hadrian's Wall","Fighting the Vikings","The Domesday survey"],c:0,e:"The 1700s saw the British Empire and global trade expand significantly, making Britain a major world power."},
+      {q:"The Union of Great Britain and Ireland (forming the UK) took place in:",a:["1801","1707","1066","1914"],c:0,e:"The Act of Union of 1801 joined Ireland with Great Britain to form the United Kingdom of Great Britain and Ireland."},
+      {q:"Slavery was abolished throughout the British Empire by an Act in:",a:["1833","1066","1707","1918"],c:0,e:"The Slavery Abolition Act of 1833 abolished slavery throughout most of the British Empire. William Wilberforce was a leading campaigner."},
+      {q:"The Crimean War (1853–56) is associated with which pioneering nurse?",a:["Florence Nightingale","Emmeline Pankhurst","Mary Seacole only","Queen Victoria"],c:0,e:"Florence Nightingale's work in the Crimean War helped establish modern nursing. Mary Seacole also cared for soldiers there."},
+      {q:"Which Scottish poet wrote 'Auld Lang Syne'?",a:["Robert Burns","William Wordsworth","Dylan Thomas","Rudyard Kipling"],c:0,e:"Robert Burns, Scotland's national poet, wrote 'Auld Lang Syne', sung at New Year. Burns Night is held on 25 January."},
+      {q:"The Easter Rising of 1916 took place in which city?",a:["Dublin","London","Belfast","Edinburgh"],c:0,e:"The 1916 Easter Rising in Dublin was a rebellion against British rule, a step toward Irish independence."},
+      {q:"In 1921 a treaty led to the partition of Ireland, creating:",a:["Northern Ireland (remaining in the UK) and the Irish Free State","A united Ireland","A Welsh republic","The Commonwealth"],c:0,e:"The 1921 settlement divided Ireland: the south became the Irish Free State (later the Republic of Ireland); the north remained part of the UK."},
+      {q:"The Great Depression of the 1930s mainly caused:",a:["High unemployment and economic hardship","A baby boom","Rapid industrial growth","The Industrial Revolution"],c:0,e:"The 1930s saw mass unemployment and hardship, especially in industrial areas of the UK."},
+      {q:"D-Day, 6 June 1944, refers to:",a:["The Allied landings in Normandy","The end of WWI","The Battle of Britain","The Blitz"],c:0,e:"On D-Day, Allied forces landed in Normandy, France, beginning the liberation of Western Europe from Nazi occupation."},
+      {q:"After WWII, the Welfare State and the NHS were introduced largely under which PM?",a:["Clement Attlee","Winston Churchill","Margaret Thatcher","Tony Blair"],c:0,e:"Clement Attlee's Labour government (1945) created the NHS and expanded the welfare state."},
+      {q:"Margaret Thatcher, PM from 1979 to 1990, was notable as:",a:["The first woman Prime Minister of the UK","The first king's deputy","A wartime general","A famous scientist"],c:0,e:"Margaret Thatcher was Britain's first female Prime Minister and the longest-serving PM of the 20th century."},
+      {q:"Who is the British engineer credited with inventing the jet engine?",a:["Sir Frank Whittle","Alexander Fleming","Isaac Newton","Tim Berners-Lee"],c:0,e:"Sir Frank Whittle, a British engineer, developed the jet engine in the 1930s."},
+      {q:"Which two scientists are credited with discovering the structure of DNA at Cambridge?",a:["Crick and Watson","Newton and Hooke","Darwin and Wallace","Faraday and Maxwell"],c:0,e:"In 1953 Francis Crick and James Watson (with crucial work by Rosalind Franklin and others) described the structure of DNA."},
+      {q:"The Scottish Parliament and Welsh Assembly were first established following referendums in:",a:["1997","1066","1801","1945"],c:0,e:"Devolution referendums in 1997 led to the creation of the Scottish Parliament and the National Assembly for Wales (now the Senedd)."}
+    ]
+  },
+  {
+    id:"society", title:"A Modern, Thriving Society", icon:"🌆",
+    questions:[
+      {q:"On what date is St George's Day (patron saint of England) celebrated?",a:["23 April","1 March","17 March","30 November"],c:0,e:"St George (England) = 23 April. St David (Wales) = 1 March. St Patrick (N. Ireland) = 17 March. St Andrew (Scotland) = 30 November."},
+      {q:"Which flower is associated with England?",a:["The rose","The daffodil","The thistle","The shamrock"],c:0,e:"Rose = England, Daffodil/Leek = Wales, Thistle = Scotland, Shamrock = Northern Ireland."},
+      {q:"What is the currency of the UK?",a:["The pound sterling (£)","The euro","The dollar","The crown"],c:0,e:"The currency is the pound sterling (£), divided into 100 pence."},
+      {q:"TRUE or FALSE: The NHS provides healthcare that is mostly free at the point of use.",a:["True","False"],c:0,e:"The National Health Service, founded in 1948, provides healthcare for residents, mostly free at the point of use."},
+      {q:"Which annual event involves a long-distance race through the capital each spring?",a:["The London Marathon","The Grand National","Wimbledon","The Proms"],c:0,e:"The London Marathon is one of the biggest in the world and raises huge amounts for charity each year."},
+      {q:"At what age can you usually vote in a UK general election?",a:["18","16","21","25"],c:0,e:"You can vote in a UK general election from the age of 18."},
+      {q:"Which of these is a famous tennis tournament held in the UK?",a:["Wimbledon","The Open","The Ashes","The Six Nations"],c:0,e:"Wimbledon is the oldest tennis tournament in the world, held in London each summer."},
+      {q:"The patron saint of Scotland is:",a:["St Andrew","St George","St David","St Patrick"],c:0,e:"St Andrew is Scotland's patron saint, celebrated on 30 November."},
+      {q:"Which UK landmark is a prehistoric stone monument in Wiltshire?",a:["Stonehenge","The Tower of London","Snowdonia","The Eden Project"],c:0,e:"Stonehenge is a World Heritage Site and one of the most famous prehistoric monuments in the world."},
+      {q:"Remembrance Day, honouring those who died in wars, is on:",a:["11 November","5 November","25 December","1 January"],c:0,e:"Remembrance Day is on 11 November. People wear poppies and observe a two-minute silence."},
+      {q:"What is 'Hogmanay'?",a:["The Scottish celebration of New Year","An English harvest festival","A Welsh poetry contest","A type of dance"],c:0,e:"Hogmanay is the Scottish word for New Year's Eve, celebrated enthusiastically across Scotland."},
+      {q:"Which of these is a national park / area of natural beauty in England?",a:["The Lake District","Loch Ness","The Giant's Causeway","Snowdonia"],c:0,e:"The Lake District is a famous national park in north-west England. (Snowdonia is in Wales; the Giant's Causeway is in N. Ireland.)"},
+      {q:"The patron saint of Wales is celebrated on which date?",a:["1 March (St David)","23 April","17 March","30 November"],c:0,e:"St David's Day is 1 March. The leek and the daffodil are symbols of Wales."},
+      {q:"What is the floral emblem of Northern Ireland?",a:["The shamrock","The rose","The thistle","The daffodil"],c:0,e:"The shamrock is associated with Northern Ireland and St Patrick."},
+      {q:"Which famous flower-growing show takes place in London each year?",a:["The Chelsea Flower Show","The Proms","The Edinburgh Festival","Glastonbury"],c:0,e:"The RHS Chelsea Flower Show is a renowned gardening event held annually in London."},
+      {q:"The Edinburgh Festival, held each summer, is best known for:",a:["Theatre, comedy and the arts","Football","Sailing","Horse racing"],c:0,e:"The Edinburgh Festival (and its Fringe) is one of the world's biggest celebrations of the performing arts."},
+      {q:"TRUE or FALSE: The UK has a long tradition of poetry, with poems read aloud at the annual Poetry Day.",a:["True","False"],c:0,e:"Poetry is an important part of UK culture; National Poetry Day is celebrated each year."},
+      {q:"Which sport, often played in summer with bats and wickets, originated in England?",a:["Cricket","Ice hockey","Basketball","Baseball"],c:0,e:"Cricket originated in England and is now played in many Commonwealth countries. The 'Ashes' is a famous series against Australia."},
+      {q:"What is the name of the famous horse race held at Aintree each year?",a:["The Grand National","The Derby","Royal Ascot","The Boat Race"],c:0,e:"The Grand National is a celebrated horse-racing event held at Aintree near Liverpool."},
+      {q:"The 'Last Night of the Proms' is associated with:",a:["A famous series of classical music concerts","A football final","A comedy festival","A boat race"],c:0,e:"The BBC Proms is a summer season of classical concerts, ending with the popular Last Night of the Proms."},
+      {q:"At what age must children in the UK normally be in education?",a:["From 5 to 16","From 3 to 12","From 7 to 18","From birth"],c:0,e:"Education is compulsory between the ages of 5 and 16 (with most staying in education or training to 18 in England)."},
+      {q:"Bonfire Night, on 5 November, commemorates:",a:["The failure of the Gunpowder Plot","The end of WWII","St George's Day","The Great Fire of London"],c:0,e:"Bonfire Night remembers the foiling of Guy Fawkes' 1605 plot to blow up Parliament, marked with fireworks and bonfires."},
+      {q:"Diwali, Eid, Hanukkah and Christmas are all examples of:",a:["Religious festivals celebrated by communities in the UK","Sporting events","Government holidays only","Types of food"],c:0,e:"The UK is a diverse society where many religious festivals are celebrated by different communities."},
+      {q:"The Giant's Causeway is a famous natural landmark in:",a:["Northern Ireland","Scotland","Wales","Cornwall"],c:0,e:"The Giant's Causeway, with its hexagonal basalt columns, is a World Heritage Site on the coast of Northern Ireland."}
+    ]
+  },
+  {
+    id:"govt", title:"The UK Government, the Law & Your Role", icon:"🏛️",
+    questions:[
+      {q:"What is the name of the UK's law-making body?",a:["Parliament","The Senate","The Congress","The Assembly"],c:0,e:"Parliament makes UK law. It has two chambers: the House of Commons and the House of Lords."},
+      {q:"Members of the House of Commons are known as:",a:["MPs (Members of Parliament)","Lords","Senators","Councillors"],c:0,e:"MPs are elected to the House of Commons, each representing a constituency."},
+      {q:"How often must a UK general election be held (at minimum)?",a:["At least every five years","Every year","Every ten years","Only when the monarch decides"],c:0,e:"A general election must be held at least every five years."},
+      {q:"Who is the head of state of the UK?",a:["The monarch","The Prime Minister","The Speaker","The Lord Mayor"],c:0,e:"The monarch is the head of state. The Prime Minister is the head of government."},
+      {q:"What is the official residence of the Prime Minister?",a:["10 Downing Street","Buckingham Palace","The Tower of London","Westminster Abbey"],c:0,e:"The Prime Minister lives and works at 10 Downing Street in London."},
+      {q:"TRUE or FALSE: The House of Lords is made up of elected members.",a:["True","False"],c:1,e:"False. Members of the House of Lords are mostly appointed, not elected — including life peers and bishops."},
+      {q:"What is the role of the police in the UK?",a:["To protect people, prevent crime and keep order","To make new laws","To collect taxes","To run schools"],c:0,e:"The police protect life and property, prevent and detect crime, and keep order. They must obey the law themselves."},
+      {q:"The 'Speaker' of the House of Commons is responsible for:",a:["Keeping order during debates","Leading the government","Commanding the army","Setting interest rates"],c:0,e:"The Speaker chairs debates in the Commons, keeps order and must remain politically neutral."},
+      {q:"Which institution can a citizen turn to to have a civil dispute settled?",a:["The courts","Parliament","The monarch","The army"],c:0,e:"The judiciary (the courts and judges) settles disputes and ensures the law is applied fairly."},
+      {q:"What are the devolved administrations of the UK?",a:["The Scottish Parliament, Welsh Parliament (Senedd) and Northern Ireland Assembly","County councils only","The House of Lords","Local police forces"],c:0,e:"Powers are devolved to the Scottish Parliament, the Senedd in Wales, and the Northern Ireland Assembly."},
+      {q:"At what age can you serve on a jury?",a:["18 to 75","16 to 60","21 to 65","Any age"],c:0,e:"Most people aged 18 to 75 who are on the electoral register may be called for jury service."},
+      {q:"What is a 'constituency'?",a:["An area represented by one MP","A type of court","A government department","A royal residence"],c:0,e:"The UK is divided into constituencies, each electing one MP to the House of Commons."},
+      {q:"TRUE or FALSE: It is illegal to discriminate against someone because of their religion or race.",a:["True","False"],c:0,e:"True. Discrimination on grounds such as race, religion, sex, age or disability is against the law (Equality Act)."},
+      {q:"Where do MPs debate and pass laws?",a:["The Palace of Westminster","Buckingham Palace","Edinburgh Castle","The Eden Project"],c:0,e:"The Houses of Parliament are in the Palace of Westminster in London, beside the clock tower holding 'Big Ben'."},
+      {q:"How is the Prime Minister normally chosen?",a:["They are the leader of the party with the most MPs in the Commons","They are elected directly by the public","They are appointed for life","They inherit the role"],c:0,e:"The PM is usually the leader of the political party that wins the most seats in the House of Commons."},
+      {q:"What is the 'Opposition'?",a:["The largest party not in government","The House of Lords","The civil service","The police"],c:0,e:"The second-largest party forms the official Opposition; its leader is the Leader of the Opposition."},
+      {q:"What is a 'by-election'?",a:["An election held when a seat becomes vacant between general elections","A vote in the House of Lords","A local council meeting","A leadership contest"],c:0,e:"A by-election is held in a single constituency when its MP dies or resigns between general elections."},
+      {q:"Who appoints the senior judges and is head of state?",a:["The monarch (on advice from ministers)","The Prime Minister alone","Parliament","The police"],c:0,e:"The monarch is head of state and formally makes such appointments, acting on the advice of government ministers."},
+      {q:"What is the civil service?",a:["Politically neutral staff who help the government run the country","Elected MPs","The armed forces","The Royal Household"],c:0,e:"Civil servants are politically neutral professionals who carry out government policy and remain in post when governments change."},
+      {q:"What is the role of local government (councils)?",a:["To provide local services like rubbish collection, schools and roads","To declare war","To set income tax","To run the NHS nationally"],c:0,e:"Local councils provide services such as education, waste collection, housing, planning and local roads, funded partly by council tax."},
+      {q:"TRUE or FALSE: You must be on the electoral register to vote.",a:["True","False"],c:0,e:"To vote you must be registered on the electoral register. Registration is free."},
+      {q:"In the UK, which court deals with the most serious criminal cases in England and Wales?",a:["The Crown Court","The small claims court","The County Court","The Magistrates' Court for all cases"],c:0,e:"Serious criminal cases are tried in the Crown Court before a judge and jury. Less serious cases are heard by magistrates."},
+      {q:"What document explains your rights and responsibilities as a tenant or worker, among others?",a:["The law / your contract and statutory rights","The Domesday Book","Magna Carta only","The national anthem"],c:0,e:"Your legal rights as a tenant, employee or consumer are protected by UK law and any contract you sign."},
+      {q:"How can citizens contact their MP?",a:["By writing, emailing, or visiting their local surgery","Only through the monarch","They cannot contact MPs","Only by voting"],c:0,e:"MPs hold regular 'surgeries' where constituents can raise concerns, and can be contacted by letter or email."},
+      {q:"What is the Speaker required to be during debates?",a:["Politically neutral and fair to all sides","A member of the governing party","Appointed by the monarch for life","The Prime Minister"],c:0,e:"The Speaker keeps order impartially and does not take sides in debates."},
+      {q:"Paying which of these helps fund public services like the NHS and schools?",a:["Income tax and National Insurance","A TV subscription only","Lottery tickets","Charity shop purchases"],c:0,e:"Taxes such as income tax and National Insurance contributions fund public services including the NHS, education and pensions."}
+    ]
+  }
+];
+
+/* ============================================================
+   3. STATE & PERSISTENCE
+   ============================================================ */
+const SAVE_KEY = "luk_quest_save_v1";
+const DEFAULT_STATE = {
+  name:CONFIG.PLAYER_NAME, sound:true,
+  xp:0, level:1, coins:0, totalCorrect:0, totalAnswered:0,
+  bestMock:0, mockPassed:false,
+  chapterBest:{},          // id -> best % score
+  wrongPool:[],            // [{chapterId, qIndex}] for review mode
+  badges:{},               // badgeId -> true
+  konami:[]                // tracks secret code progress
+};
+let S = load();
+function load(){
+  try{ const r = JSON.parse(localStorage.getItem(SAVE_KEY)); if(r) return Object.assign({},DEFAULT_STATE,r); }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+
+CONFIG.MASCOT && (document.getElementById('mascotBody').textContent = CONFIG.MASCOT,
+                  document.getElementById('avatarEmoji').textContent = CONFIG.MASCOT);
+
+/* ============================================================
+   4. AUDIO  (Web Audio API — no files)
+   ============================================================ */
+let actx=null;
+function audio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
+function tone(freq,start,dur,type="sine",vol=.2){
+  const a=audio(); if(!a||!S.sound) return;
+  const o=a.createOscillator(), g=a.createGain();
+  o.type=type; o.frequency.value=freq;
+  o.connect(g); g.connect(a.destination);
+  const t=a.currentTime+start;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol,t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t); o.stop(t+dur+0.02);
+}
+const SFX={
+  correct(){ tone(660,0,.12,"triangle",.22); tone(880,.1,.16,"triangle",.22); tone(1180,.2,.22,"triangle",.2); },
+  wrong(){ tone(300,0,.18,"sine",.18); tone(220,.14,.28,"sine",.16); },
+  click(){ tone(520,0,.05,"square",.08); },
+  level(){ [523,659,784,1046].forEach((f,i)=>tone(f,i*.1,.25,"triangle",.2)); },
+  badge(){ [784,988,1318].forEach((f,i)=>tone(f,i*.08,.3,"triangle",.2)); },
+  golden(){ [880,1100,1320,1660].forEach((f,i)=>tone(f,i*.07,.3,"sine",.18)); },
+  pass(){ [523,659,784,1046,1318].forEach((f,i)=>tone(f,i*.12,.4,"triangle",.22)); }
+};
+
+/* ============================================================
+   5. FX — confetti & fireworks (hand-rolled canvas)
+   ============================================================ */
+const fx=document.getElementById('fx'); const ctx=fx.getContext('2d');
+let parts=[], rafOn=false;
+function sizeFx(){ fx.width=innerWidth*devicePixelRatio; fx.height=innerHeight*devicePixelRatio; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+sizeFx(); addEventListener('resize',sizeFx);
+const COLORS=["#ff4f9a","#ff7ec0","#ffa3d4","#ffb347","#ffd34d","#ff8ac0","#ff6b8a","#fff"];
+function burst(x,y,n,power){
+  for(let i=0;i<n;i++){
+    const ang=Math.random()*Math.PI*2, sp=Math.random()*power+2;
+    parts.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-3,
+      g:.14+Math.random()*.08, life:60+Math.random()*40, age:0,
+      s:5+Math.random()*7, c:COLORS[(Math.random()*COLORS.length)|0],
+      rot:Math.random()*6, vr:(Math.random()-.5)*.4, shape:Math.random()<.5?0:1});
+  }
+  run();
+}
+function confetti(){ burst(innerWidth/2, innerHeight*0.35, 120, 9); }
+function confettiSmall(x,y){ burst(x,y,28,7); }
+function fireworks(){
+  let shots=0;
+  const iv=setInterval(()=>{
+    burst(innerWidth*(0.2+Math.random()*0.6), innerHeight*(0.2+Math.random()*0.35), 70, 8);
+    if(++shots>6) clearInterval(iv);
+  },350);
+}
+function run(){ if(rafOn) return; rafOn=true; requestAnimationFrame(tick); }
+function tick(){
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+  parts=parts.filter(p=>p.age<p.life);
+  parts.forEach(p=>{
+    p.age++; p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.vx*=.99; p.rot+=p.vr;
+    const al=Math.max(0,1-p.age/p.life);
+    ctx.save(); ctx.globalAlpha=al; ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c;
+    if(p.shape===0) ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*1.4);
+    else { ctx.beginPath(); ctx.arc(0,0,p.s/1.6,0,7); ctx.fill(); }
+    ctx.restore();
+  });
+  if(parts.length){ requestAnimationFrame(tick); } else { rafOn=false; ctx.clearRect(0,0,innerWidth,innerHeight); }
+}
+
+/* ============================================================
+   6. MASCOT, BUBBLE, TOAST, MODAL, LEVEL-UP
+   ============================================================ */
+const mascot=document.getElementById('mascot'), mBody=document.getElementById('mascotBody');
+const bubbleEl=document.getElementById('bubble');
+let bubbleT=null;
+// expressive faces shown briefly over the mascot during reactions
+const HAPPY_FACES=['🤩','😄','🥳','😍','😎','🥭','💖'];
+const CHEER_FACES =['🥳','🤩','🎉','🌟','💫','🥭','💖'];
+const SAD_FACES   =['🥺','😢','🫂','😔','💔'];
+function mascotReact(mood){ // 'happy' | 'cheer' | 'dance' | 'sad'
+  let face=CONFIG.MASCOT;
+  if(mood==='sad') face=pick(SAD_FACES);
+  else if(mood==='cheer'||mood==='dance') face=pick(CHEER_FACES);
+  else if(mood==='happy') face=pick(HAPPY_FACES);
+  mBody.textContent=face;
+  mascot.className=''; void mascot.offsetWidth; mascot.classList.add(mood);
+  const dur = mood==='sad'?2000:1300;
+  setTimeout(()=>{ mBody.textContent=CONFIG.MASCOT; mascot.className=''; }, dur);
+}
+function bubble(text,ms=2600){
+  bubbleEl.textContent=text; bubbleEl.classList.add('show');
+  clearTimeout(bubbleT); bubbleT=setTimeout(()=>bubbleEl.classList.remove('show'),ms);
+}
+const toastEl=document.getElementById('toast'), toastEm=document.getElementById('toastEm'), toastMsg=document.getElementById('toastMsg');
+let toastT=null;
+function toast(em,msg){ toastEm.textContent=em; toastMsg.textContent=msg; toastEl.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('show'),2800); }
+
+const modalEl=document.getElementById('modal');
+document.getElementById('modalClose').onclick=()=>{ SFX.click(); modalEl.classList.remove('show'); };
+function modal(em,title,body){
+  document.getElementById('modalEm').textContent=em;
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').textContent=body;
+  modalEl.classList.add('show');
+}
+const levelupEl=document.getElementById('levelup');
+function levelUpFx(lvl){
+  document.getElementById('luText').textContent=`LEVEL ${lvl}!`;
+  levelupEl.classList.remove('go'); void levelupEl.offsetWidth; levelupEl.classList.add('go');
+  confetti(); SFX.level();
+  setTimeout(()=>levelupEl.classList.remove('go'),2500);
+}
+
+/* mascot tap surprises: triple-tap OR long-press reveals secret note */
+let tapCount=0, tapTimer=null, pressTimer=null;
+mascot.addEventListener('click',()=>{
+  SFX.click();
+  bubble(pick(CONFIG.INSIDE_JOKES));
+  tapCount++; clearTimeout(tapTimer);
+  tapTimer=setTimeout(()=>tapCount=0,700);
+  if(tapCount>=3){ tapCount=0; secretReveal(); }
+});
+mascot.addEventListener('pointerdown',()=>{ pressTimer=setTimeout(secretReveal,1100); });
+['pointerup','pointerleave','pointercancel'].forEach(ev=>mascot.addEventListener(ev,()=>clearTimeout(pressTimer)));
+function secretReveal(){ confetti(); SFX.badge(); modal('🤫','A secret, just for you',CONFIG.SECRET_NOTE); awardBadge('secret'); }
+
+/* ============================================================
+   7. PROGRESSION (XP / level / coins / badges)
+   ============================================================ */
+function xpForLevel(l){ return 100 + (l-1)*60; } // rising curve
+function addXp(n){
+  S.xp+=n;
+  let leveled=false;
+  while(S.xp>=xpForLevel(S.level)){ S.xp-=xpForLevel(S.level); S.level++; leveled=true; }
+  if(leveled) levelUpFx(S.level);
+  save(); refreshTop();
+}
+function addCoins(n){ S.coins+=n; save(); refreshTop(); }
+function refreshTop(){
+  document.getElementById('greet').textContent=`Hello, ${S.name}!`;
+  document.getElementById('lvlLabel').textContent=`Level ${S.level}`;
+  document.getElementById('coinCount').textContent=S.coins;
+  document.getElementById('xpBar').style.width=Math.min(100,(S.xp/xpForLevel(S.level))*100)+"%";
+  document.getElementById('muteBtn').textContent=S.sound?'🔊':'🔇';
+}
+
+const BADGES=[
+  {id:"first",   em:"🌱", name:"First Steps",     desc:"Answer your first question"},
+  {id:"perfect", em:"💯", name:"Flawless",        desc:"Score 100% on a chapter"},
+  {id:"streak5", em:"🔥", name:"On Fire",         desc:"Get a streak of 5"},
+  {id:"streak10",em:"⚡", name:"Unstoppable",     desc:"Get a streak of 10"},
+  {id:"history", em:"🏰", name:"History Buff",    desc:"Ace the History chapter"},
+  {id:"golden",  em:"🪙", name:"Golden Touch",    desc:"Nail a golden bonus question"},
+  {id:"mock",    em:"🎓", name:"Test Ready",      desc:"Pass a full mock test"},
+  {id:"level5",  em:"🌟", name:"Rising Star",     desc:"Reach Level 5"},
+  {id:"hundred", em:"🧠", name:"Centurion",       desc:"Answer 100 questions"},
+  {id:"secret",  em:"💌", name:"Secret Keeper",   desc:"Find the hidden surprise"}
+];
+function awardBadge(id){
+  if(S.badges[id]) return;
+  S.badges[id]=true; save();
+  const b=BADGES.find(x=>x.id===id);
+  if(b){ toast(b.em,`Badge unlocked: ${b.name}!`); SFX.badge(); confettiSmall(innerWidth-60,innerHeight-60); }
+}
+
+/* ============================================================
+   8. HELPERS
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s);
+function pick(arr){ return arr[(Math.random()*arr.length)|0]; }
+function petName(){ return pick(CONFIG.PET_NAMES); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const screens=document.getElementById('screens');
+function go(html){ screens.innerHTML=`<div class="screen">${html}</div>`; window.scrollTo(0,0); }
+// short headline reactions
+const PRAISE=["Brilliant","Yes!","Spot on","Perfect","Amazing","Genius","Nailed it","Superb","You star","Incredible","Wonderful","Flawless","Outstanding","Yesss","Magnificent","Bravo"];
+const COMFORT=["It's okay","Don't worry","Almost there","So close","No stress","Keep going","Hang in there","Chin up","Nearly had it"];
+// longer, warm, appreciative lines shown under a correct answer
+const PRAISE_LONG=[
+  "You're absolutely smashing this! 🌟",
+  "Look at that brain go — I'm so impressed! 🧠✨",
+  "That's exactly right. You make this look easy! 💛",
+  "Yes! You really know your stuff, {p}. 🎉",
+  "Correct AND confident — what a combo! 💪",
+  "I knew you could do it, {p}! 🙌",
+  "Top marks! You're going to ace the real thing. 🏆",
+  "Beautifully done. I'm cheering for you over here! 📣",
+  "That's the spirit, {p} — brilliant answer! ⭐",
+  "Effortless! You're more ready than you think. 😍"
+];
+// longer, gentle, supportive lines shown under a wrong answer
+const COMFORT_LONG=[
+  "It's totally okay, {p} — mistakes are how we learn. 💛",
+  "Don't be hard on yourself. We'll remember this one next time! 🫂",
+  "So close! This is a tricky one — now you've got it forever. 💪",
+  "Deep breath, {p}. Every wrong answer makes the next one easier. 🌱",
+  "No worries at all — I'm right here with you. We've got this. 💛",
+  "That's a sneaky question. You're still doing amazingly. ✨",
+  "Chin up, {p}! One little slip won't stop you. 🌟",
+  "It's okay to get it wrong — that's what practice is for. 🤗",
+  "Shake it off, {p}. I believe in you completely. 💫",
+  "Now you'll never forget it! Onwards, superstar. 🚀"
+];
+
+/* ============================================================
+   9. HOME SCREEN
+   ============================================================ */
+function home(){
+  go(`
+    <div class="hero">
+      <div class="flag">🇬🇧</div>
+      <h1>Life in the UK<br>Study Quest</h1>
+      <p>Hey ${S.name} — ready to win this? 🥭💖</p>
+    </div>
+    <div class="menu">
+      <button class="tile t-practice" data-go="practice">
+        <div class="ti">📚</div><div class="tt"><b>Chapter Practice</b><span>Learn one chapter at a time</span></div><div class="chev">›</div>
+      </button>
+      <button class="tile t-mock" data-go="mockIntro">
+        <div class="ti">📝</div><div class="tt"><b>Mock Test</b><span>${CONFIG.MOCK_QUESTIONS} questions · ${Math.round(CONFIG.MOCK_SECONDS/60)} min</span></div><div class="chev">›</div>
+      </button>
+      <button class="tile t-review" data-go="review">
+        <div class="ti">🔁</div><div class="tt"><b>Practice My Mistakes</b><span>${S.wrongPool.length} to review</span></div><div class="chev">›</div>
+      </button>
+      <button class="tile t-trophy" data-go="trophies">
+        <div class="ti">🏆</div><div class="tt"><b>Trophy Cabinet</b><span>${Object.keys(S.badges).length}/${BADGES.length} badges</span></div><div class="chev">›</div>
+      </button>
+      <button class="tile t-settings" data-go="settings">
+        <div class="ti">⚙️</div><div class="tt"><b>Settings</b><span>Name · sound · reset</span></div><div class="chev">›</div>
+      </button>
+    </div>
+  `);
+  screens.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ SFX.click(); ({practice,mockIntro,review,trophies,settings})[b.dataset.go](); });
+  bubble(`Welcome back, ${petName()}! Let's do this. 🌟`,3000);
+}
+
+/* ============================================================
+   10. CHAPTER PRACTICE
+   ============================================================ */
+function practice(){
+  let cards=CHAPTERS.map((c,i)=>{
+    const best=S.chapterBest[c.id]||0;
+    const star = best>=100?"⭐⭐⭐": best>=75?"⭐⭐": best>0?"⭐":"";
+    return `<button class="chap" data-i="${i}">
+      <div class="num">${c.icon}</div>
+      <div class="ci"><b>${c.title}</b><span>${c.questions.length} questions${best?` · best ${best}%`:''}</span>
+        <div class="mini-bar"><i style="width:${best}%"></i></div></div>
+      <div class="star">${star}</div>
+    </button>`;
+  }).join('');
+  go(`<div class="sec-h"><button class="backbtn" data-back>‹ Back</button><h2>Pick a Chapter</h2></div><div class="chips">${cards}</div>`);
+  $('[data-back]').onclick=()=>{SFX.click();home();};
+  screens.querySelectorAll('.chap').forEach(el=>el.onclick=()=>{ SFX.click(); startQuiz('practice',CHAPTERS[+el.dataset.i]); });
+}
+
+/* ============================================================
+   11. REVIEW MODE
+   ============================================================ */
+function review(){
+  if(!S.wrongPool.length){
+    go(`<div class="sec-h"><button class="backbtn" data-back>‹ Back</button><h2>Practice My Mistakes</h2></div>
+      <div class="hero"><div class="flag">🎉</div><h1>Nothing to review!</h1><p>You haven't got anything wrong recently. Look at you go, ${petName()}!</p></div>`);
+    $('[data-back]').onclick=()=>{SFX.click();home();};
+    return;
+  }
+  const qs=S.wrongPool.map(w=>{
+    const ch=CHAPTERS.find(c=>c.id===w.chapterId); if(!ch) return null;
+    const q=ch.questions[w.qIndex]; if(!q) return null;
+    return {...q, _tag:ch.title, _ref:w};
+  }).filter(Boolean);
+  startQuiz('review',{title:"My Mistakes", icon:"🔁", _custom:qs});
+}
+
+/* ============================================================
+   12. MOCK TEST INTRO + QUIZ
+   ============================================================ */
+function mockIntro(){
+  go(`<div class="sec-h"><button class="backbtn" data-back>‹ Back</button><h2>Mock Test</h2></div>
+    <div class="hero">
+      <div class="flag">📝</div>
+      <h1>The Real Deal</h1>
+      <p>${CONFIG.MOCK_QUESTIONS} mixed questions · ${Math.round(CONFIG.MOCK_SECONDS/60)} minutes · pass mark ${Math.round(CONFIG.PASS_MARK*100)}%</p>
+    </div>
+    <div class="qcard">
+      <p style="line-height:1.6;margin:0">Just like the official test: questions come from every chapter, the clock is ticking, and you'll see all your answers at the end. Take a deep breath, ${petName()} — you've got this. 💛</p>
+    </div>
+    <button class="nextbtn" id="startMock">Start the Mock Test →</button>`);
+  $('[data-back]').onclick=()=>{SFX.click();home();};
+  $('#startMock').onclick=()=>{
+    SFX.click();
+    const all=[]; CHAPTERS.forEach(c=>c.questions.forEach((q,i)=>all.push({...q,_tag:c.title,_ref:{chapterId:c.id,qIndex:i}})));
+    const set=shuffle(all).slice(0,Math.min(CONFIG.MOCK_QUESTIONS,all.length));
+    startQuiz('mock',{title:"Mock Test", icon:"📝", _custom:set});
+  };
+}
+
+/* ============================================================
+   13. CORE QUIZ ENGINE  (shared by all modes)
+   ============================================================ */
+let quiz=null;
+function startQuiz(mode,chapter){
+  let list = chapter._custom ? chapter._custom.slice()
+           : chapter.questions.map((q,i)=>({...q,_tag:chapter.title,_ref:{chapterId:chapter.id,qIndex:i}}));
+  if(mode!=='mock') list=shuffle(list);
+  // shuffle options per question while tracking correct index
+  list=list.map(q=>{
+    const order=shuffle(q.a.map((t,i)=>({t,i})));
+    return {...q, _opts:order.map(o=>o.t), _c:order.findIndex(o=>o.i===q.c)};
+  });
+  quiz={mode, chapter, list, idx:0, correct:0, streak:0, maxStreak:0, answers:[],
+        timeLeft: mode==='mock'?CONFIG.MOCK_SECONDS:null, timer:null, locked:false};
+  if(mode==='mock') startTimer();
+  renderQ();
+}
+function startTimer(){
+  quiz.timer=setInterval(()=>{
+    quiz.timeLeft--;
+    updateTimer();
+    if(quiz.timeLeft<=0){ clearInterval(quiz.timer); finishQuiz(true); }
+  },1000);
+}
+function updateTimer(){
+  const el=$('#timer'); if(!el) return;
+  const m=Math.floor(quiz.timeLeft/60), s=quiz.timeLeft%60;
+  el.textContent=`⏱ ${m}:${String(s).padStart(2,'0')}`;
+  el.className='timer'+(quiz.timeLeft<=30?' danger':quiz.timeLeft<=120?' warn':'');
+}
+function renderQ(){
+  const q=quiz.list[quiz.idx];
+  q._golden = quiz.mode!=='mock' && Math.random()<CONFIG.GOLDEN_CHANCE;
+  const prog=((quiz.idx)/quiz.list.length)*100;
+  go(`
+    <div class="quizhead">
+      <button class="backbtn" id="quitQ">‹ Quit</button>
+      <div class="qcount">${quiz.idx+1} / ${quiz.list.length}</div>
+      ${quiz.mode==='mock'?`<div class="timer" id="timer"></div>`:`<div class="qcount">⭐ ${quiz.correct}</div>`}
+    </div>
+    <div class="progrow"><i style="width:${prog}%"></i></div>
+    <div class="streak" id="streakBox"></div>
+    <div class="qcard ${q._golden?'golden':''}">
+      ${q._golden?`<div class="golden-tag">✨ GOLDEN ×2</div>`:''}
+      <span class="qtag">${q._tag||quiz.chapter.title}</span>
+      <div class="qtext">${q.q}</div>
+      <div class="opts" id="opts"></div>
+      <div id="afterbox"></div>
+    </div>
+  `);
+  $('#quitQ').onclick=()=>{ SFX.click(); if(quiz.timer)clearInterval(quiz.timer); quiz=null; home(); };
+  const keys=['A','B','C','D','E'];
+  const opts=$('#opts');
+  q._opts.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.innerHTML=`<span class="key">${keys[i]}</span><span>${t}</span>`;
+    b.onclick=()=>answer(i,b);
+    opts.appendChild(b);
+  });
+  if(quiz.mode==='mock'){ updateTimer(); }
+  showStreak();
+}
+function showStreak(){
+  const sb=$('#streakBox'); if(!sb) return;
+  if(quiz.streak>=2){ sb.classList.add('show'); sb.innerHTML=`<span class="fire">🔥</span> ${quiz.streak} in a row! ${quiz.streak>=5?'Combo ×'+(1+Math.floor(quiz.streak/5)):''}`; }
+  else sb.classList.remove('show');
+}
+function answer(choice,btn){
+  if(quiz.locked) return; quiz.locked=true;
+  const q=quiz.list[quiz.idx];
+  const correct = choice===q._c;
+  const opts=[...document.querySelectorAll('.opt')];
+  opts.forEach((o,i)=>{ o.setAttribute('disabled','');
+    if(i===q._c) o.classList.add('correct');
+    else if(i===choice) o.classList.add('wrong');
+    else o.classList.add('dim');
+  });
+  quiz.answers.push({q, choice, correct});
+  S.totalAnswered++; awardBadge('first');
+  if(S.totalAnswered>=100) awardBadge('hundred');
+
+  if(correct){
+    quiz.correct++; quiz.streak++; quiz.maxStreak=Math.max(quiz.maxStreak,quiz.streak);
+    S.totalCorrect++;
+    const mult = q._golden?2:1;
+    const combo = 1+Math.floor(quiz.streak/5);
+    addXp(10*mult*combo); addCoins(q._golden?2:1);
+    SFX[q._golden?'golden':'correct']();
+    mascotReact(quiz.streak>=5?'dance':(quiz.streak>=3?'cheer':'happy'));
+    if(q._golden){ awardBadge('golden'); confetti(); bubble(`A GOLDEN one, ${petName()}! Double points! 🪙✨`); }
+    else { const r=btn.getBoundingClientRect(); confettiSmall(r.left+r.width/2, r.top+r.height/2);
+           bubble(quiz.streak>=3?`🔥 ${quiz.streak} in a row, ${petName()}! Unstoppable!`:pick(['Yes! 🎉','That\'s my star! ⭐','Brilliant! 💛','Woohoo! 🙌']),2200); }
+    if(quiz.streak===5) awardBadge('streak5');
+    if(quiz.streak===10) awardBadge('streak10');
+    // remove from wrong pool if reviewing/repeating
+    if(q._ref) S.wrongPool=S.wrongPool.filter(w=>!(w.chapterId===q._ref.chapterId&&w.qIndex===q._ref.qIndex));
+    feedback(true,q);
+    // milestone love note every 10 correct overall
+    if(S.totalCorrect%10===0){ setTimeout(()=>{ modal('💌','A little note',pick(CONFIG.LOVE_NOTES)); confetti(); },650); }
+  } else {
+    quiz.streak=0;
+    SFX.wrong(); mascotReact('sad');
+    if(q._ref && !S.wrongPool.some(w=>w.chapterId===q._ref.chapterId&&w.qIndex===q._ref.qIndex))
+      S.wrongPool.push(q._ref);
+    save();
+    feedback(false,q);
+  }
+  save();
+}
+function feedback(ok,q){
+  const after=$('#afterbox');
+  const head = ok ? `${pick(PRAISE)}, ${petName()}! 🎉` : `${pick(COMFORT)}, ${petName()} 💛`;
+  const warm = (ok ? pick(PRAISE_LONG) : pick(COMFORT_LONG)).replace('{p}',petName());
+  after.innerHTML=`
+    <div class="explain ${ok?'ok':'no'}">
+      <b>${head}</b>
+      <div class="warm-line">${warm}</div>
+      ${ok?'':`<div style="margin:8px 0 4px">The correct answer was: <b style="display:inline">${q._opts[q._c]}</b></div>`}
+      ${q.e||''}
+    </div>
+    <button class="nextbtn ${ok?'':'ghost'}" id="nextBtn">${quiz.idx+1<quiz.list.length?'Next question →':'See my results 🎊'}</button>`;
+  $('#nextBtn').onclick=()=>{
+    SFX.click();
+    if(quiz.idx+1<quiz.list.length){ quiz.idx++; quiz.locked=false; renderQ(); }
+    else finishQuiz(false);
+  };
+  if(!ok) bubble(`I'm right here with you, ${petName()}. 🫂💛`);
+}
+
+/* ============================================================
+   14. RESULTS
+   ============================================================ */
+function finishQuiz(timedOut){
+  if(quiz.timer) clearInterval(quiz.timer);
+  const total=quiz.list.length, correct=quiz.correct;
+  const pct=Math.round((correct/total)*100);
+  const mode=quiz.mode;
+
+  // record bests
+  if(mode==='practice'){
+    const id=quiz.chapter.id;
+    S.chapterBest[id]=Math.max(S.chapterBest[id]||0, pct);
+    if(pct>=100) awardBadge('perfect');
+    if(id==='history' && pct>=Math.round(CONFIG.PASS_MARK*100)) awardBadge('history');
+  }
+  let passed=false;
+  if(mode==='mock'){
+    passed = pct>=Math.round(CONFIG.PASS_MARK*100);
+    S.bestMock=Math.max(S.bestMock,pct);
+    if(passed){ S.mockPassed=true; awardBadge('mock'); }
+  }
+  if(S.level>=5) awardBadge('level5');
+  save(); refreshTop();
+
+  // celebration choice
+  const great = pct>= pctThreshold(mode);
+  if(mode==='mock' && passed){ fireworks(); SFX.pass(); }
+  else if(great){ confetti(); SFX.pass(); }
+
+  const big = mode==='mock' ? (passed?'🎓':'📖') : (pct>=100?'🏆':pct>=75?'🌟':pct>=50?'👍':'🌱');
+  const title = mode==='mock'
+      ? (passed?`You PASSED, ${S.name}!`:`Good practice, ${petName()}`)
+      : (pct>=100?`Flawless, ${petName()}!`: pct>=75?`Great work, ${petName()}!`:`Nice try, ${petName()}!`);
+
+  const circ=2*Math.PI*70;
+  const dash=circ*(pct/100);
+
+  go(`
+    <div class="result">
+      <div class="big">${big}</div>
+      <h2>${title}</h2>
+      ${mode==='mock'?`<div class="passbadge ${passed?'pass':'fail'}">${passed?'PASS ✓':'Not yet — keep going!'}</div>`:''}
+      <div class="scoreRing">
+        <svg width="170" height="170">
+          <circle cx="85" cy="85" r="70" stroke="rgba(255,255,255,.12)" stroke-width="14" fill="none"/>
+          <circle cx="85" cy="85" r="70" stroke="url(#g)" stroke-width="14" fill="none"
+            stroke-linecap="round" stroke-dasharray="${dash} ${circ}"/>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffd34d"/><stop offset="1" stop-color="#ff5d8f"/></linearGradient></defs>
+        </svg>
+        <div class="pct">${pct}%</div>
+      </div>
+      <div class="statgrid">
+        <div class="stat"><b>${correct}/${total}</b><span>Correct</span></div>
+        <div class="stat"><b>🔥 ${quiz.maxStreak}</b><span>Best streak</span></div>
+        <div class="stat"><b>⭐ ${correct*(mode==='mock'?1:1)}</b><span>Coins earned</span></div>
+      </div>
+      ${timedOut?`<p style="color:var(--muted)">⏱ Time ran out — but every attempt makes you stronger!</p>`:''}
+      <p style="color:#efe8ff;line-height:1.5">${resultLine(mode,pct,passed)}</p>
+      <button class="nextbtn" id="againBtn">${mode==='mock'?'Try another mock':'Practise again'}</button>
+      <button class="nextbtn ghost" id="homeBtn" style="margin-top:10px">Back home 🏠</button>
+    </div>`);
+  $('#againBtn').onclick=()=>{ SFX.click();
+    if(mode==='mock') mockIntro();
+    else if(mode==='review') review();
+    else startQuiz('practice',quiz.chapter); };
+  $('#homeBtn').onclick=()=>{ SFX.click(); quiz=null; home(); };
+
+  if(mode==='mock' && passed){ setTimeout(()=>modal('💌','You did it!',pick(CONFIG.LOVE_NOTES)),1400); }
+}
+function pctThreshold(mode){ return mode==='mock'?Math.round(CONFIG.PASS_MARK*100):75; }
+function resultLine(mode,pct,passed){
+  if(mode==='mock' && passed) return `That's a passing score on the real format. I'm SO proud of you. 💛`;
+  if(mode==='mock') return `So close — the real pass mark is ${Math.round(CONFIG.PASS_MARK*100)}%. Review your mistakes and smash the next one!`;
+  if(pct>=100) return `A perfect chapter! Add it to the trophy cabinet. ✨`;
+  if(pct>=75) return `That's above the pass mark — brilliant progress!`;
+  return `Every question you see again is one you'll remember. Keep going! 💪`;
+}
+
+/* ============================================================
+   15. TROPHY CABINET
+   ============================================================ */
+function trophies(){
+  const cards=BADGES.map(b=>{
+    const got=!!S.badges[b.id];
+    return `<div class="tcard ${got?'':'locked'}"><div class="em">${got?b.em:'🔒'}</div><b>${b.name}</b><span>${b.desc}</span></div>`;
+  }).join('');
+  go(`<div class="sec-h"><button class="backbtn" data-back>‹ Back</button><h2>Trophy Cabinet</h2></div>
+    <div class="qcard" style="text-align:center;margin-bottom:16px">
+      <div style="font-size:14px;color:var(--muted)">Total correct answers</div>
+      <div style="font-size:34px;font-weight:bold">🧠 ${S.totalCorrect}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">Best mock: ${S.bestMock}% · Level ${S.level}</div>
+    </div>
+    <div class="trophy-grid">${cards}</div>`);
+  $('[data-back]').onclick=()=>{SFX.click();home();};
+}
+
+/* ============================================================
+   16. SETTINGS
+   ============================================================ */
+function settings(){
+  go(`<div class="sec-h"><button class="backbtn" data-back>‹ Back</button><h2>Settings</h2></div>
+    <div class="setrow"><label>Your name</label><input type="text" id="nameInput" value="${S.name.replace(/"/g,'&quot;')}" maxlength="20"></div>
+    <div class="setrow"><label>Sound effects</label><div class="toggle ${S.sound?'on':''}" id="soundToggle"><i></i></div></div>
+    <div class="setrow"><label>Best mock score</label><span style="font-weight:bold">${S.bestMock}%</span></div>
+    <div class="setrow"><label>Questions answered</label><span style="font-weight:bold">${S.totalAnswered}</span></div>
+    <button class="danger-btn" id="resetBtn">Reset all progress</button>
+    <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:14px">psst… try triple-tapping the ${CONFIG.MASCOT} 🤫</p>`);
+  $('[data-back]').onclick=()=>{SFX.click();home();};
+  $('#nameInput').oninput=e=>{ S.name=e.target.value.trim()||CONFIG.PLAYER_NAME; save(); refreshTop(); };
+  $('#soundToggle').onclick=function(){ S.sound=!S.sound; this.classList.toggle('on',S.sound); save(); refreshTop(); if(S.sound)SFX.correct(); };
+  $('#resetBtn').onclick=()=>{
+    if(confirm('Reset all progress? This cannot be undone.')){
+      const keepName=S.name; S=JSON.parse(JSON.stringify(DEFAULT_STATE)); S.name=keepName; save(); refreshTop();
+      toast('🔄','Progress reset'); settings();
+    }
+  };
+}
+
+/* ============================================================
+   17. SECRET KONAMI CODE (↑↑↓↓←→←→ B A)  — desktop easter egg
+   ============================================================ */
+const KONAMI=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+addEventListener('keydown',e=>{
+  S.konami.push(e.key); S.konami=S.konami.slice(-KONAMI.length);
+  if(KONAMI.join(',').toLowerCase()===S.konami.join(',').toLowerCase()){ S.konami=[]; secretReveal(); }
+  // desktop number/letter answering
+  if(quiz && !quiz.locked){
+    const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+    const k=e.key.toLowerCase();
+    if(map[k]!==undefined){ const btns=[...document.querySelectorAll('.opt')]; if(btns[map[k]]) btns[map[k]].click(); }
+  }
+});
+
+/* unlock audio on first interaction (iOS/Safari autoplay rules) */
+function unlockAudio(){ const a=audio(); if(a&&a.state==='suspended') a.resume(); window.removeEventListener('pointerdown',unlockAudio); window.removeEventListener('keydown',unlockAudio); }
+addEventListener('pointerdown',unlockAudio); addEventListener('keydown',unlockAudio);
+
+document.getElementById('muteBtn').onclick=()=>{ S.sound=!S.sound; save(); refreshTop(); if(S.sound)SFX.correct(); };
+
+/* ============================================================
+   18. BOOT
+   ============================================================ */
+refreshTop(); home();
+</script>
+</body>
+</html>
