@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life in the UK · The Exhaustive Practice Quiz</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --good: #23703A; --bad: #C0392B;
+    --serif: "Baskerville", "Iowan Old Style", "Palatino Linotype", "Palatino", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+      --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+      --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+      --good: #3FA05C; --bad: #E06A5C;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #12141A; --card: #1B1F27; --ink: #EDEBE2; --ink-2: #A9ADB5; --ink-3: #7A7F88;
+    --line: #2B303A; --chip: #242935; --trap-bg: #EDEBE2; --trap-ink: #1B1F27;
+    --era1: #B8873A; --era2: #3FA05C; --era3: #D9537F; --era4: #5C88DE; --era5: #D9743A; --era6: #21A3C4;
+    --good: #3FA05C; --bad: #E06A5C;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"] {
+    --page: #F2F1EC; --card: #FBFAF6; --ink: #20242C; --ink-2: #575C66; --ink-3: #8A8E96;
+    --line: #E1DFD4; --chip: #ECEAE0; --trap-bg: #20242C; --trap-ink: #F4F2EA;
+    --era1: #9A6A1F; --era2: #23703A; --era3: #CE3F70; --era4: #2C5FBF; --era5: #D96A22; --era6: #0794B8;
+    --good: #23703A; --bad: #C0392B;
+    --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    margin: 0; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 22px; }
+  a { color: inherit; }
+
+  /* hero */
+  .hero { padding: 52px 0 26px; }
+  .eyebrow {
+    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-2); margin: 0 0 16px; font-weight: 600;
+  }
+  .eyebrow .sep { color: var(--ink-3); padding: 0 .5em; }
+  h1 {
+    font-family: var(--serif); font-weight: 500; text-wrap: balance;
+    font-size: clamp(2.2rem, 6vw, 3.6rem); line-height: 1.04; margin: 0 0 8px;
+    letter-spacing: -.01em;
+  }
+  h1 em { font-style: italic; }
+  .lede { max-width: 60ch; color: var(--ink-2); font-size: 1.04rem; margin: 16px 0 0; }
+  .lede strong { color: var(--ink); }
+
+  /* mode cards */
+  .modes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 30px 0 0; }
+  @media (max-width: 620px) { .modes { grid-template-columns: 1fr; } }
+  .mode {
+    text-align: left; cursor: pointer; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 20px 18px; box-shadow: var(--shadow); color: inherit;
+    font-family: inherit; transition: transform .16s ease, border-color .16s ease;
+    border-top: 4px solid var(--era);
+  }
+  .mode:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--era) 45%, var(--line)); }
+  .mode .tag { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--era); }
+  .mode h3 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; margin: 8px 0 6px; }
+  .mode p { margin: 0; font-size: .9rem; color: var(--ink-2); }
+  @media (prefers-reduced-motion: reduce) { .mode:hover { transform: none; } }
+
+  .chapterpick { margin-top: 22px; }
+  .chapterpick h4 { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    cursor: pointer; font-family: inherit; font-size: .84rem; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line); border-radius: 99px;
+    padding: 8px 15px; box-shadow: var(--shadow); transition: border-color .14s ease, background .14s ease;
+    border-left: 4px solid var(--era);
+  }
+  .chip:hover { border-color: color-mix(in srgb, var(--era) 50%, var(--line)); }
+
+  .stat-strip { display: flex; gap: 22px; flex-wrap: wrap; margin: 28px 0 0; font-size: .82rem; color: var(--ink-3); }
+  .stat-strip b { color: var(--ink); }
+
+  /* quiz shell */
+  .quizbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap;
+  }
+  .quizbar .left { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .quizbar .mode-name { font-weight: 700; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--era4); }
+  .quizbar .count { font-variant-numeric: tabular-nums; color: var(--ink-2); font-size: .88rem; }
+  .timer { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1rem; color: var(--ink); }
+  .timer.warn { color: var(--bad); }
+  .btn {
+    cursor: pointer; font-family: inherit; font-size: .88rem; font-weight: 600;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 16px; box-shadow: var(--shadow); transition: transform .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:disabled { opacity: .4; cursor: default; transform: none; }
+  .btn.primary { background: var(--era4); color: #fff; border-color: transparent; }
+  .btn.ghost { background: transparent; box-shadow: none; }
+  .btn.small { padding: 6px 12px; font-size: .8rem; }
+
+  .progress { height: 6px; background: var(--chip); border-radius: 99px; overflow: hidden; margin: 16px 0 8px; }
+  .progress > div { height: 100%; background: var(--era4); border-radius: 99px; transition: width .3s ease; }
+
+  .qcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 26px 26px 22px; box-shadow: var(--shadow); margin-top: 18px; }
+  .qmeta { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--era); margin: 0 0 12px; }
+  .qtext { font-family: var(--serif); font-size: clamp(1.25rem, 3vw, 1.6rem); line-height: 1.35; margin: 0 0 6px; }
+  .qhint { font-size: .82rem; color: var(--ink-3); margin: 6px 0 0; }
+
+  .options { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 10px; }
+  .opt {
+    display: flex; gap: 13px; align-items: flex-start; cursor: pointer;
+    background: var(--page); border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 13px 15px; transition: border-color .12s ease, background .12s ease;
+  }
+  .opt:hover { border-color: color-mix(in srgb, var(--era4) 45%, var(--line)); }
+  .opt .marker {
+    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--ink-3);
+    display: grid; place-items: center; font-size: .8rem; font-weight: 700; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .opt.radio .marker { border-radius: 99px; }
+  .opt .txt { flex: 1; font-size: .96rem; padding-top: 1px; }
+  .opt.selected { border-color: var(--era4); background: color-mix(in srgb, var(--era4) 10%, var(--card)); }
+  .opt.selected .marker { background: var(--era4); border-color: var(--era4); color: #fff; }
+  .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--card)); }
+  .opt.correct .marker { background: var(--good); border-color: var(--good); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--card)); }
+  .opt.wrong .marker { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .opt.locked { cursor: default; }
+  .opt.locked:hover { border-color: var(--line); }
+  .opt.locked.correct:hover { border-color: var(--good); }
+  .opt.locked.wrong:hover { border-color: var(--bad); }
+
+  .explain { margin-top: 16px; border-radius: 10px; padding: 14px 16px; font-size: .9rem; line-height: 1.5; }
+  .explain.right { background: color-mix(in srgb, var(--good) 10%, var(--card)); border: 1px solid color-mix(in srgb, var(--good) 35%, var(--line)); }
+  .explain.wrong { background: color-mix(in srgb, var(--bad) 9%, var(--card)); border: 1px solid color-mix(in srgb, var(--bad) 32%, var(--line)); }
+  .explain .verdict { font-weight: 700; display: block; margin-bottom: 4px; }
+  .explain.right .verdict { color: var(--good); }
+  .explain.wrong .verdict { color: var(--bad); }
+  .explain b { color: var(--ink); }
+
+  .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .dots { display: flex; gap: 5px; flex-wrap: wrap; max-width: 60%; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--chip); border: 1px solid var(--line); cursor: pointer; }
+  .dot.answered { background: var(--era4); border-color: var(--era4); }
+  .dot.current { outline: 2px solid var(--ink-3); outline-offset: 1px; }
+
+  /* results */
+  .result { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 34px 28px; box-shadow: var(--shadow); margin-top: 24px; text-align: center; }
+  .scorebig { font-family: var(--serif); font-size: clamp(3rem, 12vw, 5rem); line-height: 1; margin: 6px 0; font-variant-numeric: tabular-nums; }
+  .verdict-pill { display: inline-block; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: .8rem; padding: 7px 18px; border-radius: 99px; margin-top: 6px; }
+  .verdict-pill.pass { background: color-mix(in srgb, var(--good) 16%, var(--card)); color: var(--good); }
+  .verdict-pill.fail { background: color-mix(in srgb, var(--bad) 16%, var(--card)); color: var(--bad); }
+  .result p.sub { color: var(--ink-2); margin: 14px auto 0; max-width: 46ch; }
+  .breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 26px 0 0; text-align: left; }
+  .bd { background: var(--page); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; border-left: 4px solid var(--era); }
+  .bd .n { font-family: var(--serif); font-size: 1.4rem; }
+  .bd .l { font-size: .74rem; color: var(--ink-2); line-height: 1.3; }
+  .result-actions { display: flex; gap: 10px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+
+  .review-head { font-family: var(--serif); font-size: 1.5rem; margin: 40px 0 4px; font-weight: 500; }
+  .review-sub { color: var(--ink-2); font-size: .9rem; margin: 0 0 14px; }
+
+  .themeToggle { position: fixed; top: 14px; right: 14px; z-index: 20; }
+  .hidden { display: none !important; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 50px; padding: 24px 0 44px; }
+  footer p { font-size: .78rem; color: var(--ink-3); max-width: 70ch; }
+  .chapnav { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+  .chapnav a { color: var(--ink-2); }
+  .chapnav .here { font-weight: 700; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<button class="btn small ghost themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
+
+<div class="wrap">
+
+  <!-- ══════════════ HOME ══════════════ -->
+  <section id="home">
+    <header class="hero">
+      <p class="eyebrow">Life in the UK Test<span class="sep">·</span>Practice Quiz<span class="sep">·</span>All 5 Chapters</p>
+      <h1>The Exhaustive <em>Practice</em> Quiz</h1>
+      <p class="lede">Built straight from your five study guides — <strong>every examinable fact, and every one of the traps</strong> the real test uses to catch people out. Real exam formats: single answer, choose-two, true/false, and pick-the-correct-statement. Pass mark, like the real thing, is <strong>75%</strong>.</p>
+
+      <div class="modes">
+        <button class="mode" style="--era: var(--era4)" data-mode="mock">
+          <span class="tag">The real thing</span>
+          <h3>Mock Test</h3>
+          <p>24 random questions · 45-minute timer · answers revealed only at the end · pass with 18/24. Sit it like exam day.</p>
+        </button>
+        <button class="mode" style="--era: var(--era2)" data-mode="practice-all">
+          <span class="tag">Learn as you go</span>
+          <h3>Practice — Everything</h3>
+          <p>All 200+ questions in shuffled order, with instant feedback and an explanation after every answer.</p>
+        </button>
+      </div>
+
+      <div class="chapterpick">
+        <h4>Or drill a single chapter (instant feedback)</h4>
+        <div class="chips" id="chapterChips"></div>
+      </div>
+
+      <div class="stat-strip">
+        <div><b id="totalCount">0</b> questions in the bank</div>
+        <div>Pass mark <b>75%</b></div>
+        <div>Your device remembers your <b>best mock score</b></div>
+      </div>
+    </header>
+  </section>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <section id="quiz" class="hidden">
+    <div class="quizbar">
+      <div class="left">
+        <span class="mode-name" id="qModeName">Mock Test</span>
+        <span class="count" id="qCount">Question 1 of 24</span>
+      </div>
+      <div class="left">
+        <span class="timer hidden" id="timer">45:00</span>
+        <button class="btn ghost small" id="quitBtn">Quit</button>
+      </div>
+    </div>
+    <div class="progress"><div id="progressBar" style="width:0%"></div></div>
+
+    <div class="qcard" id="qcard"></div>
+
+    <div class="nav-row">
+      <button class="btn ghost" id="prevBtn">← Previous</button>
+      <div class="dots" id="dots"></div>
+      <button class="btn primary" id="nextBtn">Next →</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ RESULTS ══════════════ -->
+  <section id="results" class="hidden"></section>
+
+  <footer>
+    <p class="chapnav">The set:
+      <a href="life-in-uk-chapter1.html">Chapter 1</a> ·
+      <a href="life-in-uk-chapter2.html">Chapter 2</a> ·
+      <a href="life-in-uk-chapter3.html">Chapter 3</a> ·
+      <a href="life-in-uk-chapter4.html">Chapter 4</a> ·
+      <a href="life-in-uk-chapter5.html">Chapter 5</a> ·
+      <span class="here">Quiz</span>
+    </p>
+    <p>Questions written to match the official Life in the UK handbook's wording and the four question formats used in the real test. Where the handbook's edition and current facts differ (e.g. longest-reigning monarch, EU membership), answers follow the handbook — because so does the exam.</p>
+  </footer>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   QUESTION BANK
+   c   = chapter (1–5)
+   q   = question text
+   o   = options
+   a   = correct answer: a number (single/true-false) OR an array (choose two)
+   e   = explanation
+   ═══════════════════════════════════════════════════════════════════ */
+const BANK = [
+/* ─────────── CHAPTER 1 · Values, Residency & the Test ─────────── */
+{c:1,q:"Which of these is a fundamental principle of British life?",o:["Participation in community life","Compulsory military service","Payment of a church tax","Membership of a political party"],a:0,e:"The five fundamental principles are democracy, the rule of law, individual liberty, tolerance, and participation in community life."},
+{c:1,q:"How many fundamental principles is British society said to be founded on?",o:["Three","Four","Five","Seven"],a:2,e:"Five: democracy, the rule of law, individual liberty, tolerance of different faiths and beliefs, and participation in community life."},
+{c:1,q:"Which TWO of the following are fundamental principles of British life? (Choose 2)",o:["The rule of law","Freedom of speech","Individual liberty","The right to a fair trial"],a:[0,2],e:"The rule of law and individual liberty are principles. Freedom of speech and a fair trial are freedoms the UK offers in return — a classic trap."},
+{c:1,q:"Which of these is a freedom that the UK offers those who live there?",o:["Freedom from paying tax","Freedom from unfair discrimination","Freedom to carry a weapon","Freedom from jury service"],a:1,e:"The freedoms include freedom of belief and religion, freedom of speech, freedom from unfair discrimination, a right to a fair trial, and a right to join in electing a government."},
+{c:1,q:"Is this statement TRUE or FALSE? There is a place for extremism in British society as long as it is peaceful.",o:["True","False"],a:1,e:"False. The handbook states there is no place in British society for extremism or intolerance."},
+{c:1,q:"Which of these is one of your responsibilities as a resident of the UK?",o:["To attend church regularly","To look after the area in which you live and the environment","To join the armed forces","To vote for the governing party"],a:1,e:"Responsibilities include respecting and obeying the law, respecting others' rights, treating others fairly, looking after yourself and your family, and looking after your area and the environment."},
+{c:1,q:"To apply for permanent residence or citizenship you must be able to speak and read English and also:",o:["own property in the UK","have a good understanding of life in the UK","have lived in the UK for 20 years","be under 60 years of age"],a:1,e:"You must speak and read English and have a good understanding of life in the UK."},
+{c:1,q:"Since October 2013, to settle in the UK you must pass the Life in the UK test AND show English speaking and listening at which level?",o:["A2","B1","B2","C1"],a:1,e:"B1 of the Common European Framework of Reference (CEFR) — equivalent to ESOL Entry Level 3."},
+{c:1,q:"The Life in the UK test questions are written to require English at which level?",o:["ESOL Entry Level 1","ESOL Entry Level 3","GCSE level","Degree level"],a:1,e:"ESOL Entry Level 3, which is equivalent to B1 CEFR — so passing means no separate English test is needed."},
+{c:1,q:"How many questions are there in the Life in the UK test?",o:["18","20","24","30"],a:2,e:"The test has 24 questions about important aspects of life in the UK."},
+{c:1,q:"Is this statement TRUE or FALSE? You can book the Life in the UK test by telephone.",o:["True","False"],a:1,e:"False. Booking is online only, at www.lifeintheuktest.gov.uk."},
+{c:1,q:"Besides English, in which languages can the Life in the UK test be taken?",o:["French or German","Welsh or Scottish Gaelic","Polish or Urdu","Cornish or Manx"],a:1,e:"Special arrangements can be made to take the test in Welsh or Scottish Gaelic."},
+{c:1,q:"What must you take with you to the Life in the UK test?",o:["Identification and proof of your address","A passport photograph only","Your birth certificate only","A letter from an employer"],a:0,e:"You must bring identification and proof of your address, or you will not be allowed to take the test."},
+{c:1,q:"About how many registered Life in the UK test centres are there around the UK?",o:["Around 20","Around 60","Around 200","Around 500"],a:1,e:"There are about 60 registered and approved test centres; the UK Border Agency only accepts certificates from registered centres."},
+{c:1,q:"The questions in the Life in the UK test are based on:",o:["Chapters 3 to 5 only","All parts of the handbook, including the introduction","A separate secret syllabus","The daily news"],a:1,e:"Questions come from all parts of the handbook, including the introduction — a common trap."},
+{c:1,q:"Which visa holders must take the Life in the UK test?",o:["Student visa holders","Tier 1 and Tier 2 (points-based) visa holders","Visitor visa holders","Only refugees"],a:1,e:"Work-visa holders on Tier 1 and Tier 2 of the points-based system must take the Life in the UK test."},
+
+/* ─────────── CHAPTER 2 · What is the UK? ─────────── */
+{c:2,q:"Which country is part of the United Kingdom but NOT part of Great Britain?",o:["Republic of Ireland","Northern Ireland","Isle of Man","Wales"],a:1,e:"Great Britain is England, Scotland and Wales only. Northern Ireland is in the UK but not in Great Britain."},
+{c:2,q:"Great Britain is made up of which countries?",o:["England, Scotland, Wales and Northern Ireland","England, Scotland and Wales","England and Scotland only","England, Wales and Ireland"],a:1,e:"Great Britain = England + Scotland + Wales. Add Northern Ireland and you get the United Kingdom."},
+{c:2,q:"What is the official name of the country?",o:["Great Britain","The British Isles","The United Kingdom of Great Britain and Northern Ireland","The United Kingdom of Britain and Ireland"],a:2,e:"The official name is the United Kingdom of Great Britain and Northern Ireland."},
+{c:2,q:"Is this statement TRUE or FALSE? The Isle of Man is part of the United Kingdom.",o:["True","False"],a:1,e:"False. The Isle of Man is a Crown dependency — closely linked to the UK but not part of it. It has its own government."},
+{c:2,q:"Which of these is a Crown dependency?",o:["The Falkland Islands","St Helena","The Channel Islands","Gibraltar"],a:2,e:"The Channel Islands and the Isle of Man are Crown dependencies, with their own governments. St Helena and the Falklands are overseas territories."},
+{c:2,q:"Which of these is a British overseas territory?",o:["The Isle of Man","The Falkland Islands","Jersey","Guernsey"],a:1,e:"St Helena and the Falkland Islands are British overseas territories — linked to the UK but not part of it."},
+{c:2,q:"The rest of Ireland (that is not Northern Ireland) is:",o:["a Crown dependency","a British overseas territory","an independent country","part of Great Britain"],a:2,e:"The rest of Ireland is an independent country — the Republic of Ireland."},
+{c:2,q:"Which body governs the whole of the UK?",o:["The Scottish Parliament","The parliament in Westminster","The European Parliament","The Welsh Assembly"],a:1,e:"The UK is governed by the parliament sitting in Westminster."},
+{c:2,q:"Which parts of the UK have their own parliament or assembly with devolved powers?",o:["England, Scotland and Wales","Scotland, Wales and Northern Ireland","Only Scotland","All four nations"],a:1,e:"Scotland, Wales and Northern Ireland each have their own parliament or assembly with devolved powers. England does not have a separate one — Westminster serves that role."},
+{c:2,q:"Is this statement TRUE or FALSE? 'Great Britain' includes Northern Ireland.",o:["True","False"],a:1,e:"False. Great Britain refers only to England, Scotland and Wales — never Northern Ireland."},
+
+/* ─────────── CHAPTER 3 · A Long & Illustrious History ─────────── */
+{c:3,q:"Where is Stonehenge located?",o:["Orkney","Wiltshire","Dorset","Suffolk"],a:1,e:"Stonehenge is in Wiltshire, probably a gathering place for seasonal ceremonies."},
+{c:3,q:"Skara Brae, the best-preserved prehistoric village in northern Europe, is found in:",o:["Cornwall","Orkney, Scotland","the Isle of Wight","Kent"],a:1,e:"Skara Brae is on Orkney, off the north coast of Scotland."},
+{c:3,q:"About how long ago did the Channel form, separating Britain from the rest of Europe?",o:["1,000 years ago","10,000 years ago","100,000 years ago","1 million years ago"],a:1,e:"The Channel cut Britain off from the continent about 10,000 years ago; before that a land bridge connected them."},
+{c:3,q:"In which age were the first coins minted in Britain, marking the start of British history?",o:["The Stone Age","The Bronze Age","The Iron Age","The Roman period"],a:2,e:"Iron Age people minted the first British coins, some inscribed with kings' names — the start of British history. A trap: it was NOT the Romans."},
+{c:3,q:"Who invaded Britain in 55 BC but failed to conquer it?",o:["Emperor Claudius","Julius Caesar","William the Conqueror","Boudicca"],a:1,e:"Julius Caesar invaded in 55 BC and failed. Britain was not conquered until Emperor Claudius succeeded in AD 43."},
+{c:3,q:"Boudicca, who fought against the Romans, was queen of which tribe?",o:["The Picts","The Iceni","The Angles","The Jutes"],a:1,e:"Boudicca was queen of the Iceni in eastern England. Her statue stands on Westminster Bridge in London."},
+{c:3,q:"Hadrian's Wall was built to keep out which people?",o:["The Vikings","The Picts","The Normans","The Saxons"],a:1,e:"Hadrian's Wall was built to keep out the Picts (ancestors of the Scots). Scotland was never conquered by the Romans."},
+{c:3,q:"In which year did the Roman army leave Britain?",o:["AD 43","AD 410","AD 600","AD 789"],a:1,e:"The Roman army left in AD 410 and never returned, after about 400 years in Britain."},
+{c:3,q:"Which king united the Anglo-Saxon kingdoms and defeated the Vikings?",o:["King Alfred the Great","King Cnut (Canute)","Kenneth MacAlpin","King Harold"],a:0,e:"Alfred the Great united the Anglo-Saxon kingdoms and defeated the Vikings. Cnut later became the first Danish king of England."},
+{c:3,q:"Who became the first Archbishop of Canterbury?",o:["St Patrick","St Columba","St Augustine","St David"],a:2,e:"St Augustine led missionaries to the south of England and became the first Archbishop of Canterbury."},
+{c:3,q:"In 1066 the Battle of Hastings was won by:",o:["King Harold","William, Duke of Normandy","Alfred the Great","Robert the Bruce"],a:1,e:"William, Duke of Normandy, defeated King Harold and became William the Conqueror — the last successful foreign invasion of England."},
+{c:3,q:"The events of the Norman Conquest of 1066 are commemorated in:",o:["The Domesday Book","The Bayeux Tapestry","Magna Carta","The King James Bible"],a:1,e:"The Bayeux Tapestry, which still exists in France, commemorates the Battle of Hastings."},
+{c:3,q:"What was the Domesday Book?",o:["A record of Viking raids","William the Conqueror's survey of England","The first English dictionary","A list of English kings"],a:1,e:"The Domesday Book was William's survey of every town and village — its people, land and animals. It still exists today."},
+{c:3,q:"In 1215, which king was forced to agree to Magna Carta?",o:["King John","King Henry V","King Richard III","King Edward I"],a:0,e:"Noblemen forced King John to agree to Magna Carta — establishing that even the king is subject to the law."},
+{c:3,q:"In 1314, Robert the Bruce defeated the English at which battle?",o:["Agincourt","Bannockburn","Bosworth Field","Hastings"],a:1,e:"At Bannockburn (1314) Robert the Bruce defeated the English and Scotland remained unconquered."},
+{c:3,q:"The Black Death of 1348 killed roughly what proportion of England's population?",o:["One tenth","One third","One half","Three quarters"],a:1,e:"The Black Death killed about one third of the population of England — one of the worst disasters ever to strike Britain."},
+{c:3,q:"In 1415, King Henry V defeated the French at which battle?",o:["Bannockburn","Trafalgar","Agincourt","Waterloo"],a:2,e:"At Agincourt (1415) Henry V's outnumbered army beat the French. (Bannockburn 1314 was Scotland beating England — don't mix them up.)"},
+{c:3,q:"The Wars of the Roses (1455–1485) were fought between the House of Lancaster and which other house?",o:["The House of Tudor","The House of York","The House of Stuart","The House of Normandy"],a:1,e:"Lancaster (red rose) versus York (white rose). Henry Tudor's victory united them as the House of Tudor."},
+{c:3,q:"Who was the first person to print books in England?",o:["Geoffrey Chaucer","William Caxton","William Shakespeare","John Barbour"],a:1,e:"William Caxton was the first person to print books in England — among them Chaucer's Canterbury Tales."},
+{c:3,q:"Which king created the Church of England after the Pope refused to allow his divorce?",o:["Henry VII","Henry VIII","Edward VI","James I"],a:1,e:"Henry VIII broke with Rome and created the Church of England, where the king, not the Pope, appoints bishops."},
+{c:3,q:"How are the fates of Henry VIII's six wives traditionally remembered, in order?",o:["Divorced, beheaded, died; divorced, beheaded, survived","Beheaded, divorced, died; beheaded, divorced, survived","Divorced, died, beheaded; divorced, survived, beheaded","Survived, beheaded, divorced; died, beheaded, divorced"],a:0,e:"'Divorced, beheaded, died; divorced, beheaded, survived' — Catherine of Aragon, Anne Boleyn, Jane Seymour, Anne of Cleves, Catherine Howard, Catherine Parr."},
+{c:3,q:"Which wife of Henry VIII was the mother of Elizabeth I?",o:["Catherine of Aragon","Anne Boleyn","Jane Seymour","Catherine Parr"],a:1,e:"Anne Boleyn, the second wife (beheaded), was Elizabeth I's mother. Jane Seymour was the mother of Edward VI."},
+{c:3,q:"Queen Mary I was given which nickname for persecuting Protestants?",o:["Good Queen Bess","Bloody Mary","The Virgin Queen","Mary the Great"],a:1,e:"The devoutly Catholic Mary I persecuted Protestants and was nicknamed 'Bloody Mary'."},
+{c:3,q:"In 1588, England defeated which fleet sent to conquer the country?",o:["The French navy","The Spanish Armada","The Dutch fleet","The Viking longships"],a:1,e:"In 1588 England defeated the Spanish Armada, sent to conquer England and restore Catholicism, during the reign of Elizabeth I."},
+{c:3,q:"When Elizabeth I died childless in 1603, who succeeded her, uniting the crowns?",o:["James VI of Scotland (James I of England)","Charles I","Oliver Cromwell","Mary, Queen of Scots"],a:0,e:"James VI of Scotland became James I of England, Wales and Ireland — though Scotland remained a separate country."},
+{c:3,q:"Mary, Queen of Scots was eventually executed on the orders of:",o:["Henry VIII","Elizabeth I","James I","Oliver Cromwell"],a:1,e:"Her cousin Elizabeth I imprisoned her for about 20 years and then had her executed for plotting."},
+{c:3,q:"During the English Civil War, supporters of the king were known as:",o:["Roundheads","Cavaliers","Puritans","Jacobites"],a:1,e:"The king's supporters were the Cavaliers; Parliament's supporters were the Roundheads."},
+{c:3,q:"In which year was King Charles I executed?",o:["1642","1649","1660","1666"],a:1,e:"Charles I was executed in 1649, after which England became a republic — the Commonwealth."},
+{c:3,q:"Who ruled England as Lord Protector during the republic?",o:["Charles II","Oliver Cromwell","William of Orange","Robert Walpole"],a:1,e:"Oliver Cromwell ruled as Lord Protector until his death in 1658. His campaign in Ireland remains controversial there today."},
+{c:3,q:"The monarchy was restored in 1660 with which king?",o:["Charles I","Charles II","James II","William III"],a:1,e:"Parliament invited Charles II back from the Netherlands in 1660 — the Restoration."},
+{c:3,q:"In which year did the Great Fire of London take place?",o:["1665","1666","1679","1688"],a:1,e:"The Great Fire was in 1666, the year after the Great Plague of 1665. St Paul's was rebuilt by Sir Christopher Wren."},
+{c:3,q:"The Habeas Corpus Act of 1679 established which important principle?",o:["The right to vote","No one can be held prisoner unlawfully; every prisoner gets a court hearing","Freedom of the press","The abolition of slavery"],a:1,e:"Habeas Corpus meant no one could be imprisoned unlawfully, and every prisoner is entitled to a court hearing."},
+{c:3,q:"The Glorious Revolution of 1688 brought which ruler to invade England without resistance?",o:["William of Orange","Napoleon","Bonnie Prince Charlie","George I"],a:0,e:"Protestants invited William of Orange to invade; there was no fighting in England, so it was called 'Glorious'. It guaranteed the power of Parliament."},
+{c:3,q:"At the Battle of the Boyne (1690), William of Orange defeated:",o:["Charles II","James II","Robert the Bruce","Bonnie Prince Charlie"],a:1,e:"William defeated the former king James II at the Battle of the Boyne in Ireland — still commemorated by some in Northern Ireland."},
+{c:3,q:"Isaac Newton is famous for writing which work and for which discovery?",o:["Principia Mathematica; that white light is made of the colours of the rainbow","The Canterbury Tales; the printing press","The Bruce; gravity on Earth only","Paradise Lost; the theory of evolution"],a:0,e:"Newton wrote Principia Mathematica, showed gravity applies throughout the universe, and discovered that white light is made of the colours of the rainbow."},
+{c:3,q:"The Bill of Rights of 1689 confirmed that the monarch must be:",o:["Catholic","Protestant","unmarried","over 21"],a:1,e:"The Bill of Rights confirmed Parliament's power and required the monarch to be Protestant, unable to raise taxes or keep an army without Parliament's consent."},
+{c:3,q:"The Act of Union of 1707 joined England and Wales with Scotland to create:",o:["The United Kingdom","The Kingdom of Great Britain","The Commonwealth","The British Empire"],a:1,e:"The 1707 Act of Union created the Kingdom of Great Britain, though Scotland kept its own legal and education systems and Presbyterian Church."},
+{c:3,q:"Who is generally regarded as the first British Prime Minister?",o:["Sir Robert Walpole","the Duke of Wellington","William Wilberforce","George I"],a:0,e:"Sir Robert Walpole was the first Prime Minister, serving from 1721 to 1742."},
+{c:3,q:"Bonnie Prince Charlie's rising was finally crushed in 1746 at which battle?",o:["Culloden","Bannockburn","Bosworth","Naseby"],a:0,e:"The Battle of Culloden (1746) ended the rebellion. Afterwards came the Highland Clearances."},
+{c:3,q:"Which movement of ideas, with many great Scottish thinkers, produced Adam Smith and David Hume?",o:["The Reformation","The Enlightenment","The Renaissance","The Industrial Revolution"],a:1,e:"The Enlightenment was an 18th-century flowering of ideas; Adam Smith (economics) and David Hume (philosophy) were leading figures."},
+{c:3,q:"In 1807, what did Parliament ban?",o:["Slavery throughout the Empire","The trading of slaves on British ships and from British ports","Child labour in factories","The import of sugar"],a:1,e:"1807 banned the slave TRADE on British ships and from British ports. Slavery itself was abolished throughout the Empire later — by the 1833 Emancipation Act."},
+{c:3,q:"In which year was slavery itself abolished throughout the British Empire?",o:["1807","1815","1833","1851"],a:2,e:"The Emancipation Act of 1833 abolished slavery throughout the British Empire."},
+{c:3,q:"Which MP led the parliamentary campaign against the slave trade?",o:["William Wilberforce","William Pitt","Robert Peel","Charles Parnell"],a:0,e:"William Wilberforce, an evangelical Christian and MP, was a leader of the movement to abolish the slave trade."},
+{c:3,q:"At the Battle of Trafalgar (1805), which admiral was killed while defeating the French and Spanish fleets?",o:["The Duke of Wellington","Admiral Nelson","Sir Francis Drake","Captain Cook"],a:1,e:"Admiral Nelson died at Trafalgar. His ship HMS Victory is in Portsmouth, and Nelson's Column stands in Trafalgar Square."},
+{c:3,q:"Who led the British forces that finally defeated Napoleon at Waterloo in 1815?",o:["Admiral Nelson","The Duke of Wellington","Sir Robert Walpole","William Pitt"],a:1,e:"The Duke of Wellington ('the Iron Duke'), later Prime Minister, defeated Napoleon at Waterloo in 1815."},
+{c:3,q:"Why is there no Welsh dragon on the Union Flag?",o:["Wales had already been united with England when the flag was created","Wales refused to join the Union","The dragon was thought unlucky","There was no room on the design"],a:0,e:"Wales was already united with England when the first Union Flag was created, so it is not separately represented."},
+{c:3,q:"Queen Victoria came to the throne in 1837 at what age?",o:["16","18","21","25"],a:1,e:"Victoria became queen in 1837 aged 18, and reigned for almost 64 years."},
+{c:3,q:"The Great Exhibition of 1851 was held in which building in Hyde Park?",o:["The Crystal Palace","The Royal Albert Hall","The Banqueting House","St Paul's Cathedral"],a:0,e:"The Great Exhibition was held in the Crystal Palace, a huge structure of steel and glass."},
+{c:3,q:"During the Crimean War, Queen Victoria introduced which honour for bravery?",o:["The George Cross","The Victoria Cross","The Order of the Garter","The Distinguished Service Order"],a:1,e:"Victoria introduced the Victoria Cross during the Crimean War (1853–56) to honour acts of valour."},
+{c:3,q:"Florence Nightingale is regarded as the founder of what?",o:["The Red Cross","Modern nursing","The NHS","Modern surgery"],a:1,e:"Florence Nightingale nursed soldiers in the Crimean War and founded the Nightingale Training School — she is seen as the founder of modern nursing."},
+{c:3,q:"Sake Dean Mahomet is remembered for opening Britain's first:",o:["curry house","tea house","department store","cotton mill"],a:0,e:"Sake Dean Mahomet opened the Hindoostane Coffee House in 1810 — Britain's first curry house — and introduced 'shampooing' (Indian head massage)."},
+{c:3,q:"In 1918, which women were first given the right to vote?",o:["All women over 18","Women over 30","Women over 21","Women who owned property, any age"],a:1,e:"In 1918 women over 30 could vote. In 1928 the voting age for women was lowered to 21, equal with men."},
+{c:3,q:"Emmeline Pankhurst is best known for co-founding which movement?",o:["The Chartists","The suffragettes (WSPU)","The trade unions","The Fabian Society"],a:1,e:"Emmeline Pankhurst co-founded the Women's Social and Political Union (WSPU) — the first 'suffragettes' — campaigning for votes for women."},
+{c:3,q:"The First World War began after the assassination of:",o:["Tsar Nicholas II","Archduke Franz Ferdinand","Kaiser Wilhelm","President Wilson"],a:1,e:"WWI's trigger was the assassination of Archduke Franz Ferdinand of Austria on 28 June 1914."},
+{c:3,q:"At what time and on what date did the First World War end?",o:["Noon on 8 May 1945","11 am on 11 November 1918","Midnight on 1 January 1919","6 am on 6 June 1918"],a:1,e:"WWI ended at 11 am on 11 November 1918 — remembered every year on Remembrance Day."},
+{c:3,q:"When Ireland was partitioned in 1922, how many northern counties remained part of the UK?",o:["Four","Six","Nine","Twelve"],a:1,e:"Six mainly-Protestant northern counties stayed in the UK as Northern Ireland; the rest became the Irish Free State."},
+{c:3,q:"Who discovered penicillin in 1928?",o:["Ernest Rutherford","Alexander Fleming","Isambard Kingdom Brunel","Edward Jenner"],a:1,e:"Alexander Fleming, a Scottish-born doctor working in London, discovered penicillin in 1928 while researching influenza."},
+{c:3,q:"Britain declared war on Germany in 1939 after Hitler invaded which country?",o:["France","Poland","Czechoslovakia","Austria"],a:1,e:"When Hitler invaded Poland in 1939, Britain and France declared war."},
+{c:3,q:"In 1940, the rescue of over 300,000 troops from France by naval and civilian boats became known as:",o:["The Blitz","Dunkirk","The Battle of Britain","D-Day"],a:1,e:"The evacuation from Dunkirk in 1940 rescued 300,000+ men and gave rise to the phrase 'the Dunkirk spirit'."},
+{c:3,q:"Which two British-designed aircraft won the Battle of Britain in 1940?",o:["The Lancaster and the Mosquito","The Spitfire and the Hurricane","The Harrier and the Concorde","The Wellington and the Halifax"],a:1,e:"The RAF won the Battle of Britain with the Spitfire and the Hurricane."},
+{c:3,q:"On what date did the D-Day landings in Normandy take place?",o:["11 November 1918","6 June 1944","8 May 1945","3 September 1939"],a:1,e:"D-Day, the Allied landings in Normandy, took place on 6 June 1944. Germany was defeated in May 1945."},
+{c:3,q:"Which of these speeches did Winston Churchill make after Dunkirk?",o:["'Blood, toil, tears and sweat'","'We shall fight on the beaches'","'Never was so much owed by so many to so few'","'The wind of change'"],a:1,e:"'We shall fight on the beaches' followed Dunkirk. 'So much owed by so many to so few' referred to the Battle of Britain."},
+{c:3,q:"The 1945 Labour government's welfare state was based on which report?",o:["The Butler Report","The Beveridge Report","The Bevan Report","The Attlee Report"],a:1,e:"The Beveridge Report (1942) was the blueprint of the welfare state; its author named five 'Giant Evils'."},
+{c:3,q:"Which of these is one of the five 'Giant Evils' named in the Beveridge Report?",o:["Poverty","Squalor","Crime","War"],a:1,e:"The five Giant Evils were Want, Disease, Ignorance, Squalor and Idleness."},
+{c:3,q:"Who founded the National Health Service in 1948?",o:["William Beveridge","Aneurin (Nye) Bevan","Clement Attlee","R. A. Butler"],a:1,e:"Aneurin (Nye) Bevan, the Minister for Health, launched the NHS in 1948 — free at the point of use."},
+{c:3,q:"In 1948, workers were invited to help fill labour shortages from which region?",o:["The West Indies","Eastern Europe","North Africa","Southern Europe"],a:0,e:"In 1948 workers were invited from the West Indies to help with post-war labour shortages, including as bus drivers."},
+{c:3,q:"The EEC was formed in 1957. When did the UK join it?",o:["1957","1965","1973","1979"],a:2,e:"The EEC was founded in 1957 without the UK; Britain joined in 1973."},
+{c:3,q:"Margaret Thatcher became the UK's first woman Prime Minister in which year?",o:["1975","1979","1982","1990"],a:1,e:"Margaret Thatcher became PM in 1979 and was the longest-serving Prime Minister of the 20th century."},
+{c:3,q:"In 1982, the Falklands War began when which country invaded the islands?",o:["Chile","Argentina","Spain","Brazil"],a:1,e:"Argentina invaded the Falkland Islands in 1982; a British naval taskforce recovered them."},
+{c:3,q:"Sir Tim Berners-Lee is credited with inventing:",o:["The jet engine","The World Wide Web","The hovercraft","The cash machine"],a:1,e:"Sir Tim Berners-Lee invented the World Wide Web; the first successful communication took place on 25 December 1990."},
+{c:3,q:"Dolly the sheep, created in 1996, was famous for being the first:",o:["genetically modified animal","cloned mammal","test-tube animal","animal sent into space"],a:1,e:"Dolly the sheep (1996) was the first mammal to be successfully cloned, by Wilmut and Campbell."},
+{c:3,q:"The world's first successful cash machine (ATM) was introduced in 1967 by a bank in:",o:["Manchester","Enfield","Oldham","Cardiff"],a:1,e:"James Goodfellow's cash machine was first used at a Barclays branch in Enfield in 1967."},
+{c:3,q:"The government formed after the May 2010 general election was a coalition between:",o:["Labour and the Liberal Democrats","the Conservatives and the Liberal Democrats","the Conservatives and Labour","Labour and the SNP"],a:1,e:"The 2010 election produced no overall majority, leading to a Conservative–Liberal Democrat coalition with David Cameron as PM."},
+{c:3,q:"Sir Frank Whittle, a Royal Air Force officer, is credited with inventing the:",o:["radar system","jet engine","radio telescope","MRI scanner"],a:1,e:"Sir Frank Whittle invented the jet engine in the 1930s."},
+
+/* ─────────── CHAPTER 4 · A Modern, Thriving Society ─────────── */
+{c:4,q:"What is the capital city of Scotland?",o:["Glasgow","Edinburgh","Aberdeen","Dundee"],a:1,e:"Edinburgh is the capital of Scotland; Glasgow is its largest listed city, not its capital."},
+{c:4,q:"What is the capital city of Wales?",o:["Swansea","Cardiff","Newport","Bangor"],a:1,e:"Cardiff is the capital of Wales."},
+{c:4,q:"How many pence are there in a pound sterling?",o:["10","50","100","1,000"],a:2,e:"There are 100 pence in a pound (£)."},
+{c:4,q:"Which is the largest denomination of banknote in the UK?",o:["£20","£50","£100","£500"],a:1,e:"UK notes are £5, £10, £20 and £50 — £50 is the largest."},
+{c:4,q:"Approximately what percentage of the UK population lives in England?",o:["50%","70%","84%","95%"],a:2,e:"England 84%, Scotland 8%, Wales 5%, Northern Ireland under 3%."},
+{c:4,q:"In which part of Scotland is Gaelic spoken?",o:["The Lowlands","The Highlands and Islands","The Borders","The central belt"],a:1,e:"Gaelic is spoken in the Scottish Highlands and Islands."},
+{c:4,q:"Roughly what proportion of the UK population has a parent or grandparent born outside the UK?",o:["Nearly 10%","About 25%","About 40%","Over half"],a:0,e:"Because of post-war immigration, nearly 10% of the population has a parent or grandparent born outside the UK."},
+{c:4,q:"According to the census figures, what percentage of the population is Christian?",o:["50%","70%","84%","95%"],a:1,e:"70% Christian, 21% no religion, 4% Muslim, 2% Hindu, 1% Sikh, with smaller numbers of Jewish and Buddhist people."},
+{c:4,q:"Who is the head of the Church of England?",o:["The Archbishop of Canterbury","The monarch","The Prime Minister","The Pope"],a:1,e:"The monarch is the head of the Church of England. The Archbishop of Canterbury is its spiritual leader — a common trap."},
+{c:4,q:"What is the national church of Scotland, and what kind of church is it?",o:["The Church of Scotland — Presbyterian","The Church of England — Anglican","The Episcopal Church — Catholic","The Free Church — Methodist"],a:0,e:"The Church of Scotland is Presbyterian, governed by ministers and elders; its head, the Moderator, is appointed annually."},
+{c:4,q:"On what date is St David's Day, the patron saint's day of Wales?",o:["1 March","17 March","23 April","30 November"],a:0,e:"St David (Wales) — 1 March; St Patrick (NI) — 17 March; St George (England) — 23 April; St Andrew (Scotland) — 30 November."},
+{c:4,q:"Which TWO patron saints' days are official public holidays in their part of the UK? (Choose 2)",o:["St David's Day (Wales)","St Patrick's Day (Northern Ireland)","St George's Day (England)","St Andrew's Day (Scotland)"],a:[1,3],e:"St Patrick's Day in Northern Ireland and St Andrew's Day in Scotland are official holidays. St David's and St George's days are worked normally."},
+{c:4,q:"The daffodil is the national flower of which country?",o:["England","Scotland","Wales","Northern Ireland"],a:2,e:"Rose — England, thistle — Scotland, daffodil — Wales, shamrock — Northern Ireland."},
+{c:4,q:"Diwali, the 'Festival of Lights', is celebrated by:",o:["Christians only","Hindus and Sikhs","Muslims only","Jewish people"],a:1,e:"Diwali is celebrated by Hindus AND Sikhs; there are famous celebrations in Leicester."},
+{c:4,q:"The festival of Vaisakhi, on 14 April, is celebrated by which religion?",o:["Hindus","Sikhs","Buddhists","Muslims"],a:1,e:"Vaisakhi is a Sikh festival marking the founding of the Khalsa; unusually, it has a fixed date (14 April)."},
+{c:4,q:"Which festival marks the end of Ramadan for Muslims?",o:["Eid ul Adha","Eid al-Fitr","Hannukah","Vaisakhi"],a:1,e:"Eid al-Fitr marks the end of Ramadan. Eid ul Adha remembers Ibrahim's willingness to sacrifice his son — a common swap."},
+{c:4,q:"Bonfire Night, on 5 November, commemorates:",o:["the end of the Second World War","Guy Fawkes' 1605 plot to blow up the Houses of Parliament","the Great Fire of London","the Gunpowder Treaty"],a:1,e:"Bonfire Night recalls the 1605 plot by Guy Fawkes and others to kill the Protestant king with a bomb in Parliament."},
+{c:4,q:"On Remembrance Day (11 November), people traditionally wear:",o:["a daffodil","a poppy","a thistle","a rose"],a:1,e:"Poppies are worn and there is a two-minute silence at 11 am, with wreaths laid at the Cenotaph in Whitehall."},
+{c:4,q:"How many days does Lent last?",o:["12","28","40","50"],a:2,e:"Lent lasts 40 days before Easter. It begins on Ash Wednesday, the day after Shrove Tuesday (Pancake Day)."},
+{c:4,q:"How many times has the UK hosted the Olympic Games?",o:["Once","Twice","Three times","Four times"],a:2,e:"The UK has hosted the Olympics three times: 1908, 1948 and 2012 (in Stratford, East London)."},
+{c:4,q:"Who was the first person to run a mile in under four minutes, in 1954?",o:["Sir Steve Redgrave","Sir Roger Bannister","Sir Mo Farah","Sir Chris Hoy"],a:1,e:"Sir Roger Bannister ran the first sub-four-minute mile in 1954."},
+{c:4,q:"Sir Steve Redgrave won gold medals at how many consecutive Olympic Games?",o:["Three","Four","Five","Six"],a:2,e:"The rower Sir Steve Redgrave won gold at five consecutive Olympic Games."},
+{c:4,q:"Who was the first Briton to win the Tour de France, in 2012?",o:["Sir Chris Hoy","Sir Bradley Wiggins","Lewis Hamilton","David Weir"],a:1,e:"Sir Bradley Wiggins was the first Briton to win the Tour de France, in 2012."},
+{c:4,q:"The Ashes is a famous cricket series played between England and:",o:["India","Australia","South Africa","the West Indies"],a:1,e:"The Ashes is contested by England and Australia."},
+{c:4,q:"Which sport, which originated in England, can have matches lasting up to five days?",o:["Rugby","Cricket","Football","Tennis"],a:1,e:"Cricket originated in England; matches can last up to five days and still end in a draw."},
+{c:4,q:"St Andrews is regarded as the home of which sport?",o:["Tennis","Golf","Rugby","Rowing"],a:1,e:"Golf traces to 15th-century Scotland, and St Andrews is known as the home of golf."},
+{c:4,q:"Wimbledon, the oldest tennis tournament in the world, is played on which surface?",o:["Clay","Grass","Hard court","Indoor carpet"],a:1,e:"Wimbledon is the oldest tennis tournament and the only Grand Slam played on grass."},
+{c:4,q:"The Paralympic Games grew out of the work of Dr Sir Ludwig Guttmann at which hospital?",o:["St Thomas' Hospital","Stoke Mandeville Hospital","Great Ormond Street Hospital","The Royal London Hospital"],a:1,e:"Dr Sir Ludwig Guttmann, a German refugee, developed competitive sport for disabled patients at Stoke Mandeville hospital."},
+{c:4,q:"Which composer wrote the orchestral suite 'The Planets'?",o:["Edward Elgar","Gustav Holst","Henry Purcell","Benjamin Britten"],a:1,e:"Gustav Holst wrote 'The Planets'. Elgar wrote 'Land of Hope and Glory' — the two are constantly swapped in the test."},
+{c:4,q:"George Frederick Handel, composer of 'Messiah', was born in Germany and became a British citizen in:",o:["1707","1727","1759","1801"],a:1,e:"Handel became a British citizen in 1727. He wrote Water Music, Music for the Royal Fireworks and the oratorio Messiah."},
+{c:4,q:"Agatha Christie's play 'The Mousetrap' has been running in London since:",o:["1927","1952","1968","1984"],a:1,e:"'The Mousetrap' has run since 1952 — the longest initial run of any show in history."},
+{c:4,q:"The Turner Prize, awarded for contemporary art, was founded in which year?",o:["1968","1984","1996","2003"],a:1,e:"The Turner Prize was founded in 1984; four shortlisted works are shown at Tate Britain each year."},
+{c:4,q:"Which author created the detective Sherlock Holmes?",o:["Agatha Christie","Sir Arthur Conan Doyle","Ian Fleming","Robert Louis Stevenson"],a:1,e:"Sir Arthur Conan Doyle, a Scottish doctor, created Sherlock Holmes."},
+{c:4,q:"Which novel was voted the nation's best-loved book in 2003?",o:["Pride and Prejudice","The Lord of the Rings","Great Expectations","Harry Potter"],a:1,e:"J.R.R. Tolkien's 'The Lord of the Rings' was voted the nation's best-loved novel in 2003."},
+{c:4,q:"Wilfred Owen and Siegfried Sassoon are best known as:",o:["Romantic poets","First World War poets","Elizabethan playwrights","Victorian novelists"],a:1,e:"Owen and Sassoon were First World War poets who wrote from the trenches."},
+{c:4,q:"Many famous poets are buried or commemorated in 'Poets' Corner', which is in:",o:["St Paul's Cathedral","Westminster Abbey","the Tower of London","Canterbury Cathedral"],a:1,e:"Poets' Corner is in Westminster Abbey."},
+{c:4,q:"In which year were films first shown publicly in the UK?",o:["1896","1927","1936","1952"],a:0,e:"Films were first shown publicly in the UK in 1896."},
+{c:4,q:"The animator Nick Park is best known for creating:",o:["Wallace and Gromit","Thomas the Tank Engine","Peppa Pig","Paddington Bear"],a:0,e:"Nick Park has won four Oscars, including three for Wallace and Gromit."},
+{c:4,q:"Which TWO are the highest-grossing UK film franchises? (Choose 2)",o:["Harry Potter","Star Wars","James Bond","The Lord of the Rings"],a:[0,2],e:"Harry Potter and James Bond are the two highest-grossing UK film franchises."},
+{c:4,q:"The British film awards are commonly known as the:",o:["Oscars","BAFTAs","Grammys","Emmys"],a:1,e:"The British Academy Film Awards are known as the BAFTAs."},
+{c:4,q:"What is the maximum fine for watching or recording TV without a TV licence?",o:["£100","£500","£1,000","£5,000"],a:2,e:"Watching TV without a licence risks a fine of up to £1,000. Over-75s get a free licence; blind people get a 50% discount."},
+{c:4,q:"At what age can you buy alcohol in a pub or nightclub?",o:["16","17","18","21"],a:2,e:"You must be 18 to buy alcohol. At 16 you may drink wine or beer with a meal if accompanied by someone over 18."},
+{c:4,q:"How many national parks are there in England, Wales and Scotland?",o:["10","12","15","20"],a:2,e:"There are 15 national parks in England, Wales and Scotland."},
+{c:4,q:"The National Trust was founded in 1895 by how many people?",o:["One MP","Three volunteers","Ten landowners","A hundred donors"],a:1,e:"The National Trust was founded in 1895 by three volunteers; it now has over 61,000 volunteers."},
+{c:4,q:"Which is the largest expanse of fresh water in mainland Britain?",o:["Windermere","Loch Lomond","Loch Ness","Lake District"],a:1,e:"Loch Lomond is the largest expanse of fresh water in mainland Britain."},
+{c:4,q:"The Giant's Causeway is a famous landmark in which part of the UK?",o:["Scotland","Wales","Northern Ireland","Cornwall"],a:2,e:"The Giant's Causeway is on the coast of Northern Ireland, formed about 50 million years ago."},
+{c:4,q:"Snowdon, the highest mountain in Wales, is found in which national park?",o:["The Lake District","Snowdonia","Loch Lomond and the Trossachs","the Peak District"],a:1,e:"Snowdon is in Snowdonia National Park in Wales."},
+{c:4,q:"Tours of the Tower of London are given by ceremonial guards known as:",o:["Beadles","Yeoman Warders (Beefeaters)","Chelsea Pensioners","Life Guards"],a:1,e:"The Tower of London, built in 1066 for William the Conqueror, is home to the Crown Jewels; tours are given by Yeoman Warders (Beefeaters)."},
+{c:4,q:"Haggis is a traditional food particularly associated with:",o:["England","Scotland","Wales","Northern Ireland"],a:1,e:"Haggis (a sheep's stomach stuffed with offal, suet, onions and oatmeal) is Scottish. Roast beef and Yorkshire pudding — England; Welsh cakes — Wales; the Ulster fry — Northern Ireland."},
+{c:4,q:"Which annual event is a festival of Welsh-language music, dance, art and poetry?",o:["The Edinburgh Fringe","The National Eisteddfod of Wales","The Proms","Glastonbury"],a:1,e:"The National Eisteddfod of Wales is an annual festival celebrating Welsh-language performance and poetry."},
+
+/* ─────────── CHAPTER 5 · Government, Law & Your Role ─────────── */
+{c:5,q:"Why is the British constitution described as 'unwritten'?",o:["Nobody has ever bothered to write it down","It is not contained in a single written document, having developed gradually","It is kept secret from the public","It was destroyed in a fire"],a:1,e:"Britain's constitution is unwritten (not codified in one document) because the country avoided revolution and its institutions developed gradually over centuries."},
+{c:5,q:"In which year did Queen Elizabeth II become monarch?",o:["1948","1952","1958","1969"],a:1,e:"Elizabeth II became queen in 1952 on her father's death; her Diamond Jubilee (60 years) was in 2012."},
+{c:5,q:"The monarch may 'advise, warn and' do which of the following?",o:["decide","encourage","legislate","veto"],a:1,e:"The monarch may advise, warn and encourage the Prime Minister — but does not make policy or rule."},
+{c:5,q:"Which chamber of Parliament is regarded as the more important, and why?",o:["The House of Lords, because it is more independent","The House of Commons, because its members are democratically elected","The House of Lords, because peers are experts","The House of Commons, because it is older"],a:1,e:"The House of Commons is the more important chamber because its members (MPs) are democratically elected."},
+{c:5,q:"What is each Member of Parliament (MP) said to represent?",o:["A political party","A parliamentary constituency","A government department","A trade union"],a:1,e:"Each MP represents a parliamentary constituency and everyone who lives there."},
+{c:5,q:"Members of the House of Lords are known as:",o:["MPs","peers","councillors","MEPs"],a:1,e:"Members of the House of Lords are peers; they are not elected and do not represent a constituency."},
+{c:5,q:"Life peers were first introduced in which year?",o:["1911","1958","1969","1999"],a:1,e:"Life peers were introduced in 1958. In 1999 hereditary peers lost the automatic right to attend the Lords."},
+{c:5,q:"Who chairs debates in the House of Commons and keeps order?",o:["The Prime Minister","The Speaker","The Lord Chancellor","The Home Secretary"],a:1,e:"The Speaker chairs debates, remains politically neutral, and is chosen by other MPs in a secret ballot."},
+{c:5,q:"What is the maximum period allowed between general elections?",o:["Three years","Four years","Five years","Seven years"],a:2,e:"General elections must be held at least every five years."},
+{c:5,q:"Members of Parliament (MPs) are elected using which system?",o:["Proportional representation","First past the post","The single transferable vote","A show of hands"],a:1,e:"MPs are elected by 'first past the post' — the candidate with the most votes in the constituency wins the seat. MEPs, by contrast, are elected by proportional representation."},
+{c:5,q:"A 'by-election' is held when:",o:["a general election is due","an MP dies or resigns","the government loses a vote","the Speaker retires"],a:1,e:"A by-election is held in a constituency when its MP dies or resigns."},
+{c:5,q:"What is the official residence of the Prime Minister?",o:["Buckingham Palace","10 Downing Street","The Palace of Westminster","Chequers"],a:1,e:"The Prime Minister lives at 10 Downing Street and also has the use of a country house, Chequers."},
+{c:5,q:"About how many senior MPs make up the Cabinet?",o:["About 10","About 20","About 50","About 100"],a:1,e:"The Cabinet is made up of about 20 senior MPs, who are ministers in charge of government departments."},
+{c:5,q:"Which government minister is responsible for the economy?",o:["The Home Secretary","The Chancellor of the Exchequer","The Foreign Secretary","The Prime Minister"],a:1,e:"The Chancellor of the Exchequer is responsible for the economy."},
+{c:5,q:"Which minister is responsible for crime, policing and immigration?",o:["The Chancellor of the Exchequer","The Home Secretary","The Foreign Secretary","The Lord Chancellor"],a:1,e:"The Home Secretary is responsible for crime, policing and immigration. Watch the trap: the Foreign Secretary handles relations with other countries, not immigration."},
+{c:5,q:"Civil servants are required to be:",o:["members of the governing party","politically neutral and chosen on merit","elected by the public","appointed for life by the monarch"],a:1,e:"Civil servants are politically neutral, chosen on merit, and accountable to ministers. Their values include integrity, honesty, objectivity and impartiality."},
+{c:5,q:"In which year did devolution of power to Scotland, Wales and Northern Ireland begin?",o:["1979","1990","1997","2007"],a:2,e:"Devolution began in 1997, under the Labour government of Tony Blair."},
+{c:5,q:"How many Assembly Members (AMs) does the National Assembly for Wales have?",o:["60","108","129","650"],a:0,e:"Wales has 60 Assembly Members (AMs), elected every four years by proportional representation."},
+{c:5,q:"How many members (MSPs) does the Scottish Parliament have?",o:["60","108","129","150"],a:2,e:"The Scottish Parliament, at Holyrood in Edinburgh, has 129 MSPs."},
+{c:5,q:"How many members (MLAs) does the Northern Ireland Assembly have?",o:["60","108","129","90"],a:1,e:"The Northern Ireland Assembly at Stormont has 108 MLAs, elected by proportional representation and governing by power-sharing."},
+{c:5,q:"Which of these powers is kept by the UK Parliament at Westminster, not devolved?",o:["Education","Health","Defence","Planning"],a:2,e:"Westminster keeps defence, foreign affairs, immigration, taxation and social security. Education, health and planning are largely devolved."},
+{c:5,q:"Among the devolved bodies, which parliament has the power to raise taxes?",o:["The Welsh Assembly","The Scottish Parliament","The Northern Ireland Assembly","None of them"],a:1,e:"Of the devolved bodies, the Scottish Parliament can raise taxes."},
+{c:5,q:"Which citizens can vote in a UK general election?",o:["Only UK-born citizens","UK, Commonwealth and Irish citizens who are resident","All EU citizens who are resident","Anyone living in the UK"],a:1,e:"Resident UK, Commonwealth and Irish citizens can vote in a general election. Resident EU citizens can vote in all elections EXCEPT general elections."},
+{c:5,q:"Is this statement TRUE or FALSE? A resident EU citizen (not from the UK, Ireland or the Commonwealth) can vote in a UK general election.",o:["True","False"],a:1,e:"False. EU citizens resident in the UK can vote in local and devolved elections but NOT in a general election."},
+{c:5,q:"The voting age of 18 was set in which year?",o:["1928","1958","1969","1998"],a:2,e:"The voting age was set at 18 in 1969."},
+{c:5,q:"When are polling stations open on the day of an election?",o:["9 am to 5 pm","7 am to 10 pm","8 am to 8 pm","24 hours"],a:1,e:"Polling stations (polling places in Scotland) are open from 7 am to 10 pm."},
+{c:5,q:"The official record of what is said in Parliament is called:",o:["The Gazette","Hansard","The Register","The Journal"],a:1,e:"Parliamentary proceedings are published in Hansard, available in large libraries and at www.parliament.uk."},
+{c:5,q:"The UK is one of how many permanent members of the UN Security Council?",o:["Three","Five","Ten","Fifteen"],a:1,e:"The UK is one of five permanent members of the 15-member UN Security Council."},
+{c:5,q:"How many member states are there in the Commonwealth?",o:["27","47","54","190"],a:2,e:"The Commonwealth has 54 member states. The Queen is its head; it has no power over members but can suspend membership."},
+{c:5,q:"The Council of Europe is responsible for what, and how many members does it have?",o:["Making EU laws; 27 members","Protecting human rights; 47 members","Running the single currency; 19 members","Defence; 28 members"],a:1,e:"The Council of Europe (47 members) is separate from the EU, protects human rights and drew up the European Convention on Human Rights. It cannot make laws."},
+{c:5,q:"Members of NATO agree to:",o:["adopt a single currency","defend one another if any is attacked","abolish border controls","share a common army"],a:1,e:"NATO members agree to help defend each other if attacked, and to work to keep the peace."},
+{c:5,q:"Is this statement TRUE or FALSE? Carrying a weapon is only a crime if you intend to harm someone; carrying it for self-defence is allowed.",o:["True","False"],a:1,e:"False. Carrying a weapon of any kind is a criminal offence 'even if it is for self-defence' — the handbook's exact wording."},
+{c:5,q:"Which of these is an example of CIVIL law rather than criminal law?",o:["Carrying a weapon","A dispute between a landlord and a tenant","Selling drugs","Racial harassment"],a:1,e:"Civil law covers disputes between people or groups — housing, consumer rights, employment and debt. Criminal law covers offences that are investigated and punished."},
+{c:5,q:"Police and Crime Commissioners were first elected in England and Wales in:",o:["November 2010","November 2012","May 2011","May 2015"],a:1,e:"Police and Crime Commissioners (PCCs) were first elected in November 2012; they set local priorities and budgets and appoint Chief Constables."},
+{c:5,q:"How many members does a jury have in England, Wales and Northern Ireland?",o:["10","12","15","20"],a:1,e:"A jury has 12 members in England, Wales and Northern Ireland. In Scotland a jury has 15."},
+{c:5,q:"Which verdict is available in Scotland but not in the rest of the UK?",o:["No case to answer","Not proven","Guilty by association","Mistrial"],a:1,e:"Scottish juries (of 15) can return 'not proven' in addition to 'guilty' and 'not guilty'."},
+{c:5,q:"The Youth Court deals with young people of which ages?",o:["8 to 15","10 to 17","12 to 18","14 to 21"],a:1,e:"The Youth Court deals with those aged 10 to 17; parents must attend, the public is excluded, and the young person cannot be named."},
+{c:5,q:"Which statement about magistrates in England and Wales is correct?",o:["They are paid and must be qualified lawyers","They are unpaid and need no legal qualifications","They are elected by the public","They are appointed by the Prime Minister"],a:1,e:"Magistrates (and Justices of the Peace) are unpaid and need no legal qualifications. In Northern Ireland, District Judges are paid and legally qualified."},
+{c:5,q:"What is the upper limit for a small claim in England and Wales?",o:["£1,000","£3,000","£5,000","£10,000"],a:2,e:"The small-claims limit is £5,000 in England and Wales, and £3,000 in Scotland and Northern Ireland."},
+{c:5,q:"In which year did the UK sign the European Convention on Human Rights?",o:["1948","1950","1969","1998"],a:1,e:"The UK signed the European Convention on Human Rights in 1950; the Human Rights Act 1998 wrote it into UK law."},
+{c:5,q:"Which of these is a right protected under the European Convention on Human Rights?",o:["The right to own a car","Prohibition of torture","The right to free healthcare abroad","The right to a state pension"],a:1,e:"Convention rights include the right to life, prohibition of torture, prohibition of slavery, the right to a fair trial, and freedom of expression."},
+{c:5,q:"Which of the following is a criminal offence in the UK?",o:["An arranged marriage where both parties agree","A forced marriage without free consent","Marrying someone from another country","Marrying after the age of 60"],a:1,e:"A forced marriage (no free consent) is a crime. An arranged marriage, where both parties agree, is acceptable. Forced Marriage Protection Orders have existed since 2008."},
+{c:5,q:"How do most employees pay their income tax?",o:["By self-assessment","Through PAYE (Pay As You Earn)","In cash at a bank","Once a year in a lump sum"],a:1,e:"Employees pay income tax through PAYE (Pay As You Earn). The self-employed complete a self-assessment form for HMRC."},
+{c:5,q:"National Insurance Contributions help to fund which of the following?",o:["Roads and street lighting","State benefits and the NHS","Private schools","The monarchy"],a:1,e:"National Insurance funds state benefits and the NHS, including the state retirement pension. (Income tax pays for roads, education, police and the armed forces.)"},
+{c:5,q:"At roughly what age is a person given their National Insurance number?",o:["Just before 16","At 18","At 21","At birth"],a:0,e:"A National Insurance number is sent to people just before their 16th birthday."},
+{c:5,q:"At what age can you drive a car or motorcycle in the UK?",o:["16","17","18","21"],a:1,e:"You can drive a car or motorcycle at 17; a moped at 16."},
+{c:5,q:"A UK driving licence is valid until what age, after which it must be renewed every three years?",o:["65","70","75","80"],a:1,e:"A driving licence is valid until age 70, then must be renewed every three years."},
+{c:5,q:"A car needs its first MOT test once it is over how many years old?",o:["One year","Two years","Three years","Five years"],a:2,e:"A car needs an annual MOT test once it is over three years old."},
+{c:5,q:"People are selected for jury service at random from which list?",o:["The census","The electoral register","The tax records","The NHS register"],a:1,e:"Jurors are chosen at random from the electoral register — a good reason to register to vote. Jury service applies to those aged 18–70."},
+{c:5,q:"At what age can you become a school governor, and is there an upper age limit?",o:["18 or over, with no upper age limit","21 to 65 only","16 or over, up to age 70","Any age, if a parent"],a:0,e:"You can become a school governor (a school board member in Scotland) at 18 or over, with no upper age limit."},
+{c:5,q:"The National Citizen Service is a programme for which age group?",o:["11 to 14 year-olds","16 to 17 year-olds","18 to 25 year-olds","over-60s"],a:1,e:"The National Citizen Service is for 16- and 17-year-olds, offering outdoor activities and community projects."},
+{c:5,q:"Roughly how long does it take to give blood?",o:["About 10 minutes","About an hour","Half a day","A full day"],a:1,e:"Giving blood takes about an hour."},
+{c:5,q:"Which charity is chiefly concerned with the welfare of children?",o:["Age UK","The NSPCC","Shelter","The PDSA"],a:1,e:"The NSPCC works for children; Age UK — older people; Shelter and Crisis — homelessness; the PDSA — animals."},
+{c:5,q:"The first line of the British national anthem is:",o:["'Land of Hope and Glory'","'God save our gracious Queen'","'Rule, Britannia!'","'Jerusalem'"],a:1,e:"The national anthem, 'God Save the Queen', begins 'God save our gracious Queen! Long live our noble Queen!'"}
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENGINE
+   ═══════════════════════════════════════════════════════════════════ */
+const CH = {
+  1:{name:"Values & the Test",era:"var(--era1)"},
+  2:{name:"What is the UK?",era:"var(--era2)"},
+  3:{name:"History",era:"var(--era4)"},
+  4:{name:"Modern Society",era:"var(--era5)"},
+  5:{name:"Government & Law",era:"var(--era6)"}
+};
+const MOCK_N = 24, PASS = 18, MOCK_SECS = 45*60;
+
+let state = null;   // {mode, qs, idx, picks:[], instant:bool, timed:bool}
+let timerId = null, timeLeft = 0;
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const isMulti = q => Array.isArray(q.a);
+
+/* ---------- boot ---------- */
+$('totalCount').textContent = BANK.length;
+(function buildChips(){
+  const wrap = $('chapterChips');
+  Object.keys(CH).forEach(c=>{
+    const n = BANK.filter(q=>q.c==c).length;
+    const b = document.createElement('button');
+    b.className='chip'; b.style.setProperty('--era',CH[c].era);
+    b.innerHTML = `Ch ${c} · ${CH[c].name} <span style="color:var(--ink-3)">(${n})</span>`;
+    b.onclick = ()=> startPractice(+c);
+    wrap.appendChild(b);
+  });
+})();
+
+document.querySelectorAll('.mode').forEach(m=>{
+  m.onclick = ()=>{ m.dataset.mode==='mock' ? startMock() : startPractice(null); };
+});
+
+/* ---------- theme ---------- */
+$('themeToggle').onclick = ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const dark = cur ? cur==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light':'dark');
+};
+
+/* ---------- start modes ---------- */
+function startMock(){
+  state = { mode:'mock', qs: shuffle(BANK).slice(0,MOCK_N), idx:0, picks:[], instant:false, timed:true };
+  state.picks = state.qs.map(()=>null);
+  timeLeft = MOCK_SECS; startTimer();
+  enterQuiz('Mock Test');
+}
+function startPractice(chapter){
+  const pool = chapter ? BANK.filter(q=>q.c===chapter) : BANK;
+  state = { mode:'practice', qs: shuffle(pool), idx:0, picks:[], instant:true, timed:false, chapter };
+  state.picks = state.qs.map(()=>null);
+  enterQuiz(chapter ? `Practice · Ch ${chapter}` : 'Practice · All');
+}
+function enterQuiz(label){
+  $('home').classList.add('hidden');
+  $('results').classList.add('hidden');
+  $('quiz').classList.remove('hidden');
+  $('qModeName').textContent = label;
+  $('timer').classList.toggle('hidden', !state.timed);
+  window.scrollTo(0,0);
+  render();
+}
+
+/* ---------- timer ---------- */
+function startTimer(){
+  clearInterval(timerId);
+  paintTimer();
+  timerId = setInterval(()=>{
+    timeLeft--; paintTimer();
+    if(timeLeft<=0){ clearInterval(timerId); finish(); }
+  },1000);
+}
+function paintTimer(){
+  const m=Math.floor(timeLeft/60), s=timeLeft%60;
+  const t=$('timer'); t.textContent = `${m}:${String(s).padStart(2,'0')}`;
+  t.classList.toggle('warn', timeLeft<=120);
+}
+
+/* ---------- render a question ---------- */
+function render(){
+  const q = state.qs[state.idx];
+  const answered = state.picks[state.idx]!==null;
+  const showFeedback = state.instant && answered;
+
+  $('qCount').textContent = `Question ${state.idx+1} of ${state.qs.length}`;
+  $('progressBar').style.width = ((state.idx)/(state.qs.length))*100 + '%';
+
+  const multi = isMulti(q);
+  const card = $('qcard');
+  card.style.setProperty('--era', CH[q.c].era);
+
+  let html = `<p class="qmeta">Chapter ${q.c} · ${CH[q.c].name}${multi?' · choose TWO':''}</p>`;
+  html += `<h2 class="qtext">${q.q}</h2>`;
+  if(multi) html += `<p class="qhint">Select two answers.</p>`;
+  html += `<ul class="options">`;
+
+  q.o.forEach((opt,i)=>{
+    let cls = multi ? 'opt' : 'opt radio';
+    const picked = pickedHas(state.picks[state.idx], i);
+    if(showFeedback){
+      cls += ' locked';
+      const correct = multi ? q.a.includes(i) : q.a===i;
+      if(correct) cls += ' correct';
+      else if(picked) cls += ' wrong';
+    } else if(picked){
+      cls += ' selected';
+    }
+    const letter = showFeedback
+      ? ((multi?q.a.includes(i):q.a===i) ? '✓' : (picked?'✕':String.fromCharCode(65+i)))
+      : String.fromCharCode(65+i);
+    html += `<li class="${cls}" data-i="${i}"><span class="marker">${letter}</span><span class="txt">${opt}</span></li>`;
+  });
+  html += `</ul>`;
+
+  if(showFeedback){
+    const correct = isCorrect(q, state.picks[state.idx]);
+    html += `<div class="explain ${correct?'right':'wrong'}">
+      <span class="verdict">${correct?'Correct':'Not quite'}</span>${q.e}</div>`;
+  }
+  card.innerHTML = html;
+
+  if(!showFeedback){
+    card.querySelectorAll('.opt').forEach(li=>{
+      li.onclick = ()=> choose(+li.dataset.i);
+    });
+  }
+
+  // nav
+  $('prevBtn').disabled = state.idx===0;
+  const last = state.idx===state.qs.length-1;
+  $('nextBtn').textContent = last ? (state.mode==='mock'?'Finish ▸':'See results ▸') : 'Next →';
+  buildDots();
+}
+
+function pickedHas(pick, i){
+  if(pick===null) return false;
+  return Array.isArray(pick) ? pick.includes(i) : pick===i;
+}
+function isCorrect(q, pick){
+  if(pick===null) return false;
+  if(isMulti(q)) return Array.isArray(pick) && pick.length===q.a.length && q.a.every(x=>pick.includes(x));
+  return pick===q.a;
+}
+
+/* ---------- choosing ---------- */
+function choose(i){
+  const q = state.qs[state.idx];
+  if(isMulti(q)){
+    let cur = Array.isArray(state.picks[state.idx]) ? state.picks[state.idx].slice() : [];
+    if(cur.includes(i)) cur = cur.filter(x=>x!==i);
+    else { if(cur.length>=2) cur.shift(); cur.push(i); }
+    state.picks[state.idx] = cur.length?cur:null;
+    // in instant mode, only lock once two are chosen
+    if(state.instant && cur.length===2){ render(); return; }
+    render();
+  } else {
+    state.picks[state.idx] = i;
+    render();
+  }
+}
+
+/* ---------- dots ---------- */
+function buildDots(){
+  const d = $('dots'); d.innerHTML='';
+  state.qs.forEach((_,i)=>{
+    const dot=document.createElement('span');
+    dot.className='dot'+(state.picks[i]!==null?' answered':'')+(i===state.idx?' current':'');
+    dot.onclick=()=>{ state.idx=i; render(); window.scrollTo(0,0); };
+    d.appendChild(dot);
+  });
+}
+
+/* ---------- nav buttons ---------- */
+$('prevBtn').onclick = ()=>{ if(state.idx>0){state.idx--; render(); window.scrollTo(0,0);} };
+$('nextBtn').onclick = ()=>{
+  if(state.idx < state.qs.length-1){ state.idx++; render(); window.scrollTo(0,0); }
+  else {
+    if(state.mode==='mock'){
+      const unanswered = state.picks.filter(p=>p===null).length;
+      if(unanswered>0 && !confirm(`You have ${unanswered} unanswered question(s). Finish the test anyway?`)) return;
+    }
+    finish();
+  }
+};
+$('quitBtn').onclick = ()=>{
+  if(confirm('Quit and return to the home screen? Your current progress will be lost.')){
+    clearInterval(timerId); goHome();
+  }
+};
+
+/* ---------- finish / results ---------- */
+function finish(){
+  clearInterval(timerId);
+  const total = state.qs.length;
+  let correct = 0;
+  const perCh = {};
+  state.qs.forEach((q,i)=>{
+    const ok = isCorrect(q, state.picks[i]);
+    if(ok) correct++;
+    perCh[q.c] = perCh[q.c] || {c:0,t:0};
+    perCh[q.c].t++; if(ok) perCh[q.c].c++;
+  });
+
+  const isMock = state.mode==='mock';
+  const pct = Math.round(correct/total*100);
+  const passed = isMock ? (correct>=PASS) : (pct>=75);
+
+  if(isMock){
+    try{
+      const best = +(localStorage.getItem('lituk_best')||0);
+      if(correct>best) localStorage.setItem('lituk_best', correct);
+    }catch(e){}
+  }
+
+  let html = `<div class="result">
+    <p class="qmeta" style="color:var(--era4)">${isMock?'Mock Test':'Practice'} complete</p>
+    <div class="scorebig">${correct}<span style="color:var(--ink-3)">/${total}</span></div>
+    <span class="verdict-pill ${passed?'pass':'fail'}">${passed?'Pass':'Not yet — keep going'}</span>
+    <p class="sub">${pct}% correct.${isMock?` The real pass mark is 75% — that's ${PASS} out of ${MOCK_N}.`:''} ${passed?'Nicely done. Do another set to lock it in.':'Below the line — review the ones you missed below, then run it again.'}</p>
+    <div class="breakdown">`;
+  Object.keys(perCh).sort().forEach(c=>{
+    html += `<div class="bd" style="--era:${CH[c].era}">
+      <div class="n">${perCh[c].c}/${perCh[c].t}</div>
+      <div class="l">Ch ${c} · ${CH[c].name}</div></div>`;
+  });
+  html += `</div><div class="result-actions">
+      <button class="btn primary" id="againBtn">${isMock?'New mock test':'Practise again'}</button>
+      <button class="btn" id="homeBtn2">Home</button>
+    </div></div>`;
+
+  // review of every question
+  html += `<h3 class="review-head">Review — every question</h3>
+    <p class="review-sub">Correct answers in green; anything you got wrong is flagged. Read the notes — they carry the handbook's exact wording.</p>`;
+  state.qs.forEach((q,i)=>{
+    const pick = state.picks[i];
+    const ok = isCorrect(q, pick);
+    html += `<div class="qcard" style="--era:${CH[q.c].era}">
+      <p class="qmeta">Q${i+1} · Chapter ${q.c}${isMulti(q)?' · choose two':''} · <span style="color:${ok?'var(--good)':'var(--bad)'}">${ok?'Correct':(pick===null?'Not answered':'Incorrect')}</span></p>
+      <h2 class="qtext" style="font-size:1.15rem">${q.q}</h2><ul class="options">`;
+    q.o.forEach((opt,j)=>{
+      const correctOpt = isMulti(q) ? q.a.includes(j) : q.a===j;
+      const pickedOpt = pickedHas(pick,j);
+      let cls='opt locked';
+      if(isMulti(q)) cls='opt locked'; else cls='opt radio locked';
+      if(correctOpt) cls+=' correct'; else if(pickedOpt) cls+=' wrong';
+      const mk = correctOpt?'✓':(pickedOpt?'✕':String.fromCharCode(65+j));
+      html += `<li class="${cls}"><span class="marker">${mk}</span><span class="txt">${opt}</span></li>`;
+    });
+    html += `</ul><div class="explain ${ok?'right':'wrong'}"><span class="verdict">Answer</span>${q.e}</div></div>`;
+  });
+
+  $('quiz').classList.add('hidden');
+  const r=$('results'); r.classList.remove('hidden'); r.innerHTML=html;
+  window.scrollTo(0,0);
+  $('againBtn').onclick = ()=> isMock ? startMock() : startPractice(state.chapter||null);
+  $('homeBtn2').onclick = goHome;
+}
+
+function goHome(){
+  clearInterval(timerId);
+  $('quiz').classList.add('hidden');
+  $('results').classList.add('hidden');
+  $('home').classList.remove('hidden');
+  paintBest();
+  window.scrollTo(0,0);
+}
+function paintBest(){
+  try{
+    const best = localStorage.getItem('lituk_best');
+    if(best){
+      const strip=document.querySelector('.stat-strip');
+      let el=document.getElementById('bestStat');
+      if(!el){ el=document.createElement('div'); el.id='bestStat'; strip.appendChild(el); }
+      el.innerHTML = `Best mock: <b>${best}/${MOCK_N}</b>`;
+    }
+  }catch(e){}
+}
+paintBest();
+</script>
+</body>
+</html>
