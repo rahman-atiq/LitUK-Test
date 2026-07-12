@@ -35,6 +35,15 @@
     --shadow: 0 1px 2px rgba(32,36,44,.05), 0 4px 14px rgba(32,36,44,.05);
   }
 
+  .themeToggle {
+    position: fixed; top: 14px; right: 14px; z-index: 20;
+    cursor: pointer; font-family: inherit; font-size: .8rem; font-weight: 600;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 12px; box-shadow: var(--shadow);
+    transition: transform .12s ease;
+  }
+  .themeToggle:hover { transform: translateY(-1px); }
+
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   body {
@@ -187,6 +196,8 @@
 </style>
 </head>
 <body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
 
 <header class="hero">
   <div class="wrap">
@@ -455,6 +466,14 @@
     <p>Built from the Life in the UK study guide, Chapter 1: “The Values and Principles of the UK”. Websites and agency names (UK Border Agency) are as printed in the official handbook — the test follows the handbook's wording, so should your answers.</p>
   </div>
 </footer>
+
+<script>
+document.getElementById('themeToggle').onclick = function(){
+  var cur = document.documentElement.getAttribute('data-theme');
+  var dark = cur ? cur === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+};
+</script>
 
 </body>
 </html>
