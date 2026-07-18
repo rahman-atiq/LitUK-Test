@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 1 · The Deal — values, principles, and the test itself</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --trap-bg:#EFEDE4; --trap-ink:#171B23;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --trap-bg:#22252D; --trap-ink:#F4F2EA;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.62;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  b { color:var(--ink); font-weight:650; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+
+  /* ---------- fixed controls ---------- */
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+  .themeToggle:hover { transform:translateY(-1px); }
+
+  /* ---------- Contract HUD ---------- */
+  .hud {
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    z-index:40; display:flex; align-items:center; gap:14px;
+    background:color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:14px;
+    padding:10px 16px; box-shadow:var(--shadow);
+    width:min(560px, calc(100vw - 24px));
+  }
+  .hud-play {
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--line); background:var(--card-2); color:var(--ink);
+    font-size:.9rem; cursor:pointer; display:grid; place-items:center;
+  }
+  .hud-play:hover { border-color:var(--acc, var(--gold)); }
+  .hud-mid { flex:1 1 auto; min-width:0; }
+  .hud-year {
+    font-family:var(--serif); font-size:1.5rem; line-height:1.1;
+    font-variant-numeric:tabular-nums; color:var(--acc, var(--gold));
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-year.pop { animation:yearpop .45s ease; }
+  @keyframes yearpop {
+    0% { opacity:0; transform:translateY(10px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  .hud-era {
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:650; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-track {
+    position:relative; height:6px; border-radius:3px; margin-top:7px; overflow:visible;
+    background:linear-gradient(to right,
+      var(--era1) 0 33.3%, var(--era2) 33.3% 66.6%, var(--era3) 66.6% 100%);
+    opacity:.85;
+  }
+  .hud-marker {
+    position:absolute; top:50%; left:0%; width:14px; height:14px;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:var(--ink); border:2.5px solid var(--page);
+    box-shadow:0 0 0 1.5px var(--ink);
+  }
+  @media (max-width:520px) {
+    .hud { gap:10px; padding:9px 12px; }
+    .hud-year { font-size:1.2rem; }
+  }
+
+  /* ---------- Prologue ---------- */
+  .prologue { min-height:92vh; display:flex; align-items:center; position:relative; overflow:hidden; }
+  .stars { position:absolute; inset:0; pointer-events:none; }
+  .stars i {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:var(--gold); opacity:.55; animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.15;} 50%{opacity:.7;} }
+  :root[data-theme="light"] .stars i { opacity:.3; }
+  .pro-inner { position:relative; padding:70px 0 120px; }
+  .eyebrow {
+    font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gold); font-weight:650; margin:0 0 20px;
+  }
+  h1 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.9rem, 8vw, 5.2rem); line-height:1.02; margin:0;
+    text-wrap:balance;
+  }
+  h1 em { font-style:italic; color:var(--gold); }
+  .lede { color:var(--ink-2); font-size:1.08rem; max-width:58ch; margin:24px 0 0; }
+  .lede b { color:var(--ink); }
+  .howto {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:38px 0 0; max-width:640px;
+  }
+  .howto div {
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:13px 15px; font-size:.85rem; color:var(--ink-2);
+  }
+  .howto b { display:block; color:var(--ink); margin-bottom:2px; }
+  .howto kbd {
+    font-family:inherit; font-size:.78em; border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:5px; padding:1px 6px; background:var(--card-2); color:var(--ink);
+  }
+  @media (max-width:560px){ .howto { grid-template-columns:1fr; } }
+  .scroll-cue {
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    color:var(--ink-3); font-size:.75rem; letter-spacing:.18em; text-transform:uppercase;
+    animation:cue 2.4s ease-in-out infinite;
+  }
+  @keyframes cue { 0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);} }
+
+  /* ---------- Act title cards ---------- */
+  .act-card {
+    min-height:88vh; display:flex; flex-direction:column; justify-content:center;
+    text-align:center; padding:60px 22px; position:relative;
+  }
+  .act-prev {
+    font-size:.8rem; color:var(--ink-3); font-style:italic; max-width:56ch;
+    margin:0 auto 34px; line-height:1.7;
+  }
+  .act-prev b { color:var(--ink-2); font-style:normal; }
+  .act-motif { width:min(300px, 62vw); margin:0 auto 26px; }
+  .act-motif svg { display:block; width:100%; height:auto; overflow:visible; }
+  .act-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--acc); margin:0 0 12px; font-variant-numeric:tabular-nums;
+  }
+  .act-card h2 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.2rem, 6vw, 3.7rem); line-height:1.05; margin:0; text-wrap:balance;
+  }
+  .act-log { color:var(--ink-2); max-width:52ch; margin:20px auto 0; font-size:1rem; }
+
+  /* ---------- Scenes & the thread ---------- */
+  .act { --acc:var(--gold); }
+  .act[data-era="1"] { --acc:var(--era1); } .act[data-era="2"] { --acc:var(--era2); }
+  .act[data-era="3"] { --acc:var(--era3); }
+
+  .scenes { position:relative; padding:10px 0 30px; }
+  .scenes::before {
+    content:""; position:absolute; top:0; bottom:0; left:29px; width:2px;
+    background:linear-gradient(to bottom, transparent, var(--acc) 60px, var(--acc) calc(100% - 60px), transparent);
+    opacity:.35;
+  }
+  .scene { position:relative; padding:26px 0 6px 74px; }
+  .scene-dot {
+    position:absolute; left:22px; top:38px; width:16px; height:16px; border-radius:50%;
+    background:var(--page); border:3px solid var(--acc); z-index:1;
+  }
+  .scene h3 {
+    font-family:var(--serif); font-weight:550; font-size:1.55rem; line-height:1.15;
+    margin:0 0 4px; letter-spacing:-.005em;
+  }
+  .scene h3 .yr {
+    font-size:.85rem; color:var(--acc); font-variant-numeric:tabular-nums;
+    letter-spacing:.06em; display:block; margin-bottom:6px; font-family:var(--sans); font-weight:650;
+  }
+  .scene .glyph {
+    float:right; margin:2px 0 10px 16px; width:58px; height:58px; border-radius:50%;
+    background:color-mix(in srgb, var(--acc) 14%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
+    display:grid; place-items:center; font-size:1.65rem; user-select:none;
+  }
+  .story { color:var(--ink-2); margin:10px 0 0; }
+  .story b { color:var(--ink); }
+  .story .d {
+    color:var(--acc); font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .hook, .trap {
+    clear:both; border-radius:10px; padding:12px 15px; margin:16px 0 0;
+    font-size:.88rem; line-height:1.55;
+  }
+  .hook {
+    background:color-mix(in srgb, var(--acc) 10%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { display:inline; }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); }
+  .trap b { color:inherit; }
+  details.notes {
+    clear:both; margin:16px 0 0; border:1px dashed color-mix(in srgb, var(--acc) 40%, var(--line));
+    border-radius:10px; background:var(--card); font-size:.88rem;
+  }
+  details.notes summary {
+    cursor:pointer; padding:10px 15px; font-weight:650; color:var(--acc);
+    list-style:none; user-select:none;
+  }
+  details.notes summary::before { content:"▸ "; }
+  details.notes[open] summary::before { content:"▾ "; }
+  details.notes .n-body { padding:0 15px 12px; color:var(--ink-2); }
+  details.notes .n-body p { margin:6px 0; }
+
+  .because {
+    position:relative; margin:30px 0 4px; padding:0 0 0 74px;
+    font-family:var(--serif); font-style:italic; font-size:1.02rem; color:var(--ink-3);
+  }
+  .because::before {
+    content:"↓"; position:absolute; left:23px; top:0; font-style:normal;
+    color:var(--acc); font-family:var(--sans); font-weight:700;
+  }
+  @media (max-width:640px) {
+    .scene { padding-left:52px; }
+    .scenes::before { left:19px; }
+    .scene-dot { left:12px; }
+    .because { padding-left:52px; }
+    .because::before { left:13px; }
+    .scene .glyph { width:46px; height:46px; font-size:1.3rem; }
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* ---------- Act motif SVG animations (play when .in) ---------- */
+  /* Act I — three lists of five, dealt like cards */
+  .m1 .five { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .6s cubic-bezier(.34,1.5,.6,1), opacity .5s ease; }
+  .in .m1 .five { opacity:1; transform:scale(1); }
+  .in .m1 .f1 { transition-delay:.4s; } .in .m1 .f2 { transition-delay:1s; } .in .m1 .f3 { transition-delay:1.6s; }
+  /* Act II — the stamp comes down */
+  .m2 .stamp { transform:translateY(-28px); }
+  .in .m2 .stamp { animation:stampdrop 1.5s ease forwards .6s; }
+  @keyframes stampdrop {
+    0% { transform:translateY(-28px); }
+    50% { transform:translateY(5px); }
+    68% { transform:translateY(-3px); }
+    100% { transform:translateY(0); }
+  }
+  .m2 .mark { opacity:0; transition:opacity .7s ease 1.7s; }
+  .in .m2 .mark { opacity:1; }
+  /* Act III — the answer sheet ticks itself */
+  .m3 .tk { stroke-dasharray:26; stroke-dashoffset:26; }
+  .in .m3 .tk { stroke-dashoffset:0; }
+  .in .m3 .t1 { transition:stroke-dashoffset .5s ease .5s; }
+  .in .m3 .t2 { transition:stroke-dashoffset .5s ease 1.1s; }
+  .in .m3 .t3 { transition:stroke-dashoffset .5s ease 1.7s; }
+  .in .m3 .t4 { transition:stroke-dashoffset .5s ease 2.3s; }
+  .m3 .badge { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .6s cubic-bezier(.34,1.5,.6,1) 2.9s, opacity .5s ease 2.9s; }
+  .in .m3 .badge { opacity:1; transform:scale(1); }
+
+  /* ---------- Epilogue ---------- */
+  .epilogue { border-top:1px solid var(--line); margin-top:70px; padding:70px 0 40px; }
+  .ep-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--gold); margin:0 0 12px;
+  }
+  .epilogue h2 {
+    font-family:var(--serif); font-weight:500; font-size:clamp(1.9rem,5vw,2.8rem);
+    line-height:1.1; margin:0 0 18px; letter-spacing:-.01em;
+  }
+  .breath {
+    font-family:var(--serif); font-size:1.13rem; line-height:1.85; color:var(--ink-2);
+  }
+  .breath b { color:var(--ink); font-weight:600; }
+  .breath .d { color:var(--gold); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* number stones */
+  .stones { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin:26px 0 0; }
+  .stone {
+    position:relative; font-family:inherit; text-align:left; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:9px;
+    padding:10px 12px; color:var(--ink); min-height:78px;
+  }
+  .stone:hover { border-color:var(--gold); }
+  .stone .sy {
+    display:block; font-family:var(--serif); font-size:1.15rem; color:var(--gold);
+    font-variant-numeric:tabular-nums; line-height:1.2;
+  }
+  .stone .se { display:block; font-size:.76rem; color:var(--ink-2); margin-top:4px; line-height:1.4; }
+  .stone:not(.on) .se { visibility:hidden; }
+  .stone:not(.on)::after {
+    content:"tap to reveal"; position:absolute; left:12px; bottom:10px;
+    font-size:.66rem; color:var(--ink-3);
+  }
+  .stones-tools { margin:14px 0 0; display:flex; gap:10px; }
+  .stones-tools button {
+    font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
+    background:var(--card-2); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px;
+  }
+
+  /* credits */
+  .credits { background:#0A0B0F; color:#E8E4D8; margin-top:70px; padding:80px 0 90px; text-align:center; }
+  :root[data-theme="light"] .credits { background:#1C1E26; }
+  .credits .ep-kicker { color:var(--era1); }
+  .credits h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,4.5vw,2.6rem); margin:0 0 8px; color:#F2EFE6; }
+  .credits .sub { color:#8D919C; font-size:.9rem; margin:0 0 46px; }
+  .cred-act {
+    font-size:.7rem; letter-spacing:.24em; text-transform:uppercase; font-weight:650;
+    margin:44px 0 18px; color:var(--ca, var(--gold));
+  }
+  .cred { margin:0 0 15px; }
+  .cred .cn { font-family:var(--serif); font-size:1.18rem; color:#F2EFE6; display:block; line-height:1.3; }
+  .cred .cr { font-size:.78rem; color:#8D919C; display:block; margin-top:1px; }
+  .fin {
+    font-family:var(--serif); font-style:italic; font-size:1.5rem; color:var(--gold);
+    margin:70px 0 0;
+  }
+  .foot { text-align:center; color:var(--ink-3); font-size:.78rem; padding:40px 22px 120px; }
+  .foot a { color:var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+    .reveal { opacity:1; transform:none; }
+    .m1 .five { transform:none; opacity:1; }
+    .m2 .stamp { transform:none; } .m2 .mark { opacity:1; }
+    .m3 .tk { stroke-dashoffset:0; } .m3 .badge { transform:none; opacity:1; }
+    .hud-play { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
+
+<!-- ======================= CONTRACT HUD ======================= -->
+<div class="hud" aria-hidden="false">
+  <button class="hud-play" id="play" title="Play the story (auto-scroll)" aria-label="Play or pause auto-scroll">▶</button>
+  <div class="hud-mid">
+    <div class="hud-year" id="hudYear">The Deal</div>
+    <div class="hud-era" id="hudEra">Prologue · scroll to begin</div>
+    <div class="hud-track"><div class="hud-marker" id="hudMarker"></div></div>
+  </div>
+</div>
+
+<!-- ======================= PROLOGUE ======================= -->
+<header class="prologue" data-year="The Deal" data-era="0">
+  <div class="stars" id="stars"></div>
+  <div class="wrap pro-inner">
+    <p class="eyebrow">Life in the UK · Chapter 1 · Story Mode</p>
+    <h1>The <em>Deal</em></h1>
+    <p class="lede">
+      The shortest chapter in the handbook — and the densest. It is, quite literally, a
+      <b>contract</b>: Britain states its five principles, names the five duties you'll owe,
+      and offers five freedoms in return. Then comes the small print — how you qualify —
+      and finally the exam room itself, because <b>this test loves asking questions about
+      itself</b>. Read it as a deal being struck, clause by clause, and
+      the whole chapter fits in one handshake.
+    </p>
+    <div class="howto">
+      <div><b>🎫 The bar below is your pocket fact.</b> It always shows the number or date the current scene most wants you to keep.</div>
+      <div><b>🖋️ Follow the contract.</b> Terms → signature → paperwork → exam. Every scene hands you the next clause. That chain is the memory trick.</div>
+      <div><b>▶ Let the story drive.</b> Press play and it rolls past at reading speed. Touch anything to take the controls back.</div>
+      <div><b>⌨️ Shortcuts.</b> Keys <kbd>1</kbd>–<kbd>3</kbd> jump between acts. <kbd>→</kbd> and <kbd>←</kbd> step scene by scene.</div>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to begin ↓</div>
+</header>
+
+<!-- ======================= ACT I ======================= -->
+<section class="act" data-era="1" id="act1">
+  <div class="act-card reveal" data-year="5 · 5 · 5" data-era="1">
+    <div class="act-motif">
+      <svg class="m1" viewBox="0 0 200 120" role="img" aria-label="Three cards of five lines each — principles, duties, freedoms">
+        <g class="five f1">
+          <rect x="18" y="30" width="48" height="62" rx="5" fill="var(--card)" stroke="var(--acc)" stroke-width="2"/>
+          <g stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round">
+            <line x1="27" y1="44" x2="57" y2="44"/><line x1="27" y1="54" x2="57" y2="54"/>
+            <line x1="27" y1="64" x2="57" y2="64"/><line x1="27" y1="74" x2="57" y2="74"/>
+            <line x1="27" y1="84" x2="57" y2="84"/>
+          </g>
+        </g>
+        <g class="five f2">
+          <rect x="76" y="30" width="48" height="62" rx="5" fill="var(--card)" stroke="var(--acc)" stroke-width="2"/>
+          <g stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round">
+            <line x1="85" y1="44" x2="115" y2="44"/><line x1="85" y1="54" x2="115" y2="54"/>
+            <line x1="85" y1="64" x2="115" y2="64"/><line x1="85" y1="74" x2="115" y2="74"/>
+            <line x1="85" y1="84" x2="115" y2="84"/>
+          </g>
+        </g>
+        <g class="five f3">
+          <rect x="134" y="30" width="48" height="62" rx="5" fill="var(--card)" stroke="var(--acc)" stroke-width="2"/>
+          <g stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round">
+            <line x1="143" y1="44" x2="173" y2="44"/><line x1="143" y1="54" x2="173" y2="54"/>
+            <line x1="143" y1="64" x2="173" y2="64"/><line x1="143" y1="74" x2="173" y2="74"/>
+            <line x1="143" y1="84" x2="173" y2="84"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act I · The terms</p>
+    <h2>Three Lists of Five</h2>
+    <p class="act-log">
+      The heart of the chapter — and of the whole handbook. Five principles the house
+      runs on, five duties you take on, five freedoms you get back.
+      <b>Fifteen facts, one act.</b> Recite the three lists and Chapter 1 is done.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="0 tolerance" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🤝</div>
+      <h3><span class="yr">The offer</span>An offer rooted in history</h3>
+      <p class="story">
+        British society is founded on <b>fundamental values and principles</b> which
+        <b>all those living in the UK</b> — not just citizens — should respect and support.
+        Where do they come from? The handbook's list: <b>history, traditions, law, customs and
+        expectations</b>. And one line stands in bold at the door: there is
+        <b>no place in British society for extremism or intolerance</b>. That's the deal
+        on the table. Now read the terms.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the values apply to <b>everyone living in the UK</b> — the handbook says "living", not "holding a passport". And the count of places for extremism: <b>zero</b>.</aside>
+    </article>
+    <p class="because reveal">Every contract opens with the governing principles — Britain's has exactly five…</p>
+
+    <article class="scene reveal" data-year="D-R-I-T-P" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏛️</div>
+      <h3><span class="yr">Clause 1</span>The five fundamental principles</h3>
+      <p class="story">
+        In order: <b>1 · Democracy</b>. <b>2 · The rule of law</b>. <b>3 · Individual liberty</b>.
+        <b>4 · Tolerance of those with different faiths and beliefs</b>.
+        <b>5 · Participation in community life</b>. If you've read the other story chapters,
+        you'll recognise all five as the endings of long plots — democracy from Chapter 3's
+        Reform Acts, the rule of law from Magna Carta, tolerance from centuries of religious
+        wars. Chapter 1 is where the whole saga gets distilled to five lines.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the one candidates forget is <b>participation in community life</b> — it's a full fundamental principle, not a nice-to-have. Chant <b>D-R-I-T-P</b>: Democracy, Rule of law, Individual liberty, Tolerance, Participation.</aside>
+    </article>
+    <p class="because reveal">Principles bind the house — but a contract needs your signature too. Here's what you agree to owe…</p>
+
+    <article class="scene reveal" data-year="5 duties" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">📋</div>
+      <h3><span class="yr">Clause 2</span>The five responsibilities — what you owe</h3>
+      <p class="story">
+        Your side of the deal: <b>respect and obey the law</b>; <b>respect the rights of
+        others</b> — including <b>their right to their own opinions</b>; <b>treat others with
+        fairness</b>; <b>look after yourself and your family</b>; and <b>look after the area in
+        which you live, and the environment</b>. Notice the shape: two duties to the law and to
+        others, one to fairness, one to your household, one to your street. From courtroom
+        to compost bin in five lines.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the fifth duty has <b>two halves</b> — your <b>area</b> <i>and</i> the <b>environment</b>. The test sometimes quotes just one half and asks you to complete it.</aside>
+    </article>
+    <p class="because reveal">And no British contract would be complete without consideration — what the UK offers in return…</p>
+
+    <article class="scene reveal" data-year="5 freedoms" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🕊️</div>
+      <h3><span class="yr">Clause 3</span>The five freedoms — what you get</h3>
+      <p class="story">
+        In return, the UK offers: <b>freedom of belief and religion</b>; <b>freedom of
+        speech</b>; <b>freedom from unfair discrimination</b>; <b>a right to a fair trial</b>;
+        and <b>a right to join in the election of a government</b>. Three freedoms <i>of</i> and
+        <i>from</i>, plus two rights — and yes, the handbook counts all five as the freedoms
+        the UK offers you.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the <b>fair trial</b> and the <b>right to join in electing a government</b> both belong on the <b>freedoms</b> list. The test likes to disguise them as "merely legal details" — they're not; they're the offer.</aside>
+    </article>
+    <p class="because reveal">Terms stated, offer made — all that's missing is the signature. Britain wrote one out for you in advance…</p>
+
+    <article class="scene reveal" data-year="The pledge" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">✍️</div>
+      <h3><span class="yr">The signature</span>The citizenship pledge</h3>
+      <p class="story">
+        At the citizenship ceremony, new citizens recite the pledge: <i>"I will give my loyalty
+        to the United Kingdom and respect its rights and freedoms. I will uphold its democratic
+        values. I will observe its laws faithfully and fulfil my duties and obligations as a
+        British citizen."</i> Read it slowly and you'll see the trick: <b>rights and freedoms…
+        democratic values… laws… duties</b> — the pledge <i>is</i> the three lists of five,
+        compressed into three sentences. Learn them as one unit and each half reminds
+        you of the other.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> pledge ↔ lists, same content, two formats. If you blank on a list in the exam, silently recite the pledge and unpack it.</aside>
+    </article>
+    <p class="because reveal">Deal agreed. But before Britain lets you sign for real, there's a qualifying question: can you actually live here in English? Enter the paperwork…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT II ======================= -->
+<section class="act" data-era="2" id="act2">
+  <div class="act-card reveal" data-year="2013" data-era="2">
+    <p class="act-prev"><b>Previously:</b> the terms of the deal — five principles (D-R-I-T-P),
+    five duties, five freedoms — sealed with the pledge that contains all fifteen.</p>
+    <div class="act-motif">
+      <svg class="m2" viewBox="0 0 200 120" role="img" aria-label="A stamp comes down on the application papers">
+        <rect x="46" y="52" width="108" height="54" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+        <g stroke="var(--ink)" stroke-width="2" stroke-linecap="round" opacity=".55">
+          <line x1="58" y1="68" x2="142" y2="68"/><line x1="58" y1="78" x2="142" y2="78"/><line x1="58" y1="88" x2="112" y2="88"/>
+        </g>
+        <g class="stamp">
+          <rect x="118" y="14" width="10" height="20" rx="2" fill="var(--ink)"/>
+          <rect x="106" y="32" width="34" height="10" rx="3" fill="var(--ink)"/>
+        </g>
+        <g class="mark">
+          <circle cx="123" cy="90" r="13" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+          <path d="M116,90 L121,95 L130,84" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act II · The paperwork</p>
+    <h2>The Small Print of 2013</h2>
+    <p class="act-log">
+      One requirement — <b>English plus knowledge of life in the UK</b> — two routes to
+      prove it, and a year, <b>2013</b>, that changed the rules twice.
+      January opened a choice; October closed a loophole.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="Jan 2013" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛂</div>
+      <h3><span class="yr">January 2013</span>Two roads to residence</h3>
+      <p class="story">
+        To apply for <b>permanent residence or citizenship</b> you must <b>speak and read
+        English</b> and have <b>a good understanding of life in the UK</b>. Since
+        <span class="d">January 2013</span> there are <b>two ways to prove it</b>.
+        <b>Route A — the Life in the UK test</b>: its questions are written to require English at
+        <b>ESOL Entry Level 3</b>, so passing it means <b>no separate English test</b>. It's
+        <b>mandatory for Tier 1 and Tier 2</b> work-visa holders on the points-based system —
+        they get no choice. <b>Route B — an ESOL course with citizenship</b>: for applicants whose
+        English is <b>below Entry Level 3</b>; the course improves your English <b>and</b> teaches
+        life in the UK — and still <b>ends with a test</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the ESOL route is <b>not a shortcut past knowledge</b> — it covers English AND life in the UK, and finishes with an assessment. And <b>Tier 1 and Tier 2 must take the LitUK test itself</b>, full stop.</aside>
+    </article>
+    <p class="because reveal">Nine months later, the government looked at the two roads and decided one crossing wasn't enough…</p>
+
+    <article class="scene reveal" data-year="Oct 2013" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🔩</div>
+      <h3><span class="yr">October 2013</span>The rules tighten — test AND B1</h3>
+      <p class="story">
+        From <span class="d">October 2013</span>, settlement requires <b>both</b>:
+        <b>pass the Life in the UK test</b>, <i>and</i> provide evidence of <b>speaking and
+        listening in English at level B1</b> of the <b>Common European Framework of Reference
+        (CEFR)</b>. Sounds like a new hurdle — but here's the calming fact: <b>B1 is the
+        European name for the same rung as ESOL Entry Level 3</b>. Two ladders, one height.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>January 2013 gave you a choice of routes; October 2013 said "test AND B1 — both".</i> And <b>B1 = Entry Level 3</b>, same rung, two names.</aside>
+    </article>
+    <p class="because reveal">Requirements met, there's nothing left between you and the application — except the forms, the fee, and one very important website…</p>
+
+    <article class="scene reveal" data-year="UKBA" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">📮</div>
+      <h3><span class="yr">The application</span>Forms, fees, and the website to check</h3>
+      <p class="story">
+        After passing, you send in <b>application forms and supporting evidence</b> — exactly
+        which depends on <b>your circumstances</b>. A <b>fee</b> applies, and it <b>varies by
+        application type</b>. All forms and the list of fees live on the <b>UK Border Agency
+        website</b> — <b>www.ukba.homeoffice.gov.uk</b> — and because <b>requirements can
+        change</b>, the handbook's advice is firm: <b>always check the UK Border Agency website
+        before applying</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the handbook names the <b>UK Border Agency</b> as the authority — answer with the handbook's wording, even though the real world has since reshuffled the agencies.</aside>
+    </article>
+    <p class="because reveal">Which leaves just one door between you and the deal: a quiet room, a screen, and twenty-four questions…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT III ======================= -->
+<section class="act" data-era="3" id="act3">
+  <div class="act-card reveal" data-year="24" data-era="3">
+    <p class="act-prev"><b>Previously:</b> two routes since January 2013, both since October 2013 —
+    LitUK test plus B1 — and B1 = Entry Level 3, the same rung with two names.</p>
+    <div class="act-motif">
+      <svg class="m3" viewBox="0 0 200 120" role="img" aria-label="An answer sheet ticks itself and a pass badge appears">
+        <rect x="40" y="16" width="92" height="90" rx="5" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+        <g fill="none" stroke="var(--ink)" stroke-width="1.8" opacity=".6">
+          <rect x="50" y="28" width="11" height="11" rx="2"/><rect x="50" y="48" width="11" height="11" rx="2"/>
+          <rect x="50" y="68" width="11" height="11" rx="2"/><rect x="50" y="88" width="11" height="11" rx="2"/>
+        </g>
+        <g stroke="var(--ink)" stroke-width="2" stroke-linecap="round" opacity=".45">
+          <line x1="68" y1="34" x2="122" y2="34"/><line x1="68" y1="54" x2="122" y2="54"/>
+          <line x1="68" y1="74" x2="122" y2="74"/><line x1="68" y1="94" x2="122" y2="94"/>
+        </g>
+        <g fill="none" stroke="var(--acc)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path class="tk t1" d="M51,33 L55,38 L61,27"/>
+          <path class="tk t2" d="M51,53 L55,58 L61,47"/>
+          <path class="tk t3" d="M51,73 L55,78 L61,67"/>
+          <path class="tk t4" d="M51,93 L55,98 L61,87"/>
+        </g>
+        <g class="badge">
+          <circle cx="152" cy="86" r="18" fill="var(--acc)"/>
+          <path d="M143,86 L149,93 L162,77" fill="none" stroke="var(--page)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act III · The exam room</p>
+    <h2>The Test That Tests Itself</h2>
+    <p class="act-log">
+      The Life in the UK test asks about its own format <b>surprisingly often</b>.
+      Memorise the logistics like any other fact — one string of four numbers carries
+      the whole act: <b>24 · 60 · 3 · 2</b>.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="24 questions" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">📝</div>
+      <h3><span class="yr">The format</span>Twenty-four questions — from the whole book</h3>
+      <p class="story">
+        The test consists of <span class="d">24 questions</span> about important aspects of life
+        in the UK. And here's the clause people miss: questions are based on <b>ALL parts of the
+        handbook — including the introduction</b>. Yes, the bit before Chapter 1 is examinable.
+        The handbook has no skippable pages, which is precisely why this story
+        series covers even its smallest chapters.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> questions come from the <b>whole handbook including the introduction</b> — any answer limiting them to "the testable chapters" is bait.</aside>
+    </article>
+    <p class="because reveal">Twenty-four questions — but in which language, and behind which door?</p>
+
+    <article class="scene reveal" data-year="~60 centres" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏢</div>
+      <h3><span class="yr">The venue</span>Sixty doors, three tongues</h3>
+      <p class="story">
+        The test is usually taken in <b>English</b>, but <b>special arrangements</b> can be made
+        for <b>Welsh or Scottish Gaelic</b> — three possible languages, and you met all three in
+        Chapter 4's language scene. It can only be taken at a <b>registered and approved Life in
+        the UK test centre</b> — there are about <span class="d">60</span> around the UK — and
+        the <b>UK Border Agency only accepts certificates from registered centres</b>. Never take
+        it anywhere else. Residents of the <b>Isle of Man and the Channel Islands</b> have special
+        arrangements — fitting, since Chapter 2 taught you they're not part of the UK at all.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> languages = <b>English, Welsh, Scottish Gaelic</b> — the same trio as the road signs. Centres ≈ <b>60</b>, registered only.</aside>
+    </article>
+    <p class="because reveal">Door chosen, language chosen — the last hurdles are a booking screen and two documents in your pocket…</p>
+
+    <article class="scene reveal" data-year="ID + address" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🪪</div>
+      <h3><span class="yr">The day</span>Book online, bring two things</h3>
+      <p class="story">
+        Booking is <b>online only</b>, at <b>www.lifeintheuktest.gov.uk</b> — read the
+        instructions and enter your details correctly. On the day, bring
+        <b>identification</b> and <b>proof of your address</b>. The handbook is blunt about the
+        alternative: <b>without them, you will not be allowed to take the test</b>. That's the
+        whole ritual: one string of numbers — <span class="d">24 · 60 · 3 · 2</span> —
+        24 questions, ~60 centres, 3 languages, 2 documents.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> booking is <b>online only</b> — a question offering phone or walk-in booking is lying to you.</aside>
+    </article>
+    <p class="because reveal">And that's the deal from handshake to exam desk. Close the contract the way lawyers do — with the schedule of numbers…</p>
+
+  </div>
+</section>
+
+<!-- ======================= EPILOGUE ======================= -->
+<section class="epilogue" data-year="Signed" data-era="4">
+  <div class="wrap">
+    <p class="ep-kicker">Epilogue</p>
+    <h2>The whole deal in one breath</h2>
+    <p class="breath">
+      Britain puts a contract on the table, rooted in <b>history, traditions, law, customs and
+      expectations</b>, with <b>zero</b> room for extremism: five principles —
+      <b>D-R-I-T-P</b> — matched by <b>five duties</b> you owe and <b>five freedoms</b> you're
+      offered, all fifteen compressed into the <b>citizenship pledge</b>. To sign it you need
+      English plus knowledge of life here: from <span class="d">January 2013</span>, two routes —
+      the <b>LitUK test</b> (written at <b>Entry Level 3</b>; compulsory for <b>Tier 1 and 2</b>)
+      or the <b>ESOL-with-citizenship course</b> — and from <span class="d">October 2013</span>,
+      settlement means <b>test AND B1</b>, two names for one rung. Then the forms and fees at the
+      <b>UK Border Agency</b> site, and finally the exam itself:
+      <span class="d">24</span> questions from the <b>whole handbook including the
+      introduction</b>, at one of <span class="d">~60</span> registered centres, in
+      <span class="d">3</span> possible languages, with <span class="d">2</span> documents in
+      your pocket — booked <b>online only</b>.
+    </p>
+
+    <h2 style="margin-top:60px">Prove it — the deal stones</h2>
+    <p class="lede" style="margin-top:0">Tap a stone to check yourself. Chapter 1 is fifteen list-items and a dozen logistics — if these stones hold, the chapter holds.</p>
+    <div class="stones-tools">
+      <button id="stonesAll">Reveal all</button>
+      <button id="stonesNone">Hide all</button>
+    </div>
+    <div class="stones" id="stones">
+      <button class="stone"><span class="sy">D-R-I-T-P</span><span class="se">Democracy · Rule of law · Individual liberty · Tolerance · Participation</span></button>
+      <button class="stone"><span class="sy">5 duties</span><span class="se">obey law · respect rights · fairness · your family · your area &amp; environment</span></button>
+      <button class="stone"><span class="sy">5 freedoms</span><span class="se">belief · speech · no unfair discrimination · fair trial · elect government</span></button>
+      <button class="stone"><span class="sy">0</span><span class="se">place in British society for extremism or intolerance</span></button>
+      <button class="stone"><span class="sy">The pledge</span><span class="se">loyalty · rights &amp; freedoms · democratic values · laws · duties</span></button>
+      <button class="stone"><span class="sy">Jan 2013</span><span class="se">two routes: LitUK test, or ESOL course with citizenship</span></button>
+      <button class="stone"><span class="sy">Oct 2013</span><span class="se">settlement = LitUK test + B1 speaking &amp; listening — both</span></button>
+      <button class="stone"><span class="sy">B1 = Entry 3</span><span class="se">CEFR and ESOL names for the same English level</span></button>
+      <button class="stone"><span class="sy">Tier 1 &amp; 2</span><span class="se">points-based visa holders must take the LitUK test</span></button>
+      <button class="stone"><span class="sy">UKBA</span><span class="se">forms &amp; fees: www.ukba.homeoffice.gov.uk — always check first</span></button>
+      <button class="stone"><span class="sy">24</span><span class="se">questions — from the whole handbook incl. the introduction</span></button>
+      <button class="stone"><span class="sy">~60</span><span class="se">registered test centres — the only valid certificates</span></button>
+      <button class="stone"><span class="sy">3</span><span class="se">languages: English (usual), Welsh, Scottish Gaelic</span></button>
+      <button class="stone"><span class="sy">2</span><span class="se">must-brings: ID + proof of address — or no test</span></button>
+      <button class="stone"><span class="sy">Online only</span><span class="se">the single way to book: www.lifeintheuktest.gov.uk</span></button>
+    </div>
+
+    <div class="credits">
+      <div class="wrap">
+        <p class="ep-kicker">Roll the credits</p>
+        <h2>Cast of characters — the fifteen</h2>
+        <p class="sub">Chapter 1's cast is three lists of five. If you can give each one its list, the chapter is closed.</p>
+
+        <p class="cred-act" style="--ca:var(--era1)">The principles</p>
+        <p class="cred"><span class="cn">Democracy</span><span class="cr">principle № 1</span></p>
+        <p class="cred"><span class="cn">The rule of law</span><span class="cr">principle № 2</span></p>
+        <p class="cred"><span class="cn">Individual liberty</span><span class="cr">principle № 3</span></p>
+        <p class="cred"><span class="cn">Tolerance of different faiths &amp; beliefs</span><span class="cr">principle № 4</span></p>
+        <p class="cred"><span class="cn">Participation in community life</span><span class="cr">principle № 5 — the forgotten one</span></p>
+
+        <p class="cred-act" style="--ca:var(--era2)">The duties</p>
+        <p class="cred"><span class="cn">Respect and obey the law</span><span class="cr">duty № 1</span></p>
+        <p class="cred"><span class="cn">Respect the rights of others</span><span class="cr">duty № 2 — including their opinions</span></p>
+        <p class="cred"><span class="cn">Treat others with fairness</span><span class="cr">duty № 3</span></p>
+        <p class="cred"><span class="cn">Look after yourself and your family</span><span class="cr">duty № 4</span></p>
+        <p class="cred"><span class="cn">Look after your area and the environment</span><span class="cr">duty № 5 — two halves, one duty</span></p>
+
+        <p class="cred-act" style="--ca:var(--era3)">The freedoms</p>
+        <p class="cred"><span class="cn">Freedom of belief and religion</span><span class="cr">freedom № 1</span></p>
+        <p class="cred"><span class="cn">Freedom of speech</span><span class="cr">freedom № 2</span></p>
+        <p class="cred"><span class="cn">Freedom from unfair discrimination</span><span class="cr">freedom № 3</span></p>
+        <p class="cred"><span class="cn">A right to a fair trial</span><span class="cr">freedom № 4 — yes, it counts</span></p>
+        <p class="cred"><span class="cn">A right to join in electing a government</span><span class="cr">freedom № 5 — yes, this one too</span></p>
+
+        <p class="fin">Fifteen facts, one handshake — now go pass the thing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  Story companion to Chapter 1 of the official <i>Life in the UK</i> handbook, faithful to the study
+  guide at lifeintheuktests.co.uk. Websites and agency names (UK Border Agency) are as printed in
+  the handbook — the test follows the handbook's wording, so should your answers.<br>
+  The set: <b>Ch 1 · The Deal</b> ·
+  <a href="life-in-uk-chapter2-story.html">Ch 2 · The Map, Decoded</a> ·
+  <a href="life-in-uk-chapter3-story.html">Ch 3 · The Island Story</a> ·
+  <a href="life-in-uk-chapter4-story.html">Ch 4 · Your First Year</a> ·
+  <a href="life-in-uk-chapter5-story.html">Ch 5 · Follow the Power</a><br>
+  Revise the facts: <a href="life-in-uk-chapter1.html">Chapter 1 reference</a> · test yourself:
+  <a href="life-in-uk-quiz.html">the quiz</a>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* theme */
+  try {
+    var saved = localStorage.getItem("liuk-story-theme");
+    if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  } catch(e){}
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch(e){}
+  });
+
+  /* prologue stars */
+  var stars = document.getElementById("stars");
+  for (var i = 0; i < 42; i++) {
+    var s = document.createElement("i");
+    s.style.left = (Math.random()*100).toFixed(2) + "%";
+    s.style.top = (Math.random()*100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random()*4).toFixed(2) + "s";
+    stars.appendChild(s);
+  }
+
+  /* reveal on scroll */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+  /* ---- contract HUD ---- */
+  var eraNames = [
+    "Prologue · the deal",
+    "Act I · The terms",
+    "Act II · The paperwork",
+    "Act III · The exam room",
+    "Epilogue · the whole deal"
+  ];
+  var eraColors = ["var(--gold)","var(--era1)","var(--era2)","var(--era3)","var(--gold)"];
+  var hud = document.querySelector(".hud");
+  var hudYear = document.getElementById("hudYear");
+  var hudEra = document.getElementById("hudEra");
+  var marker = document.getElementById("hudMarker");
+  var marks = Array.prototype.slice.call(document.querySelectorAll("[data-year]"));
+  var current = null, ticking = false;
+
+  function update(){
+    ticking = false;
+    var mid = innerHeight * 0.5;
+    var active = marks[0];
+    for (var j = 0; j < marks.length; j++) {
+      if (marks[j].getBoundingClientRect().top < mid) active = marks[j];
+      else break;
+    }
+    if (active !== current) {
+      current = active;
+      hudYear.textContent = active.dataset.year;
+      hudEra.textContent = eraNames[+active.dataset.era] || eraNames[0];
+      hud.style.setProperty("--acc", eraColors[+active.dataset.era] || eraColors[0]);
+      if (!reduced) {
+        hudYear.classList.remove("pop");
+        void hudYear.offsetWidth;
+        hudYear.classList.add("pop");
+      }
+    }
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    marker.style.left = (p * 100).toFixed(2) + "%";
+  }
+  addEventListener("scroll", function(){
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
+
+  /* ---- play the story (auto-scroll) ---- */
+  var playBtn = document.getElementById("play");
+  var playing = false, lastT = 0, rafId = 0;
+  var SPEED = 62; /* px per second */
+
+  function step(t){
+    if (!playing) return;
+    if (lastT) {
+      document.documentElement.scrollTop += SPEED * (t - lastT) / 1000;
+    }
+    lastT = t;
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) { stopPlay(); return; }
+    rafId = requestAnimationFrame(step);
+  }
+  function startPlay(){
+    playing = true; lastT = 0;
+    root.style.scrollBehavior = "auto";
+    playBtn.textContent = "❚❚";
+    playBtn.title = "Pause";
+    rafId = requestAnimationFrame(step);
+  }
+  function stopPlay(){
+    if (!playing) return;
+    playing = false;
+    cancelAnimationFrame(rafId);
+    root.style.scrollBehavior = "";
+    playBtn.textContent = "▶";
+    playBtn.title = "Play the story (auto-scroll)";
+  }
+  playBtn.addEventListener("click", function(){ playing ? stopPlay() : startPlay(); });
+  ["wheel","touchstart","mousedown"].forEach(function(ev){
+    addEventListener(ev, function(e){
+      if (playing && e.target !== playBtn) stopPlay();
+    }, { passive: true });
+  });
+
+  /* ---- keyboard: 1-3 jump acts, arrows step scenes ---- */
+  var stops = Array.prototype.slice.call(document.querySelectorAll(".scene, .act-card, .prologue, .epilogue"));
+  addEventListener("keydown", function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key >= "1" && e.key <= "3") {
+      stopPlay();
+      var act = document.getElementById("act" + e.key);
+      if (act) act.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      stopPlay();
+      var mid = innerHeight * 0.5, idx = 0;
+      for (var k = 0; k < stops.length; k++) {
+        if (stops[k].getBoundingClientRect().top < mid) idx = k;
+      }
+      var next = e.key === "ArrowRight" ? Math.min(stops.length - 1, idx + 1) : Math.max(0, idx - 1);
+      stops[next].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    }
+  });
+
+  /* ---- deal stones ---- */
+  document.querySelectorAll(".stone").forEach(function(b){
+    b.addEventListener("click", function(){ b.classList.toggle("on"); });
+  });
+  document.getElementById("stonesAll").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.add("on"); });
+  });
+  document.getElementById("stonesNone").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.remove("on"); });
+  });
+})();
+</script>
+</body>
+</html>

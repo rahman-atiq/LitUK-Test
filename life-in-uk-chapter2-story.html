@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 2 · The Map, Decoded — what exactly is the UK?</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --trap-bg:#EFEDE4; --trap-ink:#171B23;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --trap-bg:#22252D; --trap-ink:#F4F2EA;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.62;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  b { color:var(--ink); font-weight:650; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+
+  /* ---------- fixed controls ---------- */
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+  .themeToggle:hover { transform:translateY(-1px); }
+
+  /* ---------- Satellite HUD ---------- */
+  .hud {
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    z-index:40; display:flex; align-items:center; gap:14px;
+    background:color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:14px;
+    padding:10px 16px; box-shadow:var(--shadow);
+    width:min(560px, calc(100vw - 24px));
+  }
+  .hud-play {
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--line); background:var(--card-2); color:var(--ink);
+    font-size:.9rem; cursor:pointer; display:grid; place-items:center;
+  }
+  .hud-play:hover { border-color:var(--acc, var(--gold)); }
+  .hud-mid { flex:1 1 auto; min-width:0; }
+  .hud-year {
+    font-family:var(--serif); font-size:1.5rem; line-height:1.1;
+    font-variant-numeric:tabular-nums; color:var(--acc, var(--gold));
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-year.pop { animation:yearpop .45s ease; }
+  @keyframes yearpop {
+    0% { opacity:0; transform:translateY(10px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  .hud-era {
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:650; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-track {
+    position:relative; height:6px; border-radius:3px; margin-top:7px; overflow:visible;
+    background:linear-gradient(to right,
+      var(--era1) 0 33.3%, var(--era2) 33.3% 66.6%, var(--era3) 66.6% 100%);
+    opacity:.85;
+  }
+  .hud-marker {
+    position:absolute; top:50%; left:0%; width:14px; height:14px;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:var(--ink); border:2.5px solid var(--page);
+    box-shadow:0 0 0 1.5px var(--ink);
+  }
+  @media (max-width:520px) {
+    .hud { gap:10px; padding:9px 12px; }
+    .hud-year { font-size:1.2rem; }
+  }
+
+  /* ---------- Prologue ---------- */
+  .prologue { min-height:92vh; display:flex; align-items:center; position:relative; overflow:hidden; }
+  .stars { position:absolute; inset:0; pointer-events:none; }
+  .stars i {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:var(--gold); opacity:.55; animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.15;} 50%{opacity:.7;} }
+  :root[data-theme="light"] .stars i { opacity:.3; }
+  .pro-inner { position:relative; padding:70px 0 120px; }
+  .eyebrow {
+    font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gold); font-weight:650; margin:0 0 20px;
+  }
+  h1 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.9rem, 8vw, 5.2rem); line-height:1.02; margin:0;
+    text-wrap:balance;
+  }
+  h1 em { font-style:italic; color:var(--gold); }
+  .lede { color:var(--ink-2); font-size:1.08rem; max-width:58ch; margin:24px 0 0; }
+  .lede b { color:var(--ink); }
+  .howto {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:38px 0 0; max-width:640px;
+  }
+  .howto div {
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:13px 15px; font-size:.85rem; color:var(--ink-2);
+  }
+  .howto b { display:block; color:var(--ink); margin-bottom:2px; }
+  .howto kbd {
+    font-family:inherit; font-size:.78em; border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:5px; padding:1px 6px; background:var(--card-2); color:var(--ink);
+  }
+  @media (max-width:560px){ .howto { grid-template-columns:1fr; } }
+  .scroll-cue {
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    color:var(--ink-3); font-size:.75rem; letter-spacing:.18em; text-transform:uppercase;
+    animation:cue 2.4s ease-in-out infinite;
+  }
+  @keyframes cue { 0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);} }
+
+  /* ---------- Act title cards ---------- */
+  .act-card {
+    min-height:88vh; display:flex; flex-direction:column; justify-content:center;
+    text-align:center; padding:60px 22px; position:relative;
+  }
+  .act-prev {
+    font-size:.8rem; color:var(--ink-3); font-style:italic; max-width:56ch;
+    margin:0 auto 34px; line-height:1.7;
+  }
+  .act-prev b { color:var(--ink-2); font-style:normal; }
+  .act-motif { width:min(300px, 62vw); margin:0 auto 26px; }
+  .act-motif svg { display:block; width:100%; height:auto; overflow:visible; }
+  .act-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--acc); margin:0 0 12px; font-variant-numeric:tabular-nums;
+  }
+  .act-card h2 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.2rem, 6vw, 3.7rem); line-height:1.05; margin:0; text-wrap:balance;
+  }
+  .act-log { color:var(--ink-2); max-width:52ch; margin:20px auto 0; font-size:1rem; }
+
+  /* ---------- Scenes & the thread ---------- */
+  .act { --acc:var(--gold); }
+  .act[data-era="1"] { --acc:var(--era1); } .act[data-era="2"] { --acc:var(--era2); }
+  .act[data-era="3"] { --acc:var(--era3); }
+
+  .scenes { position:relative; padding:10px 0 30px; }
+  .scenes::before {
+    content:""; position:absolute; top:0; bottom:0; left:29px; width:2px;
+    background:linear-gradient(to bottom, transparent, var(--acc) 60px, var(--acc) calc(100% - 60px), transparent);
+    opacity:.35;
+  }
+  .scene { position:relative; padding:26px 0 6px 74px; }
+  .scene-dot {
+    position:absolute; left:22px; top:38px; width:16px; height:16px; border-radius:50%;
+    background:var(--page); border:3px solid var(--acc); z-index:1;
+  }
+  .scene h3 {
+    font-family:var(--serif); font-weight:550; font-size:1.55rem; line-height:1.15;
+    margin:0 0 4px; letter-spacing:-.005em;
+  }
+  .scene h3 .yr {
+    font-size:.85rem; color:var(--acc); font-variant-numeric:tabular-nums;
+    letter-spacing:.06em; display:block; margin-bottom:6px; font-family:var(--sans); font-weight:650;
+  }
+  .scene .glyph {
+    float:right; margin:2px 0 10px 16px; width:58px; height:58px; border-radius:50%;
+    background:color-mix(in srgb, var(--acc) 14%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
+    display:grid; place-items:center; font-size:1.65rem; user-select:none;
+  }
+  .story { color:var(--ink-2); margin:10px 0 0; }
+  .story b { color:var(--ink); }
+  .story .d {
+    color:var(--acc); font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .hook, .trap {
+    clear:both; border-radius:10px; padding:12px 15px; margin:16px 0 0;
+    font-size:.88rem; line-height:1.55;
+  }
+  .hook {
+    background:color-mix(in srgb, var(--acc) 10%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { display:inline; }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); }
+  .trap b { color:inherit; }
+  details.notes {
+    clear:both; margin:16px 0 0; border:1px dashed color-mix(in srgb, var(--acc) 40%, var(--line));
+    border-radius:10px; background:var(--card); font-size:.88rem;
+  }
+  details.notes summary {
+    cursor:pointer; padding:10px 15px; font-weight:650; color:var(--acc);
+    list-style:none; user-select:none;
+  }
+  details.notes summary::before { content:"▸ "; }
+  details.notes[open] summary::before { content:"▾ "; }
+  details.notes .n-body { padding:0 15px 12px; color:var(--ink-2); }
+  details.notes .n-body p { margin:6px 0; }
+
+  .because {
+    position:relative; margin:30px 0 4px; padding:0 0 0 74px;
+    font-family:var(--serif); font-style:italic; font-size:1.02rem; color:var(--ink-3);
+  }
+  .because::before {
+    content:"↓"; position:absolute; left:23px; top:0; font-style:normal;
+    color:var(--acc); font-family:var(--sans); font-weight:700;
+  }
+  @media (max-width:640px) {
+    .scene { padding-left:52px; }
+    .scenes::before { left:19px; }
+    .scene-dot { left:12px; }
+    .because { padding-left:52px; }
+    .because::before { left:13px; }
+    .scene .glyph { width:46px; height:46px; font-size:1.3rem; }
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* ---------- Act motif SVG animations (play when .in) ---------- */
+  /* Act I — three islands make Great Britain; the fourth joins across the water */
+  .m1 .iE { transform:translate(34px,-16px); }
+  .m1 .iS { transform:translate(18px,26px); }
+  .m1 .iW { transform:translate(40px,18px); }
+  .m1 .isl { transition:transform 1.8s cubic-bezier(.5,0,.2,1) .4s; }
+  .in .m1 .isl { transform:translate(0,0); }
+  .m1 .iN { opacity:0; transform:translate(-30px,0); transition:transform 1.4s ease 2.4s, opacity 1s ease 2.4s; }
+  .in .m1 .iN { opacity:1; transform:translate(0,0); }
+  .m1 .sea { opacity:0; transition:opacity 1s ease 3.4s; }
+  .in .m1 .sea { opacity:.5; }
+  /* Act II — Great counts to three, United counts to four */
+  .m2 .dot { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .45s cubic-bezier(.34,1.5,.6,1), opacity .4s ease; }
+  .in .m2 .dot { opacity:1; transform:scale(1); }
+  .in .m2 .d1 { transition-delay:.5s; } .in .m2 .d2 { transition-delay:.75s; } .in .m2 .d3 { transition-delay:1s; }
+  .in .m2 .d4 { transition-delay:1.9s; } .in .m2 .d5 { transition-delay:2.15s; }
+  .in .m2 .d6 { transition-delay:2.4s; } .in .m2 .d7 { transition-delay:2.65s; }
+  .m2 .lbl { opacity:0; transition:opacity .9s ease; }
+  .in .m2 .lbl1 { opacity:1; transition-delay:1.3s; }
+  .in .m2 .lbl2 { opacity:1; transition-delay:3s; }
+  /* Act III — the outer ring appears around the island */
+  .m3 .ring { opacity:0; transition:opacity 1.4s ease .4s; }
+  .in .m3 .ring { opacity:.45; }
+  .m3 .near { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .55s cubic-bezier(.34,1.5,.6,1), opacity .5s ease; }
+  .in .m3 .near { opacity:1; transform:scale(1); }
+  .in .m3 .n1 { transition-delay:1.2s; } .in .m3 .n2 { transition-delay:1.5s; }
+  .in .m3 .n3 { transition-delay:2.2s; } .in .m3 .n4 { transition-delay:2.5s; }
+  /* ---------- Epilogue ---------- */
+  .epilogue { border-top:1px solid var(--line); margin-top:70px; padding:70px 0 40px; }
+  .ep-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--gold); margin:0 0 12px;
+  }
+  .epilogue h2 {
+    font-family:var(--serif); font-weight:500; font-size:clamp(1.9rem,5vw,2.8rem);
+    line-height:1.1; margin:0 0 18px; letter-spacing:-.01em;
+  }
+  .breath {
+    font-family:var(--serif); font-size:1.13rem; line-height:1.85; color:var(--ink-2);
+  }
+  .breath b { color:var(--ink); font-weight:600; }
+  .breath .d { color:var(--gold); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* map stones */
+  .stones { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin:26px 0 0; }
+  .stone {
+    position:relative; font-family:inherit; text-align:left; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:9px;
+    padding:10px 12px; color:var(--ink); min-height:78px;
+  }
+  .stone:hover { border-color:var(--gold); }
+  .stone .sy {
+    display:block; font-family:var(--serif); font-size:1.15rem; color:var(--gold);
+    font-variant-numeric:tabular-nums; line-height:1.2;
+  }
+  .stone .se { display:block; font-size:.76rem; color:var(--ink-2); margin-top:4px; line-height:1.4; }
+  .stone:not(.on) .se { visibility:hidden; }
+  .stone:not(.on)::after {
+    content:"tap to reveal"; position:absolute; left:12px; bottom:10px;
+    font-size:.66rem; color:var(--ink-3);
+  }
+  .stones-tools { margin:14px 0 0; display:flex; gap:10px; }
+  .stones-tools button {
+    font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
+    background:var(--card-2); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px;
+  }
+
+  /* credits */
+  .credits { background:#0A0B0F; color:#E8E4D8; margin-top:70px; padding:80px 0 90px; text-align:center; }
+  :root[data-theme="light"] .credits { background:#1C1E26; }
+  .credits .ep-kicker { color:var(--era1); }
+  .credits h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,4.5vw,2.6rem); margin:0 0 8px; color:#F2EFE6; }
+  .credits .sub { color:#8D919C; font-size:.9rem; margin:0 0 46px; }
+  .cred-act {
+    font-size:.7rem; letter-spacing:.24em; text-transform:uppercase; font-weight:650;
+    margin:44px 0 18px; color:var(--ca, var(--gold));
+  }
+  .cred { margin:0 0 15px; }
+  .cred .cn { font-family:var(--serif); font-size:1.18rem; color:#F2EFE6; display:block; line-height:1.3; }
+  .cred .cr { font-size:.78rem; color:#8D919C; display:block; margin-top:1px; }
+  .fin {
+    font-family:var(--serif); font-style:italic; font-size:1.5rem; color:var(--gold);
+    margin:70px 0 0;
+  }
+  .foot { text-align:center; color:var(--ink-3); font-size:.78rem; padding:40px 22px 120px; }
+  .foot a { color:var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+    .reveal { opacity:1; transform:none; }
+    .m1 .isl, .m1 .iN { transform:none; opacity:1; } .m1 .sea { opacity:.5; }
+    .m2 .dot { transform:none; opacity:1; } .m2 .lbl { opacity:1; }
+    .m3 .ring { opacity:.45; } .m3 .near { transform:none; opacity:1; }
+    .hud-play { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
+
+<!-- ======================= SATELLITE HUD ======================= -->
+<div class="hud" aria-hidden="false">
+  <button class="hud-play" id="play" title="Play the story (auto-scroll)" aria-label="Play or pause auto-scroll">▶</button>
+  <div class="hud-mid">
+    <div class="hud-year" id="hudYear">The Map</div>
+    <div class="hud-era" id="hudEra">Prologue · scroll to begin</div>
+    <div class="hud-track"><div class="hud-marker" id="hudMarker"></div></div>
+  </div>
+</div>
+
+<!-- ======================= PROLOGUE ======================= -->
+<header class="prologue" data-year="The Map" data-era="0">
+  <div class="stars" id="stars"></div>
+  <div class="wrap pro-inner">
+    <p class="eyebrow">Life in the UK · Chapter 2 · Story Mode</p>
+    <h1>The Map, <em>Decoded</em></h1>
+    <p class="lede">
+      The shortest chapter in the book — and some of the easiest marks on the test, if you can
+      keep four confusingly similar names straight: <b>UK</b>, <b>Great Britain</b>,
+      <b>Britain</b> and the <b>British Isles</b>. This is pure terminology, so we'll do it
+      as a satellite pass: zoom in on the big island, do the arithmetic,
+      learn what each name is allowed to mean, then sweep the ring
+      of islands that are <b>linked to the UK but not part of it</b>.
+    </p>
+    <div class="howto">
+      <div><b>🎫 The bar below is your pocket fact.</b> It always shows the number or name the current scene most wants you to keep.</div>
+      <div><b>🛰️ Follow the zoom.</b> Big island → union → names → outer ring. Each scene hands you the next layer of the map. That's the memory trick.</div>
+      <div><b>▶ Let the story drive.</b> Press play and it rolls past at reading speed. Touch anything to take the controls back.</div>
+      <div><b>⌨️ Shortcuts.</b> Keys <kbd>1</kbd>–<kbd>3</kbd> jump between acts. <kbd>→</kbd> and <kbd>←</kbd> step scene by scene.</div>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to begin ↓</div>
+</header>
+
+<!-- ======================= ACT I ======================= -->
+<section class="act" data-era="1" id="act1">
+  <div class="act-card reveal" data-year="3 + 1" data-era="1">
+    <div class="act-motif">
+      <svg class="m1" viewBox="0 0 200 120" role="img" aria-label="Three islands merge into Great Britain; a fourth joins across the water to make the UK">
+        <circle class="isl iS" cx="118" cy="34" r="17" fill="var(--acc)" opacity=".9"/>
+        <circle class="isl iE" cx="128" cy="66" r="21" fill="var(--acc)"/>
+        <circle class="isl iW" cx="102" cy="58" r="14" fill="var(--acc)" opacity=".8"/>
+        <path class="sea" d="M76,74 q-6,-14 2,-28" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="4 5"/>
+        <circle class="iN" cx="56" cy="52" r="11" fill="var(--acc)" opacity=".75"/>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act I · The arithmetic</p>
+    <h2>Three Make Great, Four Make United</h2>
+    <p class="act-log">
+      One equation runs this whole chapter: <b>E + S + W = Great Britain</b>, and
+      <b>Great Britain + Northern Ireland = the UK</b>. Every trick question you'll meet
+      is a rearrangement of that line.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="E+S+W+NI" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗺️</div>
+      <h3><span class="yr">The equation</span>Four nations, one union</h3>
+      <p class="story">
+        The UK is made up of <b>England, Scotland, Wales and Northern Ireland</b>. The first
+        three share the big island — <b>England + Scotland + Wales = Great Britain</b>. Add the
+        fourth, across the water — <b>Great Britain + Northern Ireland = the United Kingdom</b>.
+        The country's <b>official name</b> spells the equation out in full:
+        the <b>United Kingdom of Great Britain <i>and</i> Northern Ireland</b> — the name itself
+        is proof that <b>NI is not inside Great Britain</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>Great = geography</i> (one big island, three nations). <i>United = politics</i> (the whole country, four nations). Three make Great, four make United.</aside>
+    </article>
+    <p class="because reveal">But the island next to the big island holds two flags — and only one of them is British…</p>
+
+    <article class="scene reveal" data-year="Ireland" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🍀</div>
+      <h3><span class="yr">The neighbour</span>The rest of Ireland is another country</h3>
+      <p class="story">
+        Northern Ireland shares its island with a state that is not in this book's jurisdiction
+        at all: <b>the rest of Ireland is an independent country</b>. Chapter 3 told you how that
+        happened — the 1922 split. For Chapter 2 you only need the consequence: the Republic is
+        <b>not in the UK</b>, <b>not a dependency</b>, <b>not a territory</b>. It's a neighbour,
+        full stop.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> any answer that pulls <b>the whole island of Ireland</b> into the UK is wrong. Only the <b>north-east corner</b> — Northern Ireland — is British.</aside>
+    </article>
+    <p class="because reveal">So the pieces are on the board. Now the game itself: which name are you allowed to use for which pieces?</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT II ======================= -->
+<section class="act" data-era="2" id="act2">
+  <div class="act-card reveal" data-year="3 or 4?" data-era="2">
+    <p class="act-prev"><b>Previously:</b> E + S + W = Great Britain; add Northern Ireland and you get
+    the United Kingdom — while the rest of Ireland is an independent country.</p>
+    <div class="act-motif">
+      <svg class="m2" viewBox="0 0 200 120" role="img" aria-label="Great counts to three, United counts to four">
+        <text class="lbl lbl1" x="52" y="38" text-anchor="middle" font-size="12" font-family="Baskerville, Georgia, serif" font-style="italic" fill="var(--ink)">“Great”</text>
+        <circle class="dot d1" cx="30" cy="60" r="8" fill="var(--acc)"/>
+        <circle class="dot d2" cx="52" cy="60" r="8" fill="var(--acc)"/>
+        <circle class="dot d3" cx="74" cy="60" r="8" fill="var(--acc)"/>
+        <text class="lbl lbl2" x="152" y="38" text-anchor="middle" font-size="12" font-family="Baskerville, Georgia, serif" font-style="italic" fill="var(--ink)">“United”</text>
+        <circle class="dot d4" cx="119" cy="60" r="8" fill="var(--acc)"/>
+        <circle class="dot d5" cx="141" cy="60" r="8" fill="var(--acc)"/>
+        <circle class="dot d6" cx="163" cy="60" r="8" fill="var(--acc)"/>
+        <circle class="dot d7" cx="185" cy="60" r="8" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+        <line x1="96" y1="34" x2="96" y2="86" stroke="var(--ink)" stroke-width="1.5" opacity=".35"/>
+        <text x="30" y="88" text-anchor="middle" font-size="8" fill="var(--ink-2)" font-family="inherit">E</text>
+        <text x="52" y="88" text-anchor="middle" font-size="8" fill="var(--ink-2)" font-family="inherit">S</text>
+        <text x="74" y="88" text-anchor="middle" font-size="8" fill="var(--ink-2)" font-family="inherit">W</text>
+        <text x="185" y="88" text-anchor="middle" font-size="8" fill="var(--ink-2)" font-family="inherit">NI</text>
+      </svg>
+    </div>
+    <p class="act-kicker">Act II · Say it right</p>
+    <h2>Three Names, Three Rules</h2>
+    <p class="act-log">
+      The handbook is fussy about names, and the test copies the fussiness word for word.
+      <b>If the question says "Great", count to three. If it says "United", count to four.
+      If it just says "Britain", it means everybody.</b>
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="Great = 3" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">3️⃣</div>
+      <h3><span class="yr">Name № 1</span>"Great Britain" — count to three</h3>
+      <p class="story">
+        <b>"Great Britain" refers only to England, Scotland and Wales.</b> It <b>never includes
+        Northern Ireland</b> — not on a good day, not colloquially, not ever in this handbook.
+        The "Great" is geography: it's the name of the big island, and Northern Ireland
+        stands on a different island.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> "Is Northern Ireland part of Great Britain?" — <b>No. It is part of the UK.</b> This single distinction is the most reliably asked fact in Chapter 2. Don't donate the mark.</aside>
+    </article>
+    <p class="because reveal">If "Great" is the island, what's the word for the whole country? The one on your future passport…</p>
+
+    <article class="scene reveal" data-year="United = 4" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">4️⃣</div>
+      <h3><span class="yr">Name № 2</span>"The United Kingdom" — count to four</h3>
+      <p class="story">
+        <b>The United Kingdom = England + Scotland + Wales + Northern Ireland.</b> All four
+        nations, one state, and the full official title carries both halves:
+        <b>United Kingdom of Great Britain and Northern Ireland</b>. "United" is politics —
+        the union you watched being assembled, act by act, through Chapter 3
+        (1707 made Great Britain, 1801 added Ireland, 1922 trimmed it to Northern Ireland).
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the official name is a <b>sum written as a title</b> — Great Britain <i>and</i> Northern Ireland. If a question omits one half of the name, it's quoting it wrong.</aside>
+    </article>
+    <p class="because reveal">Which leaves the loosest word of the three — the one the handbook itself uses on nearly every page…</p>
+
+    <article class="scene reveal" data-year="“Britain”" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">💬</div>
+      <h3><span class="yr">Name № 3</span>"Britain" — the handbook's word for everybody</h3>
+      <p class="story">
+        When this handbook says <b>"Britain"</b>, <b>"British Isles"</b> or <b>"British"</b>, it
+        means <b>everyone in the UK — all four nations</b>. That's an official reading rule, and
+        it matters: a <b>"British" fact in the study guide applies to Northern Ireland too</b>.
+        So "British people celebrate…" includes Belfast, even though "Great Britain" excludes it.
+        Fussy? Extremely. Testable? Constantly.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the three rules in one line — <i>Great = 3 · United = 4 · Britain = everybody</i>. Count the nations before you answer anything in this chapter.</aside>
+    </article>
+    <p class="because reveal">That's the mainland sorted. But zoom the satellite out one click, and a ring of smaller islands appears — flying familiar flags without being in the country at all…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT III ======================= -->
+<section class="act" data-era="3" id="act3">
+  <div class="act-card reveal" data-year="The ring" data-era="3">
+    <p class="act-prev"><b>Previously:</b> Great = 3, United = 4, and "Britain" in this handbook
+    means everybody — while the rest of Ireland is another country entirely.</p>
+    <div class="act-motif">
+      <svg class="m3" viewBox="0 0 200 120" role="img" aria-label="An outer ring of islands appears around the UK — near dependencies, far territories">
+        <ellipse class="ring" cx="100" cy="60" rx="82" ry="46" fill="none" stroke="var(--acc)" stroke-width="1.4" stroke-dasharray="5 6"/>
+        <g fill="var(--ink)">
+          <circle cx="104" cy="52" r="15"/>
+          <circle cx="94" cy="70" r="10"/>
+          <circle cx="118" cy="68" r="8"/>
+        </g>
+        <g class="near n1"><circle cx="66" cy="84" r="5.5" fill="var(--acc)"/></g>
+        <g class="near n2"><circle cx="82" cy="94" r="4.5" fill="var(--acc)"/></g>
+        <g class="near n3"><circle cx="22" cy="42" r="4" fill="none" stroke="var(--acc)" stroke-width="2"/></g>
+        <g class="near n4"><circle cx="180" cy="80" r="4" fill="none" stroke="var(--acc)" stroke-width="2"/></g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act III · The outer ring</p>
+    <h2>Linked, Not Part of It</h2>
+    <p class="act-log">
+      Around the UK sits a ring of islands and territories that are <b>closely linked to the
+      UK without being part of it</b>. The sorting rule: <b>near islands run their own
+      governments; far islands are "territories"</b>. Get the labels right and the marks are free.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="Next door" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏝️</div>
+      <h3><span class="yr">The near ring</span>Crown dependencies — close, and self-governing</h3>
+      <p class="story">
+        First, the neighbours you can see from the coast: <b>the Channel Islands and the Isle of
+        Man</b>. They are <b>Crown dependencies</b> — <b>closely linked with the UK but not part
+        of it</b>, and they have <b>their own governments</b>. (Remember Chapter 1? Their
+        residents get <b>special arrangements</b> for the Life in the UK test — because they're
+        outside the UK, taking a test about it.)
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Crown dependencies = <b>next door + own government</b>. Two names to file there: <b>Channel Islands, Isle of Man</b>.</aside>
+    </article>
+    <p class="because reveal">Zoom out further — much further — and the last British dots appear on the far side of the map…</p>
+
+    <article class="scene reveal" data-year="Far away" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌍</div>
+      <h3><span class="yr">The far ring</span>Overseas territories — the distant dots</h3>
+      <p class="story">
+        Scattered across other parts of the world are the <b>British overseas territories</b> —
+        the handbook's examples are <b>St Helena</b> and <b>the Falkland Islands</b>. Same status
+        stamp as the dependencies: <b>linked to the UK, but not part of it</b>. Near or far,
+        nothing in this act is <i>inside</i> the country.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> don't swap the labels — the <b>Isle of Man is a Crown dependency</b>, not an overseas territory; the <b>Falklands are an overseas territory</b>, not a dependency. Near = dependency, far = territory.</aside>
+    </article>
+    <p class="because reveal">Which raises the chapter's final question: with all these islands, assemblies and layers — who actually governs what?</p>
+
+    <article class="scene reveal" data-year="Westminster" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏛️</div>
+      <h3><span class="yr">The control room</span>Who governs what</h3>
+      <p class="story">
+        The UK is governed by <b>the parliament sitting in Westminster</b>. But <b>Scotland,
+        Wales and Northern Ireland</b> also have <b>parliaments or assemblies of their own</b>,
+        with <b>devolved powers in defined areas</b> — the very bodies Chapter 5 counts as
+        <b>129 MSPs, 60 AMs and 108 MLAs</b>. The odd one out is <b>England</b>: it has
+        <b>no separate parliament</b> of its own — Westminster covers it.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> devolved parliaments exist for <b>Scotland, Wales and Northern Ireland</b> — <b>England has none</b>. Westminster governs the UK, and doubles as England's only legislature.</aside>
+    </article>
+    <p class="because reveal">And with that, the satellite pass is complete — one island decoded, one ring sorted, one control room found. Time for the debrief…</p>
+
+  </div>
+</section>
+
+<!-- ======================= EPILOGUE ======================= -->
+<section class="epilogue" data-year="Decoded" data-era="4">
+  <div class="wrap">
+    <p class="ep-kicker">Epilogue</p>
+    <h2>The whole map in one breath</h2>
+    <p class="breath">
+      Three nations share the big island — <b>England + Scotland + Wales = Great Britain</b> —
+      and adding <b>Northern Ireland</b> makes <b>the United Kingdom</b>, official name
+      <b>United Kingdom of Great Britain and Northern Ireland</b>, a title that proves NI sits
+      outside Great Britain but inside the UK. <b>The rest of Ireland is an independent
+      country</b>. The reading rules: <b>"Great" counts to <span class="d">3</span>, "United"
+      counts to <span class="d">4</span>, "Britain" means everybody</b>. Around the edge, a ring
+      of islands is <b>linked to the UK but not part of it</b>: near — the <b>Channel Islands and
+      Isle of Man</b>, Crown dependencies with <b>their own governments</b>; far — <b>St Helena
+      and the Falklands</b>, British overseas territories. And the governing:
+      <b>Westminster</b> rules the UK, with devolved bodies for <b>Scotland, Wales and NI</b> —
+      and none for England.
+    </p>
+
+    <h2 style="margin-top:60px">Prove it — the map stones</h2>
+    <p class="lede" style="margin-top:0">Tap a stone to check yourself. Chapter 2 is one equation and a sorting game — if these hold, you cannot be tricked.</p>
+    <div class="stones-tools">
+      <button id="stonesAll">Reveal all</button>
+      <button id="stonesNone">Hide all</button>
+    </div>
+    <div class="stones" id="stones">
+      <button class="stone"><span class="sy">E+S+W</span><span class="se">= Great Britain — the big island only</span></button>
+      <button class="stone"><span class="sy">GB+NI</span><span class="se">= the United Kingdom — all four nations</span></button>
+      <button class="stone"><span class="sy">Official name</span><span class="se">United Kingdom of Great Britain and Northern Ireland</span></button>
+      <button class="stone"><span class="sy">Great = 3</span><span class="se">"Great Britain" never includes Northern Ireland</span></button>
+      <button class="stone"><span class="sy">United = 4</span><span class="se">"United Kingdom" always includes Northern Ireland</span></button>
+      <button class="stone"><span class="sy">“Britain”</span><span class="se">handbook shorthand for everyone in the UK — all four nations</span></button>
+      <button class="stone"><span class="sy">NI</span><span class="se">in the UK ✓ — in Great Britain ✗ (the chapter's favourite question)</span></button>
+      <button class="stone"><span class="sy">Ireland</span><span class="se">the rest of Ireland is an independent country</span></button>
+      <button class="stone"><span class="sy">Channel Is. · IoM</span><span class="se">Crown dependencies — own governments, not part of the UK</span></button>
+      <button class="stone"><span class="sy">St Helena · Falklands</span><span class="se">British overseas territories — linked, not part of the UK</span></button>
+      <button class="stone"><span class="sy">Westminster</span><span class="se">the parliament that governs the UK (and England, which has no own body)</span></button>
+      <button class="stone"><span class="sy">S · W · NI</span><span class="se">the three nations with devolved parliaments or assemblies</span></button>
+    </div>
+
+    <div class="credits">
+      <div class="wrap">
+        <p class="ep-kicker">Roll the credits</p>
+        <h2>Cast of characters — the places</h2>
+        <p class="sub">Chapter 2's cast is a map. Give each place its status line and the chapter is closed.</p>
+
+        <p class="cred-act" style="--ca:var(--era1)">In the UK</p>
+        <p class="cred"><span class="cn">England</span><span class="cr">UK ✓ · Great Britain ✓ · no devolved parliament</span></p>
+        <p class="cred"><span class="cn">Scotland</span><span class="cr">UK ✓ · Great Britain ✓ · own parliament</span></p>
+        <p class="cred"><span class="cn">Wales</span><span class="cr">UK ✓ · Great Britain ✓ · own assembly</span></p>
+        <p class="cred"><span class="cn">Northern Ireland</span><span class="cr">UK ✓ · Great Britain ✗ · own assembly</span></p>
+
+        <p class="cred-act" style="--ca:var(--era2)">Linked, not part of it</p>
+        <p class="cred"><span class="cn">The Channel Islands</span><span class="cr">Crown dependency — own government</span></p>
+        <p class="cred"><span class="cn">The Isle of Man</span><span class="cr">Crown dependency — own government</span></p>
+        <p class="cred"><span class="cn">St Helena</span><span class="cr">British overseas territory</span></p>
+        <p class="cred"><span class="cn">The Falkland Islands</span><span class="cr">British overseas territory</span></p>
+
+        <p class="cred-act" style="--ca:var(--era3)">And the rest</p>
+        <p class="cred"><span class="cn">The Republic of Ireland</span><span class="cr">independent country — not British at all</span></p>
+        <p class="cred"><span class="cn">Westminster</span><span class="cr">the parliament that governs the UK</span></p>
+
+        <p class="fin">Great = three, United = four — now go pass the thing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  Story companion to Chapter 2 of the official <i>Life in the UK</i> handbook, faithful to the study
+  guide at lifeintheuktests.co.uk. The test follows the handbook's wording — so should your answers.<br>
+  The set: <a href="life-in-uk-chapter1-story.html">Ch 1 · The Deal</a> ·
+  <b>Ch 2 · The Map, Decoded</b> ·
+  <a href="life-in-uk-chapter3-story.html">Ch 3 · The Island Story</a> ·
+  <a href="life-in-uk-chapter4-story.html">Ch 4 · Your First Year</a> ·
+  <a href="life-in-uk-chapter5-story.html">Ch 5 · Follow the Power</a><br>
+  Revise the facts: <a href="life-in-uk-chapter2.html">Chapter 2 reference</a> · test yourself:
+  <a href="life-in-uk-quiz.html">the quiz</a>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* theme */
+  try {
+    var saved = localStorage.getItem("liuk-story-theme");
+    if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  } catch(e){}
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch(e){}
+  });
+
+  /* prologue stars */
+  var stars = document.getElementById("stars");
+  for (var i = 0; i < 42; i++) {
+    var s = document.createElement("i");
+    s.style.left = (Math.random()*100).toFixed(2) + "%";
+    s.style.top = (Math.random()*100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random()*4).toFixed(2) + "s";
+    stars.appendChild(s);
+  }
+
+  /* reveal on scroll */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+  /* ---- satellite HUD ---- */
+  var eraNames = [
+    "Prologue · the map",
+    "Act I · The arithmetic",
+    "Act II · Say it right",
+    "Act III · The outer ring",
+    "Epilogue · the whole map"
+  ];
+  var eraColors = ["var(--gold)","var(--era1)","var(--era2)","var(--era3)","var(--gold)"];
+  var hud = document.querySelector(".hud");
+  var hudYear = document.getElementById("hudYear");
+  var hudEra = document.getElementById("hudEra");
+  var marker = document.getElementById("hudMarker");
+  var marks = Array.prototype.slice.call(document.querySelectorAll("[data-year]"));
+  var current = null, ticking = false;
+
+  function update(){
+    ticking = false;
+    var mid = innerHeight * 0.5;
+    var active = marks[0];
+    for (var j = 0; j < marks.length; j++) {
+      if (marks[j].getBoundingClientRect().top < mid) active = marks[j];
+      else break;
+    }
+    if (active !== current) {
+      current = active;
+      hudYear.textContent = active.dataset.year;
+      hudEra.textContent = eraNames[+active.dataset.era] || eraNames[0];
+      hud.style.setProperty("--acc", eraColors[+active.dataset.era] || eraColors[0]);
+      if (!reduced) {
+        hudYear.classList.remove("pop");
+        void hudYear.offsetWidth;
+        hudYear.classList.add("pop");
+      }
+    }
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    marker.style.left = (p * 100).toFixed(2) + "%";
+  }
+  addEventListener("scroll", function(){
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
+
+  /* ---- play the story (auto-scroll) ---- */
+  var playBtn = document.getElementById("play");
+  var playing = false, lastT = 0, rafId = 0;
+  var SPEED = 62; /* px per second */
+
+  function step(t){
+    if (!playing) return;
+    if (lastT) {
+      document.documentElement.scrollTop += SPEED * (t - lastT) / 1000;
+    }
+    lastT = t;
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) { stopPlay(); return; }
+    rafId = requestAnimationFrame(step);
+  }
+  function startPlay(){
+    playing = true; lastT = 0;
+    root.style.scrollBehavior = "auto";
+    playBtn.textContent = "❚❚";
+    playBtn.title = "Pause";
+    rafId = requestAnimationFrame(step);
+  }
+  function stopPlay(){
+    if (!playing) return;
+    playing = false;
+    cancelAnimationFrame(rafId);
+    root.style.scrollBehavior = "";
+    playBtn.textContent = "▶";
+    playBtn.title = "Play the story (auto-scroll)";
+  }
+  playBtn.addEventListener("click", function(){ playing ? stopPlay() : startPlay(); });
+  ["wheel","touchstart","mousedown"].forEach(function(ev){
+    addEventListener(ev, function(e){
+      if (playing && e.target !== playBtn) stopPlay();
+    }, { passive: true });
+  });
+
+  /* ---- keyboard: 1-3 jump acts, arrows step scenes ---- */
+  var stops = Array.prototype.slice.call(document.querySelectorAll(".scene, .act-card, .prologue, .epilogue"));
+  addEventListener("keydown", function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key >= "1" && e.key <= "3") {
+      stopPlay();
+      var act = document.getElementById("act" + e.key);
+      if (act) act.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      stopPlay();
+      var mid = innerHeight * 0.5, idx = 0;
+      for (var k = 0; k < stops.length; k++) {
+        if (stops[k].getBoundingClientRect().top < mid) idx = k;
+      }
+      var next = e.key === "ArrowRight" ? Math.min(stops.length - 1, idx + 1) : Math.max(0, idx - 1);
+      stops[next].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    }
+  });
+
+  /* ---- map stones ---- */
+  document.querySelectorAll(".stone").forEach(function(b){
+    b.addEventListener("click", function(){ b.classList.toggle("on"); });
+  });
+  document.getElementById("stonesAll").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.add("on"); });
+  });
+  document.getElementById("stonesNone").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.remove("on"); });
+  });
+})();
+</script>
+</body>
+</html>
