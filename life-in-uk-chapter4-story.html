@@ -1,0 +1,1572 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 4 · Your First Year — British life as one grand tour</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --trap-bg:#EFEDE4; --trap-ink:#171B23;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --trap-bg:#22252D; --trap-ink:#F4F2EA;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.62;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  b { color:var(--ink); font-weight:650; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+
+  /* ---------- fixed controls ---------- */
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+  .themeToggle:hover { transform:translateY(-1px); }
+
+  /* ---------- Tour-guide HUD ---------- */
+  .hud {
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    z-index:40; display:flex; align-items:center; gap:14px;
+    background:color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:14px;
+    padding:10px 16px; box-shadow:var(--shadow);
+    width:min(560px, calc(100vw - 24px));
+  }
+  .hud-play {
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--line); background:var(--card-2); color:var(--ink);
+    font-size:.9rem; cursor:pointer; display:grid; place-items:center;
+  }
+  .hud-play:hover { border-color:var(--acc, var(--gold)); }
+  .hud-mid { flex:1 1 auto; min-width:0; }
+  .hud-year {
+    font-family:var(--serif); font-size:1.5rem; line-height:1.1;
+    font-variant-numeric:tabular-nums; color:var(--acc, var(--gold));
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-year.pop { animation:yearpop .45s ease; }
+  @keyframes yearpop {
+    0% { opacity:0; transform:translateY(10px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  .hud-era {
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:650; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-track {
+    position:relative; height:6px; border-radius:3px; margin-top:7px; overflow:visible;
+    background:linear-gradient(to right,
+      var(--era1) 0 16.6%, var(--era2) 16.6% 33.3%, var(--era3) 33.3% 50%,
+      var(--era4) 50% 66.6%, var(--era5) 66.6% 83.3%, var(--era6) 83.3% 100%);
+    opacity:.85;
+  }
+  .hud-marker {
+    position:absolute; top:50%; left:0%; width:14px; height:14px;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:var(--ink); border:2.5px solid var(--page);
+    box-shadow:0 0 0 1.5px var(--ink);
+  }
+  @media (max-width:520px) {
+    .hud { gap:10px; padding:9px 12px; }
+    .hud-year { font-size:1.2rem; }
+  }
+
+  /* ---------- Prologue ---------- */
+  .prologue { min-height:92vh; display:flex; align-items:center; position:relative; overflow:hidden; }
+  .stars { position:absolute; inset:0; pointer-events:none; }
+  .stars i {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:var(--gold); opacity:.55; animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.15;} 50%{opacity:.7;} }
+  :root[data-theme="light"] .stars i { opacity:.3; }
+  .pro-inner { position:relative; padding:70px 0 120px; }
+  .eyebrow {
+    font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gold); font-weight:650; margin:0 0 20px;
+  }
+  h1 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.9rem, 8vw, 5.2rem); line-height:1.02; margin:0;
+    text-wrap:balance;
+  }
+  h1 em { font-style:italic; color:var(--gold); }
+  .lede { color:var(--ink-2); font-size:1.08rem; max-width:58ch; margin:24px 0 0; }
+  .lede b { color:var(--ink); }
+  .howto {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:38px 0 0; max-width:640px;
+  }
+  .howto div {
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:13px 15px; font-size:.85rem; color:var(--ink-2);
+  }
+  .howto b { display:block; color:var(--ink); margin-bottom:2px; }
+  .howto kbd {
+    font-family:inherit; font-size:.78em; border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:5px; padding:1px 6px; background:var(--card-2); color:var(--ink);
+  }
+  @media (max-width:560px){ .howto { grid-template-columns:1fr; } }
+  .scroll-cue {
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    color:var(--ink-3); font-size:.75rem; letter-spacing:.18em; text-transform:uppercase;
+    animation:cue 2.4s ease-in-out infinite;
+  }
+  @keyframes cue { 0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);} }
+
+  /* ---------- Act title cards ---------- */
+  .act-card {
+    min-height:88vh; display:flex; flex-direction:column; justify-content:center;
+    text-align:center; padding:60px 22px; position:relative;
+  }
+  .act-prev {
+    font-size:.8rem; color:var(--ink-3); font-style:italic; max-width:56ch;
+    margin:0 auto 34px; line-height:1.7;
+  }
+  .act-prev b { color:var(--ink-2); font-style:normal; }
+  .act-motif { width:min(300px, 62vw); margin:0 auto 26px; }
+  .act-motif svg { display:block; width:100%; height:auto; overflow:visible; }
+  .act-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--acc); margin:0 0 12px; font-variant-numeric:tabular-nums;
+  }
+  .act-card h2 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.2rem, 6vw, 3.7rem); line-height:1.05; margin:0; text-wrap:balance;
+  }
+  .act-log { color:var(--ink-2); max-width:52ch; margin:20px auto 0; font-size:1rem; }
+
+  /* ---------- Scenes & the thread ---------- */
+  .act { --acc:var(--gold); }
+  .act[data-era="1"] { --acc:var(--era1); } .act[data-era="2"] { --acc:var(--era2); }
+  .act[data-era="3"] { --acc:var(--era3); } .act[data-era="4"] { --acc:var(--era4); }
+  .act[data-era="5"] { --acc:var(--era5); } .act[data-era="6"] { --acc:var(--era6); }
+
+  .scenes { position:relative; padding:10px 0 30px; }
+  .scenes::before {
+    content:""; position:absolute; top:0; bottom:0; left:29px; width:2px;
+    background:linear-gradient(to bottom, transparent, var(--acc) 60px, var(--acc) calc(100% - 60px), transparent);
+    opacity:.35;
+  }
+  .scene { position:relative; padding:26px 0 6px 74px; }
+  .scene-dot {
+    position:absolute; left:22px; top:38px; width:16px; height:16px; border-radius:50%;
+    background:var(--page); border:3px solid var(--acc); z-index:1;
+  }
+  .scene h3 {
+    font-family:var(--serif); font-weight:550; font-size:1.55rem; line-height:1.15;
+    margin:0 0 4px; letter-spacing:-.005em;
+  }
+  .scene h3 .yr {
+    font-size:.85rem; color:var(--acc); font-variant-numeric:tabular-nums;
+    letter-spacing:.06em; display:block; margin-bottom:6px; font-family:var(--sans); font-weight:650;
+  }
+  .scene .glyph {
+    float:right; margin:2px 0 10px 16px; width:58px; height:58px; border-radius:50%;
+    background:color-mix(in srgb, var(--acc) 14%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
+    display:grid; place-items:center; font-size:1.65rem; user-select:none;
+  }
+  .story { color:var(--ink-2); margin:10px 0 0; }
+  .story b { color:var(--ink); }
+  .story .d {
+    color:var(--acc); font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .hook, .trap {
+    clear:both; border-radius:10px; padding:12px 15px; margin:16px 0 0;
+    font-size:.88rem; line-height:1.55;
+  }
+  .hook {
+    background:color-mix(in srgb, var(--acc) 10%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { display:inline; }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); }
+  .trap b { color:inherit; }
+  details.notes {
+    clear:both; margin:16px 0 0; border:1px dashed color-mix(in srgb, var(--acc) 40%, var(--line));
+    border-radius:10px; background:var(--card); font-size:.88rem;
+  }
+  details.notes summary {
+    cursor:pointer; padding:10px 15px; font-weight:650; color:var(--acc);
+    list-style:none; user-select:none;
+  }
+  details.notes summary::before { content:"▸ "; }
+  details.notes[open] summary::before { content:"▾ "; }
+  details.notes .n-body { padding:0 15px 12px; color:var(--ink-2); }
+  details.notes .n-body p { margin:6px 0; }
+
+  .because {
+    position:relative; margin:30px 0 4px; padding:0 0 0 74px;
+    font-family:var(--serif); font-style:italic; font-size:1.02rem; color:var(--ink-3);
+  }
+  .because::before {
+    content:"↓"; position:absolute; left:23px; top:0; font-style:normal;
+    color:var(--acc); font-family:var(--sans); font-weight:700;
+  }
+  @media (max-width:640px) {
+    .scene { padding-left:52px; }
+    .scenes::before { left:19px; }
+    .scene-dot { left:12px; }
+    .because { padding-left:52px; }
+    .because::before { left:13px; }
+    .scene .glyph { width:46px; height:46px; font-size:1.3rem; }
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* ---------- Act motif SVG animations (play when .in) ---------- */
+  /* Act I — the plane lands, four capitals light up */
+  .m1 .plane { transform:translate(-74px,-46px); opacity:0; transition:transform 2.4s ease .3s, opacity .8s ease .3s; }
+  .in .m1 .plane { transform:translate(0,0); opacity:1; }
+  .m1 .beacon { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .5s cubic-bezier(.34,1.5,.6,1), opacity .5s ease; }
+  .in .m1 .beacon { opacity:1; transform:scale(1); }
+  .in .m1 .b1 { transition-delay:2.4s; } .in .m1 .b2 { transition-delay:2.7s; }
+  .in .m1 .b3 { transition-delay:3s; } .in .m1 .b4 { transition-delay:3.3s; }
+  /* Act II — a chapel and four saints' stars (two in March, one in April, one long wait) */
+  .m2 .star { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .6s cubic-bezier(.34,1.5,.6,1), opacity .5s ease; }
+  .in .m2 .star { opacity:1; transform:scale(1); }
+  .in .m2 .s1 { transition-delay:.7s; } .in .m2 .s2 { transition-delay:1s; }
+  .in .m2 .s3 { transition-delay:1.5s; } .in .m2 .s4 { transition-delay:2.9s; }
+  .m2 .glow { opacity:0; transition:opacity 1.4s ease .4s; }
+  .in .m2 .glow { opacity:.55; }
+  /* Act III — the rocket climbs, the year bursts open */
+  .m3 .rocket { transform:translateY(48px); opacity:0; transition:transform 1.5s ease-in .3s, opacity .5s ease .3s; }
+  .in .m3 .rocket { transform:translateY(0); opacity:1; }
+  .m3 .burst { opacity:0; transform:scale(.2); transform-origin:center; transform-box:fill-box; transition:transform 1.1s ease, opacity .9s ease; }
+  .in .m3 .burst { opacity:.95; transform:scale(1); }
+  .in .m3 .k1 { transition-delay:1.7s; }
+  .in .m3 .k2 { transition-delay:2.3s; }
+  .in .m3 .k3 { transition-delay:2.8s; }
+  /* Act IV — the torch burns, three Games appear */
+  .in .m4 .flame { animation:flick 1.7s ease-in-out infinite .6s; transform-origin:center bottom; transform-box:fill-box; }
+  @keyframes flick { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(1.22) skewX(3deg);} }
+  .m4 .ring { opacity:0; transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .55s cubic-bezier(.34,1.5,.6,1), opacity .5s ease; }
+  .in .m4 .ring { opacity:1; transform:scale(1); }
+  .in .m4 .g1 { transition-delay:1.2s; } .in .m4 .g2 { transition-delay:1.6s; } .in .m4 .g3 { transition-delay:2s; }
+  /* Act V — the gramophone plays, notes float away */
+  .m5 .note { opacity:0; }
+  .in .m5 .note { animation:floatnote 4.2s ease-out infinite 1s; }
+  .in .m5 .note.n2 { animation-delay:2.4s; }
+  .in .m5 .note.n3 { animation-delay:3.6s; }
+  @keyframes floatnote {
+    0% { opacity:0; transform:translate(0,0) rotate(0deg); }
+    20% { opacity:.85; }
+    100% { opacity:0; transform:translate(14px,-42px) rotate(14deg); }
+  }
+  /* Act VI — sun over the parks, a flag takes the summit */
+  .m6 .sun { transform:translateY(46px); opacity:.25; transition:transform 2.6s ease, opacity 2.6s ease; }
+  .in .m6 .sun { transform:translateY(0); opacity:1; }
+  .m6 .flag { transform:scaleY(0); transform-origin:bottom; transform-box:fill-box; transition:transform .8s cubic-bezier(.34,1.5,.6,1) 2.2s; }
+  .in .m6 .flag { transform:scaleY(1); }
+
+  /* ---------- Epilogue ---------- */
+  .epilogue { border-top:1px solid var(--line); margin-top:70px; padding:70px 0 40px; }
+  .ep-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--gold); margin:0 0 12px;
+  }
+  .epilogue h2 {
+    font-family:var(--serif); font-weight:500; font-size:clamp(1.9rem,5vw,2.8rem);
+    line-height:1.1; margin:0 0 18px; letter-spacing:-.01em;
+  }
+  .breath {
+    font-family:var(--serif); font-size:1.13rem; line-height:1.85; color:var(--ink-2);
+  }
+  .breath b { color:var(--ink); font-weight:600; }
+  .breath .d { color:var(--gold); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* date stones */
+  .stones { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin:26px 0 0; }
+  .stone {
+    position:relative; font-family:inherit; text-align:left; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:9px;
+    padding:10px 12px; color:var(--ink); min-height:78px;
+  }
+  .stone:hover { border-color:var(--gold); }
+  .stone .sy {
+    display:block; font-family:var(--serif); font-size:1.15rem; color:var(--gold);
+    font-variant-numeric:tabular-nums; line-height:1.2;
+  }
+  .stone .se { display:block; font-size:.76rem; color:var(--ink-2); margin-top:4px; line-height:1.4; }
+  .stone:not(.on) .se { visibility:hidden; }
+  .stone:not(.on)::after {
+    content:"tap to reveal"; position:absolute; left:12px; bottom:10px;
+    font-size:.66rem; color:var(--ink-3);
+  }
+  .stones-tools { margin:14px 0 0; display:flex; gap:10px; }
+  .stones-tools button {
+    font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
+    background:var(--card-2); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px;
+  }
+
+  /* credits */
+  .credits { background:#0A0B0F; color:#E8E4D8; margin-top:70px; padding:80px 0 90px; text-align:center; }
+  :root[data-theme="light"] .credits { background:#1C1E26; }
+  .credits .ep-kicker { color:var(--era1); }
+  .credits h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,4.5vw,2.6rem); margin:0 0 8px; color:#F2EFE6; }
+  .credits .sub { color:#8D919C; font-size:.9rem; margin:0 0 46px; }
+  .cred-act {
+    font-size:.7rem; letter-spacing:.24em; text-transform:uppercase; font-weight:650;
+    margin:44px 0 18px; color:var(--ca, var(--gold));
+  }
+  .cred { margin:0 0 15px; }
+  .cred .cn { font-family:var(--serif); font-size:1.18rem; color:#F2EFE6; display:block; line-height:1.3; }
+  .cred .cr { font-size:.78rem; color:#8D919C; display:block; margin-top:1px; }
+  .fin {
+    font-family:var(--serif); font-style:italic; font-size:1.5rem; color:var(--gold);
+    margin:70px 0 0;
+  }
+  .foot { text-align:center; color:var(--ink-3); font-size:.78rem; padding:40px 22px 120px; }
+  .foot a { color:var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+    .reveal { opacity:1; transform:none; }
+    .m1 .plane { transform:none; opacity:1; } .m1 .beacon { transform:none; opacity:1; }
+    .m2 .star { transform:none; opacity:1; } .m2 .glow { opacity:.55; }
+    .m3 .rocket { transform:none; opacity:1; } .m3 .burst { transform:none; opacity:.95; }
+    .m4 .ring { transform:none; opacity:1; }
+    .m5 .note { opacity:.7; }
+    .m6 .sun { transform:none; opacity:1; } .m6 .flag { transform:none; }
+    .hud-play { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
+
+<!-- ======================= TOUR-GUIDE HUD ======================= -->
+<div class="hud" aria-hidden="false">
+  <button class="hud-play" id="play" title="Play the tour (auto-scroll)" aria-label="Play or pause auto-scroll">▶</button>
+  <div class="hud-mid">
+    <div class="hud-year" id="hudYear">Day 1</div>
+    <div class="hud-era" id="hudEra">Prologue · scroll to begin</div>
+    <div class="hud-track"><div class="hud-marker" id="hudMarker"></div></div>
+  </div>
+</div>
+
+<!-- ======================= PROLOGUE ======================= -->
+<header class="prologue" data-year="Day 1" data-era="0">
+  <div class="stars" id="stars"></div>
+  <div class="wrap pro-inner">
+    <p class="eyebrow">Life in the UK · Chapter 4 · Story Mode</p>
+    <h1>Your First <em>Year</em></h1>
+    <p class="lede">
+      Chapter 4 looks like trivia — hundreds of names, dates and percentages with no plot to
+      hang them on. So we're giving it one: <b>you</b>. You've just landed in the UK, and this
+      is the diary of your first year here — the money you change on day one, the saints and
+      festivals that mark the calendar, the summer of sport, the nights out, the days off.
+      Live the year once, and the facts stop being a list. They become <b>things that happened to you</b>.
+    </p>
+    <div class="howto">
+      <div><b>🎫 The bar below is your pocket fact.</b> It always shows the number or date the current scene most wants you to keep.</div>
+      <div><b>🧳 Follow the tour.</b> Every scene hands you to the next one, the way a day hands you to the evening. That thread is the memory trick.</div>
+      <div><b>▶ Let the guide drive.</b> Press play and the tour rolls past at reading speed. Touch anything to take the controls back.</div>
+      <div><b>⌨️ Shortcuts.</b> Keys <kbd>1</kbd>–<kbd>6</kbd> jump between acts. <kbd>→</kbd> and <kbd>←</kbd> step scene by scene.</div>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to begin ↓</div>
+</header>
+
+<!-- ======================= ACT I ======================= -->
+<section class="act" data-era="1" id="act1">
+  <div class="act-card reveal" data-year="Arrivals" data-era="1">
+    <div class="act-motif">
+      <svg class="m1" viewBox="0 0 200 120" role="img" aria-label="A plane lands and four capital-city beacons light up">
+        <line x1="34" y1="34" x2="142" y2="82" stroke="var(--acc)" stroke-width="1.2" stroke-dasharray="5 6" opacity=".35"/>
+        <polygon class="plane" points="152,88 122,78 129,88 122,98" fill="var(--acc)"/>
+        <g class="beacon b1"><line x1="40" y1="101" x2="40" y2="92" stroke="var(--ink)" stroke-width="2"/><circle cx="40" cy="89" r="4.5" fill="var(--acc)"/></g>
+        <g class="beacon b2"><line x1="76" y1="101" x2="76" y2="92" stroke="var(--ink)" stroke-width="2"/><circle cx="76" cy="89" r="4.5" fill="var(--acc)"/></g>
+        <g class="beacon b3"><line x1="112" y1="101" x2="112" y2="92" stroke="var(--ink)" stroke-width="2"/><circle cx="112" cy="89" r="4.5" fill="var(--acc)"/></g>
+        <g class="beacon b4"><line x1="176" y1="101" x2="176" y2="92" stroke="var(--ink)" stroke-width="2"/><circle cx="176" cy="89" r="4.5" fill="var(--acc)"/></g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act I · Week one</p>
+    <h2>Arrivals</h2>
+    <p class="act-log">
+      Passport stamped, suitcase heavy, everything unfamiliar. Your first week is spent
+      learning the basics everyone else was born knowing: four capitals, one currency,
+      three extra languages — and a chant of four numbers that answers more test
+      questions than any king or queen: <b>84 – 8 – 5 – 3</b>.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="Day 1" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛬</div>
+      <h3><span class="yr">Day 1</span>Touchdown — four nations, four capitals</h3>
+      <p class="story">
+        The plane drops through the cloud and there it is: one state, four nations, and you need
+        all four capitals cold. <b>London</b> is the capital of the UK (and of England),
+        <b>Edinburgh</b> of Scotland, <b>Cardiff</b> of Wales, <b>Belfast</b> of Northern Ireland.
+        Four cities, four flags on the arrivals board. Say them once out loud in the taxi queue —
+        the test will ask, and it will try to sell you Glasgow.
+      </p>
+    </article>
+    <p class="because reveal">The taxi won't take euros — first stop, the cash machine…</p>
+
+    <article class="scene reveal" data-year="£ = 100p" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">💷</div>
+      <h3><span class="yr">Day 1, an hour later</span>The money in your pocket</h3>
+      <p class="story">
+        The machine deals you the <b>pound sterling (£)</b> — <span class="d">100 pence</span> to
+        the pound. The coins come in eight sizes: <b>1p, 2p, 5p, 10p, 20p, 50p, £1, £2</b>.
+        The notes come in four: <b>£5, £10, £20, £50</b> — and that's where the ladder
+        <b>stops</b>. There is no handbook £100 note, however hard the test winks at you.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the note ladder ends at <b>£50</b>. Eight coins, four notes — count them on your fingers once and it sticks.</aside>
+    </article>
+    <p class="because reveal">Cash in hand, you board the train north — and the station signs start speaking in tongues…</p>
+
+    <article class="scene reveal" data-year="3 languages" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗣️</div>
+      <h3><span class="yr">Day 3</span>The island speaks back</h3>
+      <p class="story">
+        English isn't travelling alone. In Wales the signs are bilingual because <b>Welsh</b> is
+        spoken widely and <b>taught in schools and universities</b>. In the <b>Scottish Highlands
+        and Islands</b> you'll hear <b>Gaelic</b>; in <b>Northern Ireland</b>, its cousin
+        <b>Irish Gaelic</b>. Three Celtic survivors, each pinned to its own corner of the map —
+        the same corners the Romans never fully tamed, if you remember Chapter 3.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Welsh = <b>schools</b> (it's the one formally taught), Gaelic = <b>Highlands &amp; Islands</b>, Irish Gaelic = <b>NI</b>. One language, one landmark each.</aside>
+    </article>
+    <p class="because reveal">And the train keeps stopping — at city after city you're supposed to be able to place…</p>
+
+    <article class="scene reveal" data-year="The cities" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏙️</div>
+      <h3><span class="yr">Day 5</span>The city roll-call</h3>
+      <p class="story">
+        Out the window they roll past. <b>England</b> gets the long list: Birmingham, Liverpool,
+        Leeds, Sheffield, Bristol, Manchester, Bradford, Newcastle upon Tyne, Plymouth,
+        Southampton, Norwich. <b>Wales</b> adds <b>Swansea and Newport</b>; <b>Scotland</b> adds
+        <b>Glasgow, Dundee and Aberdeen</b>; <b>Northern Ireland</b>'s listed city is
+        <b>Belfast</b> itself.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>Glasgow</b> is Scotland's biggest listed city — but <b>Edinburgh</b> is the capital. The test loves this swap more than any other in the chapter.</aside>
+    </article>
+    <p class="because reveal">Cities are where the people are — so who exactly shares this island with you?</p>
+
+    <article class="scene reveal" data-year="84–8–5–3" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🧑‍🤝‍🧑</div>
+      <h3><span class="yr">Week 2</span>The people — a chant of four numbers</h3>
+      <p class="story">
+        Here's the single most valuable chant in Chapter 4: <span class="d">84 – 8 – 5 – 3</span>.
+        That's the share of the population living in <b>England (84%)</b>, <b>Scotland (8%)</b>,
+        <b>Wales (5%)</b> and <b>Northern Ireland (under 3%)</b>. And the country is a nation of
+        arrivals like you: nearly <span class="d">10%</span> of people have a
+        <b>parent or grandparent born outside the UK</b>. As for equality — <b>discrimination is
+        against the law</b>, women are <b>about half the workforce</b>, girls leave school with
+        <b>better average qualifications than boys</b>, and <b>more women than men</b> study at university.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>84–8–5–3</i> — say it like a PIN code. Wales beats Northern Ireland (<b>5% vs under 3%</b>); don't let the little ones swap.</aside>
+    </article>
+    <p class="because reveal">And the crowd around you wasn't always this size — the register tells a growth story worth one more look…</p>
+
+    <article class="scene reveal" data-year="8→20→40" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">📈</div>
+      <h3><span class="yr">Week 2, the library</span>The population curve</h3>
+      <p class="story">
+        In <span class="d">1600</span> there were just over <b>4 million</b> people; in
+        <span class="d">1700</span>, <b>5 million</b>. Then the Victorian rocket:
+        <span class="d">1801</span> = <b>8 million</b>, <span class="d">1851</span> = <b>20 million</b>,
+        <span class="d">1901</span> = <b>40 million</b> — the population <b>more than doubles twice
+        in one century</b>, the same century Chapter 3's factories were roaring. After that it
+        climbs gently: <b>50m</b> in <span class="d">1951</span>, <b>57m</b> in <span class="d">1998</span>,
+        just under <b>60m</b> in <span class="d">2005</span>, just over <b>62m</b> in <span class="d">2010</span>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the 19th century is <b>8 → 20 → 40</b>. Everything before is single digits, everything after crawls. One doubling curve, three numbers.</aside>
+      <details class="notes">
+        <summary>Field notes — the full curve, decade stones</summary>
+        <div class="n-body">
+          <p>1600 · just over 4m — 1700 · 5m — 1801 · 8m — 1851 · 20m — 1901 · 40m — 1951 · 50m — 1998 · 57m — 2005 · just under 60m — 2010 · just over 62m.</p>
+          <p>Notice the phrasing the handbook uses: "just over" 4m and 62m, "just under" 60m — the test sometimes quotes it word for word.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">By the end of week two you have money, a map and the measure of the crowd. Then Sunday comes — and the bells start…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT II ======================= -->
+<section class="act" data-era="2" id="act2">
+  <div class="act-card reveal" data-year="Sunday" data-era="2">
+    <p class="act-prev"><b>Previously:</b> you landed, learned the chant — 84–8–5–3 — pocketed a currency
+    that stops at £50, and placed the cities. Now the church bells are ringing.</p>
+    <div class="act-motif">
+      <svg class="m2" viewBox="0 0 200 120" role="img" aria-label="A chapel window glows and four saints' stars appear — two fast, one soon after, one much later">
+        <g fill="var(--ink)">
+          <rect x="82" y="62" width="36" height="40"/>
+          <polygon points="78,62 100,44 122,62"/>
+          <rect x="97" y="36" width="6" height="12"/>
+        </g>
+        <circle class="glow" cx="100" cy="76" r="7" fill="var(--acc)"/>
+        <g fill="var(--acc)">
+          <polygon class="star s1" points="40,32 42.2,37.8 48,40 42.2,42.2 40,48 37.8,42.2 32,40 37.8,37.8"/>
+          <polygon class="star s2" points="66,18 68.2,23.8 74,26 68.2,28.2 66,34 63.8,28.2 58,26 63.8,23.8"/>
+          <polygon class="star s3" points="136,20 138.2,25.8 144,28 138.2,30.2 136,36 133.8,30.2 128,28 133.8,25.8"/>
+          <polygon class="star s4" points="166,38 168.2,43.8 174,46 168.2,48.2 166,54 163.8,48.2 158,46 163.8,43.8"/>
+        </g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act II · Sundays &amp; saints</p>
+    <h2>The Bells of the Island</h2>
+    <p class="act-log">
+      Your first Sunday, and the whole religious architecture of Britain is on display:
+      one church run by the monarch, one run by nobody in particular, a census that counts
+      the faithful — and four patron saints queuing up across the calendar,
+      <b>two of them with a day off attached</b>.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="70–21–4–2–1" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">📊</div>
+      <h3><span class="yr">Sunday morning</span>The census of souls</h3>
+      <p class="story">
+        Who believes what? The survey the handbook quotes: <span class="d">70%</span> identify as
+        <b>Christian</b>, <span class="d">21%</span> say they have <b>no religion</b>,
+        <span class="d">4%</span> are <b>Muslim</b>, <span class="d">2%</span> <b>Hindu</b>,
+        <span class="d">1%</span> <b>Sikh</b>, and <b>fewer than 0.5%</b> each are <b>Jewish</b> or
+        <b>Buddhist</b> (with 2% for other religions). The UK is <b>historically Christian
+        but thoroughly multi-faith</b> — your festival calendar in Act III will prove it.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> second chant of the chapter — <i>70 – 21 – 4 – 2 – 1</i>, sliding downhill. Learn it beside 84–8–5–3 and you own both stat questions.</aside>
+    </article>
+    <p class="because reveal">Seventy percent Christian — but Christian in which church? That question once cost a king his head, and it built the church on your corner…</p>
+
+    <article class="scene reveal" data-year="1530s" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">⛪</div>
+      <h3><span class="yr">Sunday, 11 am</span>The King's church</h3>
+      <p class="story">
+        The <b>Church of England</b> is the <b>established church</b> — the official church of the
+        state, <b>Protestant</b>, born in the <span class="d">1530s</span> Reformation (Chapter 3's
+        royal divorce, remember). Abroad it's called the <b>Anglican Church</b> — and in Scotland and
+        the USA, the <b>Episcopal Church</b>. Its head is <b>the monarch</b>; its <b>spiritual
+        leader</b> is the <b>Archbishop of Canterbury</b>, chosen with the <b>Prime Minister</b>
+        involved and appointed by the monarch. Several of its <b>bishops sit in the House of Lords</b> —
+        church and state, still holding hands after five centuries.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the <b>monarch</b> is the head; Canterbury is only the <b>spiritual leader</b>. Swap them and the examiners collect their favourite wrong answer.</aside>
+    </article>
+    <p class="because reveal">Cross the border north, though, and the same God runs on an entirely different org chart…</p>
+
+    <article class="scene reveal" data-year="The Kirk" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏴󠁧󠁢󠁳󠁣󠁴󠁿</div>
+      <h3><span class="yr">Sunday, in Scotland</span>The Kirk and everyone else</h3>
+      <p class="story">
+        Scotland's national church is <b>Presbyterian</b> — governed not by bishops but by
+        <b>ministers and elders</b>, with a <b>Moderator</b> at its head who is <b>appointed
+        annually</b>: no permanent boss at all. <b>Wales and Northern Ireland have no established
+        church whatsoever.</b> And beyond the two national churches march the other Christian
+        traditions: <b>Baptists, Methodists, Presbyterians, Quakers and Roman Catholics</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> "Episcopal Church" is the <b>Church of England's name in Scotland</b> — the Church of <i>Scotland</i> itself is <b>Presbyterian</b>. Two churches share one border; keep their labels apart.</aside>
+    </article>
+    <p class="because reveal">Every church here honours a national saint — and the four of them are queued across your new calendar…</p>
+
+    <article class="scene reveal" data-year="1 Mar" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🍀</div>
+      <h3><span class="yr">The saints' queue</span>David, Patrick, George… then a long wait for Andrew</h3>
+      <p class="story">
+        Four nations, four patron saints, in strict calendar order: <b>St David</b> of Wales on
+        <span class="d">1 March</span>, <b>St Patrick</b> of Northern Ireland on
+        <span class="d">17 March</span>, <b>St George</b> of England on <span class="d">23 April</span> —
+        and then nothing for seven months until <b>St Andrew</b> of Scotland on
+        <span class="d">30 November</span>. Only the Celtic pair get a proper day off:
+        <b>Patrick's day is an official holiday in Northern Ireland</b> and <b>Andrew's in
+        Scotland</b>; England and Wales work straight through their saints' days.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> two saints in March, one in April, one alone in November — and only <b>Patrick and Andrew</b> bring a holiday. David and George clock in as usual.</aside>
+    </article>
+    <p class="because reveal">Four saints are just the skeleton of the year. Now hang the rest of the calendar on it — every feast, fast and firework of your first twelve months…</p>
+
+  </div>
+</section>
+<!-- ======================= ACT III ======================= -->
+<section class="act" data-era="3" id="act3">
+  <div class="act-card reveal" data-year="The calendar" data-era="3">
+    <p class="act-prev"><b>Previously:</b> you met the two national churches — the monarch's and the
+    Moderator's — and queued up the four saints: 1 March, 17 March, 23 April, 30 November.</p>
+    <div class="act-motif">
+      <svg class="m3" viewBox="0 0 200 120" role="img" aria-label="A rocket climbs and the year bursts open in fireworks">
+        <g class="rocket">
+          <line x1="100" y1="96" x2="100" y2="72" stroke="var(--acc)" stroke-width="2.5"/>
+          <polygon points="100,64 96,74 104,74" fill="var(--acc)"/>
+        </g>
+        <g class="burst k1" stroke="var(--acc)" stroke-width="1.6" fill="none">
+          <line x1="100" y1="46" x2="100" y2="26"/><line x1="100" y1="46" x2="114" y2="32"/>
+          <line x1="100" y1="46" x2="120" y2="46"/><line x1="100" y1="46" x2="114" y2="60"/>
+          <line x1="100" y1="46" x2="86" y2="60"/><line x1="100" y1="46" x2="80" y2="46"/>
+          <line x1="100" y1="46" x2="86" y2="32"/><line x1="100" y1="46" x2="100" y2="66"/>
+        </g>
+        <g class="burst k2" stroke="var(--acc)" stroke-width="1.3" fill="none" opacity=".8">
+          <line x1="52" y1="38" x2="52" y2="26"/><line x1="52" y1="38" x2="62" y2="30"/>
+          <line x1="52" y1="38" x2="42" y2="30"/><line x1="52" y1="38" x2="62" y2="46"/><line x1="52" y1="38" x2="42" y2="46"/>
+        </g>
+        <g class="burst k3" stroke="var(--acc)" stroke-width="1.3" fill="none" opacity=".8">
+          <line x1="150" y1="30" x2="150" y2="18"/><line x1="150" y1="30" x2="160" y2="22"/>
+          <line x1="150" y1="30" x2="140" y2="22"/><line x1="150" y1="30" x2="160" y2="38"/><line x1="150" y1="30" x2="140" y2="38"/>
+        </g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act III · One year of festivals</p>
+    <h2>The Wheel of the Year</h2>
+    <p class="act-log">
+      Now live the whole calendar once, January to December. The test only ever asks two
+      things about a festival: <b>when is it</b>, and <b>what does it celebrate</b>.
+      Picture a single year and pin everything to it — fixed days on one hand,
+      moving feasts on the other.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1 Jan" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎆</div>
+      <h3><span class="yr">1 January</span>Midnight — and Scotland does it bigger</h3>
+      <p class="story">
+        Your year opens with fireworks. <b>New Year, 1 January, is a public holiday</b>,
+        celebrated the night of <b>31 December</b>. In Scotland that night has its own name —
+        <b>Hogmanay</b> — and the party is so serious that <span class="d">2 January</span> is
+        <b>an extra holiday in Scotland only</b>. One country, two days to recover.
+      </p>
+    </article>
+    <p class="because reveal">The decorations come down, winter drags — and the shops fill with hearts…</p>
+
+    <article class="scene reveal" data-year="14 Feb" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">💘</div>
+      <h3><span class="yr">February → June</span>Spring's little days</h3>
+      <p class="story">
+        <b>Valentine's Day, <span class="d">14 February</span></b>: cards and gifts, sometimes
+        <b>anonymous cards to secret admirers</b>. <b>April Fool's Day, <span class="d">1 April</span></b>:
+        jokes on each other — but <b>only until midday</b>; an afternoon prank makes <i>you</i> the fool.
+        <b>Mothering Sunday</b> floats — it's the <b>Sunday three weeks before Easter</b> — while
+        <b>Father's Day</b> is anchored to the <b>third Sunday in June</b>. One parent moves with
+        the moon, the other stays put.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Mum <b>floats</b> (three weeks before Easter), Dad is <b>fixed</b> (third Sunday of June). And April foolery has a <b>midday curfew</b>.</aside>
+    </article>
+    <p class="because reveal">And why does Mothering Sunday float? Because Easter itself floats — the great moving feast of the whole year…</p>
+
+    <article class="scene reveal" data-year="Easter" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🥞</div>
+      <h3><span class="yr">March or April</span>Pancakes, ashes, and the moving feast</h3>
+      <p class="story">
+        <b>Easter</b> lands in <b>March or April</b> and drags a whole season with it. The sequence:
+        <b>Shrove Tuesday</b> — <b>Pancake Day</b>, eat up the rich food; then <b>Ash Wednesday</b>,
+        when churchgoers take an <b>ash cross on the forehead</b> and <b>Lent</b> begins — the
+        <span class="d">40 days</span> before Easter when people traditionally <b>fast or give
+        something up</b>. It ends with <b>Good Friday</b> (marking <b>Christ's death</b>) and
+        <b>Easter Sunday</b> (his <b>rising</b>). <b>Good Friday and Easter Monday are public
+        holidays</b>, and <b>Easter eggs symbolise new life</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the chain is <i>Pancakes → Ashes → 40 days → Friday death → Sunday rising</i>. If you can say the chain, you can answer any Easter question they build.</aside>
+    </article>
+    <p class="because reveal">Easter isn't the only feast that moves. Almost every faith festival in your new home floats with its own calendar — with exactly one exception…</p>
+
+    <article class="scene reveal" data-year="14 Apr" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🪔</div>
+      <h3><span class="yr">Through the year</span>The festivals of faith — and the one fixed date</h3>
+      <p class="story">
+        <b>Vaisakhi</b>, the Sikh festival of <b>the founding of the Khalsa</b>, is celebrated with
+        parades, dancing and singing on <span class="d">14 April</span> — <b>the only faith festival
+        with a fixed date</b>. Everything else moves: <b>Eid al-Fitr</b> marks <b>the end of
+        Ramadan</b>, thanking Allah for the strength to fast; <b>Eid ul Adha</b> remembers
+        <b>Ibrahim's willingness to sacrifice his son</b> (in Britain, any animal sacrifice must
+        happen in a <b>slaughterhouse</b>). <b>Diwali</b> — the <b>Festival of Lights</b>, October or
+        November, <span class="d">5 days</span> — celebrates the <b>victory of good over evil</b> for
+        <b>Hindus AND Sikhs</b>, most famously in <b>Leicester</b>. <b>Hannukah</b>, November or
+        December, runs <span class="d">8 days</span> with a <b>menorah candle lit each evening</b>,
+        remembering the Jewish <b>struggle for religious freedom</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the two Eids are the exam's favourite swap — <b>al-Fitr ends Ramadan</b>, <b>ul Adha is Ibrahim's sacrifice</b>. And Diwali belongs to <b>Hindus and Sikhs together</b>, never Hindus alone.</aside>
+    </article>
+    <p class="because reveal">The nights draw in, the clocks fall back — and the autumn throws its one-two-three punch…</p>
+
+    <article class="scene reveal" data-year="5 Nov" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎇</div>
+      <h3><span class="yr">31 Oct · 5 Nov · 11 Nov</span>Autumn's one-two-three</h3>
+      <p class="story">
+        Twelve days, three fixtures. <b>Halloween, <span class="d">31 October</span></b> — an ancient
+        <b>pagan</b> festival: costumes, <b>trick or treat</b>, pumpkin lanterns. <b>Bonfire Night,
+        <span class="d">5 November</span></b> — fireworks remember <span class="d">1605</span>, when
+        <b>Guy Fawkes</b> and his group plotted to <b>blow up the Protestant king inside the Houses
+        of Parliament</b> (you met this plot in Chapter 3). And <b>Remembrance Day,
+        <span class="d">11 November</span></b> — honouring the war dead of <b>WWI (ended
+        <span class="d">1918</span>)</b> and every war since: <b>poppies</b> on lapels, a
+        <b>two-minute silence at 11 am</b>, wreaths at the <b>Cenotaph in Whitehall</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>31/10 → 5/11 → 11/11</i> — pagan night, gunpowder night, poppy morning. Three beats, twelve days, in that order every year.</aside>
+    </article>
+    <p class="because reveal">And then the year closes the way years here always close — with lights in the windows and too much food…</p>
+
+    <article class="scene reveal" data-year="25 Dec" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎄</div>
+      <h3><span class="yr">24–26 December</span>Deep winter</h3>
+      <p class="story">
+        On <b>Christmas Eve (24 December)</b> many Christians go to church. <b>Christmas Day,
+        <span class="d">25 December</span></b> — a <b>public holiday</b> celebrating <b>the birth of
+        Jesus Christ</b> — brings <b>roast turkey, Christmas pudding and mince pies</b>, decorated
+        trees, cards, and children hanging <b>stockings for Father Christmas</b>. <b>Boxing Day,
+        <span class="d">26 December</span>, is also a public holiday.</b> Sprinkled through your year
+        were the <b>bank holidays</b> too — no religious meaning at all: <b>early May</b>,
+        <b>late May or early June</b>, and <b>August</b>; Northern Ireland adds <b>the Battle of the
+        Boyne anniversary in July</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Christmas gives you <b>two</b> public holidays in a row — the 25th <i>and</i> Boxing Day the 26th. Bank holidays = <b>May, May/June, August</b> + NI's July Boyne day.</aside>
+    </article>
+    <p class="because reveal">One full year lived. But wait — rewind to the summer. While you were busy with festivals, the whole country was watching something else entirely: sport…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT IV ======================= -->
+<section class="act" data-era="4" id="act4">
+  <div class="act-card reveal" data-year="Kick-off" data-era="4">
+    <p class="act-prev"><b>Previously:</b> you lived the wheel of the year — Hogmanay to Boxing Day,
+    with pancakes, Vaisakhi's fixed 14 April, and autumn's 31/10 · 5/11 · 11/11 punch.</p>
+    <div class="act-motif">
+      <svg class="m4" viewBox="0 0 200 120" role="img" aria-label="An Olympic torch burns and three Games appear — 1908, 1948, 2012">
+        <g>
+          <polygon points="48,66 66,66 61,100 53,100" fill="var(--ink)"/>
+          <ellipse cx="57" cy="64" rx="13" ry="5" fill="var(--ink)"/>
+          <path class="flame" d="M57,36 C64,44 66,52 57,60 C48,52 50,44 57,36 Z" fill="var(--acc)"/>
+        </g>
+        <g class="ring g1">
+          <circle cx="108" cy="56" r="13" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+          <text x="108" y="84" text-anchor="middle" font-size="9" fill="var(--ink-2)" font-family="inherit">1908</text>
+        </g>
+        <g class="ring g2">
+          <circle cx="140" cy="56" r="13" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+          <text x="140" y="84" text-anchor="middle" font-size="9" fill="var(--ink-2)" font-family="inherit">1948</text>
+        </g>
+        <g class="ring g3">
+          <circle cx="172" cy="56" r="13" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+          <text x="172" y="84" text-anchor="middle" font-size="9" fill="var(--ink-2)" font-family="inherit">2012</text>
+        </g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act IV · The sporting year</p>
+    <h2>The Games People Play</h2>
+    <p class="act-log">
+      Sixteen champions, nine sports, three Olympic Games — and every single name in the
+      handbook is welded to <b>exactly one achievement</b>. Learn the weld, ignore the
+      biography. This act ends in the greatest sporting summer Britain ever had.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1908·1948·2012" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏟️</div>
+      <h3><span class="yr">Three Games</span>London calling — three times</h3>
+      <p class="story">
+        The UK has hosted the <b>Olympic Games three times</b>: <span class="d">1908</span>,
+        <span class="d">1948</span> and <span class="d">2012</span> — the last one based in
+        <b>Stratford, East London</b>, where Britain finished <b>third in the medal table</b>.
+        The <b>Paralympics</b> have British roots: they grew from the work of
+        <b>Dr Sir Ludwig Guttmann</b>, a <b>German refugee</b> doctor at <b>Stoke Mandeville
+        hospital</b>, who used sport to rehabilitate injured servicemen. The cathedrals of the
+        sporting year: <b>Wembley Stadium</b> for football, the <b>Millennium Stadium in Cardiff</b> for Wales.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>1908 – 1948 – 2012</i>: forty years apart, then sixty-four. And the Paralympics = <b>Guttmann + Stoke Mandeville</b> — a refugee's gift to Britain.</aside>
+    </article>
+    <p class="because reveal">The stadiums are built — now fill them, starting with the games the whole nation plays…</p>
+
+    <article class="scene reveal" data-year="1966" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚽</div>
+      <h3><span class="yr">Saturday, 3 pm</span>The people's games</h3>
+      <p class="story">
+        <b>Football is the UK's most popular sport</b> — its first professional clubs formed in the
+        <b>late 19th century</b>, and <b>each UK nation has its own leagues and national team</b>.
+        England's only international trophy is the <span class="d">1966</span> <b>World Cup</b>,
+        won at home with <b>Bobby Moore</b> lifting the cup as captain. <b>Cricket</b> originated in
+        England; matches can last <b>up to five days and still end in a draw</b> — the most famous
+        series being <b>the Ashes against Australia</b> (<b>Sir Ian Botham</b> captained England and
+        set batting <i>and</i> bowling records). <b>Rugby</b> began in England in the <b>early 19th
+        century</b> and split into two codes — <b>union and league</b> — with the <b>Six Nations</b>
+        and <b>Super League</b> as their showcase competitions.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> five-day cricket <b>can still end in a draw</b> — the handbook finds this as funny as you do, and the test quotes it straight.</aside>
+    </article>
+    <p class="because reveal">Those are the team games. But this island also invented an entire summer of individual sport — on grass, greens and gallops…</p>
+
+    <article class="scene reveal" data-year="1872" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎾</div>
+      <h3><span class="yr">The old inventions</span>Grass, greens and gallops</h3>
+      <p class="story">
+        <b>Modern tennis</b> evolved in England in the <b>late 19th century</b> — the world's first
+        tennis club appeared at <b>Leamington Spa in <span class="d">1872</span></b>, and
+        <b>Wimbledon</b> remains <b>the oldest tennis tournament in the world</b> and <b>the only
+        Grand Slam played on grass</b>. <b>Golf</b> traces to <b>15th-century Scotland</b>;
+        <b>St Andrews</b> is its home, and <b>The Open Championship</b> is <b>the only golf "Major"
+        held outside the United States</b>. <b>Horse racing</b> goes all the way back to <b>Roman
+        times</b>: <b>Royal Ascot</b>, the <b>Grand National at Aintree</b>, the <b>Scottish Grand
+        National at Ayr</b> — with the <b>National Horseracing Museum at Newmarket, Suffolk</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> three "onlys" — Wimbledon: only Slam <b>on grass</b>; The Open: only Major <b>outside the USA</b>; and 1872 Leamington Spa: the <b>first tennis club anywhere</b>.</aside>
+    </article>
+    <p class="because reveal">Machines and oceans got their pioneers too — and one doctor ran his way into history at lunchtime…</p>
+
+    <article class="scene reveal" data-year="1954" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">⏱️</div>
+      <h3><span class="yr">Firsts</span>Four minutes, one world, no stopping</h3>
+      <p class="story">
+        <span class="d">1954</span>: <b>Sir Roger Bannister</b> becomes the <b>first man to run a
+        mile in under four minutes</b>. On the water, <b>Sir Francis Chichester</b> sails
+        <b>single-handed around the world</b> in <span class="d">1966/67</span> — and two years later
+        <b>Sir Robin Knox-Johnston</b> does it <b>without stopping</b>. On the track of a different
+        kind, <b>UK motor racing begins in <span class="d">1902</span></b>; <b>Sir Jackie Stewart</b>
+        wins the <b>Formula 1 championship three times</b>, followed in the champions' club by
+        <b>Damon Hill, Lewis Hamilton and Jenson Button</b>. Rowing has the annual
+        <b>Oxford–Cambridge boat race on the Thames</b>; skiing has <b>five centres in Scotland</b>
+        and <b>Europe's longest dry ski slope near Edinburgh</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Chichester <b>sailed alone</b> (1966/67); Knox-Johnston <b>sailed alone without stopping</b>. Same feat, one upgrade, two years apart.</aside>
+    </article>
+    <p class="because reveal">Firsts turn into hauls — and Britain's medal collectors start stacking gold in numbers the test will absolutely quiz you on…</p>
+
+    <article class="scene reveal" data-year="5 & 6" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🥇</div>
+      <h3><span class="yr">The collectors</span>Keepers of the gold</h3>
+      <p class="story">
+        Number-code the champions and they can't trick you. <b>Sir Steve Redgrave</b>: rowing gold at
+        <span class="d">five consecutive</span> Olympic Games. <b>Sir Chris Hoy</b>: Scottish cyclist,
+        <span class="d">six golds and one silver</span>. <b>Torvill &amp; Dean</b>: Olympic
+        <b>ice-dancing gold in <span class="d">1984</span></b>. <b>Dame Kelly Holmes</b>: <b>two
+        running golds in <span class="d">2004</span></b> — the same year <b>Dame Ellen MacArthur</b>
+        became the <b>fastest person to sail around the world single-handed</b>. In wheelchair
+        athletics, two racers each won the <b>London Marathon six times</b>: <b>Baroness Tanni
+        Grey-Thompson</b> (plus <span class="d">16 Paralympic medals</span>) and <b>David Weir</b>
+        (plus <span class="d">six golds over two Games</span>). And <b>Ellie Simmonds</b> took
+        Paralympic swimming golds in <b>2008 and 2012</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> Redgrave = <b>5 consecutive Games</b>, Hoy = <b>6 golds</b> — don't let the numbers migrate between names. And <b>two different</b> wheelchair racers won the marathon six times each.</aside>
+    </article>
+    <p class="because reveal">All of it was rehearsal. In your first summer here, one golden fortnight put five names into the history books at once…</p>
+
+    <article class="scene reveal" data-year="2012" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌟</div>
+      <h3><span class="yr">Summer 2012</span>The golden summer</h3>
+      <p class="story">
+        One year, five names — recite them like a relay team. <b>Sir Bradley Wiggins</b>: <b>first
+        Briton ever to win the Tour de France</b>. <b>Sir Mo Farah</b>: Olympic gold in the
+        <b>5,000 and 10,000 metres</b>. <b>Dame Jessica Ennis</b>: gold in the <b>heptathlon</b> —
+        seven events. <b>Sir Andy Murray</b>: the <b>US Open</b>, the <b>first British man to win a
+        Grand Slam singles title since <span class="d">1936</span></b>. <b>Ellie Simmonds</b>: gold
+        again in the Paralympic pool. All of it in and around <b>Stratford, East London</b>, with
+        Britain <b>third in the medal table</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>Wiggins rode, Farah ran, Ennis leapt, Murray served, Simmonds swam</i> — the 2012 five, one verb each.</aside>
+    </article>
+    <p class="because reveal">The stadium lights go down, the evenings are yours again — and this island's other national sport begins: culture…</p>
+
+  </div>
+</section>
+<!-- ======================= ACT V ======================= -->
+<section class="act" data-era="5" id="act5">
+  <div class="act-card reveal" data-year="Curtain up" data-era="5">
+    <p class="act-prev"><b>Previously:</b> three London Games, a four-minute mile, the medal collectors —
+    and the golden summer of 2012: Wiggins, Farah, Ennis, Murray, Simmonds.</p>
+    <div class="act-motif">
+      <svg class="m5" viewBox="0 0 200 120" role="img" aria-label="A gramophone plays and musical notes float away">
+        <rect x="62" y="92" width="72" height="9" rx="2" fill="var(--ink)"/>
+        <rect x="70" y="78" width="46" height="15" rx="2" fill="var(--ink)" opacity=".85"/>
+        <polygon points="112,82 146,42 162,54 120,88" fill="var(--ink)"/>
+        <circle cx="155" cy="47" r="11" fill="none" stroke="var(--ink)" stroke-width="3"/>
+        <g class="note n1" transform="translate(150,34)">
+          <circle cx="0" cy="6" r="3.4" fill="var(--acc)"/><line x1="3.4" y1="6" x2="3.4" y2="-8" stroke="var(--acc)" stroke-width="1.8"/><path d="M3.4,-8 q6,2 7,7" fill="none" stroke="var(--acc)" stroke-width="1.8"/>
+        </g>
+        <g class="note n2" transform="translate(168,28)">
+          <circle cx="0" cy="6" r="3.4" fill="var(--acc)"/><line x1="3.4" y1="6" x2="3.4" y2="-8" stroke="var(--acc)" stroke-width="1.8"/>
+        </g>
+        <g class="note n3" transform="translate(136,22)">
+          <circle cx="0" cy="6" r="3.4" fill="var(--acc)"/><line x1="3.4" y1="6" x2="3.4" y2="-8" stroke="var(--acc)" stroke-width="1.8"/><path d="M3.4,-8 q6,2 7,7" fill="none" stroke="var(--acc)" stroke-width="1.8"/>
+        </g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act V · Nights out</p>
+    <h2>The Night Out</h2>
+    <p class="act-log">
+      The densest name-list in the whole handbook — composers, painters, playwrights,
+      novelists, poets. So we do it as one long night on the town: concert hall, gig,
+      theatre, gallery, then home past the bookshop. The rule for every name:
+      <b>one person, one claim to fame</b>. Learn the weld, skip the biography.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1927" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎻</div>
+      <h3><span class="yr">7 pm — the concert hall</span>Seven composers, one chain</h3>
+      <p class="story">
+        First stop, the orchestra — seven names in rough order of birth. <b>Henry Purcell</b>:
+        organist at <b>Westminster Abbey</b>, a distinctly British sound. <b>George Frederick
+        Handel</b>: <b>German-born</b>, a British citizen from <span class="d">1727</span> —
+        <b>Water Music</b>, <b>Music for the Royal Fireworks</b>, the oratorio <b>Messiah</b>.
+        <b>Sir Edward Elgar</b>: <b>Pomp and Circumstance</b> — "Land of Hope and Glory".
+        <b>Gustav Holst</b>: <b>The Planets</b>, with Jupiter reborn as the hymn <b>"I Vow to Thee,
+        My Country"</b>. <b>Ralph Vaughan Williams</b>: music steeped in <b>English folk tunes</b>.
+        <b>Sir William Walton</b>: <b>coronation marches</b>. <b>Benjamin Britten</b>: the operas
+        <b>Peter Grimes</b> and <b>Billy Budd</b>, plus <b>A Young Person's Guide to the
+        Orchestra</b> — built on a Purcell theme — and the <b>Aldeburgh festival in Suffolk</b>.
+        The season that binds them: <b>the Proms</b>, eight weeks of orchestral summer,
+        <b>run by the BBC since <span class="d">1927</span></b>, with the televised
+        <b>Last Night</b> at the <b>Royal Albert Hall</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>Holst wrote The Planets; Elgar wrote Land of Hope and Glory</b> — the single most-swapped pair in the chapter. And Britten's <i>Young Person's Guide</i> loops back to a <b>Purcell</b> theme.</aside>
+    </article>
+    <p class="because reveal">The concert ends early. Good — because three streets away the amps are warming up…</p>
+
+    <article class="scene reveal" data-year="1960s" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎸</div>
+      <h3><span class="yr">9 pm — the gig</span>From the Sixties to September's prize</h3>
+      <p class="story">
+        Pop history in one breath: <b>The Beatles and The Rolling Stones</b> lead the British sound
+        from the <span class="d">1960s</span>; <b>punk</b> kicks the door in during the <b>late
+        1970s</b>; <b>boy and girl bands</b> rule the <b>1990s</b>. The big rooms: <b>Wembley
+        Stadium</b>, <b>The O2</b> in Greenwich, the <b>SECC in Glasgow</b>. The summer fields:
+        <b>Glastonbury</b>, the <b>Isle of Wight</b>, the <b>V Festival</b> — and Wales's
+        <b>National Eisteddfod</b>, a festival of music, dance and <b>Welsh-language poetry</b>.
+        The silverware: the <b>Mercury Music Prize</b> each <b>September</b> for the <b>best album
+        from the UK and Ireland</b>, and the <b>Brit Awards</b> for best British group and solo artist.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> decades in order — <i>'60s Beatles/Stones → late-'70s punk → '90s boy &amp; girl bands</i>. Mercury = <b>album</b>, <b>September</b>, <b>UK &amp; Ireland</b>.</aside>
+    </article>
+    <p class="because reveal">Past the gig venue, the West End glows — Theatreland, where one murder mystery has refused to close since 1952…</p>
+
+    <article class="scene reveal" data-year="1952" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎭</div>
+      <h3><span class="yr">11 pm — Theatreland</span>The play that never closes</h3>
+      <p class="story">
+        London's <b>West End</b> is "Theatreland", and its record-holder is Agatha Christie's
+        <b>The Mousetrap</b> — running since <span class="d">1952</span>, <b>the longest initial run
+        in history</b>. Before it came <b>Gilbert and Sullivan</b>'s comic operas — <b>HMS Pinafore,
+        The Pirates of Penzance, The Mikado</b>; after it, <b>Andrew Lloyd Webber</b> —
+        <b>Jesus Christ Superstar</b> and <b>Evita</b> (both with <b>Tim Rice</b>), <b>Cats</b>,
+        <b>The Phantom of the Opera</b>. At Christmas the family tradition is <b>pantomime</b>,
+        where the <b>Dame is a woman played by a man</b> and the horse is two actors sharing a
+        costume. Each summer the <b>Edinburgh Festival</b> takes over Scotland's capital — its
+        <b>Fringe</b> is the experimental wing — and London's stage honours are the
+        <b>Laurence Olivier Awards</b>, named for the great Shakespearean actor.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Mousetrap = <b>1952</b> — the same decade-door as the Queen's accession. Lloyd Webber wrote with <b>Tim Rice</b>; Gilbert wrote with <b>Sullivan</b>. Keep the duos intact.</aside>
+    </article>
+    <p class="because reveal">The morning after, hangover notwithstanding, you do the civilised thing — the gallery…</p>
+
+    <article class="scene reveal" data-year="1984" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🖼️</div>
+      <h3><span class="yr">Next day — the gallery</span>Ten painters and a shark-tank prize</h3>
+      <p class="story">
+        Walk the rooms in order. <b>Thomas Gainsborough</b>: <b>portraits</b> in country settings.
+        <b>David Allan</b>: Scottish portraitist — <b>The Origin of Painting</b>. <b>Joseph
+        Turner</b>: modern-feeling <b>landscapes</b> that raised the whole genre. <b>John
+        Constable</b>: landscapes of <b>Dedham Vale</b> on the Suffolk–Essex border. The
+        <b>Pre-Raphaelites</b> — <b>Holman Hunt, Rossetti, Millais</b> — bright, detailed religious
+        and literary scenes. <b>Sir John Lavery</b>: Northern Irish painter of <b>the Royal
+        Family</b>. <b>Henry Moore</b>: huge <b>bronze abstract sculptures</b>. <b>John Petts</b>:
+        Welsh <b>engravings and stained glass</b>. <b>Lucian Freud</b>: <b>German-born</b>
+        portraitist. <b>David Hockney</b>: <b>1960s pop art</b>. The houses that hold them:
+        <b>National Gallery, Tate Britain and Tate Modern</b> in London, the <b>National Museum in
+        Cardiff</b>, the <b>National Gallery of Scotland in Edinburgh</b>. And the annual
+        controversy: the <b>Turner Prize</b>, founded <span class="d">1984</span> for
+        <b>contemporary art</b>, shortlisting four works at <b>Tate Britain</b> — winners include
+        <b>Damien Hirst</b> and <b>Richard Wright</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> Britain's two famous <b>German-born</b> adopted sons are the composer <b>Handel</b> and the painter <b>Lucian Freud</b>. Constable = <b>Dedham Vale</b>; Turner = landscapes in general — don't cross the easels.</aside>
+    </article>
+    <p class="because reveal">Out of the gallery, the city itself becomes the exhibition — every building on the walk home has a name attached…</p>
+
+    <article class="scene reveal" data-year="Wren" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏛️</div>
+      <h3><span class="yr">The walk home</span>Stones, gardens and hemlines</h3>
+      <p class="story">
+        The architecture timeline, street by street: <b>medieval cathedrals</b> still standing at
+        <b>Durham, Lincoln, Canterbury and Salisbury</b>; the <b>White Tower</b> of the Tower of
+        London, a <b>Norman keep built for William the Conqueror</b>. Then <b>Inigo Jones</b> with
+        the classical <b>Queen's House at Greenwich</b> and <b>Banqueting House in Whitehall</b>;
+        <b>Sir Christopher Wren</b>'s new <b>St Paul's Cathedral</b>; the Scot <b>Robert Adam</b>,
+        whose interiors (<b>Dumfries House</b>) influenced <b>Bath's Royal Crescent</b>. The 19th
+        century goes <b>gothic revival</b> — the <b>Houses of Parliament</b> and <b>St Pancras
+        Station</b> — and the 20th sends <b>Sir Edwin Lutyens</b> abroad to design <b>New Delhi</b>
+        and home again to build the <b>Cenotaph</b>. In the gardens: <b>Lancelot "Capability"
+        Brown</b>'s natural landscapes, <b>Gertrude Jekyll</b>'s colourful borders, and the
+        <b>Chelsea Flower Show</b>. The moderns: <b>Foster, Rogers, Hadid</b>. And in the shop
+        windows, British design: <b>Thomas Chippendale</b> (18th-century furniture), <b>Clarice
+        Cliff</b> (Art Deco ceramics), <b>Sir Terence Conran</b> (interiors), and the fashion trio
+        <b>Mary Quant, Alexander McQueen, Vivienne Westwood</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Lutyens is the <b>double-badge</b> man: <b>New Delhi</b> abroad, the <b>Cenotaph</b> at home — the same Cenotaph from Remembrance Day in Act III.</aside>
+    </article>
+    <p class="because reveal">And the last shop with its lights on, as ever, is the bookshop…</p>
+
+    <article class="scene reveal" data-year="1968" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">📚</div>
+      <h3><span class="yr">Midnight — the bookshop</span>One shelf of novelists</h3>
+      <p class="story">
+        Every novelist is welded to a book — read the spines: <b>Jane Austen</b> —
+        <b>Pride and Prejudice</b>, <b>Sense and Sensibility</b>. <b>Charles Dickens</b> —
+        <b>Oliver Twist</b>, <b>Great Expectations</b> (he gave English <b>Scrooge</b>).
+        <b>Thomas Hardy</b> — <b>Far from the Madding Crowd</b>. <b>Robert Louis Stevenson</b> —
+        <b>Treasure Island, Kidnapped, Jekyll &amp; Hyde</b>. <b>Sir Arthur Conan Doyle</b> — a
+        <b>Scottish doctor</b> who invented <b>Sherlock Holmes</b>. <b>Evelyn Waugh</b> — satire,
+        <b>Brideshead Revisited</b>. <b>Graham Greene</b> — <b>Brighton Rock</b>, <b>Our Man in
+        Havana</b>. <b>Sir Kingsley Amis</b> — <b>Lucky Jim</b>. <b>J.K. Rowling</b> —
+        <b>Harry Potter</b>. Plus <b>Agatha Christie</b>'s detectives, <b>Ian Fleming</b>'s
+        <b>James Bond</b>, and Tolkien's <b>Lord of the Rings</b> — voted the nation's
+        <b>best-loved novel in <span class="d">2003</span></b>. The prize shelf: the <b>Man Booker
+        Prize</b> for fiction, awarded since <span class="d">1968</span> — winners include
+        <b>Ian McEwan, Hilary Mantel, Julian Barnes</b>. Nobel laureates in literature:
+        <b>Golding, Heaney, Pinter</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the prize triangle — <i>Turner paints (1984), Mercury sings (September), Booker writes (1968)</i>. Three prizes, three art forms; never let the test cross the wires.</aside>
+    </article>
+    <p class="because reveal">And on the top shelf, older voices — the poets who were here before any of them…</p>
+
+    <article class="scene reveal" data-year="Poets' Corner" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🪶</div>
+      <h3><span class="yr">The top shelf</span>The poets' roll call</h3>
+      <p class="story">
+        It starts with <b>Beowulf</b>, the Anglo-Saxon epic, and <b>Chaucer</b>'s <b>Canterbury
+        Tales</b> (while <b>Sir Gawain and the Green Knight</b> tells of King Arthur's court).
+        <b>Milton</b> writes <b>Paradise Lost</b> from Protestant conviction; <b>Shakespeare</b>
+        leaves plays and <b>sonnets — 14 lines each</b>. <b>Wordsworth</b> walks the Lakes;
+        <b>Sir Walter Scott</b> sings the Scottish borders. The 19th century crowds in —
+        <b>Blake, Keats, Byron, Shelley, Tennyson, the Brownings</b> — and then the trenches of WWI
+        produce <b>Wilfred Owen and Siegfried Sassoon</b>. The moderns: <b>de la Mare, Masefield,
+        Betjeman, Ted Hughes</b>. Many of them lie together in <b>Poets' Corner, Westminster
+        Abbey</b> — where this act's very first name, Purcell, played the organ.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the <b>WWI poets are Owen and Sassoon</b> — Hughes and Betjeman come later. And a sonnet is <b>14 lines</b>; the test likes that little number.</aside>
+      <details class="notes">
+        <summary>Field notes — the quoted lines to recognise</summary>
+        <div class="n-body">
+          <p>Browning: <i>"Oh, to be in England / Now that April's there"</i> · Byron: <i>"She walks in beauty, like the night"</i> · Wordsworth: <i>"I wander'd lonely as a cloud"</i> · Blake: <i>"Tyger! Tyger! Burning bright"</i> · Owen: <i>"What passing-bells for these who die as cattle?"</i></p>
+          <p>The test shows the line and asks for the poet — recognise, don't recite.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">Culture fills your evenings. But a British life is measured just as much by its days off — the food, the telly, the pub, and the green bits…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT VI ======================= -->
+<section class="act" data-era="6" id="act6">
+  <div class="act-card reveal" data-year="Day off" data-era="6">
+    <p class="act-prev"><b>Previously:</b> one long night out — seven composers, the Sixties sound,
+    the Mousetrap, ten painters, one shelf of novelists — and the prize triangle:
+    Turner paints, Mercury sings, Booker writes.</p>
+    <div class="act-motif">
+      <svg class="m6" viewBox="0 0 200 120" role="img" aria-label="The sun rises over the national parks and a flag takes the summit">
+        <circle class="sun" cx="146" cy="38" r="15" fill="var(--acc)"/>
+        <polygon points="16,101 72,38 128,101" fill="var(--ink)"/>
+        <polygon points="96,101 148,56 196,101" fill="var(--ink)" opacity=".8"/>
+        <g class="flag">
+          <line x1="72" y1="38" x2="72" y2="16" stroke="var(--ink)" stroke-width="2.5"/>
+          <polygon points="72,16 92,21 72,26" fill="var(--acc)"/>
+        </g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act VI · Days off</p>
+    <h2>The Great British Day Off</h2>
+    <p class="act-log">
+      What the country eats, watches and drinks — with the <b>age limits and fines the test
+      adores</b> — and then out the door: fifteen national parks, one very old Trust,
+      and the nine landmarks the handbook names. This is the act where your year
+      turns into a life.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="Sunday roast" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🍽️</div>
+      <h3><span class="yr">Sunday lunch</span>The table — one dish, one flower per nation</h3>
+      <p class="story">
+        Each nation brings a plate. <b>England</b>: <b>roast beef with Yorkshire pudding</b>
+        (oven-baked batter) — and, of course, <b>fish and chips</b>. <b>Wales</b>: <b>Welsh
+        cakes</b>, of flour, dried fruits and spices. <b>Scotland</b>: <b>haggis</b> — a sheep's
+        stomach stuffed with offal, suet, onions and oatmeal. <b>Northern Ireland</b>: the
+        <b>Ulster fry</b> — the full works, with soda and potato bread. Each nation wears a flower
+        too, pinned on for its saint's day: England the <b>rose</b>, Scotland the <b>thistle</b>,
+        Wales the <b>daffodil</b>, Northern Ireland the <b>shamrock</b> — grown grandly at
+        <b>Kew, Sissinghurst and Hidcote</b> (England), <b>Crathes and Inveraray</b> (Scotland),
+        <b>Bodnant Garden</b> (Wales) and <b>Mount Stewart</b> (NI).
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>rose–thistle–daffodil–shamrock</i>, worn on the saint's days you learned in Act II. The calendar and the buttonhole are the same fact.</aside>
+    </article>
+    <p class="because reveal">Lunch digested, curtains drawn — a hundred years of British screens are waiting…</p>
+
+    <article class="scene reveal" data-year="1896" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎬</div>
+      <h3><span class="yr">Since 1896</span>The pictures</h3>
+      <p class="story">
+        Films were <b>first shown publicly in the UK in <span class="d">1896</span></b>.
+        <b>Charlie Chaplin</b> becomes silent film's tramp; <b>Alfred Hitchcock</b> directs here
+        before Hollywood claims him (he died in <span class="d">1980</span>). In WWII, <b>In Which
+        We Serve</b> lifts wartime morale. <b>Ealing Studios</b> claims to be <b>the oldest
+        continuously working film studio in the world</b>; <b>Nick Park</b> wins <b>four Oscars</b>,
+        three of them for <b>Wallace and Gromit</b>; and the two biggest UK franchises are
+        <b>Harry Potter and James Bond</b>. Recent British Oscar-winners: <b>Colin Firth, Sir
+        Anthony Hopkins, Dame Judi Dench, Kate Winslet, Tilda Swinton</b>. The homegrown honours
+        are the <b>BAFTAs</b> — Britain's Oscars.
+      </p>
+      <details class="notes">
+        <summary>Field notes — the named films (year · title · director)</summary>
+        <div class="n-body">
+          <p>1935 · The 39 Steps · Hitchcock — 1945 · Brief Encounter · Lean — 1949 · The Third Man · Reed — 1954 · The Belles of St Trinian's · Launder — 1962 · Lawrence of Arabia · Lean — 1969 · Women in Love · Russell — 1973 · Don't Look Now · Roeg — 1981 · Chariots of Fire · Hudson — 1984 · The Killing Fields · Joffé — 1994 · Four Weddings and a Funeral · Newell — 2003 · Touching the Void · MacDonald.</p>
+          <p>David Lean appears <b>twice</b> — Brief Encounter and Lawrence of Arabia. The test usually shows a title and asks the year or director.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">The film ends, the telly goes on — and with it the one fine the handbook prints in bold…</p>
+
+    <article class="scene reveal" data-year="£1,000" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">📺</div>
+      <h3><span class="yr">1969 · £1,000</span>The telly and the licence</h3>
+      <p class="story">
+        British comedy has a family tree: medieval <b>jesters</b> → Shakespeare's comic characters →
+        18th-century <b>political cartoons</b> → the satirical magazines <b>Punch (1840s)</b> and
+        <b>Private Eye</b> → and in <span class="d">1969</span>, <b>Monty Python's Flying
+        Circus</b>, television's great leap forward. Watching any of it needs a <b>TV licence</b>:
+        <b>one covers every set in one home</b> (separate tenancies need their own), and watching
+        without one risks a fine of up to <span class="d">£1,000</span>. Over-75s get theirs
+        <b>free</b>; blind viewers get <b>50% off</b>. The licence fee funds the <b>BBC</b> —
+        <b>the only wholly state-funded media organisation independent of government</b>. The
+        social networks the handbook names, charmingly: <b>Facebook and Twitter</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> comedy's chain ends <i>Punch → Private Eye → Python 1969</i>. Licence: <b>£1,000 max fine, free at 75+, half-price for blind viewers</b>.</aside>
+    </article>
+    <p class="because reveal">Enough sitting down. The evening calls for the great British institution on the corner…</p>
+
+    <article class="scene reveal" data-year="16 → 18" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🍺</div>
+      <h3><span class="yr">Opening time</span>The pub rulebook</h3>
+      <p class="story">
+        Pubs usually open at <span class="d">11 am</span> (<b>noon on Sundays</b>). The age ladder:
+        at <span class="d">18</span> you can <b>buy alcohol</b> and enter <b>betting shops and
+        gambling clubs</b>; at <span class="d">16</span> you may drink <b>wine or beer with a
+        meal</b> in a hotel or restaurant — <b>with someone over 18</b> — and play the
+        <b>National Lottery</b> (under-16s cannot). Outside, even the dog is regulated: in public
+        it must wear a <b>collar with the owner's name and address</b>, and the owner must
+        <b>control it and clean up after it</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> everything <b>self-service is 18</b>; everything <b>supervised is 16</b>. That one sentence decides every age question in this act.</aside>
+    </article>
+    <p class="because reveal">And when the city finally wears you out, the island keeps its best medicine outdoors…</p>
+
+    <article class="scene reveal" data-year="1895" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🥾</div>
+      <h3><span class="yr">The green bits</span>Fifteen parks and three volunteers</h3>
+      <p class="story">
+        Britain walks. A vast network of <b>public footpaths</b> crosses the country, and
+        <span class="d">15 national parks</span> protect the wildest of it — in <b>England, Wales
+        and Scotland</b> (the handbook doesn't count any in NI). Guarding the rest is the
+        <b>National Trust</b>, founded in <span class="d">1895</span> by just <b>three
+        volunteers</b> — today it runs on <b>more than 61,000</b> of them, preserving buildings,
+        coastline and countryside.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>15 parks — England, Wales and Scotland only.</b> And the Trust's numbers rhyme: <b>3 volunteers then, 61,000+ now</b>.</aside>
+    </article>
+    <p class="because reveal">So lace your boots — your year ends with the grand tour itself: the nine landmarks the handbook names, one weekend each…</p>
+
+    <article class="scene reveal" data-year="The tour" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗼</div>
+      <h3><span class="yr">The final tour</span>Nine wonders of the UK</h3>
+      <p class="story">
+        <b>London</b> first: <b>Big Ben</b> — properly the <b>great bell</b>, over 150 years old,
+        its tower renamed <b>Elizabeth Tower</b> for the <b>2012 Diamond Jubilee</b>; the
+        <b>Tower of London</b>, begun in <span class="d">1066</span> for <b>William the
+        Conqueror</b>, home of the <b>Crown Jewels</b>, toured by <b>Yeoman Warders</b>
+        (Beefeaters); and the <b>London Eye</b> — <span class="d">443 ft (135 m)</span>, built for
+        the <b>millennium</b>. Then outward: the <b>Eden Project</b>'s giant plant biomes in
+        <b>Cornwall</b> (a charity); <b>Edinburgh Castle</b>, medieval, kept by <b>Historic
+        Scotland</b>; <b>Loch Lomond</b> — <b>the largest expanse of fresh water in mainland
+        Britain</b>, inside a <b>720 sq-mile</b> park; the <b>Giant's Causeway</b> in Northern
+        Ireland, rock columns formed <span class="d">50 million years ago</span>;
+        <b>Snowdonia</b> in Wales — <span class="d">838 sq miles</span>, crowned by <b>Snowdon,
+        Wales's highest mountain</b>; and England's <b>Lake District</b> —
+        <span class="d">885 sq miles</span>, its largest park, with <b>Windermere</b> the
+        best-known lake and <b>Wastwater</b> voted <b>Britain's favourite view in 2007</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>Loch Lomond</b> = largest <b>fresh water</b> in mainland Britain; the <b>Lake District</b> = England's largest <b>park</b> (885 vs Snowdonia's 838). Two superlatives, two different countries — keep them apart.</aside>
+    </article>
+    <p class="because reveal">And that's the year gone — twelve months, four nations, one very full diary. Time to close it the way all diaries close: with the summary page…</p>
+
+  </div>
+</section>
+<!-- ======================= EPILOGUE ======================= -->
+<section class="epilogue" data-year="Day 365" data-era="7">
+  <div class="wrap">
+    <p class="ep-kicker">Epilogue</p>
+    <h2>The whole year in one breath</h2>
+    <p class="breath">
+      You land among four capitals and a chant — <span class="d">84–8–5–3</span> — with
+      <b>eight coins, four notes</b> in your pocket and a Victorian population curve
+      (<span class="d">8 → 20 → 40</span>) behind the crowd. Sunday teaches you two churches —
+      <b>the monarch's (1530s)</b> and <b>the Moderator's</b> — and queues four saints:
+      <b>1 March, 17 March, 23 April, 30 November</b>, holidays only for Patrick and Andrew. Then
+      the year turns: <b>Hogmanay</b>, hearts on <b>14 February</b>, pancakes before Lent's
+      <b>40 days</b>, <b>Vaisakhi fixed on <span class="d">14 April</span></b> while every other
+      faith festival floats, autumn's punch of <span class="d">31/10 · 5/11 · 11/11</span>, and two
+      holidays wrapped in tinsel at Christmas. Summer belongs to sport — three London Games
+      (<span class="d">1908 · 1948 · 2012</span>), Bannister's four minutes
+      <b>(1954)</b>, Moore's World Cup <b>(1966)</b>, Redgrave's five and Hoy's six, and the golden
+      2012 five: <b>Wiggins, Farah, Ennis, Murray, Simmonds</b>. Evenings belong to culture —
+      seven composers under the Proms <b>(BBC since 1927)</b>, the Mousetrap running since
+      <span class="d">1952</span>, ten painters and a Turner Prize <b>(1984)</b>, a Booker shelf
+      <b>(since 1968)</b> and poets asleep in Westminster Abbey. And days off belong to the island
+      itself: roast beef, haggis, a <span class="d">£1,000</span> licence fine, a pub ladder of
+      <b>16 → 18</b>, <span class="d">15</span> national parks under a Trust founded by
+      <b>three volunteers (1895)</b> — and nine wonders from Big Ben to Wastwater,
+      Britain's favourite view.
+    </p>
+
+    <h2 style="margin-top:60px">Prove it — the year stones</h2>
+    <p class="lede" style="margin-top:0">Tap a stone to check yourself. If you can tell the story <i>around</i> any stone — which act, which day out — Chapter 4 is yours.</p>
+    <div class="stones-tools">
+      <button id="stonesAll">Reveal all</button>
+      <button id="stonesNone">Hide all</button>
+    </div>
+    <div class="stones" id="stones">
+      <button class="stone"><span class="sy">84–8–5–3</span><span class="se">Population share: England · Scotland · Wales · NI</span></button>
+      <button class="stone"><span class="sy">70–21–4–2–1</span><span class="se">Christian · none · Muslim · Hindu · Sikh</span></button>
+      <button class="stone"><span class="sy">~10%</span><span class="se">have a parent or grandparent born outside the UK</span></button>
+      <button class="stone"><span class="sy">£50</span><span class="se">where the note ladder stops (8 coins, 4 notes)</span></button>
+      <button class="stone"><span class="sy">1801 · 1851 · 1901</span><span class="se">population 8m → 20m → 40m</span></button>
+      <button class="stone"><span class="sy">1 Mar</span><span class="se">St David — Wales (no holiday)</span></button>
+      <button class="stone"><span class="sy">17 Mar</span><span class="se">St Patrick — NI (official holiday)</span></button>
+      <button class="stone"><span class="sy">23 Apr</span><span class="se">St George — England (no holiday)</span></button>
+      <button class="stone"><span class="sy">30 Nov</span><span class="se">St Andrew — Scotland (official holiday)</span></button>
+      <button class="stone"><span class="sy">2 Jan</span><span class="se">extra New Year holiday — Scotland only (Hogmanay)</span></button>
+      <button class="stone"><span class="sy">14 Feb</span><span class="se">Valentine's Day — anonymous cards allowed</span></button>
+      <button class="stone"><span class="sy">1 Apr</span><span class="se">April Fool — jokes until midday only</span></button>
+      <button class="stone"><span class="sy">14 Apr</span><span class="se">Vaisakhi — the Khalsa; the only fixed faith festival</span></button>
+      <button class="stone"><span class="sy">40 days</span><span class="se">Lent — begins Ash Wednesday, after Pancake Day</span></button>
+      <button class="stone"><span class="sy">31 Oct</span><span class="se">Halloween — ancient pagan roots</span></button>
+      <button class="stone"><span class="sy">5 Nov</span><span class="se">Bonfire Night — Guy Fawkes, 1605</span></button>
+      <button class="stone"><span class="sy">11 Nov</span><span class="se">Remembrance Day — WWI ended 1918; Cenotaph</span></button>
+      <button class="stone"><span class="sy">25–26 Dec</span><span class="se">Christmas Day and Boxing Day — both holidays</span></button>
+      <button class="stone"><span class="sy">1908 · 1948 · 2012</span><span class="se">the three London Olympics (2012: Stratford)</span></button>
+      <button class="stone"><span class="sy">Stoke Mandeville</span><span class="se">Dr Guttmann — birthplace of the Paralympics</span></button>
+      <button class="stone"><span class="sy">1872</span><span class="se">first tennis club — Leamington Spa</span></button>
+      <button class="stone"><span class="sy">1902</span><span class="se">first UK motor race</span></button>
+      <button class="stone"><span class="sy">1954</span><span class="se">Bannister — first sub-4-minute mile</span></button>
+      <button class="stone"><span class="sy">1966</span><span class="se">World Cup won at home — Bobby Moore; Chichester sets sail</span></button>
+      <button class="stone"><span class="sy">1984</span><span class="se">Torvill &amp; Dean — ice-dance gold · Turner Prize founded</span></button>
+      <button class="stone"><span class="sy">5 / 6</span><span class="se">Redgrave: 5 consecutive Games · Hoy: 6 golds</span></button>
+      <button class="stone"><span class="sy">2004</span><span class="se">Holmes' double gold · MacArthur sails the world</span></button>
+      <button class="stone"><span class="sy">2012 five</span><span class="se">Wiggins · Farah · Ennis · Murray · Simmonds</span></button>
+      <button class="stone"><span class="sy">1727</span><span class="se">Handel becomes a British citizen</span></button>
+      <button class="stone"><span class="sy">1927</span><span class="se">BBC starts running the Proms</span></button>
+      <button class="stone"><span class="sy">1952</span><span class="se">The Mousetrap opens — longest initial run ever</span></button>
+      <button class="stone"><span class="sy">1968</span><span class="se">Man Booker Prize founded</span></button>
+      <button class="stone"><span class="sy">1969</span><span class="se">Monty Python's Flying Circus</span></button>
+      <button class="stone"><span class="sy">1896</span><span class="se">first public film showings in the UK</span></button>
+      <button class="stone"><span class="sy">2003</span><span class="se">Lord of the Rings voted best-loved novel</span></button>
+      <button class="stone"><span class="sy">16 → 18</span><span class="se">supervised wine with a meal → buy it yourself</span></button>
+      <button class="stone"><span class="sy">£1,000</span><span class="se">max fine for watching TV without a licence</span></button>
+      <button class="stone"><span class="sy">15</span><span class="se">national parks — England, Wales, Scotland only</span></button>
+      <button class="stone"><span class="sy">1895</span><span class="se">National Trust — 3 founders, 61,000+ volunteers now</span></button>
+      <button class="stone"><span class="sy">443 ft</span><span class="se">the London Eye (135 m) — built for the millennium</span></button>
+      <button class="stone"><span class="sy">838 / 885</span><span class="se">sq miles: Snowdonia / Lake District</span></button>
+      <button class="stone"><span class="sy">50m years</span><span class="se">age of the Giant's Causeway</span></button>
+    </div>
+
+    <div class="credits">
+      <div class="wrap">
+        <p class="ep-kicker">Roll the credits</p>
+        <h2>Cast, in order of appearance</h2>
+        <p class="sub">Every name is welded to one achievement. If you can read this list and supply the weld, you're ready.</p>
+
+        <p class="cred-act" style="--ca:var(--era4)">Act IV · The sporting year</p>
+        <p class="cred"><span class="cn">Sir Roger Bannister</span><span class="cr">first four-minute mile, 1954</span></p>
+        <p class="cred"><span class="cn">Sir Jackie Stewart</span><span class="cr">three Formula 1 championships</span></p>
+        <p class="cred"><span class="cn">Bobby Moore</span><span class="cr">captain, 1966 World Cup</span></p>
+        <p class="cred"><span class="cn">Sir Ian Botham</span><span class="cr">England cricket captain — batting &amp; bowling records</span></p>
+        <p class="cred"><span class="cn">Jayne Torvill &amp; Christopher Dean</span><span class="cr">ice-dance gold, 1984</span></p>
+        <p class="cred"><span class="cn">Sir Steve Redgrave</span><span class="cr">gold at five consecutive Games</span></p>
+        <p class="cred"><span class="cn">Baroness Tanni Grey-Thompson</span><span class="cr">16 Paralympic medals · 6 London Marathons</span></p>
+        <p class="cred"><span class="cn">Dame Kelly Holmes</span><span class="cr">double running gold, 2004</span></p>
+        <p class="cred"><span class="cn">Dame Ellen MacArthur</span><span class="cr">fastest solo sail around the world, 2004</span></p>
+        <p class="cred"><span class="cn">Sir Chris Hoy</span><span class="cr">six Olympic golds, one silver</span></p>
+        <p class="cred"><span class="cn">David Weir</span><span class="cr">six golds over two Games · 6 London Marathons</span></p>
+        <p class="cred"><span class="cn">Sir Bradley Wiggins</span><span class="cr">first Briton to win the Tour de France</span></p>
+        <p class="cred"><span class="cn">Sir Mo Farah</span><span class="cr">5,000m &amp; 10,000m gold, 2012</span></p>
+        <p class="cred"><span class="cn">Dame Jessica Ennis</span><span class="cr">heptathlon gold, 2012</span></p>
+        <p class="cred"><span class="cn">Sir Andy Murray</span><span class="cr">2012 US Open — first British man since 1936</span></p>
+        <p class="cred"><span class="cn">Ellie Simmonds</span><span class="cr">Paralympic swimming gold, 2008 &amp; 2012</span></p>
+
+        <p class="cred-act" style="--ca:var(--era5)">Act V · The concert hall</p>
+        <p class="cred"><span class="cn">Henry Purcell</span><span class="cr">organist, Westminster Abbey</span></p>
+        <p class="cred"><span class="cn">George Frederick Handel</span><span class="cr">Water Music · Messiah — citizen 1727</span></p>
+        <p class="cred"><span class="cn">Sir Edward Elgar</span><span class="cr">"Land of Hope and Glory"</span></p>
+        <p class="cred"><span class="cn">Gustav Holst</span><span class="cr">The Planets</span></p>
+        <p class="cred"><span class="cn">Ralph Vaughan Williams</span><span class="cr">English folk made orchestral</span></p>
+        <p class="cred"><span class="cn">Sir William Walton</span><span class="cr">coronation marches</span></p>
+        <p class="cred"><span class="cn">Benjamin Britten</span><span class="cr">Peter Grimes · the Aldeburgh festival</span></p>
+
+        <p class="cred-act" style="--ca:var(--era5)">Act V · The gallery</p>
+        <p class="cred"><span class="cn">Gainsborough · Allan · Turner · Constable</span><span class="cr">portraits · Scotland · landscapes · Dedham Vale</span></p>
+        <p class="cred"><span class="cn">The Pre-Raphaelites</span><span class="cr">Holman Hunt · Rossetti · Millais</span></p>
+        <p class="cred"><span class="cn">Lavery · Moore · Petts</span><span class="cr">royal portraits · bronze sculpture · Welsh stained glass</span></p>
+        <p class="cred"><span class="cn">Lucian Freud &amp; David Hockney</span><span class="cr">German-born portraits · 1960s pop art</span></p>
+        <p class="cred"><span class="cn">Inigo Jones · Wren · Adam · Lutyens</span><span class="cr">Queen's House · St Paul's · Dumfries House · New Delhi &amp; the Cenotaph</span></p>
+        <p class="cred"><span class="cn">"Capability" Brown &amp; Gertrude Jekyll</span><span class="cr">landscapes · garden colour</span></p>
+        <p class="cred"><span class="cn">Chippendale · Cliff · Conran</span><span class="cr">furniture · Art Deco ceramics · interiors</span></p>
+        <p class="cred"><span class="cn">Quant · McQueen · Westwood</span><span class="cr">British fashion, three generations</span></p>
+
+        <p class="cred-act" style="--ca:var(--era5)">Act V · The bookshop</p>
+        <p class="cred"><span class="cn">Austen · Dickens · Hardy · Stevenson</span><span class="cr">Pride &amp; Prejudice · Oliver Twist · Madding Crowd · Treasure Island</span></p>
+        <p class="cred"><span class="cn">Conan Doyle · Waugh · Greene · Amis</span><span class="cr">Sherlock Holmes · Brideshead · Brighton Rock · Lucky Jim</span></p>
+        <p class="cred"><span class="cn">Christie · Fleming · Tolkien · Rowling</span><span class="cr">the Mousetrap &amp; Poirot · Bond · best-loved novel 2003 · Harry Potter</span></p>
+        <p class="cred"><span class="cn">Golding · Heaney · Pinter</span><span class="cr">Nobel laureates in literature</span></p>
+        <p class="cred"><span class="cn">Owen &amp; Sassoon</span><span class="cr">the war poets — from the trenches</span></p>
+
+        <p class="cred-act" style="--ca:var(--era6)">Act VI · The screen</p>
+        <p class="cred"><span class="cn">Charlie Chaplin</span><span class="cr">the silent tramp</span></p>
+        <p class="cred"><span class="cn">Alfred Hitchcock</span><span class="cr">The 39 Steps — then Hollywood</span></p>
+        <p class="cred"><span class="cn">David Lean</span><span class="cr">Brief Encounter · Lawrence of Arabia</span></p>
+        <p class="cred"><span class="cn">Nick Park</span><span class="cr">four Oscars — Wallace and Gromit</span></p>
+        <p class="cred"><span class="cn">Firth · Hopkins · Dench · Winslet · Swinton</span><span class="cr">the Oscar shelf</span></p>
+
+        <p class="fin">Twelve months, four nations, one diary — now go pass the thing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  Story companion to Chapter 4 of the official <i>Life in the UK</i> handbook, faithful to the study
+  guide at lifeintheuktests.co.uk. Figures follow the handbook's edition — the test follows the
+  handbook's wording, so should your answers.<br>
+  The trilogy: <a href="life-in-uk-chapter3-story.html">Ch 3 · The Island Story</a> ·
+  <b>Ch 4 · Your First Year</b> ·
+  <a href="life-in-uk-chapter5-story.html">Ch 5 · Follow the Power</a><br>
+  Revise the facts: <a href="life-in-uk-chapter4.html">Chapter 4 reference</a> · test yourself:
+  <a href="life-in-uk-quiz.html">the quiz</a>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* theme */
+  try {
+    var saved = localStorage.getItem("liuk-story-theme");
+    if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  } catch(e){}
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch(e){}
+  });
+
+  /* prologue stars */
+  var stars = document.getElementById("stars");
+  for (var i = 0; i < 42; i++) {
+    var s = document.createElement("i");
+    s.style.left = (Math.random()*100).toFixed(2) + "%";
+    s.style.top = (Math.random()*100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random()*4).toFixed(2) + "s";
+    stars.appendChild(s);
+  }
+
+  /* reveal on scroll */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+  /* ---- tour-guide HUD ---- */
+  var eraNames = [
+    "Prologue · your first year",
+    "Act I · Arrivals",
+    "Act II · Sundays & saints",
+    "Act III · The wheel of the year",
+    "Act IV · The sporting year",
+    "Act V · The night out",
+    "Act VI · Days off",
+    "Epilogue · the whole year"
+  ];
+  var eraColors = ["var(--gold)","var(--era1)","var(--era2)","var(--era3)","var(--era4)","var(--era5)","var(--era6)","var(--gold)"];
+  var hud = document.querySelector(".hud");
+  var hudYear = document.getElementById("hudYear");
+  var hudEra = document.getElementById("hudEra");
+  var marker = document.getElementById("hudMarker");
+  var marks = Array.prototype.slice.call(document.querySelectorAll("[data-year]"));
+  var current = null, ticking = false;
+
+  function update(){
+    ticking = false;
+    var mid = innerHeight * 0.5;
+    var active = marks[0];
+    for (var j = 0; j < marks.length; j++) {
+      if (marks[j].getBoundingClientRect().top < mid) active = marks[j];
+      else break;
+    }
+    if (active !== current) {
+      current = active;
+      hudYear.textContent = active.dataset.year;
+      hudEra.textContent = eraNames[+active.dataset.era] || eraNames[0];
+      hud.style.setProperty("--acc", eraColors[+active.dataset.era] || eraColors[0]);
+      if (!reduced) {
+        hudYear.classList.remove("pop");
+        void hudYear.offsetWidth;
+        hudYear.classList.add("pop");
+      }
+    }
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    marker.style.left = (p * 100).toFixed(2) + "%";
+  }
+  addEventListener("scroll", function(){
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
+
+  /* ---- play the tour (auto-scroll) ---- */
+  var playBtn = document.getElementById("play");
+  var playing = false, lastT = 0, rafId = 0;
+  var SPEED = 62; /* px per second */
+
+  function step(t){
+    if (!playing) return;
+    if (lastT) {
+      document.documentElement.scrollTop += SPEED * (t - lastT) / 1000;
+    }
+    lastT = t;
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) { stopPlay(); return; }
+    rafId = requestAnimationFrame(step);
+  }
+  function startPlay(){
+    playing = true; lastT = 0;
+    root.style.scrollBehavior = "auto";
+    playBtn.textContent = "❚❚";
+    playBtn.title = "Pause";
+    rafId = requestAnimationFrame(step);
+  }
+  function stopPlay(){
+    if (!playing) return;
+    playing = false;
+    cancelAnimationFrame(rafId);
+    root.style.scrollBehavior = "";
+    playBtn.textContent = "▶";
+    playBtn.title = "Play the tour (auto-scroll)";
+  }
+  playBtn.addEventListener("click", function(){ playing ? stopPlay() : startPlay(); });
+  ["wheel","touchstart","mousedown"].forEach(function(ev){
+    addEventListener(ev, function(e){
+      if (playing && e.target !== playBtn) stopPlay();
+    }, { passive: true });
+  });
+
+  /* ---- keyboard: 1-6 jump acts, arrows step scenes ---- */
+  var stops = Array.prototype.slice.call(document.querySelectorAll(".scene, .act-card, .prologue, .epilogue"));
+  addEventListener("keydown", function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key >= "1" && e.key <= "6") {
+      stopPlay();
+      var act = document.getElementById("act" + e.key);
+      if (act) act.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      stopPlay();
+      var mid = innerHeight * 0.5, idx = 0;
+      for (var k = 0; k < stops.length; k++) {
+        if (stops[k].getBoundingClientRect().top < mid) idx = k;
+      }
+      var next = e.key === "ArrowRight" ? Math.min(stops.length - 1, idx + 1) : Math.max(0, idx - 1);
+      stops[next].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    }
+  });
+
+  /* ---- year stones ---- */
+  document.querySelectorAll(".stone").forEach(function(b){
+    b.addEventListener("click", function(){ b.classList.toggle("on"); });
+  });
+  document.getElementById("stonesAll").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.add("on"); });
+  });
+  document.getElementById("stonesNone").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.remove("on"); });
+  });
+})();
+</script>
+</body>
+</html>

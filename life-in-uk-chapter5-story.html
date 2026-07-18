@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 5 · Follow the Power — how Britain runs, as one story</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --trap-bg:#EFEDE4; --trap-ink:#171B23;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --trap-bg:#22252D; --trap-ink:#F4F2EA;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.62;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  b { color:var(--ink); font-weight:650; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+
+  /* ---------- fixed controls ---------- */
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+  .themeToggle:hover { transform:translateY(-1px); }
+
+  /* ---------- Chain-of-command HUD ---------- */
+  .hud {
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    z-index:40; display:flex; align-items:center; gap:14px;
+    background:color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:14px;
+    padding:10px 16px; box-shadow:var(--shadow);
+    width:min(560px, calc(100vw - 24px));
+  }
+  .hud-play {
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--line); background:var(--card-2); color:var(--ink);
+    font-size:.9rem; cursor:pointer; display:grid; place-items:center;
+  }
+  .hud-play:hover { border-color:var(--acc, var(--gold)); }
+  .hud-mid { flex:1 1 auto; min-width:0; }
+  .hud-year {
+    font-family:var(--serif); font-size:1.5rem; line-height:1.1;
+    font-variant-numeric:tabular-nums; color:var(--acc, var(--gold));
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-year.pop { animation:yearpop .45s ease; }
+  @keyframes yearpop {
+    0% { opacity:0; transform:translateY(10px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  .hud-era {
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:650; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-track {
+    position:relative; height:6px; border-radius:3px; margin-top:7px; overflow:visible;
+    background:linear-gradient(to right,
+      var(--era1) 0 16.6%, var(--era2) 16.6% 33.3%, var(--era3) 33.3% 50%,
+      var(--era4) 50% 66.6%, var(--era5) 66.6% 83.3%, var(--era6) 83.3% 100%);
+    opacity:.85;
+  }
+  .hud-marker {
+    position:absolute; top:50%; left:0%; width:14px; height:14px;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:var(--ink); border:2.5px solid var(--page);
+    box-shadow:0 0 0 1.5px var(--ink);
+  }
+  @media (max-width:520px) {
+    .hud { gap:10px; padding:9px 12px; }
+    .hud-year { font-size:1.2rem; }
+  }
+
+  /* ---------- Prologue ---------- */
+  .prologue { min-height:92vh; display:flex; align-items:center; position:relative; overflow:hidden; }
+  .stars { position:absolute; inset:0; pointer-events:none; }
+  .stars i {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:var(--gold); opacity:.55; animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.15;} 50%{opacity:.7;} }
+  :root[data-theme="light"] .stars i { opacity:.3; }
+  .pro-inner { position:relative; padding:70px 0 120px; }
+  .eyebrow {
+    font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gold); font-weight:650; margin:0 0 20px;
+  }
+  h1 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.9rem, 8vw, 5.2rem); line-height:1.02; margin:0;
+    text-wrap:balance;
+  }
+  h1 em { font-style:italic; color:var(--gold); }
+  .lede { color:var(--ink-2); font-size:1.08rem; max-width:58ch; margin:24px 0 0; }
+  .lede b { color:var(--ink); }
+  .howto {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:38px 0 0; max-width:640px;
+  }
+  .howto div {
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:13px 15px; font-size:.85rem; color:var(--ink-2);
+  }
+  .howto b { display:block; color:var(--ink); margin-bottom:2px; }
+  .howto kbd {
+    font-family:inherit; font-size:.78em; border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:5px; padding:1px 6px; background:var(--card-2); color:var(--ink);
+  }
+  @media (max-width:560px){ .howto { grid-template-columns:1fr; } }
+  .scroll-cue {
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    color:var(--ink-3); font-size:.75rem; letter-spacing:.18em; text-transform:uppercase;
+    animation:cue 2.4s ease-in-out infinite;
+  }
+  @keyframes cue { 0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);} }
+
+  /* ---------- Act title cards ---------- */
+  .act-card {
+    min-height:88vh; display:flex; flex-direction:column; justify-content:center;
+    text-align:center; padding:60px 22px; position:relative;
+  }
+  .act-prev {
+    font-size:.8rem; color:var(--ink-3); font-style:italic; max-width:56ch;
+    margin:0 auto 34px; line-height:1.7;
+  }
+  .act-prev b { color:var(--ink-2); font-style:normal; }
+  .act-motif { width:min(300px, 62vw); margin:0 auto 26px; }
+  .act-motif svg { display:block; width:100%; height:auto; overflow:visible; }
+  .act-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--acc); margin:0 0 12px; font-variant-numeric:tabular-nums;
+  }
+  .act-card h2 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.2rem, 6vw, 3.7rem); line-height:1.05; margin:0; text-wrap:balance;
+  }
+  .act-log { color:var(--ink-2); max-width:52ch; margin:20px auto 0; font-size:1rem; }
+
+  /* ---------- Scenes & the thread ---------- */
+  .act { --acc:var(--gold); }
+  .act[data-era="1"] { --acc:var(--era1); } .act[data-era="2"] { --acc:var(--era2); }
+  .act[data-era="3"] { --acc:var(--era3); } .act[data-era="4"] { --acc:var(--era4); }
+  .act[data-era="5"] { --acc:var(--era5); } .act[data-era="6"] { --acc:var(--era6); }
+
+  .scenes { position:relative; padding:10px 0 30px; }
+  .scenes::before {
+    content:""; position:absolute; top:0; bottom:0; left:29px; width:2px;
+    background:linear-gradient(to bottom, transparent, var(--acc) 60px, var(--acc) calc(100% - 60px), transparent);
+    opacity:.35;
+  }
+  .scene { position:relative; padding:26px 0 6px 74px; }
+  .scene-dot {
+    position:absolute; left:22px; top:38px; width:16px; height:16px; border-radius:50%;
+    background:var(--page); border:3px solid var(--acc); z-index:1;
+  }
+  .scene h3 {
+    font-family:var(--serif); font-weight:550; font-size:1.55rem; line-height:1.15;
+    margin:0 0 4px; letter-spacing:-.005em;
+  }
+  .scene h3 .yr {
+    font-size:.85rem; color:var(--acc); font-variant-numeric:tabular-nums;
+    letter-spacing:.06em; display:block; margin-bottom:6px; font-family:var(--sans); font-weight:650;
+  }
+  .scene .glyph {
+    float:right; margin:2px 0 10px 16px; width:58px; height:58px; border-radius:50%;
+    background:color-mix(in srgb, var(--acc) 14%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
+    display:grid; place-items:center; font-size:1.65rem; user-select:none;
+  }
+  .story { color:var(--ink-2); margin:10px 0 0; }
+  .story b { color:var(--ink); }
+  .story .d {
+    color:var(--acc); font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .hook, .trap {
+    clear:both; border-radius:10px; padding:12px 15px; margin:16px 0 0;
+    font-size:.88rem; line-height:1.55;
+  }
+  .hook {
+    background:color-mix(in srgb, var(--acc) 10%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { display:inline; }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); }
+  .trap b { color:inherit; }
+  details.notes {
+    clear:both; margin:16px 0 0; border:1px dashed color-mix(in srgb, var(--acc) 40%, var(--line));
+    border-radius:10px; background:var(--card); font-size:.88rem;
+  }
+  details.notes summary {
+    cursor:pointer; padding:10px 15px; font-weight:650; color:var(--acc);
+    list-style:none; user-select:none;
+  }
+  details.notes summary::before { content:"▸ "; }
+  details.notes[open] summary::before { content:"▾ "; }
+  details.notes .n-body { padding:0 15px 12px; color:var(--ink-2); }
+  details.notes .n-body p { margin:6px 0; }
+
+  .because {
+    position:relative; margin:30px 0 4px; padding:0 0 0 74px;
+    font-family:var(--serif); font-style:italic; font-size:1.02rem; color:var(--ink-3);
+  }
+  .because::before {
+    content:"↓"; position:absolute; left:23px; top:0; font-style:normal;
+    color:var(--acc); font-family:var(--sans); font-weight:700;
+  }
+  @media (max-width:640px) {
+    .scene { padding-left:52px; }
+    .scenes::before { left:19px; }
+    .scene-dot { left:12px; }
+    .because { padding-left:52px; }
+    .because::before { left:13px; }
+    .scene .glyph { width:46px; height:46px; font-size:1.3rem; }
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* ---------- Act motif SVG animations (play when .in) ---------- */
+  /* Act I — the unwritten rulebook writes itself, then fades to ghost lines */
+  .m1 .w { stroke-dasharray:76; stroke-dashoffset:76; }
+  .in .m1 .w1 { transition:stroke-dashoffset 1.2s ease .5s, opacity 1.4s ease 3.2s; stroke-dashoffset:0; opacity:.28; }
+  .in .m1 .w2 { transition:stroke-dashoffset 1.2s ease 1.1s, opacity 1.4s ease 3.5s; stroke-dashoffset:0; opacity:.28; }
+  .in .m1 .w3 { transition:stroke-dashoffset 1.2s ease 1.7s, opacity 1.4s ease 3.8s; stroke-dashoffset:0; opacity:.28; }
+  .m1 .crown-g { transform:translateY(-14px); opacity:0; transition:transform 1.2s ease .2s, opacity 1s ease .2s; }
+  .in .m1 .crown-g { transform:translateY(0); opacity:1; }
+  /* Act II — the lamp over No. 10 glows */
+  .m2 .ten { opacity:0; transition:opacity 1.2s ease .9s; }
+  .in .m2 .ten { opacity:1; }
+  .in .m2 .glow { animation:lampglow 2.8s ease-in-out infinite .6s; }
+  .m2 .glow { opacity:.12; }
+  @keyframes lampglow { 0%,100%{opacity:.12;} 50%{opacity:.5;} }
+  /* Act III — the world turns, a satellite of clubs orbits */
+  .m3 .orbit { transform-origin:100px 60px; }
+  .in .m3 .orbit { animation:orbitspin 12s linear infinite; }
+  @keyframes orbitspin { to { transform:rotate(360deg); } }
+  .m3 .mer { opacity:0; transition:opacity 1.6s ease .5s; }
+  .in .m3 .mer { opacity:.45; }
+  /* Act IV — the scales tip, then find balance */
+  .m4 .beam-g { transform:rotate(-9deg); transform-origin:100px 36px; }
+  .in .m4 .beam-g { animation:weigh 3.4s ease forwards .5s; }
+  @keyframes weigh {
+    0% { transform:rotate(-9deg); }
+    40% { transform:rotate(7deg); }
+    72% { transform:rotate(-3deg); }
+    100% { transform:rotate(0deg); }
+  }
+  /* Act V — the shield draws itself, the tick lands */
+  .m5 .shield { stroke-dasharray:300; stroke-dashoffset:300; transition:stroke-dashoffset 2.4s ease .4s; }
+  .in .m5 .shield { stroke-dashoffset:0; }
+  .m5 .tick { stroke-dasharray:60; stroke-dashoffset:60; transition:stroke-dashoffset .9s ease 2.6s; }
+  .in .m5 .tick { stroke-dashoffset:0; }
+  /* Act VI — your ballot drops into the box */
+  .in .m6 .paper { animation:drop 2.6s ease forwards .6s; }
+  @keyframes drop {
+    0% { transform:translateY(0) rotate(0deg); opacity:1; }
+    55% { transform:translateY(36px) rotate(7deg); opacity:1; }
+    72% { transform:translateY(44px) rotate(7deg); opacity:0; }
+    100% { transform:translateY(44px) rotate(7deg); opacity:0; }
+  }
+  .m6 .done { opacity:0; transition:opacity .9s ease 3.1s; }
+  .in .m6 .done { opacity:1; }
+
+  /* ---------- Epilogue ---------- */
+  .epilogue { border-top:1px solid var(--line); margin-top:70px; padding:70px 0 40px; }
+  .ep-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--gold); margin:0 0 12px;
+  }
+  .epilogue h2 {
+    font-family:var(--serif); font-weight:500; font-size:clamp(1.9rem,5vw,2.8rem);
+    line-height:1.1; margin:0 0 18px; letter-spacing:-.01em;
+  }
+  .breath {
+    font-family:var(--serif); font-size:1.13rem; line-height:1.85; color:var(--ink-2);
+  }
+  .breath b { color:var(--ink); font-weight:600; }
+  .breath .d { color:var(--gold); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* number stones */
+  .stones { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin:26px 0 0; }
+  .stone {
+    position:relative; font-family:inherit; text-align:left; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:9px;
+    padding:10px 12px; color:var(--ink); min-height:78px;
+  }
+  .stone:hover { border-color:var(--gold); }
+  .stone .sy {
+    display:block; font-family:var(--serif); font-size:1.15rem; color:var(--gold);
+    font-variant-numeric:tabular-nums; line-height:1.2;
+  }
+  .stone .se { display:block; font-size:.76rem; color:var(--ink-2); margin-top:4px; line-height:1.4; }
+  .stone:not(.on) .se { visibility:hidden; }
+  .stone:not(.on)::after {
+    content:"tap to reveal"; position:absolute; left:12px; bottom:10px;
+    font-size:.66rem; color:var(--ink-3);
+  }
+  .stones-tools { margin:14px 0 0; display:flex; gap:10px; }
+  .stones-tools button {
+    font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
+    background:var(--card-2); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px;
+  }
+
+  /* credits */
+  .credits { background:#0A0B0F; color:#E8E4D8; margin-top:70px; padding:80px 0 90px; text-align:center; }
+  :root[data-theme="light"] .credits { background:#1C1E26; }
+  .credits .ep-kicker { color:var(--era1); }
+  .credits h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,4.5vw,2.6rem); margin:0 0 8px; color:#F2EFE6; }
+  .credits .sub { color:#8D919C; font-size:.9rem; margin:0 0 46px; }
+  .cred-act {
+    font-size:.7rem; letter-spacing:.24em; text-transform:uppercase; font-weight:650;
+    margin:44px 0 18px; color:var(--ca, var(--gold));
+  }
+  .cred { margin:0 0 15px; }
+  .cred .cn { font-family:var(--serif); font-size:1.18rem; color:#F2EFE6; display:block; line-height:1.3; }
+  .cred .cr { font-size:.78rem; color:#8D919C; display:block; margin-top:1px; }
+  .fin {
+    font-family:var(--serif); font-style:italic; font-size:1.5rem; color:var(--gold);
+    margin:70px 0 0;
+  }
+  .foot { text-align:center; color:var(--ink-3); font-size:.78rem; padding:40px 22px 120px; }
+  .foot a { color:var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+    .reveal { opacity:1; transform:none; }
+    .m1 .w { stroke-dashoffset:0; opacity:.28; }
+    .m1 .crown-g { transform:none; opacity:1; }
+    .m2 .ten { opacity:1; } .m2 .glow { opacity:.35; }
+    .m3 .mer { opacity:.45; }
+    .m4 .beam-g { transform:none; }
+    .m5 .shield, .m5 .tick { stroke-dashoffset:0; }
+    .m6 .paper { opacity:1; } .m6 .done { opacity:1; }
+    .hud-play { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
+
+<!-- ======================= CHAIN-OF-COMMAND HUD ======================= -->
+<div class="hud" aria-hidden="false">
+  <button class="hud-play" id="play" title="Play the story (auto-scroll)" aria-label="Play or pause auto-scroll">▶</button>
+  <div class="hud-mid">
+    <div class="hud-year" id="hudYear">The Crown</div>
+    <div class="hud-era" id="hudEra">Prologue · scroll to begin</div>
+    <div class="hud-track"><div class="hud-marker" id="hudMarker"></div></div>
+  </div>
+</div>
+
+<!-- ======================= PROLOGUE ======================= -->
+<header class="prologue" data-year="The Crown" data-era="0">
+  <div class="stars" id="stars"></div>
+  <div class="wrap pro-inner">
+    <p class="eyebrow">Life in the UK · Chapter 5 · Story Mode</p>
+    <h1>Follow the <em>Power</em></h1>
+    <p class="lede">
+      Chapter 5 is the counting chapter — member counts, jury sizes, membership numbers — and it
+      carries more <b>"who does what?"</b> questions than any other. So don't study it as a civics
+      textbook. Study it as a <b>relay race</b>: power starts at the Crown, passes to Parliament,
+      to the Prime Minister, out to the nations and the world, down through the courts —
+      and the final runner, at the very end of the chain, is <b>you</b>.
+      Follow the baton and every "who does X?" answers itself.
+    </p>
+    <div class="howto">
+      <div><b>🎫 The bar below is your pocket fact.</b> It always shows the number or date the current scene most wants you to keep.</div>
+      <div><b>⛓️ Follow the baton.</b> Every scene ends by handing power to the next holder. That handover chain <i>is</i> the memory trick.</div>
+      <div><b>▶ Let the story drive.</b> Press play and it rolls past at reading speed. Touch anything to take the controls back.</div>
+      <div><b>⌨️ Shortcuts.</b> Keys <kbd>1</kbd>–<kbd>6</kbd> jump between acts. <kbd>→</kbd> and <kbd>←</kbd> step scene by scene.</div>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to begin ↓</div>
+</header>
+
+<!-- ======================= ACT I ======================= -->
+<section class="act" data-era="1" id="act1">
+  <div class="act-card reveal" data-year="Unwritten" data-era="1">
+    <div class="act-motif">
+      <svg class="m1" viewBox="0 0 200 120" role="img" aria-label="A crown above a rulebook whose lines write themselves and fade — the unwritten constitution">
+        <g class="crown-g">
+          <rect x="72" y="44" width="56" height="11" rx="2" fill="var(--acc)"/>
+          <polygon points="72,44 80,24 90,44" fill="var(--acc)"/>
+          <polygon points="91,44 100,20 109,44" fill="var(--acc)"/>
+          <polygon points="110,44 120,24 128,44" fill="var(--acc)"/>
+          <circle cx="80" cy="24" r="3" fill="var(--acc)"/><circle cx="100" cy="20" r="3" fill="var(--acc)"/><circle cx="120" cy="24" r="3" fill="var(--acc)"/>
+        </g>
+        <rect x="55" y="66" width="90" height="38" rx="3" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <line class="w w1" x1="63" y1="76" x2="137" y2="76" stroke="var(--ink)" stroke-width="2"/>
+        <line class="w w2" x1="63" y1="85" x2="137" y2="85" stroke="var(--ink)" stroke-width="2"/>
+        <line class="w w3" x1="63" y1="94" x2="129" y2="94" stroke="var(--ink)" stroke-width="2"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act I · The constitution</p>
+    <h2>The Invisible Rulebook</h2>
+    <p class="act-log">
+      Britain is governed by a constitution nobody ever wrote down — because nobody ever
+      had to start from scratch. At its top sits a monarch who reigns but does not rule,
+      and below her two chambers: one elected, one appointed, both centuries old.
+      This act is the <b>who-appoints-whom</b> act. Get the arrows right and it's free marks.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="Unwritten" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">📜</div>
+      <h3><span class="yr">The rulebook</span>A constitution you cannot photocopy</h3>
+      <p class="story">
+        A constitution is <b>the set of principles by which a country is governed</b>. Britain's is
+        <b>unwritten</b> — not collected in <b>a single document</b> — and the reason is Chapter 3
+        in one sentence: the country <b>avoided revolution</b>, so its institutions were never
+        demolished and redrafted; they just <b>developed gradually over centuries</b>. The parts of
+        this uncodified machine: <b>the monarchy, Parliament (Commons and Lords), the Prime
+        Minister, the cabinet, the judiciary, the police, the civil service, local government</b> —
+        plus the <b>devolved governments</b> we'll visit in Act II.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> it's unwritten because Britain <b>never had a revolution</b> — not because nobody got round to writing it. The handbook's exact logic; the test's exact question.</aside>
+    </article>
+    <p class="because reveal">And at the very top of this unwritten order sits its oldest institution — the Crown…</p>
+
+    <article class="scene reveal" data-year="1952" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">👑</div>
+      <h3><span class="yr">Since 1952</span>The Queen — head of state, not head of government</h3>
+      <p class="story">
+        <b>Queen Elizabeth II</b> has reigned since her father's death in <span class="d">1952</span> —
+        her <b>Diamond Jubilee (60 years)</b> came in <span class="d">2012</span>. She is <b>head of
+        state of the UK and of many Commonwealth countries</b>, married to <b>Prince Philip, Duke of
+        Edinburgh</b>, with <b>Prince Charles, the Prince of Wales</b> as heir. But this is a
+        <b>constitutional monarchy</b>: the monarch <b>does not rule</b>. She <b>appoints the
+        government the people have elected</b>, inviting the leader who commands most MPs — or a
+        coalition — to become Prime Minister. Meeting the PM regularly, she may
+        <b>"advise, warn and encourage"</b> — three verbs, and none of them is <i>decide</i>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the monarch's three verbs — <i>advise, warn, encourage</i>. Any answer that gives the Queen the word "decide" or "policy" is bait.</aside>
+    </article>
+    <p class="because reveal">What she does do is open the machine each year — with a speech written by someone else…</p>
+
+    <article class="scene reveal" data-year="Queen's Speech" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎤</div>
+      <h3><span class="yr">The ceremonies</span>What the Crown actually does all day</h3>
+      <p class="story">
+        The monarch <b>opens Parliament each year</b> with the <b>Queen's Speech</b> — a summary of
+        <b>the government's plans</b>, not her own. Every <b>Act of Parliament is made in her
+        name</b>. She <b>receives foreign ambassadors</b>, <b>hosts visiting heads of state</b>, and
+        makes <b>state visits abroad</b> — the focus for <b>national identity and pride</b>, the
+        fixed point while governments come and go. Two texts travel with the Crown: the
+        <b>National Anthem</b> ("God save our gracious Queen!…") and the <b>citizenship oath</b>
+        sworn by new citizens — which we'll save for the very last scene of this story,
+        because it's yours.
+      </p>
+    </article>
+    <p class="because reveal">The Crown appoints but doesn't choose. The choosing happens in an elected chamber down the river — where the real power sits…</p>
+
+    <article class="scene reveal" data-year="MPs" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏛️</div>
+      <h3><span class="yr">The Commons</span>The elected chamber — and its referee</h3>
+      <p class="story">
+        The <b>House of Commons</b> is <b>the more important chamber</b> for one reason: its members
+        are <b>democratically elected</b>. Each <b>MP</b> represents a <b>parliamentary
+        constituency</b>; the <b>PM and almost all cabinet ministers are MPs</b>. Their job:
+        represent everyone in the constituency, <b>help create new laws</b>, <b>scrutinise and
+        question the government</b>, debate the big issues. Keeping order is <b>the Speaker</b> —
+        an MP, yet strictly <b>neutral</b>, chosen by fellow MPs in a <b>secret ballot</b>. The
+        Speaker chairs debates, <b>guarantees the opposition its debate time</b>, and represents
+        Parliament on ceremonial occasions.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the Speaker is chosen by <b>secret ballot of MPs</b> — not appointed by the PM, not by the Queen. Neutral referee, elected by the players.</aside>
+    </article>
+    <p class="because reveal">Across the lobby sits the other chamber — unelected, unhurried, and twice reformed in ways the test loves to date…</p>
+
+    <article class="scene reveal" data-year="1958 · 1999" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🦁</div>
+      <h3><span class="yr">The Lords</span>1958 gives life · 1999 takes inheritance</h3>
+      <p class="story">
+        Members of the <b>House of Lords</b> are <b>peers</b> — <b>not elected, no constituency</b>.
+        Until <span class="d">1958</span> the house belonged to hereditary title-holders, senior
+        judges and Church of England bishops. Then two reforms, two dates: in
+        <span class="d">1958</span>, <b>life peers</b> arrive — <b>nominated by the Prime
+        Minister</b> (with other party leaders and an independent <b>Appointments Commission</b>),
+        <b>appointed by the monarch</b>, for life. In <span class="d">1999</span>, <b>hereditary
+        peers lose their automatic right to attend</b>, keeping only a few <b>elected
+        representatives</b> of their own. The Lords' role: <b>more independent</b> than the Commons —
+        proposing amendments, <b>checking laws</b>, holding government to account with specialist
+        knowledge. The Commons <b>can overrule the Lords — but rarely does</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>1958 gives life, 1999 takes inheritance.</i> Two beats of Lords reform — nominate-PM, appoint-monarch in the middle.</aside>
+    </article>
+    <p class="because reveal">Elected or appointed, they all answer to one mechanism in the end — the election that put the Commons there…</p>
+
+    <article class="scene reveal" data-year="5 years" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗳️</div>
+      <h3><span class="yr">Elections</span>First past the post, every five years at most</h3>
+      <p class="story">
+        <b>General elections</b> happen <b>at least every <span class="d">five years</span></b>. The
+        voting system is <b>first past the post</b>: most votes in the constituency wins the seat;
+        the party with a <b>majority of constituencies</b> forms the government — no majority may
+        mean a <b>coalition</b>. If an MP dies or resigns, a <b>by-election</b> fills the seat. One
+        deliberate contrast: <b>European Parliament elections</b> use <b>proportional
+        representation</b>, electing <b>MEPs</b> every five years.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>first past the post elects MPs; proportional representation elects MEPs</b> (and, as you'll see, the devolved bodies). Two systems, never swap them.</aside>
+    </article>
+    <p class="because reveal">And whoever wins that race gets the keys to a famous black door — because the monarch appoints, but the voters have already chosen…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT II ======================= -->
+<section class="act" data-era="2" id="act2">
+  <div class="act-card reveal" data-year="No. 10" data-era="2">
+    <p class="act-prev"><b>Previously:</b> an unwritten rulebook, a Queen with three verbs — advise,
+    warn, encourage — a Commons with a neutral Speaker, Lords reformed in 1958 and 1999,
+    and elections by first past the post, five years at most.</p>
+    <div class="act-motif">
+      <svg class="m2" viewBox="0 0 200 120" role="img" aria-label="The black door of Number 10 Downing Street, lamp glowing">
+        <circle class="glow" cx="100" cy="26" r="14" fill="var(--acc)"/>
+        <circle cx="100" cy="26" r="5" fill="var(--acc)"/>
+        <line x1="100" y1="31" x2="100" y2="40" stroke="var(--ink)" stroke-width="2"/>
+        <path d="M74,46 a26,26 0 0 1 52,0 Z" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+        <rect x="78" y="46" width="44" height="58" rx="2" fill="var(--ink)"/>
+        <text class="ten" x="100" y="70" text-anchor="middle" font-size="17" font-family="Baskerville, Georgia, serif" fill="var(--page)">10</text>
+        <circle cx="100" cy="86" r="3.5" fill="none" stroke="var(--page)" stroke-width="1.6"/>
+        <rect x="8" y="104" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act II · The government</p>
+    <h2>The Engine Room</h2>
+    <p class="act-log">
+      Behind the black door: one Prime Minister, about twenty ministers, a permanent
+      civil service — and, since 1997, three more parliaments sharing the work.
+      Memorise the devolution phone number now: <b>60 – 129 – 108</b>.
+      This act dials it.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="No. 10" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🚪</div>
+      <h3><span class="yr">Downing Street</span>The Prime Minister</h3>
+      <p class="story">
+        The <b>Prime Minister</b> is the <b>leader of the party in power</b>. The job comes with
+        <b>10 Downing Street</b>, a country house — <b>Chequers</b> — and the two levers that matter:
+        <b>appointing the cabinet</b> and <b>control of important public appointments</b>. How does
+        a PM leave? Their own <b>party MPs can change leader</b>, or they <b>resign</b> — usually
+        after losing an election. Nobody needs to storm anything; the unwritten rulebook handles it quietly.
+      </p>
+    </article>
+    <p class="because reveal">One person can't run five departments before lunch — so the PM deals out portfolios around a table…</p>
+
+    <article class="scene reveal" data-year="~20" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🪑</div>
+      <h3><span class="yr">The cabinet</span>Twenty chairs, weekly</h3>
+      <p class="story">
+        The <b>cabinet</b>: about <span class="d">20</span> senior MPs made ministers in charge of
+        departments, meeting <b>weekly</b> — big decisions still often need Parliament. Learn the
+        three headline jobs as a who-does-what: the <b>Chancellor of the Exchequer</b> — <b>the
+        economy</b>; the <b>Home Secretary</b> — <b>crime, policing and immigration</b>; the
+        <b>Foreign Secretary</b> — <b>relations with foreign countries</b>. Other <b>Secretaries of
+        State</b> take education, health and defence, propped up by <b>Ministers of State</b> and
+        <b>Parliamentary Under-Secretaries</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>immigration belongs to the Home Secretary</b>, not the Foreign Secretary — "foreign" is the word doing the baiting. Economy = <b>Chancellor</b>.</aside>
+    </article>
+    <p class="because reveal">And facing them across the chamber, a full-time rival government-in-waiting…</p>
+
+    <article class="scene reveal" data-year="PMQs" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚔️</div>
+      <h3><span class="yr">The opposition</span>The shadow across the aisle</h3>
+      <p class="story">
+        The <b>second-largest party</b> in the Commons is <b>the opposition</b>. Its leader
+        <b>challenges the PM at Prime Minister's Questions every sitting week</b> and appoints a
+        <b>shadow cabinet</b> — a mirror minister for every real one. The wider cast: the main
+        parties are <b>Conservative, Labour and the Liberal Democrats</b>, plus national parties
+        for Scottish, Welsh and Northern Irish interests. Outside Parliament,
+        <b>pressure and lobby groups</b> push policy from the wings — the handbook names the
+        <b>CBI</b> (business), <b>Greenpeace</b> (environment) and <b>Liberty</b> (human rights).
+      </p>
+    </article>
+    <p class="because reveal">Ministers come and go with elections — but somebody has to actually run the machine on Monday morning…</p>
+
+    <article class="scene reveal" data-year="Neutral" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗂️</div>
+      <h3><span class="yr">The permanent machine</span>Civil servants and the town hall</h3>
+      <p class="story">
+        <b>Civil servants</b> deliver and develop policy, are <b>accountable to ministers</b>,
+        <b>chosen on merit</b>, and — crucially — <b>politically neutral</b>: their stated values
+        are <b>integrity, honesty, objectivity, impartiality</b>. Governments change; they stay.
+        Below Westminster, <b>local authorities</b>: elected councils funded by <b>central
+        government and local taxes</b>, some areas with both district and county councils, many
+        with a <b>ceremonial mayor</b>. <b>London has <span class="d">33</span> local
+        authorities</b> plus the <b>Greater London Authority and Mayor of London</b>. Council
+        elections are held <b>in May</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> civil service = <b>merit + neutral</b>; councils = <b>May elections</b>; London = <b>33 + the GLA</b>. Three small facts, three easy marks.</aside>
+    </article>
+    <p class="because reveal">And in 1997 Westminster did something Chapter 3 spent centuries building up to — it started handing power back to the nations…</p>
+
+    <article class="scene reveal" data-year="60·129·108" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏴</div>
+      <h3><span class="yr">Since 1997</span>Devolution — the phone number</h3>
+      <p class="story">
+        <b>Devolution begins in <span class="d">1997</span></b>. Westminster keeps
+        <b>D-F-I-T-S</b> — <b>defence, foreign affairs, immigration, taxation, social security</b> —
+        and the nations run much of the rest, including education. <b>Wales</b>: the <b>National
+        Assembly in Cardiff</b>, <span class="d">60</span> <b>AMs</b>, elected every four years by
+        <b>proportional representation</b>, working <b>in Welsh and English</b>; since
+        <span class="d">2011</span> it can pass laws in <b>20 areas</b> without Westminster's
+        agreement. <b>Scotland</b>: the <b>Scottish Parliament at Holyrood</b> (est.
+        <span class="d">1999</span>), <span class="d">129</span> <b>MSPs</b>, legislating on
+        everything not reserved — including civil and criminal law — and it <b>can raise taxes</b>.
+        <b>Northern Ireland</b>: an earlier parliament (<b>1922</b>) was <b>abolished in 1972</b>;
+        today's <b>Assembly at Stormont</b> followed the <b>Belfast (Good Friday) Agreement,
+        <span class="d">1998</span></b> — <span class="d">108</span> <b>MLAs</b> governing by
+        <b>power-sharing</b>. Westminster <b>can suspend it</b>; it has run continuously
+        <b>since 2007</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the devolution phone number — <i>60 – 129 – 108</i> (Wales, Scotland, NI) — and the reserved list <b>D-F-I-T-S</b>. Among the three, only <b>Scotland can raise taxes</b>.</aside>
+    </article>
+    <p class="because reveal">All this machinery runs in the open — printed, broadcast, and answerable to the one register with your name on it…</p>
+
+    <article class="scene reveal" data-year="18 (1969)" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">📋</div>
+      <h3><span class="yr">The open machine</span>Hansard, the register, and who gets a vote</h3>
+      <p class="story">
+        Proceedings are broadcast on TV and published in <b>Hansard</b>. The UK has a <b>free
+        press</b> — newspapers may campaign — but <b>radio and TV coverage must be balanced</b>,
+        giving rival viewpoints <b>equal time</b>. Now the rules that reach you: the <b>voting age
+        is <span class="d">18</span>, set in <span class="d">1969</span></b>. UK-born and
+        naturalised citizens vote in all elections, and so do resident <b>Commonwealth and Irish
+        citizens</b>; resident <b>EU citizens vote in all elections EXCEPT general elections</b>.
+        To vote at all you must be on the <b>electoral register</b> — a form visits every household
+        each <b>September or October</b> (<b>Northern Ireland registers individually</b>).
+        <b>Polling stations</b> — <b>polling places</b> in Scotland — open
+        <span class="d">7 am–10 pm</span>; <b>NI voters need photo ID</b>. To <b>stand for
+        office</b>: 18+, a UK, Irish or Commonwealth citizen — with exceptions for armed forces,
+        civil servants and certain convictions. And you can simply <b>visit</b>: public galleries
+        in both Houses (write to your MP or queue), plus <b>Holyrood, the Senedd and Stormont</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>EU citizens: everything but general elections. Commonwealth &amp; Irish: everything.</b> This single distinction is one of the most-tested lines in the book.</aside>
+    </article>
+    <p class="because reveal">A state this organised doesn't stop at its own coastline — it joins clubs. Five of them, each with a number on the door…</p>
+
+  </div>
+</section>
+<!-- ======================= ACT III ======================= -->
+<section class="act" data-era="3" id="act3">
+  <div class="act-card reveal" data-year="Five clubs" data-era="3">
+    <p class="act-prev"><b>Previously:</b> the PM behind the black door, ~20 cabinet chairs, a neutral
+    civil service, and the devolution phone number — 60 · 129 · 108 — with D-F-I-T-S kept at Westminster.</p>
+    <div class="act-motif">
+      <svg class="m3" viewBox="0 0 200 120" role="img" aria-label="A globe with orbiting memberships">
+        <circle cx="100" cy="60" r="34" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+        <g class="mer" stroke="var(--ink)" stroke-width="1.4" fill="none">
+          <ellipse cx="100" cy="60" rx="14" ry="34"/>
+          <ellipse cx="100" cy="60" rx="26" ry="34"/>
+          <line x1="66" y1="60" x2="134" y2="60"/>
+          <line x1="71" y1="42" x2="129" y2="42"/>
+          <line x1="71" y1="78" x2="129" y2="78"/>
+        </g>
+        <g class="orbit">
+          <ellipse cx="100" cy="60" rx="58" ry="22" fill="none" stroke="var(--acc)" stroke-width="1.2" opacity=".4"/>
+          <circle cx="158" cy="60" r="5" fill="var(--acc)"/>
+          <circle cx="42" cy="60" r="3.2" fill="var(--acc)" opacity=".7"/>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act III · The world stage</p>
+    <h2>The Island and the World</h2>
+    <p class="act-log">
+      This whole act is <b>five organisations and their numbers</b>. Learn the descending
+      staircase — <b>190+ → 54 → 47 → 27 → 15 → 5</b> — and every likely question is
+      already answered. One breath, six numbers.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="54" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌐</div>
+      <h3><span class="yr">Club № 1</span>The Commonwealth — 54, with the Queen at its head</h3>
+      <p class="story">
+        The family the Empire left behind: <span class="d">54</span> member states, with <b>the
+        Queen at its head</b>. Membership is <b>voluntary</b>; the club has <b>no power over its
+        members</b> — the strongest thing it can do is <b>suspend membership</b>. What binds it is a
+        creed you'll recognise from this whole chapter: <b>democracy, good government and the rule
+        of law</b>.
+      </p>
+    </article>
+    <p class="because reveal">One club looks back at the Empire; the next was built next door, out of a war — and Britain arrived sixteen years late…</p>
+
+    <article class="scene reveal" data-year="27 · 1973" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🇪🇺</div>
+      <h3><span class="yr">Club № 2</span>The EU — Rome 1957, Britain 1973</h3>
+      <p class="story">
+        On <span class="d">25 March 1957</span>, six countries — <b>Belgium, France, Germany,
+        Italy, Luxembourg, the Netherlands</b> — sign the <b>Treaty of Rome</b> and create the
+        <b>EEC</b>. The UK stays out, then joins in <span class="d">1973</span>. In the handbook's
+        edition the club has <span class="d">27</span> member states, and <b>EU law</b> — directives,
+        regulations, framework decisions — is <b>legally binding in the UK and every member state</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>Rome 1957 without Britain; Britain 1973, sixteen years late.</i> Six founders — the Benelux three plus France, Germany, Italy.</aside>
+    </article>
+    <p class="because reveal">Now the club everyone confuses with the EU — different building, different job, nearly twice the members…</p>
+
+    <article class="scene reveal" data-year="47" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚖️</div>
+      <h3><span class="yr">Club № 3</span>The Council of Europe — 47, and it is NOT the EU</h3>
+      <p class="story">
+        The <b>Council of Europe</b> has <span class="d">47</span> members and one obsession:
+        <b>protecting human rights</b>. It <b>cannot make laws</b> — it draws up <b>conventions and
+        charters</b>, most famously the <b>European Convention on Human Rights</b>. Hold that
+        thought: the ECHR returns in Act V as the backbone of your own rights.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> Council of Europe ≠ EU. <b>47 members, makes no laws, wrote the ECHR.</b> The EU has 27 and its law binds. The test swaps these two constantly.</aside>
+    </article>
+    <p class="because reveal">And above them all, the biggest club of all — built after the biggest war of all…</p>
+
+    <article class="scene reveal" data-year="190+ · 15 · 5" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🕊️</div>
+      <h3><span class="yr">Clubs № 4 &amp; 5</span>The UN and NATO — the peacekeepers</h3>
+      <p class="story">
+        The <b>United Nations</b>, founded <b>after the Second World War</b> to prevent war and
+        promote peace, counts <span class="d">190+</span> members. Its <b>Security Council</b>
+        seats <span class="d">15</span>, and the UK is one of just <span class="d">5</span>
+        <b>permanent members</b>. Finally <b>NATO</b> — the North Atlantic Treaty Organization —
+        where members promise to <b>defend each other if attacked</b> and keep the peace. Now read
+        the staircase down in one breath: <b>190+ UN → 54 Commonwealth → 47 Council of Europe →
+        27 EU → 15 Security Council → 5 permanent members</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the descending staircase — <i>190+ · 54 · 47 · 27 · 15 · 5</i>. Biggest to smallest, one breath, every membership question covered.</aside>
+    </article>
+    <p class="because reveal">Treaties promise peace abroad. At home, peace is kept by something older and closer: the law — and it applies to absolutely everyone…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT IV ======================= -->
+<section class="act" data-era="4" id="act4">
+  <div class="act-card reveal" data-year="The Law" data-era="4">
+    <p class="act-prev"><b>Previously:</b> five clubs on a staircase — 190+ UN, 54 Commonwealth,
+    47 Council of Europe, 27 EU, 15 Security Council seats, 5 permanent members, Britain among them.</p>
+    <div class="act-motif">
+      <svg class="m4" viewBox="0 0 200 120" role="img" aria-label="The scales of justice tip, then find balance">
+        <line x1="100" y1="36" x2="100" y2="94" stroke="var(--ink)" stroke-width="3"/>
+        <rect x="80" y="94" width="40" height="6" rx="2" fill="var(--ink)"/>
+        <circle cx="100" cy="33" r="4" fill="var(--ink)"/>
+        <g class="beam-g">
+          <line x1="56" y1="36" x2="144" y2="36" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="56" y1="36" x2="48" y2="56" stroke="var(--ink)" stroke-width="1.6"/>
+          <line x1="56" y1="36" x2="64" y2="56" stroke="var(--ink)" stroke-width="1.6"/>
+          <path d="M44,56 a12,12 0 0 0 24,0 Z" fill="var(--acc)"/>
+          <line x1="144" y1="36" x2="136" y2="56" stroke="var(--ink)" stroke-width="1.6"/>
+          <line x1="144" y1="36" x2="152" y2="56" stroke="var(--ink)" stroke-width="1.6"/>
+          <path d="M132,56 a12,12 0 0 0 24,0 Z" fill="var(--acc)"/>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act IV · Respecting the law</p>
+    <h2>The Two Lanes of the Law</h2>
+    <p class="act-log">
+      Criminal law versus civil law, magistrates versus Crown Court, 12 jurors versus 15 —
+      this act lives in the gap between pairs. And one rule of thumb saves you eight facts:
+      <b>Scotland does everything a bit differently</b>.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="2 lanes" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛣️</div>
+      <h3><span class="yr">The fork</span>Criminal lane, civil lane</h3>
+      <p class="story">
+        The law <b>applies equally to everyone</b> — police and government included — and knowing
+        it is a core duty of every resident. It splits into two lanes. <b>Criminal law</b> —
+        offences <b>investigated by police and punished by courts</b>: carrying a <b>weapon of any
+        kind, even for self-defence</b>; buying or selling <b>drugs</b>; <b>racial crime</b>;
+        selling <b>tobacco or alcohol to under-18s</b>; <b>smoking in enclosed public places</b>;
+        drinking in <b>alcohol-free zones</b>. <b>Civil law</b> — disputes <b>between people</b>:
+        <b>housing</b> (landlord v tenant), <b>consumer rights</b> (faulty goods),
+        <b>employment</b> (wages, dismissal, discrimination), and <b>debt</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> carrying a weapon is criminal <b>"even if it is for self-defence"</b> — the handbook's exact bait, word for word. There is no self-defence exception.</aside>
+    </article>
+    <p class="because reveal">Someone has to police the criminal lane — and in Britain, the police answer to the law, not to the government…</p>
+
+    <article class="scene reveal" data-year="Nov 2012" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">👮</div>
+      <h3><span class="yr">The police</span>Protect, keep, prevent — and answer for it</h3>
+      <p class="story">
+        Three duties: <b>protect life and property, keep the peace, prevent and detect crime</b>.
+        Forces are <b>independent of government</b>, led by <b>Chief Constables</b> — who are
+        appointed by <b>Police and Crime Commissioners (PCCs)</b>, elected by the public since
+        <span class="d">November 2012</span> in England and Wales to set local priorities and
+        budgets. Officers must <b>obey the law themselves</b>: no misuse of authority, no false
+        statements, no rudeness, no discrimination. <b>PCSOs</b> patrol and support at crime
+        scenes. Complaints go to the station or Chief Constable — or up to the <b>Independent
+        Police Complaints Commission</b> (E&amp;W), <b>Police Complaints Commissioner</b>
+        (Scotland), <b>Police Ombudsman</b> (NI). And the threats the handbook names: <b>Al
+        Qa'ida-style groups and Northern Ireland-related terrorism</b> — report extremist
+        recruiters to your local police.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the arrow points down — <b>elected PCCs appoint Chief Constables</b>, never the other way round. First PCC elections: <b>November 2012</b>.</aside>
+    </article>
+    <p class="because reveal">The police catch; they don't judge. Judging belongs to a bench the government cannot touch…</p>
+
+    <article class="scene reveal" data-year="12 v 15" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚖️</div>
+      <h3><span class="yr">The criminal courts</span>Unpaid magistrates, twelve jurors — fifteen in Scotland</h3>
+      <p class="story">
+        <b>Judges interpret the law and keep trials fair — the government cannot interfere</b>; if
+        the government itself acts illegally, it must change its policies or ask Parliament to
+        change the law. Minor crime goes to <b>Magistrates' Courts</b> (England, Wales, NI) or
+        <b>Justice of the Peace Courts</b> (Scotland) — magistrates and JPs are <b>unpaid and need
+        no legal qualifications</b>, except in <b>Northern Ireland</b>, where <b>District Judges
+        are paid and legally qualified</b>. Serious crime goes to the <b>Crown Court</b> — in
+        Scotland, the <b>Sheriff Court</b> — with judge and jury: <span class="d">12</span> jurors
+        in England, Wales and NI, <span class="d">15</span> in Scotland. Verdicts: guilty or not
+        guilty — and Scotland alone keeps a third, <b>"not proven"</b>. Jury service is
+        <b>compulsory</b> for those summoned, unless ineligible or excused for good reason.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>Scotland does everything a bit differently</i> — JP Courts, Sheriff Court, <b>15</b> jurors, <b>three</b> verdicts. One rule of thumb, four facts banked.</aside>
+    </article>
+    <p class="because reveal">And when the accused is barely more than a child, the courtroom changes shape entirely…</p>
+
+    <article class="scene reveal" data-year="10–17" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🧒</div>
+      <h3><span class="yr">The young</span>Youth Court — doors closed, names sealed</h3>
+      <p class="story">
+        Accused aged <span class="d">10–17</span> go to the <b>Youth Court</b>, before <b>up to
+        three specially trained magistrates</b>. <b>Parents must attend</b>, <b>the public is
+        excluded</b>, and the young person <b>cannot be named or photographed</b> in the media.
+        Scotland, naturally, does it differently — the <b>Children's Hearings</b> system — while
+        Northern Ireland uses <b>youth conferencing</b>.
+      </p>
+    </article>
+    <p class="because reveal">That's the criminal lane end to end. The civil lane has its own courts — and a small-claims shortcut with two price tags…</p>
+
+    <article class="scene reveal" data-year="£5,000 / £3,000" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">💼</div>
+      <h3><span class="yr">The civil courts</span>County Courts and the small-claims shortcut</h3>
+      <p class="story">
+        Civil disputes go to <b>County Courts</b> — in Scotland, the <b>Sheriff Court</b> again —
+        with the biggest cases rising to the <b>High Court</b> (Scotland: the <b>Court of
+        Session</b>). For modest sums there's the <b>small claims procedure</b>: informal, in an
+        ordinary room before a judge, for claims <b>under <span class="d">£5,000</span> in England
+        and Wales</b> and <b>under <span class="d">£3,000</span> in Scotland and Northern
+        Ireland</b> — claims can even start at <b>Money Claims Online</b>. For everything heavier:
+        <b>solicitors</b>, trained lawyers whose <b>fees usually follow time spent</b> — so ask
+        the price before the clock starts.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> small claims — <b>£5,000 E&amp;W, £3,000 Scotland &amp; NI</b>. England's limit is the bigger one; Scotland differs <i>again</i>, right on brand.</aside>
+    </article>
+    <p class="because reveal">Courts protect you from others. But who protects you from power itself? For that, Britain spent 300 years forging you a shield…</p>
+
+  </div>
+</section>
+<!-- ======================= ACT V ======================= -->
+<section class="act" data-era="5" id="act5">
+  <div class="act-card reveal" data-year="Your rights" data-era="5">
+    <p class="act-prev"><b>Previously:</b> two lanes of law, police under elected PCCs since November 2012,
+    unpaid magistrates, juries of 12 — 15 in Scotland, with "not proven" — and a £5,000 / £3,000
+    small-claims split.</p>
+    <div class="act-motif">
+      <svg class="m5" viewBox="0 0 200 120" role="img" aria-label="A shield draws itself and a tick lands inside">
+        <path class="shield" d="M100,14 L146,28 L146,58 C146,86 126,102 100,112 C74,102 54,86 54,58 L54,28 Z"
+              fill="none" stroke="var(--acc)" stroke-width="3"/>
+        <path class="tick" d="M80,60 L95,76 L124,44" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act V · Fundamental principles</p>
+    <h2>Your Shield</h2>
+    <p class="act-log">
+      Three dates forge it — <b>1689, 1950, 1998</b> — and then the shield follows you into
+      ordinary life: equal treatment, protection at home, the taxes you'll pay,
+      the licence you'll drive on. The rights chapter, worn like armour.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1689→1950→1998" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛡️</div>
+      <h3><span class="yr">Three dates</span>Forging the shield</h3>
+      <p class="story">
+        Britain's rights tradition runs from <b>Magna Carta</b> through the <b>Habeas Corpus
+        Act</b> to the <b>Bill of Rights of <span class="d">1689</span></b> — Chapter 3's greatest
+        hits. Then the modern strokes: <b>British experts help draft the European Convention on
+        Human Rights</b>, which the UK signs in <span class="d">1950</span>; and the <b>Human
+        Rights Act <span class="d">1998</span></b> writes the Convention into UK law. The rights to
+        list: <b>life; no torture; no slavery or forced labour; liberty and security; a fair
+        trial; freedom of thought, conscience and religion; freedom of expression</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the rights timeline — <i>1689 starts it, 1950 signs it, 1998 brings it home</i>. Three hammer-blows, one shield.</aside>
+    </article>
+    <p class="because reveal">A shield is only real if it covers everyday life — the workplace, the home, the marriage…</p>
+
+    <article class="scene reveal" data-year="0808 2000 247" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🤝</div>
+      <h3><span class="yr">Equal &amp; protected</span>The shield in daily life</h3>
+      <p class="story">
+        <b>Discrimination is unlawful</b> on grounds of <b>age, disability, sex, pregnancy and
+        maternity, race, religion or belief, sexuality or marital status</b> — with help from the
+        <b>Citizens Advice Bureau</b> and the <b>Equality and Human Rights Commission</b>.
+        <b>Domestic violence is a serious crime</b>; the 24-hour <b>National Domestic Violence
+        Freephone Helpline</b> is <span class="d">0808 2000 247</span>. <b>FGM is illegal</b> —
+        including taking someone abroad for it. And a distinction the test adores:
+        <b>arranged marriage</b>, where <b>both parties agree</b>, is perfectly acceptable;
+        <b>forced marriage</b>, without free consent, <b>is a crime</b> — <b>Forced Marriage
+        Protection Orders</b> arrived in <span class="d">2008</span> (Scotland: November 2011),
+        and breaching one can mean <b>two years in prison</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>arranged ≠ forced</b>. Arranged = both agree = legal. Forced = no free consent = criminal. One word, one mark, don't drop it.</aside>
+    </article>
+    <p class="because reveal">Rights come with a membership fee, collected by a department with three initials…</p>
+
+    <article class="scene reveal" data-year="PAYE" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🧾</div>
+      <h3><span class="yr">The fee</span>Income tax and National Insurance — different taxes, different jobs</h3>
+      <p class="story">
+        <b>Income tax</b> applies to wages, self-employed profits, taxable benefits, pensions and
+        savings — and it pays for <b>roads, education, police and the armed forces</b>. Employees
+        pay through <b>PAYE — Pay As You Earn</b>; the self-employed file <b>self-assessment</b>
+        with <b>HMRC</b>. Alongside it, almost everyone in paid work also pays <b>National
+        Insurance Contributions</b>, which fund <b>state benefits and the NHS</b> — including the
+        state retirement pension; too few contributions can mean <b>no Jobseeker's Allowance or an
+        incomplete pension</b>. Your <b>National Insurance number</b> arrives <b>just before your
+        16th birthday</b>; non-UK nationals get one via the <b>DWP</b> to prove identity and the
+        right to work.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>income tax builds roads and schools; National Insurance funds the NHS and pension</b>. Two taxes, two jobs — the test lives in the gap.</aside>
+    </article>
+    <p class="because reveal">And the last piece of armour is laminated — the driving licence, with an age ladder all of its own…</p>
+
+    <article class="scene reveal" data-year="17 / 16 / 70" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🚗</div>
+      <h3><span class="yr">The road</span>The driving ladder</h3>
+      <p class="story">
+        Drive a <b>car or motorcycle at <span class="d">17</span></b>, a <b>moped at
+        <span class="d">16</span></b> — after a <b>theory test</b> (multiple choice + hazard
+        perception) and a <b>practical test</b>. The licence runs to age <span class="d">70</span>,
+        then renews <b>every three years</b>. Northern Ireland's newly qualified drivers show an
+        <b>R (restricted) plate for one year</b>. Foreign licences: <b>EU, Iceland, Liechtenstein
+        or Norway</b> — valid as long as the licence is; <b>all others — 12 months</b>, then you
+        need a UK licence. The car itself must be <b>registered with the DVLA</b>, carry <b>road
+        tax</b> and <b>insurance</b> — driving uninsured is a <b>serious criminal offence</b> —
+        plus an annual <b>MOT</b> once it's <b>over three years old</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the driving ladder — <i>16 moped → 17 car → 70 renewals begin → every 3 years after</i>. And the MOT clock starts at car age <b>3</b>.</aside>
+    </article>
+    <p class="because reveal">Registered, taxed, insured, protected — the system has given you everything it has. Which leaves one last question: what do you give back?</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT VI ======================= -->
+<section class="act" data-era="6" id="act6">
+  <div class="act-card reveal" data-year="You" data-era="6">
+    <p class="act-prev"><b>Previously:</b> a shield forged in 1689, 1950 and 1998 — equal treatment,
+    arranged-not-forced, PAYE and National Insurance, and a driving ladder from 16 to 70.</p>
+    <div class="act-motif">
+      <svg class="m6" viewBox="0 0 200 120" role="img" aria-label="Your ballot drops into the box">
+        <g class="paper">
+          <rect x="87" y="14" width="26" height="34" rx="2" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M93,30 L98,36 L108,22" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <rect x="58" y="62" width="84" height="44" rx="4" fill="var(--ink)"/>
+        <rect x="84" y="60" width="32" height="4" rx="2" fill="var(--page)"/>
+        <g class="done">
+          <circle cx="100" cy="84" r="11" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+          <path d="M94,84 L98,89 L107,78" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act VI · Your role</p>
+    <h2>Your Turn</h2>
+    <p class="act-log">
+      The baton reaches the last runner. The chapter — and the whole handbook — ends with
+      what Britain asks of you: shared values, a jury summons, a school hall,
+      a pint of blood, and one short oath. <b>The final scene of this story is you.</b>
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="The deal" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏡</div>
+      <h3><span class="yr">The values</span>The unwritten contract (this one's also unwritten)</h3>
+      <p class="story">
+        The shared values, in the handbook's own cadence: <b>obey and respect the law; be aware of
+        and respect others' rights; treat others with fairness; behave responsibly; help and
+        protect your family; respect and preserve the environment; treat everyone equally; work to
+        support yourself and your family; help others; vote</b>. And the domestic version —
+        <b>being a good neighbour</b>: introduce yourself, respect privacy, keep the noise down,
+        tend your garden, and put the bins out <b>on collection days</b> only.
+      </p>
+    </article>
+    <p class="because reveal">Fine words — but the system makes them concrete. Sometimes it even sends you a letter with a seat number on it…</p>
+
+    <article class="scene reveal" data-year="18–70" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">📬</div>
+      <h3><span class="yr">The summons</span>Jury duty, school halls, party colours</h3>
+      <p class="story">
+        Remember registering to vote in Act II? The <b>electoral register</b> has a second job:
+        anyone on it aged <span class="d">18–70</span> can be <b>randomly selected for jury
+        service</b> — the same juries you met in Act IV. In schools, parents and volunteers
+        <b>listen to children read</b>, help in class, and fundraise through the <b>PTA</b>; at
+        <span class="d">18+</span> — with <b>no upper age limit</b> — you can become a <b>school
+        governor</b> (in Scotland, a school board member), setting <b>strategic direction</b>,
+        ensuring <b>accountability</b> and monitoring performance. The politically minded can
+        <b>canvass</b> for a party or <b>stand for office</b>. And for teenagers there's the
+        <b>National Citizen Service</b> — ages <span class="d">16–17</span>, outdoor challenges
+        and community projects.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> three age brackets carry this act — <i>jury 18–70 · governor 18 with no ceiling · NCS 16–17</i>. Jury duty is the only one that retires at 70.</aside>
+    </article>
+    <p class="because reveal">Some gifts cost time, some cost an hour and a needle…</p>
+
+    <article class="scene reveal" data-year="~1 hour" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🩸</div>
+      <h3><span class="yr">The giving</span>Blood, kidneys, and nine charities</h3>
+      <p class="story">
+        <b>Giving blood takes about an hour</b>. <b>Organ donation</b> runs through the NHS
+        register — and a <b>living donor can give a kidney</b>. You can volunteer with hospitals
+        and youth projects, or serve as a <b>special constable</b> or <b>lay magistrate</b> (the
+        unpaid bench from Act IV — now you know where they come from). Match the handbook's
+        charities to their causes: <b>NSPCC — children; Age UK — older people; Crisis and
+        Shelter — homelessness; Cancer Research UK — cancer; PDSA — animals; Friends of the
+        Earth — environment; the British Red Cross and the National Trust</b> — the same Trust
+        with the 61,000 volunteers from Chapter 4. And the greenest giving is habit: <b>recycle,
+        shop locally, walk or take public transport</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> charity-to-cause is a free mark if you've matched them once — <b>PDSA is animals</b>, <b>Shelter/Crisis are homelessness</b>, <b>NSPCC is children</b>. Don't improvise on test day.</aside>
+    </article>
+    <p class="because reveal">Which brings the baton to its final holder. One room, one flag, one short sentence — and the whole system you just scrolled through stands behind it…</p>
+
+    <article class="scene reveal" data-year="You" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🤲</div>
+      <h3><span class="yr">The last scene</span>The ceremony — where this story was always heading</h3>
+      <p class="story">
+        At the citizenship ceremony, new citizens <b>swear an oath or affirm loyalty</b>:
+        <i>"…I will be faithful and bear true allegiance to Her Majesty Queen Elizabeth the
+        Second, her Heirs and Successors, according to law."</i> Trace the sentence back up the
+        chain and you've revised the whole chapter: <b>the Queen</b> from Act I, <b>according to
+        law</b> from Act IV, the <b>rights</b> that protect the promise from Act V, and the
+        <b>vote, jury seat and neighbourhood</b> you're promising into from Acts II and VI. The
+        power you've been following all chapter ends its journey in the same place the handbook
+        does: <b>in your hands</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the anthem and the oath both get quoted on the test — recognise the first verse of <i>God Save the Queen</i> and the oath's "faithful and bear true allegiance" line.</aside>
+    </article>
+    <p class="because reveal">And that's the machine, top to bottom — Crown to citizen. All that's left is to prove you can hold the numbers…</p>
+
+  </div>
+</section>
+
+<!-- ======================= EPILOGUE ======================= -->
+<section class="epilogue" data-year="The End" data-era="7">
+  <div class="wrap">
+    <p class="ep-kicker">Epilogue</p>
+    <h2>The whole system in one breath</h2>
+    <p class="breath">
+      An <b>unwritten constitution</b> (no revolution, no rewrite) puts a Queen on top —
+      <span class="d">1952</span>, three verbs: <b>advise, warn, encourage</b> — who appoints but
+      never decides. Below her, an elected <b>Commons</b> with a secret-ballot <b>Speaker</b>
+      outranks Lords reformed twice (<span class="d">1958</span> gives life,
+      <span class="d">1999</span> takes inheritance), chosen <b>first past the post</b> at least
+      every <span class="d">5 years</span>. The winner takes <b>No. 10</b>, deals
+      <b>~20 cabinet chairs</b> — Chancellor economy, Home Secretary immigration — shadowed at
+      <b>PMQs</b>, served by a <b>neutral civil service</b>, and since <span class="d">1997</span>
+      shares power down the phone number <span class="d">60 · 129 · 108</span> (Wales · Holyrood
+      1999 · Stormont's Good Friday 1998), keeping only <b>D-F-I-T-S</b>. Abroad, the memberships
+      descend a staircase: <span class="d">190+ · 54 · 47 · 27 · 15 · 5</span>. At home the law
+      runs in <b>two lanes</b> — criminal and civil — policed by forces under <b>elected PCCs
+      (Nov 2012)</b>, judged by <b>unpaid magistrates</b> and juries of <span class="d">12</span>
+      (<b>15 in Scotland</b>, plus "not proven"), with small claims capped at
+      <span class="d">£5,000 / £3,000</span>. Your shield was forged
+      <span class="d">1689 → 1950 → 1998</span>; your dues are <b>PAYE and National Insurance</b>;
+      your licence runs <b>17 to 70</b>. And the chain ends with you: <b>jury 18–70, governor 18+,
+      NCS 16–17, blood in an hour</b> — and one short oath, sworn <b>according to law</b>.
+    </p>
+
+    <h2 style="margin-top:60px">Prove it — the number stones</h2>
+    <p class="lede" style="margin-top:0">Chapter 5 is the counting chapter — these stones <i>are</i> the test. Tap to check yourself; if you can also say who the number belongs to, you're done.</p>
+    <div class="stones-tools">
+      <button id="stonesAll">Reveal all</button>
+      <button id="stonesNone">Hide all</button>
+    </div>
+    <div class="stones" id="stones">
+      <button class="stone"><span class="sy">1952</span><span class="se">Elizabeth II becomes Queen — Diamond Jubilee 2012</span></button>
+      <button class="stone"><span class="sy">1958</span><span class="se">life peers introduced — PM nominates, monarch appoints</span></button>
+      <button class="stone"><span class="sy">1999</span><span class="se">hereditary peers lose automatic seats · Holyrood opens</span></button>
+      <button class="stone"><span class="sy">5 years</span><span class="se">maximum gap between general elections</span></button>
+      <button class="stone"><span class="sy">18 (1969)</span><span class="se">voting age — set in 1969</span></button>
+      <button class="stone"><span class="sy">~20</span><span class="se">senior MPs in the cabinet — meets weekly</span></button>
+      <button class="stone"><span class="sy">60</span><span class="se">AMs — Welsh Assembly (laws in 20 areas since 2011)</span></button>
+      <button class="stone"><span class="sy">129</span><span class="se">MSPs — Scottish Parliament, can raise taxes</span></button>
+      <button class="stone"><span class="sy">108</span><span class="se">MLAs — Stormont, power-sharing since Good Friday 1998</span></button>
+      <button class="stone"><span class="sy">33</span><span class="se">London local authorities, plus the GLA and Mayor</span></button>
+      <button class="stone"><span class="sy">1997</span><span class="se">devolution begins (NI's 1922 parliament died in 1972)</span></button>
+      <button class="stone"><span class="sy">D-F-I-T-S</span><span class="se">Westminster keeps: defence, foreign, immigration, tax, social security</span></button>
+      <button class="stone"><span class="sy">7am–10pm</span><span class="se">polling station hours — NI needs photo ID</span></button>
+      <button class="stone"><span class="sy">54</span><span class="se">Commonwealth members — the Queen at its head</span></button>
+      <button class="stone"><span class="sy">25 Mar 1957</span><span class="se">Treaty of Rome — six founders create the EEC</span></button>
+      <button class="stone"><span class="sy">1973</span><span class="se">the UK joins the EEC — sixteen years late</span></button>
+      <button class="stone"><span class="sy">27</span><span class="se">EU member states — EU law is binding</span></button>
+      <button class="stone"><span class="sy">47</span><span class="se">Council of Europe — wrote the ECHR, makes no laws</span></button>
+      <button class="stone"><span class="sy">190+ · 15 · 5</span><span class="se">UN members · Security Council · permanent members</span></button>
+      <button class="stone"><span class="sy">Nov 2012</span><span class="se">first PCC elections — PCCs appoint Chief Constables</span></button>
+      <button class="stone"><span class="sy">12 / 15</span><span class="se">jurors: England, Wales &amp; NI / Scotland (+ "not proven")</span></button>
+      <button class="stone"><span class="sy">10–17</span><span class="se">Youth Court — parents attend, public barred, no naming</span></button>
+      <button class="stone"><span class="sy">£5,000 / £3,000</span><span class="se">small-claims limit: England &amp; Wales / Scotland &amp; NI</span></button>
+      <button class="stone"><span class="sy">1689</span><span class="se">Bill of Rights — after Magna Carta and Habeas Corpus</span></button>
+      <button class="stone"><span class="sy">1950</span><span class="se">UK signs the European Convention on Human Rights</span></button>
+      <button class="stone"><span class="sy">1998</span><span class="se">Human Rights Act writes the ECHR into UK law</span></button>
+      <button class="stone"><span class="sy">2008</span><span class="se">Forced Marriage Protection Orders (Scotland: Nov 2011)</span></button>
+      <button class="stone"><span class="sy">0808 2000 247</span><span class="se">24-hour National Domestic Violence Helpline</span></button>
+      <button class="stone"><span class="sy">16</span><span class="se">NI number arrives just before this birthday · moped age</span></button>
+      <button class="stone"><span class="sy">17 / 70</span><span class="se">car licence age / licence runs to — then 3-year renewals</span></button>
+      <button class="stone"><span class="sy">12 months</span><span class="se">non-EU foreign licences valid in the UK</span></button>
+      <button class="stone"><span class="sy">3 years</span><span class="se">car age at which the annual MOT becomes due</span></button>
+      <button class="stone"><span class="sy">18–70</span><span class="se">jury service — random pick from the electoral register</span></button>
+      <button class="stone"><span class="sy">16–17</span><span class="se">National Citizen Service age range</span></button>
+      <button class="stone"><span class="sy">~1 hour</span><span class="se">how long giving blood takes</span></button>
+    </div>
+
+    <div class="credits">
+      <div class="wrap">
+        <p class="ep-kicker">Roll the credits</p>
+        <h2>Cast of characters — the offices</h2>
+        <p class="sub">Chapter 5's cast isn't people — it's roles. Read each title and supply its one-line job description; that's the whole exam technique.</p>
+
+        <p class="cred-act" style="--ca:var(--era1)">Act I · The constitution</p>
+        <p class="cred"><span class="cn">The Monarch</span><span class="cr">head of state — advises, warns, encourages; never decides</span></p>
+        <p class="cred"><span class="cn">The Speaker</span><span class="cr">neutral referee — chosen by MPs in a secret ballot</span></p>
+        <p class="cred"><span class="cn">The MP</span><span class="cr">one constituency, first past the post</span></p>
+        <p class="cred"><span class="cn">The Life Peer</span><span class="cr">nominated by the PM, appointed by the monarch — since 1958</span></p>
+
+        <p class="cred-act" style="--ca:var(--era2)">Act II · The government</p>
+        <p class="cred"><span class="cn">The Prime Minister</span><span class="cr">No. 10 and Chequers — appoints the cabinet</span></p>
+        <p class="cred"><span class="cn">The Chancellor of the Exchequer</span><span class="cr">the economy</span></p>
+        <p class="cred"><span class="cn">The Home Secretary</span><span class="cr">crime, policing, immigration</span></p>
+        <p class="cred"><span class="cn">The Foreign Secretary</span><span class="cr">relations with foreign countries</span></p>
+        <p class="cred"><span class="cn">The Leader of the Opposition</span><span class="cr">PMQs every sitting week — appoints the shadow cabinet</span></p>
+        <p class="cred"><span class="cn">The Civil Servant</span><span class="cr">chosen on merit, politically neutral</span></p>
+        <p class="cred"><span class="cn">AM · MSP · MLA</span><span class="cr">60 in Cardiff · 129 at Holyrood · 108 at Stormont</span></p>
+
+        <p class="cred-act" style="--ca:var(--era4)">Act IV · The law</p>
+        <p class="cred"><span class="cn">The Police and Crime Commissioner</span><span class="cr">elected Nov 2012 — appoints the Chief Constable</span></p>
+        <p class="cred"><span class="cn">The Magistrate</span><span class="cr">unpaid, unqualified — minor crime</span></p>
+        <p class="cred"><span class="cn">The District Judge (NI)</span><span class="cr">paid and legally qualified — the exception</span></p>
+        <p class="cred"><span class="cn">The Sheriff (Scotland)</span><span class="cr">serious crime north of the border</span></p>
+        <p class="cred"><span class="cn">The Juror</span><span class="cr">one of 12 — or 15 in Scotland</span></p>
+        <p class="cred"><span class="cn">The Solicitor</span><span class="cr">advice and representation — fees follow time</span></p>
+
+        <p class="cred-act" style="--ca:var(--era6)">Act VI · Your role</p>
+        <p class="cred"><span class="cn">The School Governor</span><span class="cr">18+, no upper limit — strategy and accountability</span></p>
+        <p class="cred"><span class="cn">The Special Constable &amp; Lay Magistrate</span><span class="cr">the volunteer arm of the law</span></p>
+        <p class="cred"><span class="cn">The Blood Donor</span><span class="cr">about an hour of your time</span></p>
+        <p class="cred"><span class="cn">You</span><span class="cr">voter · juror · neighbour · citizen — according to law</span></p>
+
+        <p class="fin">The last scene was always you — now go pass the thing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  Story companion to Chapter 5 of the official <i>Life in the UK</i> handbook, faithful to the study
+  guide at lifeintheuktests.co.uk. Institutional facts (EU membership, the Queen, agency names) are
+  as printed in the handbook's edition — the test follows the handbook's wording, so should your answers.<br>
+  The trilogy: <a href="life-in-uk-chapter3-story.html">Ch 3 · The Island Story</a> ·
+  <a href="life-in-uk-chapter4-story.html">Ch 4 · Your First Year</a> ·
+  <b>Ch 5 · Follow the Power</b><br>
+  Revise the facts: <a href="life-in-uk-chapter5.html">Chapter 5 reference</a> · test yourself:
+  <a href="life-in-uk-quiz.html">the quiz</a>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* theme */
+  try {
+    var saved = localStorage.getItem("liuk-story-theme");
+    if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  } catch(e){}
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch(e){}
+  });
+
+  /* prologue stars */
+  var stars = document.getElementById("stars");
+  for (var i = 0; i < 42; i++) {
+    var s = document.createElement("i");
+    s.style.left = (Math.random()*100).toFixed(2) + "%";
+    s.style.top = (Math.random()*100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random()*4).toFixed(2) + "s";
+    stars.appendChild(s);
+  }
+
+  /* reveal on scroll */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+  /* ---- chain-of-command HUD ---- */
+  var eraNames = [
+    "Prologue · follow the power",
+    "Act I · The invisible rulebook",
+    "Act II · The engine room",
+    "Act III · The world stage",
+    "Act IV · The two lanes of the law",
+    "Act V · Your shield",
+    "Act VI · Your turn",
+    "Epilogue · the whole system"
+  ];
+  var eraColors = ["var(--gold)","var(--era1)","var(--era2)","var(--era3)","var(--era4)","var(--era5)","var(--era6)","var(--gold)"];
+  var hud = document.querySelector(".hud");
+  var hudYear = document.getElementById("hudYear");
+  var hudEra = document.getElementById("hudEra");
+  var marker = document.getElementById("hudMarker");
+  var marks = Array.prototype.slice.call(document.querySelectorAll("[data-year]"));
+  var current = null, ticking = false;
+
+  function update(){
+    ticking = false;
+    var mid = innerHeight * 0.5;
+    var active = marks[0];
+    for (var j = 0; j < marks.length; j++) {
+      if (marks[j].getBoundingClientRect().top < mid) active = marks[j];
+      else break;
+    }
+    if (active !== current) {
+      current = active;
+      hudYear.textContent = active.dataset.year;
+      hudEra.textContent = eraNames[+active.dataset.era] || eraNames[0];
+      hud.style.setProperty("--acc", eraColors[+active.dataset.era] || eraColors[0]);
+      if (!reduced) {
+        hudYear.classList.remove("pop");
+        void hudYear.offsetWidth;
+        hudYear.classList.add("pop");
+      }
+    }
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    marker.style.left = (p * 100).toFixed(2) + "%";
+  }
+  addEventListener("scroll", function(){
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
+
+  /* ---- play the story (auto-scroll) ---- */
+  var playBtn = document.getElementById("play");
+  var playing = false, lastT = 0, rafId = 0;
+  var SPEED = 62; /* px per second */
+
+  function step(t){
+    if (!playing) return;
+    if (lastT) {
+      document.documentElement.scrollTop += SPEED * (t - lastT) / 1000;
+    }
+    lastT = t;
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) { stopPlay(); return; }
+    rafId = requestAnimationFrame(step);
+  }
+  function startPlay(){
+    playing = true; lastT = 0;
+    root.style.scrollBehavior = "auto";
+    playBtn.textContent = "❚❚";
+    playBtn.title = "Pause";
+    rafId = requestAnimationFrame(step);
+  }
+  function stopPlay(){
+    if (!playing) return;
+    playing = false;
+    cancelAnimationFrame(rafId);
+    root.style.scrollBehavior = "";
+    playBtn.textContent = "▶";
+    playBtn.title = "Play the story (auto-scroll)";
+  }
+  playBtn.addEventListener("click", function(){ playing ? stopPlay() : startPlay(); });
+  ["wheel","touchstart","mousedown"].forEach(function(ev){
+    addEventListener(ev, function(e){
+      if (playing && e.target !== playBtn) stopPlay();
+    }, { passive: true });
+  });
+
+  /* ---- keyboard: 1-6 jump acts, arrows step scenes ---- */
+  var stops = Array.prototype.slice.call(document.querySelectorAll(".scene, .act-card, .prologue, .epilogue"));
+  addEventListener("keydown", function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key >= "1" && e.key <= "6") {
+      stopPlay();
+      var act = document.getElementById("act" + e.key);
+      if (act) act.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      stopPlay();
+      var mid = innerHeight * 0.5, idx = 0;
+      for (var k = 0; k < stops.length; k++) {
+        if (stops[k].getBoundingClientRect().top < mid) idx = k;
+      }
+      var next = e.key === "ArrowRight" ? Math.min(stops.length - 1, idx + 1) : Math.max(0, idx - 1);
+      stops[next].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    }
+  });
+
+  /* ---- number stones ---- */
+  document.querySelectorAll(".stone").forEach(function(b){
+    b.addEventListener("click", function(){ b.classList.toggle("on"); });
+  });
+  document.getElementById("stonesAll").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.add("on"); });
+  });
+  document.getElementById("stonesNone").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.remove("on"); });
+  });
+})();
+</script>
+</body>
+</html>
