@@ -1,0 +1,1842 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 3 · The Island Story — a time-travel retelling</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --trap-bg:#EFEDE4; --trap-ink:#171B23;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --trap-bg:#22252D; --trap-ink:#F4F2EA;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.62;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  b { color:var(--ink); font-weight:650; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+
+  /* ---------- fixed controls ---------- */
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+  .themeToggle:hover { transform:translateY(-1px); }
+
+  /* ---------- Time-machine HUD ---------- */
+  .hud {
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    z-index:40; display:flex; align-items:center; gap:14px;
+    background:color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:14px;
+    padding:10px 16px; box-shadow:var(--shadow);
+    width:min(560px, calc(100vw - 24px));
+  }
+  .hud-play {
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--line); background:var(--card-2); color:var(--ink);
+    font-size:.9rem; cursor:pointer; display:grid; place-items:center;
+  }
+  .hud-play:hover { border-color:var(--acc, var(--gold)); }
+  .hud-mid { flex:1 1 auto; min-width:0; }
+  .hud-year {
+    font-family:var(--serif); font-size:1.5rem; line-height:1.1;
+    font-variant-numeric:tabular-nums; color:var(--acc, var(--gold));
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-year.pop { animation:yearpop .45s ease; }
+  @keyframes yearpop {
+    0% { opacity:0; transform:translateY(10px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  .hud-era {
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:650; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-track {
+    position:relative; height:6px; border-radius:3px; margin-top:7px; overflow:visible;
+    background:linear-gradient(to right,
+      var(--era1) 0 16.6%, var(--era2) 16.6% 33.3%, var(--era3) 33.3% 50%,
+      var(--era4) 50% 66.6%, var(--era5) 66.6% 83.3%, var(--era6) 83.3% 100%);
+    opacity:.85;
+  }
+  .hud-marker {
+    position:absolute; top:50%; left:0%; width:14px; height:14px;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:var(--ink); border:2.5px solid var(--page);
+    box-shadow:0 0 0 1.5px var(--ink);
+  }
+  @media (max-width:520px) {
+    .hud { gap:10px; padding:9px 12px; }
+    .hud-year { font-size:1.2rem; }
+  }
+
+  /* ---------- Prologue ---------- */
+  .prologue { min-height:92vh; display:flex; align-items:center; position:relative; overflow:hidden; }
+  .stars { position:absolute; inset:0; pointer-events:none; }
+  .stars i {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:var(--gold); opacity:.55; animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.15;} 50%{opacity:.7;} }
+  :root[data-theme="light"] .stars i { opacity:.3; }
+  .pro-inner { position:relative; padding:70px 0 120px; }
+  .eyebrow {
+    font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gold); font-weight:650; margin:0 0 20px;
+  }
+  h1 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.9rem, 8vw, 5.2rem); line-height:1.02; margin:0;
+    text-wrap:balance;
+  }
+  h1 em { font-style:italic; color:var(--gold); }
+  .lede { color:var(--ink-2); font-size:1.08rem; max-width:58ch; margin:24px 0 0; }
+  .lede b { color:var(--ink); }
+  .howto {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:38px 0 0; max-width:640px;
+  }
+  .howto div {
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:13px 15px; font-size:.85rem; color:var(--ink-2);
+  }
+  .howto b { display:block; color:var(--ink); margin-bottom:2px; }
+  .howto kbd {
+    font-family:inherit; font-size:.78em; border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:5px; padding:1px 6px; background:var(--card-2); color:var(--ink);
+  }
+  @media (max-width:560px){ .howto { grid-template-columns:1fr; } }
+  .scroll-cue {
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    color:var(--ink-3); font-size:.75rem; letter-spacing:.18em; text-transform:uppercase;
+    animation:cue 2.4s ease-in-out infinite;
+  }
+  @keyframes cue { 0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);} }
+
+  /* ---------- Act title cards ---------- */
+  .act-card {
+    min-height:88vh; display:flex; flex-direction:column; justify-content:center;
+    text-align:center; padding:60px 22px; position:relative;
+  }
+  .act-prev {
+    font-size:.8rem; color:var(--ink-3); font-style:italic; max-width:56ch;
+    margin:0 auto 34px; line-height:1.7;
+  }
+  .act-prev b { color:var(--ink-2); font-style:normal; }
+  .act-motif { width:min(300px, 62vw); margin:0 auto 26px; }
+  .act-motif svg { display:block; width:100%; height:auto; overflow:visible; }
+  .act-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--acc); margin:0 0 12px; font-variant-numeric:tabular-nums;
+  }
+  .act-card h2 {
+    font-family:var(--serif); font-weight:500; letter-spacing:-.01em;
+    font-size:clamp(2.2rem, 6vw, 3.7rem); line-height:1.05; margin:0; text-wrap:balance;
+  }
+  .act-log { color:var(--ink-2); max-width:52ch; margin:20px auto 0; font-size:1rem; }
+
+  /* ---------- Scenes & the thread ---------- */
+  .act { --acc:var(--gold); }
+  .act[data-era="1"] { --acc:var(--era1); } .act[data-era="2"] { --acc:var(--era2); }
+  .act[data-era="3"] { --acc:var(--era3); } .act[data-era="4"] { --acc:var(--era4); }
+  .act[data-era="5"] { --acc:var(--era5); } .act[data-era="6"] { --acc:var(--era6); }
+
+  .scenes { position:relative; padding:10px 0 30px; }
+  .scenes::before {
+    content:""; position:absolute; top:0; bottom:0; left:29px; width:2px;
+    background:linear-gradient(to bottom, transparent, var(--acc) 60px, var(--acc) calc(100% - 60px), transparent);
+    opacity:.35;
+  }
+  .scene { position:relative; padding:26px 0 6px 74px; }
+  .scene-dot {
+    position:absolute; left:22px; top:38px; width:16px; height:16px; border-radius:50%;
+    background:var(--page); border:3px solid var(--acc); z-index:1;
+  }
+  .scene h3 {
+    font-family:var(--serif); font-weight:550; font-size:1.55rem; line-height:1.15;
+    margin:0 0 4px; letter-spacing:-.005em;
+  }
+  .scene h3 .yr {
+    font-size:.85rem; color:var(--acc); font-variant-numeric:tabular-nums;
+    letter-spacing:.06em; display:block; margin-bottom:6px; font-family:var(--sans); font-weight:650;
+  }
+  .scene .glyph {
+    float:right; margin:2px 0 10px 16px; width:58px; height:58px; border-radius:50%;
+    background:color-mix(in srgb, var(--acc) 14%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
+    display:grid; place-items:center; font-size:1.65rem; user-select:none;
+  }
+  .story { color:var(--ink-2); margin:10px 0 0; }
+  .story b { color:var(--ink); }
+  .story .d {
+    color:var(--acc); font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .hook, .trap {
+    clear:both; border-radius:10px; padding:12px 15px; margin:16px 0 0;
+    font-size:.88rem; line-height:1.55;
+  }
+  .hook {
+    background:color-mix(in srgb, var(--acc) 10%, var(--card));
+    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { display:inline; }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); }
+  .trap b { color:inherit; }
+  details.notes {
+    clear:both; margin:16px 0 0; border:1px dashed color-mix(in srgb, var(--acc) 40%, var(--line));
+    border-radius:10px; background:var(--card); font-size:.88rem;
+  }
+  details.notes summary {
+    cursor:pointer; padding:10px 15px; font-weight:650; color:var(--acc);
+    list-style:none; user-select:none;
+  }
+  details.notes summary::before { content:"▸ "; }
+  details.notes[open] summary::before { content:"▾ "; }
+  details.notes .n-body { padding:0 15px 12px; color:var(--ink-2); }
+  details.notes .n-body p { margin:6px 0; }
+
+  .because {
+    position:relative; margin:30px 0 4px; padding:0 0 0 74px;
+    font-family:var(--serif); font-style:italic; font-size:1.02rem; color:var(--ink-3);
+  }
+  .because::before {
+    content:"↓"; position:absolute; left:23px; top:0; font-style:normal;
+    color:var(--acc); font-family:var(--sans); font-weight:700;
+  }
+  @media (max-width:640px) {
+    .scene { padding-left:52px; }
+    .scenes::before { left:19px; }
+    .scene-dot { left:12px; }
+    .because { padding-left:52px; }
+    .because::before { left:13px; }
+    .scene .glyph { width:46px; height:46px; font-size:1.3rem; }
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* ---------- Act motif SVG animations (play when .in) ---------- */
+  /* Act I — sunrise over Stonehenge */
+  .m1 .sun { transform:translateY(46px); opacity:.25; transition:transform 2.6s ease, opacity 2.6s ease; }
+  .in .m1 .sun { transform:translateY(0); opacity:1; }
+  .m1 .ray { opacity:0; transition:opacity 1.8s ease 1.6s; }
+  .in .m1 .ray { opacity:.5; }
+  /* Act II — two roses become one */
+  .m2 .roseL { transform:translateX(-46px); transition:transform 2s cubic-bezier(.5,0,.2,1) .4s; }
+  .m2 .roseR { transform:translateX(46px); transition:transform 2s cubic-bezier(.5,0,.2,1) .4s; }
+  .in .m2 .roseL, .in .m2 .roseR { transform:translateX(0); }
+  .m2 .roseR { opacity:.92; }
+  /* Act III — the crown falls (1649) and returns (1660) */
+  .m3 .crown { transform-origin:100px 60px; }
+  .in .m3 .crown { animation:crownfall 3.6s ease forwards .3s; }
+  @keyframes crownfall {
+    0% { transform:translateY(0) rotate(0deg); }
+    30% { transform:translateY(44px) rotate(-14deg); }
+    50% { transform:translateY(44px) rotate(-14deg); }
+    80% { transform:translateY(-2px) rotate(1deg); }
+    100% { transform:translateY(0) rotate(0deg); }
+  }
+  .m3 .halo { opacity:0; transition:opacity 1.2s ease 3.4s; }
+  .in .m3 .halo { opacity:.6; }
+  /* Act IV — the great gear turns */
+  .m4 .gear { transform-origin:100px 62px; }
+  .in .m4 .gear { animation:spin 14s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .m4 .puff { opacity:0; }
+  .in .m4 .puff { animation:puff 4s ease-out infinite; }
+  .in .m4 .puff.p2 { animation-delay:1.3s; }
+  .in .m4 .puff.p3 { animation-delay:2.6s; }
+  @keyframes puff {
+    0% { opacity:0; transform:translateY(0) scale(.6); }
+    25% { opacity:.5; }
+    100% { opacity:0; transform:translateY(-34px) scale(1.4); }
+  }
+  /* Act V — poppies grow */
+  .m5 .stem { stroke-dasharray:60; stroke-dashoffset:60; transition:stroke-dashoffset 1.6s ease .3s; }
+  .in .m5 .stem { stroke-dashoffset:0; }
+  .m5 .head { transform:scale(0); transform-origin:center; transform-box:fill-box; transition:transform .9s cubic-bezier(.34,1.5,.6,1) 1.5s; }
+  .in .m5 .head { transform:scale(1); }
+  .m5 .h2 { transition-delay:1.9s; } .m5 .h3 { transition-delay:2.3s; }
+  /* Act VI — the heartbeat of the NHS */
+  .m6 .ecg { stroke-dasharray:420; stroke-dashoffset:420; transition:stroke-dashoffset 3s ease .4s; }
+  .in .m6 .ecg { stroke-dashoffset:0; }
+  .in .m6 .heart { animation:beat 1.6s ease-in-out infinite 2.6s; transform-origin:center; transform-box:fill-box; }
+  @keyframes beat { 0%,100%{transform:scale(1);} 12%{transform:scale(1.14);} 24%{transform:scale(1);} }
+
+  /* ---------- Epilogue ---------- */
+  .epilogue { border-top:1px solid var(--line); margin-top:70px; padding:70px 0 40px; }
+  .ep-kicker {
+    font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; font-weight:650;
+    color:var(--gold); margin:0 0 12px;
+  }
+  .epilogue h2 {
+    font-family:var(--serif); font-weight:500; font-size:clamp(1.9rem,5vw,2.8rem);
+    line-height:1.1; margin:0 0 18px; letter-spacing:-.01em;
+  }
+  .breath {
+    font-family:var(--serif); font-size:1.13rem; line-height:1.85; color:var(--ink-2);
+  }
+  .breath b { color:var(--ink); font-weight:600; }
+  .breath .d { color:var(--gold); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* date stones */
+  .stones { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin:26px 0 0; }
+  .stone {
+    position:relative; font-family:inherit; text-align:left; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:9px;
+    padding:10px 12px; color:var(--ink); min-height:78px;
+  }
+  .stone:hover { border-color:var(--gold); }
+  .stone .sy {
+    display:block; font-family:var(--serif); font-size:1.15rem; color:var(--gold);
+    font-variant-numeric:tabular-nums; line-height:1.2;
+  }
+  .stone .se { display:block; font-size:.76rem; color:var(--ink-2); margin-top:4px; line-height:1.4; }
+  .stone:not(.on) .se { visibility:hidden; }
+  .stone:not(.on)::after {
+    content:"tap to reveal"; position:absolute; left:12px; bottom:10px;
+    font-size:.66rem; color:var(--ink-3);
+  }
+  .stones-tools { margin:14px 0 0; display:flex; gap:10px; }
+  .stones-tools button {
+    font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
+    background:var(--card-2); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px;
+  }
+
+  /* credits */
+  .credits { background:#0A0B0F; color:#E8E4D8; margin-top:70px; padding:80px 0 90px; text-align:center; }
+  :root[data-theme="light"] .credits { background:#1C1E26; }
+  .credits .ep-kicker { color:var(--era1); }
+  .credits h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,4.5vw,2.6rem); margin:0 0 8px; color:#F2EFE6; }
+  .credits .sub { color:#8D919C; font-size:.9rem; margin:0 0 46px; }
+  .cred-act {
+    font-size:.7rem; letter-spacing:.24em; text-transform:uppercase; font-weight:650;
+    margin:44px 0 18px; color:var(--ca, var(--gold));
+  }
+  .cred { margin:0 0 15px; }
+  .cred .cn { font-family:var(--serif); font-size:1.18rem; color:#F2EFE6; display:block; line-height:1.3; }
+  .cred .cr { font-size:.78rem; color:#8D919C; display:block; margin-top:1px; }
+  .fin {
+    font-family:var(--serif); font-style:italic; font-size:1.5rem; color:var(--gold);
+    margin:70px 0 0;
+  }
+  .foot { text-align:center; color:var(--ink-3); font-size:.78rem; padding:40px 22px 120px; }
+  .foot a { color:var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+    .reveal { opacity:1; transform:none; }
+    .m1 .sun { transform:none; opacity:1; } .m1 .ray { opacity:.5; }
+    .m2 .roseL, .m2 .roseR { transform:none; }
+    .m5 .stem { stroke-dashoffset:0; } .m5 .head { transform:scale(1); }
+    .m6 .ecg { stroke-dashoffset:0; }
+    .hud-play { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle theme">◐ Theme</button>
+
+<!-- ======================= TIME MACHINE HUD ======================= -->
+<div class="hud" aria-hidden="false">
+  <button class="hud-play" id="play" title="Play the story (auto-scroll)" aria-label="Play or pause auto-scroll">▶</button>
+  <div class="hud-mid">
+    <div class="hud-year" id="hudYear">Stone Age</div>
+    <div class="hud-era" id="hudEra">Prologue · scroll to begin</div>
+    <div class="hud-track"><div class="hud-marker" id="hudMarker"></div></div>
+  </div>
+</div>
+
+<!-- ======================= PROLOGUE ======================= -->
+<header class="prologue" data-year="Stone Age" data-era="0">
+  <div class="stars" id="stars"></div>
+  <div class="wrap pro-inner">
+    <p class="eyebrow">Life in the UK · Chapter 3 · Story Mode</p>
+    <h1>The Island <em>Story</em></h1>
+    <p class="lede">
+      Chapter 3 is the biggest chapter in the book — and it defeats people because they
+      study it as a <b>list</b>. It is not a list. It is a <b>plot</b>: one island,
+      ten thousand years, and a single unbroken chain of cause and effect.
+      Read it as a story and the dates stop being random numbers — each one is simply
+      <b>what had to happen next</b>.
+    </p>
+    <div class="howto">
+      <div><b>⏳ Scrolling is time travel.</b> The year in the bar below tracks exactly where you are in history.</div>
+      <div><b>🔗 Follow the chain.</b> Every scene ends with the reason the next one happens. That chain <i>is</i> the memory trick.</div>
+      <div><b>▶ Let the page drive.</b> Press play and the story rolls past at reading speed. Touch anything to take the controls back.</div>
+      <div><b>⌨️ Shortcuts.</b> Keys <kbd>1</kbd>–<kbd>6</kbd> jump between acts. <kbd>→</kbd> and <kbd>←</kbd> step scene by scene.</div>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to begin ↓</div>
+</header>
+
+<!-- ======================= ACT I ======================= -->
+<section class="act" data-era="1" id="act1">
+  <div class="act-card reveal" data-year="Stone Age" data-era="1">
+    <div class="act-motif">
+      <svg class="m1" viewBox="0 0 200 120" role="img" aria-label="Sunrise over Stonehenge">
+        <circle class="sun" cx="100" cy="46" r="17" fill="var(--acc)"/>
+        <g class="ray" stroke="var(--acc)" stroke-width="1.4">
+          <line x1="100" y1="14" x2="100" y2="6"/><line x1="70" y1="24" x2="64" y2="18"/>
+          <line x1="130" y1="24" x2="136" y2="18"/><line x1="60" y1="46" x2="50" y2="46"/><line x1="140" y1="46" x2="150" y2="46"/>
+        </g>
+        <g fill="var(--ink)">
+          <rect x="34" y="62" width="12" height="40"/><rect x="58" y="62" width="12" height="40"/><rect x="30" y="52" width="44" height="11" rx="1"/>
+          <rect x="94" y="58" width="12" height="44"/><rect x="118" y="58" width="12" height="44"/><rect x="90" y="48" width="44" height="11" rx="1"/>
+          <rect x="152" y="64" width="12" height="38"/><rect x="172" y="72" width="11" height="30"/>
+        </g>
+        <rect x="8" y="101" width="184" height="2.5" rx="1.25" fill="var(--ink)" opacity=".55"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act I · Stone Age → 1066</p>
+    <h2>The Island Everyone Wanted</h2>
+    <p class="act-log">
+      For ten thousand years, wave after wave of people arrive by boat — farmers, legions,
+      Saxons, Vikings, Normans. Then, in 1066, the door slams shut. Nobody ever
+      successfully invades again. This whole act is one drumbeat: <b>who arrives next?</b>
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="10,000 ya" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌊</div>
+      <h3><span class="yr">~10,000 years ago</span>The sea makes an island</h3>
+      <p class="story">
+        Our story opens before Britain is Britain. The first people are <b>hunter-gatherers</b>,
+        and they simply <b>walk here</b> — a <b>land bridge</b> joins Britain to the continent.
+        Then, about <span class="d">10,000 years ago</span>, the ice melts, the water rises,
+        and the <b>Channel</b> cuts Britain off. From this moment, every single person in the
+        rest of this story has to <b>cross the sea</b> to get in. Remember that: it explains everything.
+      </p>
+    </article>
+    <p class="because reveal">An island can be reached — and about four thousand years later, new boats appear on the horizon…</p>
+
+    <article class="scene reveal" data-year="6,000 ya" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌾</div>
+      <h3><span class="yr">~6,000 years ago</span>Arrival № 1 — the farmers</h3>
+      <p class="story">
+        The <b>first farmers</b> arrive, their ancestors from <b>south-east Europe</b>. They stop
+        chasing food and start growing it — and settled people build things that last. They raise
+        <b>Stonehenge</b> in <b>Wiltshire</b>, probably a gathering place for <b>seasonal ceremonies</b>,
+        and on <b>Orkney</b>, off the north of Scotland, they leave <b>Skara Brae</b> — the
+        <b>best-preserved prehistoric village in northern Europe</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Stonehenge = <b>south</b> (Wiltshire), Skara Brae = <b>far north</b> (Orkney). The two ends of the island, both built by the farmer wave.</aside>
+    </article>
+    <p class="because reveal">Farmers settle, settlements trade — and traders bring a shiny new technology across the sea…</p>
+
+    <article class="scene reveal" data-year="4,000 ya" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗡️</div>
+      <h3><span class="yr">~4,000 years ago</span>Bronze, then iron — and history begins</h3>
+      <p class="story">
+        Around <span class="d">4,000 years ago</span> people learn to make <b>bronze</b>. They live in
+        <b>roundhouses</b>, bury their dead in <b>round barrows</b>, and become skilled metalworkers in
+        <b>bronze and gold</b>. Iron follows: bigger settlements, some fortified into <b>hill forts</b> —
+        the test's favourite is <b>Maiden Castle</b> in <b>Dorset</b>. Iron Age people are farmers, craft
+        workers and warriors speaking a <b>Celtic</b>-family language (its relatives survive in Wales,
+        Scotland and Ireland). And they mint the <b>first British coins</b>, some stamped with kings' names —
+        the moment <b>British history officially begins</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> British history starts with <b>Iron Age coins</b> — <i>not</i> with the Romans. The examiners love this one.</aside>
+    </article>
+    <p class="because reveal">An island with gold, grain and coins gets noticed. In Rome, an ambitious general is reading the reports…</p>
+
+    <article class="scene reveal" data-year="55 BC" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🦅</div>
+      <h3><span class="yr">55 BC → AD 43</span>Arrival № 2 — Rome tries twice</h3>
+      <p class="story">
+        <span class="d">55 BC</span>: <b>Julius Caesar</b> invades — <b>and fails</b>. Britain stays outside
+        the Empire for almost a century, until <span class="d">AD 43</span>, when Emperor <b>Claudius</b>
+        invades <b>and succeeds</b>. Not everyone submits: <b>Boudicca</b>, queen of the <b>Iceni</b> in
+        eastern England, leads a ferocious fightback — her <b>statue stands on Westminster Bridge</b> today.
+        And the north never falls at all: the <b>Picts</b> hold Scotland, so Emperor <b>Hadrian</b> builds his
+        <b>wall</b> to keep them out — with forts at <b>Housesteads</b> and <b>Vindolanda</b>, now a
+        <b>UNESCO World Heritage Site</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>"Caesar failed, Claudius nailed."</i> And Hadrian's Wall keeps out the <b>Picts</b> — not the Vikings, who haven't been invented yet.</aside>
+    </article>
+    <p class="because reveal">Rome digs in for four centuries — long enough to change the island forever…</p>
+
+    <article class="scene reveal" data-year="AD 410" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛣️</div>
+      <h3><span class="yr">AD 410</span>Rome builds, then Rome leaves</h3>
+      <p class="story">
+        For <b>400 years</b> the Romans rule: <b>roads</b>, <b>public buildings</b>, a
+        <b>structure of law</b>, new plants and animals. In the <b>3rd and 4th centuries AD</b> the first
+        <b>Christian communities</b> appear. But Rome itself is under attack, and in
+        <span class="d">AD 410</span> the legions march away to defend it — <b>and never come back</b>.
+        Suddenly the island is rich, organised… and undefended.
+      </p>
+    </article>
+    <p class="because reveal">An undefended island is an invitation. Across the North Sea, three tribes accept it…</p>
+
+    <article class="scene reveal" data-year="AD 600" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚔️</div>
+      <h3><span class="yr">by AD 600</span>Arrival № 3 — the Anglo-Saxons</h3>
+      <p class="story">
+        The <b>Jutes, Angles and Saxons</b> sail in from northern Europe. Their languages become the
+        <b>basis of modern English</b> — and the Angles will eventually give "England" its name. By
+        <span class="d">AD 600</span> their <b>kingdoms are established</b>, mainly in what is now England;
+        <b>Wales and Scotland stay free</b> of Anglo-Saxon rule. At <b>Sutton Hoo</b> in Suffolk, one of
+        their kings is buried <b>in a ship</b>, under a mound, with treasure and armour. Meanwhile three
+        missionaries bring Christianity back: <b>St Patrick</b> to Ireland, <b>St Columba</b> to Scotland
+        (founding the monastery on <b>Iona</b>), and <b>St Augustine</b> to the south of England — becoming
+        the <b>first Archbishop of Canterbury</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the saints run north to south — <b>P·C·A</b>: <b>P</b>atrick (Ireland), <b>C</b>olumba (Iona, Scotland), <b>A</b>ugustine (Canterbury, south).</aside>
+    </article>
+    <p class="because reveal">The Anglo-Saxons grow comfortable. But comfort attracts raiders — and in 789 the longships come…</p>
+
+    <article class="scene reveal" data-year="AD 789" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛶</div>
+      <h3><span class="yr">AD 789</span>Arrival № 4 — the Vikings</h3>
+      <p class="story">
+        From <b>Denmark and Norway</b>, the Vikings first strike in <span class="d">AD 789</span>, raiding
+        for <b>goods and slaves</b>. Then they do something worse than raiding: <b>they stay</b>, settling
+        the east of England and Scotland in an area called the <b>Danelaw</b> — place names like
+        <b>Grimsby</b> and <b>Scunthorpe</b> are their fingerprints. The fightback creates two nations:
+        in the south, <b>King Alfred the Great</b> unites the Anglo-Saxon kingdoms and defeats the Vikings;
+        in the north, the Viking threat pushes the peoples together under <b>Kenneth MacAlpin</b> — and the
+        name <b>Scotland</b> comes into use. Danish kings rule England for a while too: <b>Cnut (Canute)</b> is the first.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the Vikings accidentally <i>built</i> two countries — pressure from raiders forged both <b>Alfred's England</b> and <b>MacAlpin's Scotland</b>.</aside>
+    </article>
+    <p class="because reveal">England is now one rich kingdom — which means one throne. And in 1066, that throne falls empty…</p>
+
+    <article class="scene reveal" data-year="1066" data-era="1">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏹</div>
+      <h3><span class="yr">1066</span>Arrival № 5 — the last invasion</h3>
+      <p class="story">
+        <span class="d">1066</span>. <b>William, Duke of Normandy</b> crosses the Channel and meets
+        <b>King Harold</b> at the <b>Battle of Hastings</b>. Harold is <b>killed in the battle</b>; William
+        becomes <b>William the Conqueror</b>. The whole drama is stitched into the <b>Bayeux Tapestry</b>,
+        which still exists in France. This is <b>the last successful foreign invasion of England, ever</b> —
+        and it changes government, society and language (Norman <b>French</b> pours into English). William
+        audits his prize in the <b>Domesday Book</b> — every town, village, person, and animal — which
+        <b>still exists today</b>. The Normans conquer parts of Wales (the Welsh win territory back), take
+        land on the Scottish border, but <b>do not invade Scotland</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> 1066 = last <b>successful</b> invasion. Later attempts (the Armada, Napoleon, Hitler) all fail — that's the whole point of the next five acts.</aside>
+    </article>
+    <p class="because reveal">A conqueror must control what he has conquered. William's tool of control gets a name: feudalism — and it opens the Middle Ages…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT II ======================= -->
+<section class="act" data-era="2" id="act2">
+  <div class="act-card reveal" data-year="1066" data-era="2">
+    <div class="act-motif">
+      <svg class="m2" viewBox="0 0 200 120" role="img" aria-label="A red rose and a white rose joining into the Tudor rose">
+        <g class="roseL">
+          <g fill="#B03A5B">
+            <circle cx="100" cy="43" r="12"/><circle cx="117" cy="55" r="12"/><circle cx="111" cy="75" r="12"/>
+            <circle cx="89" cy="75" r="12"/><circle cx="83" cy="55" r="12"/>
+          </g>
+          <circle cx="100" cy="60" r="11" fill="#8E2B47"/>
+        </g>
+        <g class="roseR">
+          <g fill="#F2EFE6" stroke="var(--ink-3)" stroke-width="1">
+            <circle cx="100" cy="48" r="8.5"/><circle cx="112" cy="56" r="8.5"/><circle cx="108" cy="70" r="8.5"/>
+            <circle cx="92" cy="70" r="8.5"/><circle cx="88" cy="56" r="8.5"/>
+          </g>
+          <circle cx="100" cy="60" r="7" fill="var(--acc)"/>
+        </g>
+      </svg>
+    </div>
+    <p class="act-kicker">Act II · 1066 → 1485 · The Middle Ages</p>
+    <h2>Swords and Signatures</h2>
+    <p class="act-log">
+      <b>Previously:</b> five waves of arrivals ended with William's conquest in 1066.
+      Now his descendants fight <i>everyone</i> — Wales, Scotland, Ireland, France, each other.
+      But watch the quiet counter-plot: between the battles, <b>the law, Parliament and the English
+      language</b> are all being born. Swords make the noise; signatures make the future.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1066+" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏰</div>
+      <h3><span class="yr">after 1066</span>The pyramid of land</h3>
+      <p class="story">
+        William needs to hold a hostile country, so he imports <b>feudalism</b>: the king grants land to
+        lords, the lords owe him <b>soldiers</b>, and at the bottom most peasants are <b>serfs</b> — bound
+        to their lord's land, with barely any rights. (In <b>northern Scotland and Ireland</b> the pattern
+        differs: land belongs to <b>clans</b>.) Everyone in medieval Britain knows exactly whom they owe,
+        and what.
+      </p>
+    </article>
+    <p class="because reveal">A king whose lords owe him soldiers is a king who can make war. And these kings make a lot of it…</p>
+
+    <article class="scene reveal" data-year="1284" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🛡️</div>
+      <h3><span class="yr">1200 · 1284 · 1314</span>War at home — three fronts, three results</h3>
+      <p class="story">
+        <b>Ireland:</b> by <span class="d">1200</span> the English rule only the area around Dublin,
+        called <b>the Pale</b>. <b>Wales:</b> in <span class="d">1284</span> King <b>Edward I's</b>
+        <b>Statute of Rhuddlan</b> annexes Wales to the English Crown — he builds vast castles including
+        <b>Conwy</b> and <b>Caernarvon</b> to make it stick, and by the <b>mid-15th century</b> the last
+        Welsh rebellions are crushed and English law and language move in. <b>Scotland:</b> the opposite
+        story — in <span class="d">1314</span> <b>Robert the Bruce</b> smashes the English at
+        <b>Bannockburn</b>, and Scotland <b>remains unconquered</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> three fronts, three outcomes — Ireland: <b>a toehold</b> (the Pale) · Wales: <b>conquered</b> (1284) · Scotland: <b>never</b> (1314).</aside>
+    </article>
+    <p class="because reveal">Not content with three fronts at home, England's knights and kings go looking for war abroad…</p>
+
+    <article class="scene reveal" data-year="1415" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🐎</div>
+      <h3><span class="yr">1415</span>War abroad — Crusades and the Hundred Years War</h3>
+      <p class="story">
+        English knights ride to the <b>Crusades</b> — European Christians fighting for control of the
+        <b>Holy Land</b>. Then comes the main event: the <b>Hundred Years War</b> with France, which —
+        with classic English precision — actually lasts <b>116 years</b>. Its most famous day is
+        <span class="d">1415</span>, the <b>Battle of Agincourt</b>, where <b>King Henry V's</b> vastly
+        outnumbered army beats the French. It doesn't last: the English <b>leave France in the 1450s</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> keep the staircase straight — <b>1215</b> Magna Carta, <b>1314</b> Bannockburn (Scots beat English), <b>1415</b> Agincourt (English beat French). Rising pairs, one century apart, opposite results for England.</aside>
+    </article>
+    <p class="because reveal">Then, in 1348, an enemy arrives that no army can fight…</p>
+
+    <article class="scene reveal" data-year="1348" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🐀</div>
+      <h3><span class="yr">1348</span>The Black Death breaks the pyramid</h3>
+      <p class="story">
+        In <span class="d">1348</span> the <b>Black Death</b> reaches Britain and kills
+        <b>one third of the population of England</b> — with similar losses in Scotland and Wales. It is
+        one of the worst disasters ever to strike the country. And it rewires society: with workers
+        suddenly scarce, <b>peasants demand higher wages</b>, people move to towns, and new classes appear —
+        the <b>gentry</b> in the countryside and a <b>middle class</b> in the towns. In Ireland,
+        the English-controlled <b>Pale shrinks</b>. Feudalism's iron pyramid has cracked from below.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the plague is grim, but its <i>consequence</i> is the exam point — fewer workers → <b>higher wages</b> → <b>new social classes</b>. Death, weirdly, gave ordinary people leverage.</aside>
+    </article>
+    <p class="because reveal">Workers are pushing up from below. Meanwhile the nobles have already pushed back from above — against the king himself…</p>
+
+    <article class="scene reveal" data-year="1215" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">📜</div>
+      <h3><span class="yr">1215</span>Magna Carta — the king meets the law</h3>
+      <p class="story">
+        Rewind a little, because this signature outranks every sword in the act. In
+        <span class="d">1215</span>, furious noblemen corner <b>King John</b> and force him to seal
+        <b>Magna Carta</b> — a charter of rights whose core idea still runs Britain today:
+        <b>even the king is subject to the law</b>. It limits his power to <b>collect taxes</b> and to
+        <b>make or change laws</b> without involving the nobility. From that seed grows <b>Parliament</b>:
+        the king's council splits into two Houses — the <b>Lords</b> (nobility and bishops) and the
+        <b>Commons</b> (elected knights and wealthy townspeople; only a tiny fraction of people can vote).
+        Scotland's Parliament develops <b>three Estates</b>: lords, commons and <b>clergy</b>. Judges grow
+        <b>independent of government</b>; England builds <b>common law</b> from precedent, while Scottish
+        law is <b>codified</b> — written down.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Magna Carta <b>12-15</b>, Bannockburn <b>13-14</b>, Agincourt <b>14-15</b> — the staircase of dates. Paper first, then the two battles.</aside>
+    </article>
+    <p class="because reveal">And while lords argue with kings in French, something remarkable is happening in the streets: a new language is assembling itself…</p>
+
+    <article class="scene reveal" data-year="1400" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗣️</div>
+      <h3><span class="yr">by 1400</span>One English language</h3>
+      <p class="story">
+        Since 1066 the nobles have spoken <b>Norman French</b> and the peasants <b>Anglo-Saxon</b>.
+        Over three centuries the two <b>merge into English</b>: French gives us <i>demand, park, beauty</i>;
+        Anglo-Saxon gives <i>ask, apple, cow, summer</i>. By <span class="d">1400</span> English is the
+        language of <b>official documents, the royal court and Parliament</b>. <b>Geoffrey Chaucer</b>
+        writes <b>The Canterbury Tales</b> — later among the first books printed by <b>William Caxton</b>,
+        the <b>first person to print books in England</b>. In Scotland, Gaelic continues and the
+        <b>Scots</b> language grows — <b>John Barbour</b> writes <i>The Bruce</i>, about Bannockburn.
+      </p>
+      <details class="notes"><summary>Field notes — castles, cathedrals & trade</summary>
+        <div class="n-body">
+          <p>Castles for defence: <b>Windsor</b> and <b>Edinburgh</b> are still in use today. Cathedrals rise — <b>Lincoln Cathedral</b>; the finest <b>stained glass</b> at <b>York Minster</b>.</p>
+          <p>England's great export is <b>wool</b>. Skilled immigrants arrive: <b>weavers from France, engineers from Germany, glass makers from Italy, canal builders from Holland</b> — the first of many talent waves in this story.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">England now has a language, a Parliament and a law. What it doesn't have is a settled royal family — and in 1455 the family goes to war with itself…</p>
+
+    <article class="scene reveal" data-year="1455" data-era="2">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌹</div>
+      <h3><span class="yr">1455–1485</span>The Wars of the Roses</h3>
+      <p class="story">
+        In <span class="d">1455</span> a civil war for the throne erupts between two branches of the royal
+        family: the <b>House of Lancaster</b> (symbol: a <b>red rose</b>) and the <b>House of York</b>
+        (a <b>white rose</b>). Thirty years of feuding end at the <b>Battle of Bosworth Field</b> in
+        <span class="d">1485</span>: <b>Richard III</b> of York is killed, and <b>Henry Tudor</b> of
+        Lancaster takes the crown as <b>King Henry VII</b>. Then the masterstroke — he marries
+        <b>Elizabeth of York</b>, Richard's niece, fusing the enemies into the <b>House of Tudor</b>,
+        whose badge is a <b>red rose with a white rose inside it</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> red beat white, then <b>put the white inside the red</b>. When you see the Tudor rose, you're seeing a peace treaty in flower form.</aside>
+    </article>
+    <p class="because reveal">The Middle Ages end with the roses united. But Henry's son will tear something much bigger apart — the Church itself…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT III ======================= -->
+<section class="act" data-era="3" id="act3">
+  <div class="act-card reveal" data-year="1485" data-era="3">
+    <div class="act-motif">
+      <svg class="m3" viewBox="0 0 200 130" role="img" aria-label="A crown that falls and returns">
+        <g class="halo" stroke="var(--acc)" stroke-width="1.3" fill="none">
+          <circle cx="100" cy="52" r="44" opacity=".5"/>
+        </g>
+        <g class="crown">
+          <path d="M62 66 L70 34 L88 56 L100 26 L112 56 L130 34 L138 66 Z" fill="var(--acc)"/>
+          <rect x="62" y="66" width="76" height="14" rx="3" fill="var(--acc)"/>
+          <circle cx="70" cy="32" r="4" fill="var(--ink)"/>
+          <circle cx="100" cy="24" r="4.5" fill="var(--ink)"/>
+          <circle cx="130" cy="32" r="4" fill="var(--ink)"/>
+        </g>
+        <rect x="30" y="112" width="140" height="2.5" rx="1.25" fill="var(--ink)" opacity=".45"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act III · 1485 → 1688 · Tudors &amp; Stuarts</p>
+    <h2>The Crown on Trial</h2>
+    <p class="act-log">
+      <b>Previously:</b> the roses united under the Tudors, while Parliament and the law quietly grew teeth.
+      Now comes the great family drama — a king who breaks with Rome over a divorce, a queen who sinks an
+      armada, a king who <i>loses his head</i>, and finally a revolution so smooth nobody bleeds.
+      Watch the crown in the picture above: it falls in 1649… and comes back in 1660, smaller than it looks.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1509" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">💍</div>
+      <h3><span class="yr">1509–1547</span>Henry VIII and the six wives</h3>
+      <p class="story">
+        <b>Henry VII</b> wins the peace by curbing the nobles and filling the treasury. His son
+        <b>Henry VIII</b> continues centralising power — and becomes famous for marrying
+        <b>six times</b> in pursuit of a male heir. In order:
+        <b>Catherine of Aragon</b> (Spanish princess — <i>divorced</i>; daughter <b>Mary</b>),
+        <b>Anne Boleyn</b> (<i>beheaded</i> at the <b>Tower of London</b>; daughter <b>Elizabeth</b>),
+        <b>Jane Seymour</b> (<i>died</i> after giving Henry his son <b>Edward</b>),
+        <b>Anne of Cleves</b> (German princess — <i>divorced</i>, a political match),
+        <b>Catherine Howard</b> (Anne Boleyn's cousin — <i>beheaded</i>),
+        and <b>Catherine Parr</b> (widow — <i>survived</i> him and remarried).
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <i>"Divorced, beheaded, died; divorced, beheaded, survived."</i> Three Catherines bracket the list, and the two beheaded wives are <b>cousins</b>.</aside>
+    </article>
+    <p class="because reveal">But wife number one is the hinge of history — because to divorce her, Henry needs permission the Pope refuses to give…</p>
+
+    <article class="scene reveal" data-year="1530s" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">⛪</div>
+      <h3><span class="yr">1530s</span>The break with Rome</h3>
+      <p class="story">
+        The Pope refuses Henry's divorce from Catherine of Aragon — so Henry fires the Pope. He creates
+        the <b>Church of England</b>, in which <b>the king, not the Pope, appoints the bishops</b>. It
+        lands amid the <b>Reformation</b> sweeping Europe: <b>Protestants</b> reading the Bible in their
+        own languages and rejecting prayers to saints and shrines. The consequences fan out across the
+        islands: in <b>Ireland</b>, attempts to impose Protestantism ignite <b>rebellion and brutal
+        fighting</b> (Henry also takes the title <b>King of Ireland</b>); in <b>Wales</b>, the
+        <b>Act for the Government of Wales</b> formally unites Wales with England, and <b>Welsh MPs</b>
+        enter the Commons.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the Church of England exists because of a <b>divorce</b>. Once you know that, the entire next 150 years — Bloody Mary, the Armada, the Civil War, 1688 — is just the aftershock.</aside>
+    </article>
+    <p class="because reveal">Henry dies, and his three children take the throne in turn — each yanking the country's religion in a different direction…</p>
+
+    <article class="scene reveal" data-year="1553" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🔥</div>
+      <h3><span class="yr">1547–1558</span>The whiplash years — Edward and "Bloody Mary"</h3>
+      <p class="story">
+        <b>Edward VI</b> is <b>strongly Protestant</b> — the <b>Book of Common Prayer</b> is written in
+        his reign — but he dies at just <b>15</b>, after about six years as king. His half-sister
+        <b>Mary I</b> is a devout <b>Catholic</b> who <b>persecutes Protestants</b>, earning the nickname
+        <b>"Bloody Mary"</b> before her own short reign ends. Two monarchs, two religions, one whiplashed
+        country — now bracing for child number three.
+      </p>
+    </article>
+    <p class="because reveal">The third child has watched both extremes fail. Her solution makes her one of England's greatest monarchs…</p>
+
+    <article class="scene reveal" data-year="1588" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚓</div>
+      <h3><span class="yr">1558–1603</span>Elizabeth I and the Armada</h3>
+      <p class="story">
+        <b>Elizabeth I</b> — daughter of Henry VIII and <b>Anne Boleyn</b> — re-establishes the
+        <b>Church of England</b> but steers between Catholic and extreme-Protestant demands, and so
+        <b>avoids religious war in England</b>. Spain tests her: in <span class="d">1588</span> England
+        <b>defeats the Spanish Armada</b>, sent to conquer England and restore Catholicism. Her reign
+        glows with <b>patriotism, exploration, poetry and drama</b>: <b>Sir Francis Drake's</b> ship the
+        <b>Golden Hind</b> is among the first to <b>circumnavigate the world</b>, English settlers begin
+        colonising <b>eastern America</b> — and a playwright from <b>Stratford-upon-Avon</b> named
+        <b>William Shakespeare</b> starts filling theatres.
+      </p>
+      <details class="notes"><summary>Field notes — Shakespeare, the lines the test quotes</summary>
+        <div class="n-body">
+          <p><b>Shakespeare (1564–1616)</b>: playwright and actor; among the first to portray <b>ordinary Englishmen and women</b>; invented many English words. Know the lines: <i>"To be or not to be"</i> (Hamlet), <i>"Once more unto the breach"</i> (Henry V), <i>"All the world's a stage"</i> (As You Like It), <i>"A rose by any other name"</i>, <i>"The darling buds of May"</i>. London's <b>Globe Theatre</b> is a modern copy of his theatres.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">But Elizabeth has a Catholic cousin with a claim to her throne — and a country of her own in turmoil…</p>
+
+    <article class="scene reveal" data-year="1560" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏴</div>
+      <h3><span class="yr">1560–1587</span>Mary, Queen of Scots</h3>
+      <p class="story">
+        In <span class="d">1560</span> the Scottish Parliament <b>abolishes the Pope's authority</b> and
+        outlaws Catholic services — and Scotland's new <b>Protestant Church</b> is, pointedly,
+        <b>not ruled by the state</b>. Its queen, though, is Catholic: <b>Mary Stuart</b>, queen at
+        <b>one week old</b>, raised in France. When her husband is murdered — with Mary herself under
+        suspicion — she flees to England, leaving her <b>Protestant baby son James VI</b> as king.
+        Her cousin Elizabeth, wary of a rival Catholic claimant, <b>imprisons her for 20 years</b> and
+        finally has her <b>executed for plotting</b>.
+      </p>
+    </article>
+    <p class="because reveal">Elizabeth dies childless in 1603. And the crown passes — of all people — to the son of the cousin she executed…</p>
+
+    <article class="scene reveal" data-year="1603" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">👑</div>
+      <h3><span class="yr">1603</span>Two crowns, one head</h3>
+      <p class="story">
+        <span class="d">1603</span>: Elizabeth dies without children, and <b>James VI of Scotland</b>
+        becomes <b>James I of England, Wales and Ireland</b> — the <b>union of the crowns</b>. (Scotland
+        remains a <b>separate country</b>; only the king is shared.) His reign gives English its most
+        famous book: the <b>King James Bible</b>, the "Authorised Version" — not the first English Bible,
+        but one still in use today. In Ireland, rebellions under Elizabeth and James end with the
+        <b>plantations</b>: land is taken from <b>Catholic landholders</b> in <b>Ulster</b> and given to
+        <b>Protestant settlers, many from south-west Scotland</b> — a decision with serious
+        long-term consequences the story will keep returning to.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> same man, two numbers — <b>James VI of Scotland = James I of England</b>. 1603 unites the <b>crowns</b> only; the parliaments don't merge until <b>1707</b>.</aside>
+    </article>
+    <p class="because reveal">James believes God himself appointed him. His son Charles believes it even harder — and Parliament is done being lectured…</p>
+
+    <article class="scene reveal" data-year="1642" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚔️</div>
+      <h3><span class="yr">1642–1649</span>Civil war — Cavaliers vs Roundheads</h3>
+      <p class="story">
+        James I and <b>Charles I</b> preach the <b>Divine Right of Kings</b> — appointed by God,
+        answerable to no Parliament. Charles rules <b>11 years without Parliament</b>, but when he forces
+        a revised <b>Prayer Book</b> on Scotland's Presbyterian Church, rebellion erupts and he must
+        <b>recall Parliament in 1640</b> to pay for war. Parliament — full of <b>Puritans</b> — refuses
+        him money; rebellion breaks out in Ireland; Parliament demands control of the army. Charles storms
+        the Commons to arrest <b>five MPs</b> — they've been tipped off, and <b>no monarch has set foot
+        in the Commons since</b>. In <span class="d">1642</span> it is war: <b>Cavaliers</b> (for the king)
+        vs <b>Roundheads</b> (for Parliament). The king is beaten at <b>Marston Moor</b> and <b>Naseby</b>;
+        by 1646 Parliament has won; and in <span class="d">1649</span> Charles I is <b>executed</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the fuse is a <b>prayer book in Scotland</b> — Charles needed money for that war, which forced him to face the Parliament he'd ignored for 11 years.</aside>
+    </article>
+    <p class="because reveal">England has killed its king. Someone must fill the vacuum — and he wears no crown at all…</p>
+
+    <article class="scene reveal" data-year="1653" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎩</div>
+      <h3><span class="yr">1649–1660</span>The republic and the oak tree</h3>
+      <p class="story">
+        England becomes a republic — the <b>Commonwealth</b> — dominated by <b>Oliver Cromwell</b>. He
+        crushes Ireland with such violence that he <b>remains controversial there today</b>. The Scots
+        crown Charles I's son <b>Charles II</b> as king; Cromwell destroys his army at <b>Dunbar</b> and
+        <b>Worcester</b>, and Charles famously <b>hides in an oak tree</b> before escaping to Europe.
+        Cromwell rules as <b>Lord Protector</b> until his death in <span class="d">1658</span> — but his
+        son <b>Richard</b> can't hold it together, and in <span class="d">May 1660</span> Parliament
+        <b>invites Charles II back</b>. The <b>Restoration</b>: a king again, but one who knows perfectly
+        well he <b>cannot always do as he wishes</b>.
+      </p>
+    </article>
+    <p class="because reveal">Restoration London gets science, diaries — and back-to-back catastrophes…</p>
+
+    <article class="scene reveal" data-year="1666" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🔥</div>
+      <h3><span class="yr">1665–1679</span>Plague, fire, and habeas corpus</h3>
+      <p class="story">
+        <span class="d">1665</span>: the <b>plague</b> ravages London. <span class="d">1666</span>: the
+        <b>Great Fire</b> destroys much of the city, including <b>St Paul's Cathedral</b> — rebuilt by
+        <b>Sir Christopher Wren</b>, while <b>Samuel Pepys</b> writes it all down in his diary. Charles II's
+        reign also founds the <b>Royal Society</b> — the <b>oldest surviving scientific society in the
+        world</b>, with early members <b>Edmund Halley</b> and <b>Isaac Newton</b> (born in Lincolnshire;
+        <i>Principia Mathematica</i>; showed gravity rules the whole universe and that white light contains
+        all the rainbow's colours). And in <span class="d">1679</span> comes the <b>Habeas Corpus Act</b>:
+        <i>"you must present the person in court"</i> — <b>no unlawful imprisonment</b>; every prisoner
+        gets a hearing.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> <b>disease before flames</b> — 1665 plague, 1666 fire. And 1679's habeas corpus is Magna Carta's grandchild: the law keeps growing between the disasters.</aside>
+    </article>
+    <p class="because reveal">Charles II dies with no legitimate heir. His brother is Catholic — and England has one last constitutional card to play…</p>
+
+    <article class="scene reveal" data-year="1688" data-era="3">
+      <span class="scene-dot"></span>
+      <div class="glyph">🕊️</div>
+      <h3><span class="yr">1688</span>The Glorious Revolution</h3>
+      <p class="story">
+        <b>James II</b> (VII of Scotland) favours Catholics, arrests Church of England bishops and ignores
+        Parliament. When his wife bears a <b>son</b>, a Protestant succession looks lost — so in
+        <span class="d">1688</span> Protestant leaders invite <b>William of Orange</b>, husband of James's
+        Protestant daughter <b>Mary</b>, to invade. He lands to <b>no resistance — no fighting in
+        England at all</b> — hence <b>"Glorious"</b> Revolution, and it <b>guarantees the power of
+        Parliament</b> for good. James fights back through Ireland and loses at the
+        <b>Battle of the Boyne</b> in <span class="d">1690</span> (still celebrated by some in Northern
+        Ireland), then flees to France. In Scotland, a rising for James is beaten at <b>Killiecrankie</b>,
+        and the <b>MacDonalds of Glencoe</b> are massacred for being late to swear loyalty — an act that
+        breeds lasting distrust. James's supporters get a name that will echo for 60 years:
+        the <b>Jacobites</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> another double-numbered king — <b>William III of England = William II of Scotland</b>. And 1688 is "glorious" precisely because <b>nobody fought in England</b>.</aside>
+    </article>
+    <p class="because reveal">Parliament has hired and fired kings. Now it writes the job description — and Act IV opens with the contract…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT IV ======================= -->
+<section class="act" data-era="4" id="act4">
+  <div class="act-card reveal" data-year="1689" data-era="4">
+    <div class="act-motif">
+      <svg class="m4" viewBox="0 0 200 130" role="img" aria-label="A great turning gear with rising steam">
+        <g class="puff p1"><circle cx="152" cy="34" r="7" fill="var(--ink-3)"/></g>
+        <g class="puff p2"><circle cx="160" cy="30" r="5" fill="var(--ink-3)"/></g>
+        <g class="puff p3"><circle cx="146" cy="30" r="5.5" fill="var(--ink-3)"/></g>
+        <g class="gear">
+          <g fill="var(--acc)">
+            <rect x="95" y="18" width="10" height="16" rx="2"/><rect x="95" y="90" width="10" height="16" rx="2"/>
+            <rect x="56" y="57" width="16" height="10" rx="2"/><rect x="128" y="57" width="16" height="10" rx="2"/>
+            <rect x="70" y="29" width="12" height="14" rx="2" transform="rotate(-45 76 36)"/>
+            <rect x="118" y="29" width="12" height="14" rx="2" transform="rotate(45 124 36)"/>
+            <rect x="70" y="81" width="12" height="14" rx="2" transform="rotate(45 76 88)"/>
+            <rect x="118" y="81" width="12" height="14" rx="2" transform="rotate(-45 124 88)"/>
+          </g>
+          <circle cx="100" cy="62" r="30" fill="var(--acc)"/>
+          <circle cx="100" cy="62" r="14" fill="var(--page)"/>
+        </g>
+        <rect x="24" y="116" width="152" height="2.5" rx="1.25" fill="var(--ink)" opacity=".45"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act IV · 1689 → 1901 · A Global Power</p>
+    <h2>The Empire Machine</h2>
+    <p class="act-log">
+      <b>Previously:</b> Parliament tried a king in Act III — and won without a battle in 1688.
+      Now it writes the rulebook, bolts the kingdoms together, and switches on the engines:
+      union, Enlightenment, industry, empire. Two centuries where Britain gets very big,
+      very rich — and where the vote, very slowly, spreads.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1689" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚖️</div>
+      <h3><span class="yr">1689</span>The Bill of Rights — a king under contract</h3>
+      <p class="story">
+        In <span class="d">1689</span> Parliament makes the deal permanent with the <b>Bill of Rights</b>:
+        the monarch must be <b>Protestant</b>, cannot <b>raise taxes or administer justice</b> without
+        Parliament, and must ask Parliament to <b>renew army funding every year</b> — meaning a king who
+        dissolves Parliament bankrupts his own army. This is <b>constitutional monarchy</b>. Politics
+        professionalises: two parties emerge, the <b>Whigs</b> and the <b>Tories</b> (Conservatives are
+        still called Tories today), and from <span class="d">1695</span> newspapers no longer need a
+        government licence — a <b>free press</b>. It's far from democracy, though: only
+        <b>property-owning men</b> vote, and <b>pocket boroughs</b> (owned by one family) and
+        <b>rotten boroughs</b> (almost no voters) litter the map.
+      </p>
+      <details class="notes"><summary>Field notes — who was arriving</summary>
+        <div class="n-body">
+          <p>In <b>1656</b> the <b>first Jews since the Middle Ages</b> settle in London. Between <b>1680 and 1720</b> the <b>Huguenots</b> — educated, skilled French Protestant refugees — arrive. The talent waves keep coming.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">One question the Bill can't dodge: who inherits the crown? Queen Anne has no surviving children — so Parliament redraws the map…</p>
+
+    <article class="scene reveal" data-year="1707" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🤝</div>
+      <h3><span class="yr">1707 · 1714 · 1721</span>Great Britain, a German king, and the first PM</h3>
+      <p class="story">
+        <span class="d">1707</span>: the <b>Act (Treaty) of Union</b> joins the parliaments and creates
+        the <b>Kingdom of Great Britain</b>. Scotland keeps its own <b>legal system, education system and
+        Presbyterian Church</b> — remember Act II? Those differences were centuries old already. When Anne
+        dies in <span class="d">1714</span>, Parliament picks a reliably Protestant German:
+        <b>George I</b>. His <b>poor English</b> forces him to lean on ministers — and so, almost by
+        accident, Britain invents a new job: <b>Sir Robert Walpole</b> becomes the
+        <b>first Prime Minister</b>, serving <span class="d">1721–1742</span>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> two unions, two "-oh" dates — <b>1707</b> makes <b>Great Britain</b> (Scotland), <b>1801</b> makes the <b>United Kingdom</b> (Ireland). Don't swap them.</aside>
+    </article>
+    <p class="because reveal">But the old royal line isn't done. James II's grandson wants the crown back — and the Highlands rise with him…</p>
+
+    <article class="scene reveal" data-year="1746" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏴󠁧󠁢󠁳󠁣󠁴󠁿</div>
+      <h3><span class="yr">1745–1746</span>Bonnie Prince Charlie and Culloden</h3>
+      <p class="story">
+        In <span class="d">1745</span>, <b>Charles Edward Stuart — "Bonnie Prince Charlie"</b>, grandson
+        of James II — raises the Highland clans in the last great <b>Jacobite</b> gamble. It ends at
+        <b>Culloden</b> in <span class="d">1746</span>, crushed. The aftermath reshapes Scotland: the
+        clans lose power, and in the <b>Highland Clearances</b> crofts are destroyed to make way for
+        <b>sheep and cattle</b>; many Scots <b>emigrate to North America</b>. Out of this wounded Scotland
+        comes its greatest voice: <b>Robert Burns, "The Bard"</b>, writing in Scots and English —
+        his <b>Auld Lang Syne</b> is still sung every New Year (<b>Hogmanay</b>, in Scotland).
+      </p>
+    </article>
+    <p class="because reveal">And yet the same Scotland now produces an astonishing share of the world's new ideas…</p>
+
+    <article class="scene reveal" data-year="1700s" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">💡</div>
+      <h3><span class="yr">the 1700s</span>The Enlightenment</h3>
+      <p class="story">
+        The 18th century brings the <b>Enlightenment</b> — a flowering of ideas in politics, philosophy
+        and science, with <b>many of the greatest thinkers Scottish</b>: <b>Adam Smith</b> on
+        <b>economics</b>, <b>David Hume</b> on <b>human nature</b>, and <b>James Watt</b> on
+        <b>steam power</b>. Its most enduring principle is one the test loves:
+        <b>everyone has the right to their own political and religious beliefs</b> — the state should
+        not dictate them.
+      </p>
+    </article>
+    <p class="because reveal">One of those ideas — Watt's steam — doesn't stay an idea. It becomes horsepower, and horsepower becomes history…</p>
+
+    <article class="scene reveal" data-year="1780s" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏭</div>
+      <h3><span class="yr">late 1700s</span>The Industrial Revolution</h3>
+      <p class="story">
+        Britain becomes the <b>first country in the world to industrialise on a large scale</b>, powered
+        by <b>machinery and steam</b>. Before this, most people worked in agriculture or spun cloth at
+        home in <b>"cottage industries"</b>; now the <b>Bessemer process</b> makes mass steel, feeding
+        <b>shipbuilding and railways</b>, and <b>canals</b> link factories to towns and ports.
+        <b>Richard Arkwright</b> perfects the profitable factory — improving the <b>carding machine</b>
+        and running water- then steam-powered spinning mills. The price is paid in people: conditions are
+        <b>dangerous</b>, hours brutal, and <b>children work and are treated harshly</b>. Meanwhile the
+        map turns red: <b>Captain James Cook</b> charts <b>Australia</b>, Britain gains <b>Canada</b>, and
+        the <b>East India Company</b> takes control of large parts of <b>India</b>. In sail
+        <b>sugar and tobacco</b> from North America and the West Indies; <b>textiles, tea and spices</b>
+        from India and Indonesia.
+      </p>
+    </article>
+    <p class="because reveal">But part of that trading wealth rests on something monstrous — and the campaign against it becomes a British story too…</p>
+
+    <article class="scene reveal" data-year="1807" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">⛓️</div>
+      <h3><span class="yr">1807 · 1833</span>The slave trade — and the fight to end it</h3>
+      <p class="story">
+        Slavery is <b>illegal within Britain itself</b> — but the overseas trade is <b>dominated by
+        Britain and its American colonies</b>. Enslaved people, taken mainly from <b>West Africa</b>, are
+        shipped to <b>sugar and tobacco plantations</b> in America and the Caribbean. The resistance
+        starts with the <b>Quakers</b>, who found the first formal anti-slavery groups in the late 1700s,
+        and is carried in Parliament by <b>William Wilberforce</b>. In <span class="d">1807</span> trading
+        slaves is banned <b>on British ships and from British ports</b>; in <span class="d">1833</span>
+        the <b>Emancipation Act</b> abolishes slavery <b>throughout the Empire</b>, and the
+        <b>Royal Navy</b> begins freeing slaves from other nations' ships. After abolition, some
+        <b>2 million Indian and Chinese workers</b> are brought in to replace slave labour on plantations,
+        mines and railways.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> <b>1807</b> bans the <b>trade</b> (ships &amp; ports); <b>1833</b> abolishes <b>slavery itself</b> (whole Empire). Twenty-six years apart — the test <i>will</i> check.</aside>
+    </article>
+    <p class="because reveal">Across the Atlantic, meanwhile, Britain's own colonists have been reading the Enlightenment too — and they've done the maths on their tax bill…</p>
+
+    <article class="scene reveal" data-year="1776" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎆</div>
+      <h3><span class="yr">1776 → 1815</span>Losing America, beating Napoleon</h3>
+      <p class="story">
+        The <b>13 American colonies</b> — wealthy and largely self-governing — refuse new taxes with the
+        cry <b>"no taxation without representation"</b>. In <span class="d">1776</span> they
+        <b>declare independence</b>, defeat the British army, and Britain <b>recognises their
+        independence in 1783</b>. Then France catches fire: the <b>French Revolution in 1789</b>, and out
+        of it rises <b>Napoleon</b>. Britain fights him twice, famously: at sea in <span class="d">1805</span>,
+        the <b>Battle of Trafalgar</b>, where <b>Admiral Nelson</b> destroys the French–Spanish fleet and
+        <b>dies in the battle</b> (his ship <b>HMS Victory</b> waits at Portsmouth; <b>Nelson's Column</b>
+        watches over Trafalgar Square); and on land in <span class="d">1815</span>, the
+        <b>Battle of Waterloo</b>, where the <b>Duke of Wellington — "the Iron Duke", later Prime
+        Minister</b> — finishes Napoleon for good.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Napoleon's decade rhymes — <b>1805 sea</b> (Nelson · Trafalgar), <b>1815 land</b> (Wellington · Waterloo). Sea before land, N before W.</aside>
+    </article>
+    <p class="because reveal">Fighting France for survival, Britain pulls Ireland in tighter — and stitches its final flag…</p>
+
+    <article class="scene reveal" data-year="1801" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🇬🇧</div>
+      <h3><span class="yr">1801</span>The United Kingdom and the Union Flag</h3>
+      <p class="story">
+        The <b>Act of Union with Ireland</b> (passed 1800, effective <span class="d">1801</span>) creates
+        the <b>United Kingdom of Great Britain and Ireland</b> — symbolised by the <b>Union Flag</b>, the
+        "Union Jack": the crosses of <b>St George</b> (England, red on white), <b>St Andrew</b> (Scotland,
+        diagonal white on blue) and <b>St Patrick</b> (Ireland, diagonal red on white), combined. There is
+        <b>no Welsh dragon</b> on it — Wales was already united with England when the first Union Flag
+        appeared in <b>1606</b>; Wales flies its own <b>dragon flag</b> instead.
+      </p>
+      <details class="notes"><summary>Field notes — Britain's first curry house</summary>
+        <div class="n-body">
+          <p><b>Sake Dean Mahomet</b> (1759–1851): born in <b>Bengal</b>, served in the Bengal army, came to Britain in <b>1782</b> and eloped with <b>Jane Daly</b>. In <b>1810</b> he opened the <b>Hindoostane Coffee House</b> on George Street, London — <b>Britain's first curry house</b> — and introduced <b>"shampooing"</b> (Indian head massage) to Britain.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">With Napoleon beaten and the union complete, the machine runs at full steam — and in 1837 an eighteen-year-old inherits it all…</p>
+
+    <article class="scene reveal" data-year="1837" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">👸</div>
+      <h3><span class="yr">1837–1901</span>Victoria — workshop of the world</h3>
+      <p class="story">
+        In <span class="d">1837</span> <b>Victoria</b> becomes queen <b>aged 18</b>, and reigns for almost
+        <b>64 years</b> — as the handbook records it, the <b>longest reign of any British monarch</b>.
+        Under her the Empire grows to cover <b>all of India, Australia and large parts of Africa</b> —
+        the <b>largest empire the world has ever seen</b>, over <b>400 million people</b>. Britain adopts
+        <b>free trade</b> (the <b>Corn Laws repealed in 1846</b>), limits <b>women and children to
+        10 hours a day</b> in factories (<span class="d">1847</span>), and produces
+        <b>more than half the world's iron, coal and cotton cloth</b> while London becomes the hub of
+        global finance. The <b>Great Exhibition of 1851</b> shows it all off inside Hyde Park's
+        <b>Crystal Palace</b>. <b>George and Robert Stephenson</b> pioneer the railways;
+        <b>Isambard Kingdom Brunel</b> — from Portsmouth — builds tunnels, bridges, ships and the
+        <b>Great Western Railway</b>, and many of his bridges are still in use.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> Victoria's reign is a sandwich of superlatives — <b>largest empire</b>, <b>longest reign (per the handbook)</b>, <b>half the world's iron, coal and cotton</b>. If a question says "most" or "first in the world", think Victorian.</aside>
+    </article>
+    <p class="because reveal">An empire that size keeps finding wars at its edges — and its nurses, medals and poets follow…</p>
+
+    <article class="scene reveal" data-year="1854" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏅</div>
+      <h3><span class="yr">1853–1902</span>Crimea, the Boer War — and doubt</h3>
+      <p class="story">
+        The <b>Crimean War</b> (<span class="d">1853–56</span>, with Turkey and France <b>against
+        Russia</b>) is the first war covered extensively by the <b>media</b>; Victoria creates the
+        <b>Victoria Cross</b> for valour, and <b>Florence Nightingale</b> — born in Italy to English
+        parents — nurses soldiers in Turkey, then founds the <b>Nightingale Training School at
+        St Thomas' Hospital (1860)</b>: the birth of <b>modern nursing</b>. People pour across borders in
+        both directions: <b>13 million Britons emigrate</b> between 1853 and 1913, while around
+        <b>120,000 Russian and Polish Jews</b> flee persecution to London's East End, Manchester and
+        Leeds. At the century's end the <b>Boer War</b> (<span class="d">1899–1902</span>) against the
+        Dutch-origin <b>Boers</b> of South Africa proves long and costly — and Britons begin to
+        <b>question the Empire itself</b>. Its imperial poet, <b>Rudyard Kipling</b> — born in India,
+        <b>Nobel Prize 1907</b>, author of <i>The Jungle Book</i> and <i>"If"</i> — writes as if he
+        senses the sunset.
+      </p>
+    </article>
+    <p class="because reveal">And nowhere is imperial confidence more hollow than close to home — in Ireland, where the potato fails…</p>
+
+    <article class="scene reveal" data-year="1840s" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🥀</div>
+      <h3><span class="yr">mid-1840s</span>The Irish famine</h3>
+      <p class="story">
+        <b>Two-thirds of Ireland depends on farming</b>, much of it on a single crop: the <b>potato</b>.
+        In the middle of the century the crop fails, and the famine that follows kills
+        <b>a million people</b>; <b>a million and a half more emigrate</b>, mostly to the <b>USA and
+        England</b> — by <b>1861</b> there are large Irish populations in Liverpool, London, Manchester
+        and Glasgow. Out of the catastrophe, <b>Irish Nationalism</b> hardens: the <b>Fenians</b> demand
+        <b>complete independence</b>, while <b>Charles Stuart Parnell</b> champions <b>Home Rule</b> —
+        an Irish parliament within the UK. File both names carefully; this thread explodes in Act V.
+      </p>
+    </article>
+    <p class="because reveal">And through all of it, one question keeps knocking louder: who actually gets to vote in this democracy?…</p>
+
+    <article class="scene reveal" data-year="1832" data-era="4">
+      <span class="scene-dot"></span>
+      <div class="glyph">🗳️</div>
+      <h3><span class="yr">1832 → 1928</span>The long road to the vote</h3>
+      <p class="story">
+        <span class="d">1832</span>: the <b>Reform Act</b> abolishes the <b>pocket and rotten boroughs</b>
+        and shifts seats to the growing towns and cities. The <b>Chartists</b> petition for the working
+        man's vote — seemingly failing, but planting the idea. <span class="d">1867</span>: a second
+        Reform Act adds urban seats and lowers the property bar — yet <b>most men and all women</b> still
+        can't vote, and parties start building national organisations to win the new voters. In
+        <span class="d">1870 and 1882</span>, married women win the right to keep <b>their own earnings
+        and property</b> (until then it legally belonged to the husband). Then the campaign gets a
+        general: <b>Emmeline Pankhurst</b>, born in Manchester — the <b>Women's Franchise League
+        (1889)</b>, then the <b>WSPU (1903)</b>, the first <b>suffragettes</b>: civil disobedience and
+        hunger strikes. Their victory belongs to the next act — hold on to the dates <b>1918</b> and
+        <b>1928</b>.
+      </p>
+    </article>
+    <p class="because reveal">So Britain enters the new century: richest power on Earth, reforming at home, doubting its empire. It expects a calm ride. It gets 1914…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT V ======================= -->
+<section class="act" data-era="5" id="act5">
+  <div class="act-card reveal" data-year="1901" data-era="5">
+    <div class="act-motif">
+      <svg class="m5" viewBox="0 0 200 130" role="img" aria-label="Poppies growing in remembrance">
+        <path class="stem" d="M60 118 C60 92 56 80 58 62" fill="none" stroke="var(--era2)" stroke-width="2.5"/>
+        <path class="stem" d="M100 118 C100 88 104 72 102 50" fill="none" stroke="var(--era2)" stroke-width="2.5"/>
+        <path class="stem" d="M142 118 C142 96 138 86 140 70" fill="none" stroke="var(--era2)" stroke-width="2.5"/>
+        <g class="head h1">
+          <circle cx="58" cy="54" r="11" fill="#C43D3D"/><circle cx="58" cy="54" r="4" fill="#22252D"/>
+        </g>
+        <g class="head h2">
+          <circle cx="102" cy="41" r="13" fill="#C43D3D"/><circle cx="102" cy="41" r="4.5" fill="#22252D"/>
+        </g>
+        <g class="head h3">
+          <circle cx="140" cy="62" r="10" fill="#C43D3D"/><circle cx="140" cy="62" r="3.5" fill="#22252D"/>
+        </g>
+        <rect x="26" y="118" width="148" height="2.5" rx="1.25" fill="var(--ink)" opacity=".45"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act V · 1901 → 1945 · The 20th Century</p>
+    <h2>The World on Fire</h2>
+    <p class="act-log">
+      <b>Previously:</b> the empire machine made Britain the richest power on Earth, while the vote crept
+      outward and Ireland's patience ran out. Now the confident Edwardian superpower is dragged through
+      <b>two world wars</b> in thirty years. Know the WWI dates cold, know the Irish partition,
+      and know everything Churchill did in 1940.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1901" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎩</div>
+      <h3><span class="yr">1901–1914</span>Edwardian optimism</h3>
+      <p class="story">
+        Britain in 1901 is a <b>global superpower</b> — an admired navy, thriving industry, strong
+        institutions — and it spends the new century's first years reforming itself: help for the
+        <b>unemployed</b>, <b>old-age pensions</b>, <b>free school meals</b>, workplace safety laws, town
+        planning against slums, support for divorced and separated mothers. And <b>MPs are paid for the
+        first time</b> — opening politics to ordinary people. It feels like the start of a golden age.
+      </p>
+    </article>
+    <p class="because reveal">But Europe has divided into two armed camps — and on 28 June 1914, in Sarajevo, a single pistol shot brings the whole structure down…</p>
+
+    <article class="scene reveal" data-year="1914" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌺</div>
+      <h3><span class="yr">1914–1918</span>The First World War</h3>
+      <p class="story">
+        The trigger: the assassination of <b>Archduke Franz Ferdinand</b> of Austria on
+        <span class="d">28 June 1914</span>; the deeper causes: <b>nationalism, militarism,
+        imperialism</b>. Britain fights among the <b>Allies</b> — France, Russia, Japan, Belgium, Serbia,
+        Greece, Italy, Romania, later the <b>USA</b> — against the <b>Central Powers</b>: Germany,
+        Austria-Hungary, the Ottoman Empire, later Bulgaria. The <b>whole Empire fights</b>: more than
+        <b>1 million Indians</b> serve and around <b>40,000 are killed</b>, alongside soldiers from the
+        West Indies, Africa, Australia, New Zealand and Canada. The war's darkest arithmetic:
+        the <b>Battle of the Somme, July 1916</b> — about <b>60,000 British casualties on the first day
+        alone</b>, on the way to <b>over 2 million British casualties</b> in the whole war. It ends at
+        <b>11.00am on 11 November 1918</b>. That same year, women over 30 finally
+        <b>win the vote</b> — partly in recognition of their war work.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> WWI ends on elevens — <b>11am, 11th day, 11th month, 1918</b>. And the Somme's number is <b>60,000 in one day</b>.</aside>
+    </article>
+    <p class="because reveal">The war postponed one promise: Home Rule for Ireland. The bill comes due immediately…</p>
+
+    <article class="scene reveal" data-year="1922" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">☘️</div>
+      <h3><span class="yr">1916–1922</span>Ireland breaks in two</h3>
+      <p class="story">
+        <b>Home Rule was promised in 1913</b>, the Protestant north threatened to resist, and the world
+        war shelved the whole question. Then, at Easter <span class="d">1916</span>, republicans rise in
+        <b>Dublin</b> — the <b>Easter Rising</b>. Its leaders are <b>executed</b>, martyring them, and a
+        <b>guerrilla war</b> follows. A peace treaty in <span class="d">1921</span> leads to partition in
+        <span class="d">1922</span>: six mainly-Protestant northern counties stay in the UK as
+        <b>Northern Ireland</b>, while the rest becomes the <b>Irish Free State</b> — fully a
+        <b>republic in 1949</b>. The decades of conflict that follow over a united Ireland become known
+        as <b>"the Troubles"</b> — remember the Ulster plantations of Act III? This is where that thread
+        was always heading.
+      </p>
+    </article>
+    <p class="because reveal">Britain exhales into the Twenties — radio, motor cars, novels — and then the world economy falls off a cliff…</p>
+
+    <article class="scene reveal" data-year="1929" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">📻</div>
+      <h3><span class="yr">1922–1936</span>Between the wars</h3>
+      <p class="story">
+        The 1920s bring <b>better housing and living conditions</b> — and broadcasting:
+        <b>BBC radio begins in 1922</b>. Then <span class="d">1929</span>: the <b>Great Depression</b>.
+        Mass unemployment strikes hardest in heavy industry — above all <b>shipbuilding</b> — yet the new
+        industries boom: <b>cars and aviation</b>, with car ownership doubling from
+        <b>1 million to 2 million between 1930 and 1939</b>. Culture blooms in the cracks: novelists
+        <b>Graham Greene</b> and <b>Evelyn Waugh</b>, economist <b>John Maynard Keynes</b>. In
+        <span class="d">1928</span> two things land at once: women get the vote <b>at 21, equal with
+        men</b> — and a Scottish doctor in London, <b>Alexander Fleming</b>, discovers <b>penicillin</b>
+        (developed later by Florey and Chain; <b>Nobel Prize 1945</b>). And in <span class="d">1936</span>
+        the BBC launches the <b>world's first regular television service</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> three TV/radio milestones — <b>1922</b> BBC <b>radio</b> · <b>1932</b> Baird's first <b>TV broadcast</b> (London–Glasgow) · <b>1936</b> BBC's first <b>regular TV service</b>. The test shuffles these constantly.</aside>
+    </article>
+    <p class="because reveal">Meanwhile in Germany, a failed painter has taken power in 1933 — and he is rearming…</p>
+
+    <article class="scene reveal" data-year="1940" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">✈️</div>
+      <h3><span class="yr">1939–1941</span>The Second World War — Britain alone</h3>
+      <p class="story">
+        <b>Hitler</b> takes power in <span class="d">1933</span>, rearms, seizes Austria and
+        Czechoslovakia — and when he invades <b>Poland in 1939</b>, Britain and France declare war. In
+        <span class="d">1940</span> Germany sweeps through France, and three things happen in rapid
+        fire: <b>Churchill becomes Prime Minister</b>; the army is rescued from <b>Dunkirk</b> —
+        <b>300,000+ men</b> lifted off the beaches by the navy and small civilian boats ("the Dunkirk
+        spirit"); and the <b>RAF wins the Battle of Britain</b> in the summer skies, flying the
+        <b>Spitfire and Hurricane</b> — both British-designed. The Luftwaffe switches to night-bombing:
+        <b>the Blitz</b>, hammering London's East End and <b>Coventry</b> ("the Blitz spirit"). From
+        <b>June 1940 to June 1941</b>, Britain and its Empire stand <b>almost alone</b> against
+        Nazi Germany.
+      </p>
+      <details class="notes"><summary>Field notes — Churchill, and the three speeches</summary>
+        <div class="n-body">
+          <p><b>Winston Churchill (1874–1965)</b>: soldier and journalist, Conservative MP from 1900, PM <b>May 1940</b>; refused to surrender; <b>lost the 1945 election</b>, PM again <b>1951</b>, MP until 1964; state funeral 1965; voted <b>greatest Briton of all time in 2002</b>.</p>
+          <p>The speeches, in order: <i>"blood, toil, tears and sweat"</i> (first speech as PM) → <i>"we shall fight on the beaches"</i> (after Dunkirk) → <i>"never in the field of human conflict was so much owed by so many to so few"</i> (Battle of Britain).</p>
+        </div>
+      </details>
+      <aside class="hook">🧠 <b>Pin it:</b> <b>1940 is Churchill's year of three</b> — becomes PM → Dunkirk → Battle of Britain, in that order. The speeches map onto the same three beats.</aside>
+    </article>
+    <p class="because reveal">Then, in a single December week in 1941, the war becomes truly a world war…</p>
+
+    <article class="scene reveal" data-year="1944" data-era="5">
+      <span class="scene-dot"></span>
+      <div class="glyph">🕯️</div>
+      <h3><span class="yr">1941–1945</span>From Pearl Harbor to victory</h3>
+      <p class="story">
+        The <b>Axis</b> — Germany, Italy, Japan — against the <b>Allies</b>, including the UK, France,
+        Poland, Australia, New Zealand, Canada and South Africa. Japan attacks <b>Pearl Harbor in
+        December 1941</b>, bringing in the <b>USA</b>; Japan defeats Britain at <b>Singapore</b> and
+        occupies <b>Burma</b>, threatening India. Hitler's invasion of the <b>Soviet Union (1941)</b>
+        becomes his <b>pivotal failure</b>. Then the tide: <span class="d">6 June 1944</span> —
+        <b>D-Day</b>, the Allied landings in <b>Normandy</b>; <b>Germany defeated in May 1945</b>. In
+        <b>August 1945</b> the <b>atomic bombs</b> on Hiroshima and Nagasaki end the war with Japan —
+        bombs built on physics that began when British-based scientists led by <b>Ernest Rutherford</b>
+        (Manchester, then Cambridge) <b>first split the atom</b>, and continued on the Manhattan Project.
+      </p>
+    </article>
+    <p class="because reveal">Britain has won the war — and is utterly exhausted. Weeks after victory, the voters do something extraordinary: they sack Churchill…</p>
+
+  </div>
+</section>
+
+<!-- ======================= ACT VI ======================= -->
+<section class="act" data-era="6" id="act6">
+  <div class="act-card reveal" data-year="1945" data-era="6">
+    <div class="act-motif">
+      <svg class="m6" viewBox="0 0 200 120" role="img" aria-label="A heartbeat line and a heart — the NHS">
+        <polyline class="ecg" points="6,66 50,66 62,66 70,44 80,88 88,58 96,66 194,66"
+          fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <path class="heart" d="M147 30 c-5 -7 -16 -6 -19 1 c-3 -7 -14 -8 -19 -1 c-5 7 0 15 8 21 l11 9 l11 -9 c8 -6 13 -14 8 -21 z"
+          fill="#C43D3D" transform="translate(14,-6) scale(.9)"/>
+      </svg>
+    </div>
+    <p class="act-kicker">Act VI · 1945 → today · Britain since 1945</p>
+    <h2>The Great Rebuild</h2>
+    <p class="act-log">
+      <b>Previously:</b> Britain survived two world wars — victorious, broke, and determined that the
+      sacrifice must buy something. So it builds a welfare state, releases an empire, swings through the
+      Sixties, stumbles through the Seventies, and hands power back out to Scotland, Wales and
+      Northern Ireland. The final act — and the one closest to the country you're joining.
+    </p>
+  </div>
+
+  <div class="wrap scenes">
+
+    <article class="scene reveal" data-year="1948" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🏥</div>
+      <h3><span class="yr">1945–1951</span>The welfare state — Beveridge, Butler, Bevan</h3>
+      <p class="story">
+        In <span class="d">1945</span> Labour under <b>Clement Attlee</b> wins a landslide over war-hero
+        Churchill, promising the welfare state sketched in the <b>1942 Beveridge Report</b> — economist
+        <b>William Beveridge's</b> plan to slay the five <b>"Giant Evils": Want, Disease, Ignorance,
+        Squalor, Idleness</b>. The <b>1944 Education Act</b> ("Butler Act", by Conservative
+        <b>R. A. Butler</b>) had already promised <b>free secondary education</b>. Now, in
+        <span class="d">1948</span>, health minister <b>Aneurin (Nye) Bevan</b> founds the <b>NHS</b> —
+        health care for all, <b>free at the point of use</b> — and a benefits system promises security
+        <b>"from the cradle to the grave"</b>. The government <b>nationalises railways, coal mines, gas,
+        water and electricity</b>. Britain also builds its own <b>atomic bomb</b> and joins <b>NATO</b>.
+      </p>
+      <aside class="hook">🧠 <b>Pin it:</b> the three Bs, in near-alphabetical order, two-ish years apart — <b>Beveridge reports (1942) → Butler educates (1944) → Bevan heals (1948)</b>. Beveridge wrote the <i>report</i>, Butler the <i>Education Act</i>, Bevan the <i>NHS</i>. Never swap them.</aside>
+    </article>
+    <p class="because reveal">A country rebuilding at home cannot hold an empire abroad — and in 1947 the biggest jewel leaves the crown…</p>
+
+    <article class="scene reveal" data-year="1947" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🌏</div>
+      <h3><span class="yr">1947 onwards</span>Empire into Commonwealth</h3>
+      <p class="story">
+        In <span class="d">1947</span> Britain grants independence to <b>nine countries, including India,
+        Pakistan and Ceylon</b> (Sri Lanka). Over the next twenty years the other colonies follow — for
+        the most part an <b>orderly transition</b> from Empire to <b>Commonwealth</b>. The Conservatives
+        govern from <b>1951 to 1964</b>, and Prime Minister <b>Harold Macmillan</b> names the era in his
+        <b>"wind of change"</b> speech on decolonisation. The empire that took four hundred years to
+        build is handed back in twenty.
+      </p>
+    </article>
+    <p class="because reveal">But the traffic isn't one-way. Britain is short of workers — and it goes looking for them in the places it once ruled…</p>
+
+    <article class="scene reveal" data-year="1948 ✚" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🚌</div>
+      <h3><span class="yr">1948 → 1972</span>The people who came to rebuild</h3>
+      <p class="story">
+        Post-war labour shortages mean Britain <b>invites workers in</b>: from <span class="d">1948</span>,
+        people from the <b>West Indies</b> — with recruitment centres set up for <b>bus drivers</b> —
+        and textile and engineering firms sending agents to <b>India and Pakistan</b>. For about
+        <b>25 years</b> people arrive from the West Indies, India, Pakistan and later <b>Bangladesh</b>.
+        In the <b>late 1960s</b> immigration laws tighten (requiring ties to Britain by <b>birth or
+        ancestry</b>) — yet in the <b>early 1970s</b> Britain still admits <b>28,000 people of Indian
+        origin</b> forced out of <b>Uganda</b>. Modern multicultural Britain is being assembled,
+        journey by journey.
+      </p>
+    </article>
+    <p class="because reveal">The rebuilt country's children grow up in something their parents can't quite believe: prosperity. And they intend to enjoy it…</p>
+
+    <article class="scene reveal" data-year="1960s" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🎸</div>
+      <h3><span class="yr">the 1960s</span>The Swinging Sixties</h3>
+      <p class="story">
+        British <b>fashion, cinema and pop</b> conquer the world — led by <b>The Beatles</b> and
+        <b>The Rolling Stones</b>. The law liberalises: <b>divorce and abortion</b> laws reform in
+        England, Wales and Scotland. Women — whom employers had commonly forced to <b>leave work when
+        they married</b> — win legislation for <b>equal pay</b> and against <b>sex discrimination</b>.
+        Britain and France jointly build <b>Concorde</b>, the supersonic airliner, and
+        high-rise concrete-and-steel architecture climbs over the cities. The island that spent five
+        acts being invaded now invades the world's radios.
+      </p>
+    </article>
+    <p class="because reveal">Then the music stops. The Seventies arrive with a hangover…</p>
+
+    <article class="scene reveal" data-year="1973" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">⚡</div>
+      <h3><span class="yr">the 1970s</span>The troubled Seventies</h3>
+      <p class="story">
+        The post-war boom ends: <b>prices rise</b>, the pound wobbles, imports outrun exports
+        (<b>balance-of-payments</b> trouble), and <b>strikes</b> spread — unions are widely seen as too
+        powerful. In <b>Northern Ireland</b>, the violence that began in <b>1969</b> escalates until the
+        <b>Stormont Parliament is suspended in 1972</b> and London imposes direct rule; some
+        <b>3,000 people</b> die in the Troubles. (That same dark year, Belfast's <b>Mary Peters</b> wins
+        <b>Olympic pentathlon gold</b> — later a Dame and champion of Northern Irish sport.) And Britain
+        finally joins the European club: the <b>EEC, formed in 1957</b> by six founding countries
+        <b>without the UK</b>, admits Britain on <span class="d">1 January 1973</span> — though the UK
+        <b>never adopts the Euro</b>.
+      </p>
+      <aside class="trap">⚠️ <b>Test trap:</b> the EEC was founded in <b>1957</b> — the UK joined in <b>1973</b>, sixteen years late. Two different dates, two different questions.</aside>
+    </article>
+    <p class="because reveal">By 1979 the country wants the strikes ended and the state shrunk — and it elects someone who intends to do exactly that…</p>
+
+    <article class="scene reveal" data-year="1979" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">💼</div>
+      <h3><span class="yr">1979–1990</span>The Thatcher years</h3>
+      <p class="story">
+        In <span class="d">1979</span> <b>Margaret Thatcher</b> — a grocer's daughter from Grantham,
+        chemist then lawyer — becomes the <b>UK's first woman Prime Minister</b>, and serves until 1990
+        as the <b>longest-serving PM of the 20th century</b>. She <b>privatises</b> the nationalised
+        industries, puts <b>legal curbs on trade union power</b>, and <b>deregulates</b> finance —
+        the City of London booms while traditional industries like <b>shipbuilding and coal</b> decline.
+        In <span class="d">1982</span> Argentina invades the <b>Falkland Islands</b>; a naval taskforce
+        sails 8,000 miles and takes them back. She works closely with US President <b>Reagan</b> as the
+        Cold War thaws. Her successor <b>John Major</b> helps begin the
+        <b>Northern Ireland peace process</b>.
+      </p>
+      <details class="notes"><summary>Field notes — Roald Dahl &amp; Dylan Thomas</summary>
+        <div class="n-body">
+          <p><b>Roald Dahl (1916–1990)</b>: born in <b>Wales to Norwegian parents</b>; flew in the <b>RAF</b> in WWII; <i>Charlie and the Chocolate Factory</i>, <i>George's Marvellous Medicine</i> — many books filmed.</p>
+          <p><b>Dylan Thomas (1914–1953)</b>: Welsh poet — <i>Under Milk Wood</i> (radio play) and <i>Do Not Go Gentle into That Good Night</i>; died at 39 in New York; memorials in <b>Swansea</b>.</p>
+        </div>
+      </details>
+    </article>
+    <p class="because reveal">The century closes with power flowing the other way — out of London, back to the nations that spent this whole story resisting it…</p>
+
+    <article class="scene reveal" data-year="1997" data-era="6">
+      <span class="scene-dot"></span>
+      <div class="glyph">🕊️</div>
+      <h3><span class="yr">1997 → 2010</span>Devolution, peace, and the modern UK</h3>
+      <p class="story">
+        In <span class="d">1997</span> Labour under <b>Tony Blair</b> wins power and devolves it: a
+        <b>Scottish Parliament</b> with substantial law-making powers, and a <b>Welsh Assembly</b> with
+        fewer. In <span class="d">1998</span> the <b>Good Friday Agreement</b> brings peace to Northern
+        Ireland; the <b>Northern Ireland Assembly</b> is elected in <b>1999</b> (suspended 2002,
+        reinstated 2007), and most paramilitary groups <b>decommission their arms</b>. <b>Gordon
+        Brown</b> becomes PM in <span class="d">2007</span>. Abroad: the coalition to <b>liberate Kuwait
+        (1990)</b>, then <b>Afghanistan and Iraq</b> — British combat troops leave Iraq in <b>2009</b>.
+        And in <span class="d">May 2010</span>, the first general election with no overall majority since
+        February 1974 produces a <b>Conservative–Liberal Democrat coalition</b> under
+        <b>David Cameron</b>. The story reaches the country you're about to join.
+      </p>
+      <details class="notes"><summary>Field notes — British inventions of the 20th century (the test's favourite list)</summary>
+        <div class="n-body">
+          <p><b>Television</b> — John Logie Baird (Scot), first broadcast London–Glasgow <b>1932</b> · <b>Jet engine</b> — Sir Frank Whittle, 1930s · <b>Turing machine</b> — Alan Turing, the theoretical computer, 1930s · <b>Radar</b> — Sir Robert Watson-Watt (Scot), first test <b>1935</b> · <b>Insulin co-discovery</b> — John MacLeod (Scot).</p>
+          <p><b>Hovercraft</b> — Sir Christopher Cockerell, 1950s · <b>DNA structure</b> — discovered in British universities, <b>1953</b>; Francis Crick won the Nobel Prize · <b>Radio telescope</b> — Sir Bernard Lovell, Jodrell Bank, Cheshire · <b>Cash machine (ATM)</b> — James Goodfellow, first used at Barclays, Enfield, <b>1967</b>.</p>
+          <p><b>Concorde</b> — UK–France; first flew 1969, passengers 1976, retired 2003 · <b>Harrier jump jet</b> — vertical take-off, designed and built in the UK · <b>IVF</b> — Edwards &amp; Steptoe; first "test-tube baby" born in Oldham, <b>1978</b> · <b>World Wide Web</b> — Sir Tim Berners-Lee; first successful transfer <b>25 December 1990</b> · <b>Cloning</b> — Dolly the sheep, Wilmut &amp; Campbell, <b>1996</b> · <b>MRI scanner</b> — Sir Peter Mansfield, co-inventor.</p>
+        </div>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- ======================= EPILOGUE ======================= -->
+<section class="epilogue" data-year="The End" data-era="7">
+  <div class="wrap">
+    <p class="ep-kicker">Epilogue</p>
+    <h2>The whole saga in one breath</h2>
+    <p class="breath">
+      The sea makes an island <span class="d">10,000 years ago</span> — so everyone after must arrive by
+      boat: farmers <b>(Stonehenge, Skara Brae)</b>, Romans <b>(fail 55 BC, succeed AD 43, leave
+      AD 410)</b>, Anglo-Saxons <b>(kingdoms by 600)</b>, Vikings <b>(789 — forging Alfred's England and
+      MacAlpin's Scotland)</b>, and finally William, <span class="d">1066</span> — <b>the last invader
+      ever</b>. His feudal kings fight Wales <b>(1284, conquered)</b>, Scotland <b>(1314, never)</b> and
+      France <b>(Agincourt 1415)</b>, while plague <b>(1348)</b> empowers the workers and parchment
+      empowers the nobles — <b>Magna Carta, 1215</b> — until the roses fuse at Bosworth,
+      <span class="d">1485</span>. A Tudor divorce births a Church <b>(1530s)</b>, Elizabeth sinks the
+      Armada <b>(1588)</b>, the crowns unite <b>(1603)</b>, a stubborn king loses his head
+      <b>(1649)</b>, the crown returns humbled <b>(1660)</b>, and Parliament wins bloodlessly in
+      <span class="d">1688</span>, writing its victory into the <b>Bill of Rights (1689)</b>. Union
+      makes Great Britain <b>(1707)</b> then the UK <b>(1801)</b>; steam and Watt build the workshop of
+      the world; Wilberforce ends the trade <b>(1807)</b> then slavery <b>(1833)</b>; Nelson
+      <b>(1805)</b> and Wellington <b>(1815)</b> stop Napoleon; Victoria reigns over the largest empire
+      ever <b>(1837–1901)</b> while famine breaks Ireland and Reform Acts widen the vote. Then the
+      elevens of <span class="d">1918</span> end the Great War, Ireland splits <b>(1922)</b>, and 1940
+      brings Churchill's year of three — <b>PM, Dunkirk, Battle of Britain</b> — until D-Day
+      <b>(6 June 1944)</b> wins the peace. Exhausted and victorious, Britain builds the NHS
+      <b>(Bevan, 1948)</b>, frees India <b>(1947)</b>, welcomes the Windrush generation, swings through
+      the Sixties, joins Europe <b>(1973)</b>, elects Thatcher <b>(1979)</b>, and finally hands power
+      home — <b>devolution 1997, Good Friday 1998</b> — to the nations where this story began.
+    </p>
+
+    <h2 style="margin-top:60px">Prove it — the date stones</h2>
+    <p class="lede" style="margin-top:0">Tap a stone to check yourself. If you can narrate the story <i>between</i> any two stones, Chapter 3 is yours.</p>
+    <div class="stones-tools">
+      <button id="stonesAll">Reveal all</button>
+      <button id="stonesNone">Hide all</button>
+    </div>
+    <div class="stones" id="stones">
+      <button class="stone"><span class="sy">55 BC</span><span class="se">Caesar invades — and fails</span></button>
+      <button class="stone"><span class="sy">AD 43</span><span class="se">Claudius conquers Britain</span></button>
+      <button class="stone"><span class="sy">AD 410</span><span class="se">The Romans leave for good</span></button>
+      <button class="stone"><span class="sy">AD 789</span><span class="se">First Viking raids</span></button>
+      <button class="stone"><span class="sy">1066</span><span class="se">Hastings — William the Conqueror</span></button>
+      <button class="stone"><span class="sy">1215</span><span class="se">Magna Carta — King John</span></button>
+      <button class="stone"><span class="sy">1284</span><span class="se">Statute of Rhuddlan — Wales annexed</span></button>
+      <button class="stone"><span class="sy">1314</span><span class="se">Bannockburn — Robert the Bruce</span></button>
+      <button class="stone"><span class="sy">1348</span><span class="se">Black Death kills a third of England</span></button>
+      <button class="stone"><span class="sy">1415</span><span class="se">Agincourt — Henry V</span></button>
+      <button class="stone"><span class="sy">1485</span><span class="se">Bosworth — Henry VII, the Tudor rose</span></button>
+      <button class="stone"><span class="sy">1560</span><span class="se">Scotland abolishes the Pope's authority</span></button>
+      <button class="stone"><span class="sy">1588</span><span class="se">Spanish Armada defeated</span></button>
+      <button class="stone"><span class="sy">1603</span><span class="se">James VI/I — union of crowns</span></button>
+      <button class="stone"><span class="sy">1642</span><span class="se">Civil War — Cavaliers vs Roundheads</span></button>
+      <button class="stone"><span class="sy">1649</span><span class="se">Charles I executed — the Commonwealth</span></button>
+      <button class="stone"><span class="sy">1660</span><span class="se">Restoration — Charles II returns</span></button>
+      <button class="stone"><span class="sy">1665–66</span><span class="se">Plague, then the Great Fire</span></button>
+      <button class="stone"><span class="sy">1679</span><span class="se">Habeas Corpus Act</span></button>
+      <button class="stone"><span class="sy">1688</span><span class="se">Glorious Revolution — William of Orange</span></button>
+      <button class="stone"><span class="sy">1689</span><span class="se">Bill of Rights</span></button>
+      <button class="stone"><span class="sy">1690</span><span class="se">Battle of the Boyne</span></button>
+      <button class="stone"><span class="sy">1707</span><span class="se">Act of Union — Great Britain</span></button>
+      <button class="stone"><span class="sy">1721</span><span class="se">Walpole — first Prime Minister</span></button>
+      <button class="stone"><span class="sy">1746</span><span class="se">Culloden — Jacobites crushed</span></button>
+      <button class="stone"><span class="sy">1776</span><span class="se">American colonies declare independence</span></button>
+      <button class="stone"><span class="sy">1801</span><span class="se">Union with Ireland — the UK &amp; Union Flag</span></button>
+      <button class="stone"><span class="sy">1805</span><span class="se">Trafalgar — Nelson</span></button>
+      <button class="stone"><span class="sy">1807</span><span class="se">Slave trade banned</span></button>
+      <button class="stone"><span class="sy">1815</span><span class="se">Waterloo — Wellington</span></button>
+      <button class="stone"><span class="sy">1832</span><span class="se">Reform Act — rotten boroughs go</span></button>
+      <button class="stone"><span class="sy">1833</span><span class="se">Slavery abolished in the Empire</span></button>
+      <button class="stone"><span class="sy">1837</span><span class="se">Victoria, queen at 18</span></button>
+      <button class="stone"><span class="sy">1851</span><span class="se">Great Exhibition — Crystal Palace</span></button>
+      <button class="stone"><span class="sy">28 Jun 1914</span><span class="se">Franz Ferdinand shot — WWI begins</span></button>
+      <button class="stone"><span class="sy">Jul 1916</span><span class="se">The Somme — 60,000 casualties, day one</span></button>
+      <button class="stone"><span class="sy">11 Nov 1918</span><span class="se">WWI ends at 11am · women over 30 vote</span></button>
+      <button class="stone"><span class="sy">1922</span><span class="se">Ireland partitioned · BBC radio begins</span></button>
+      <button class="stone"><span class="sy">1928</span><span class="se">Equal vote at 21 · penicillin discovered</span></button>
+      <button class="stone"><span class="sy">1936</span><span class="se">BBC — world's first regular TV service</span></button>
+      <button class="stone"><span class="sy">1940</span><span class="se">Churchill PM · Dunkirk · Battle of Britain</span></button>
+      <button class="stone"><span class="sy">6 Jun 1944</span><span class="se">D-Day — Normandy landings</span></button>
+      <button class="stone"><span class="sy">1945</span><span class="se">War ends · Attlee's landslide</span></button>
+      <button class="stone"><span class="sy">1947</span><span class="se">India, Pakistan, Ceylon independent</span></button>
+      <button class="stone"><span class="sy">1948</span><span class="se">NHS founded — Nye Bevan</span></button>
+      <button class="stone"><span class="sy">1973</span><span class="se">UK joins the EEC (founded 1957)</span></button>
+      <button class="stone"><span class="sy">1979</span><span class="se">Thatcher — first woman PM</span></button>
+      <button class="stone"><span class="sy">1982</span><span class="se">Falklands War</span></button>
+      <button class="stone"><span class="sy">1997</span><span class="se">Blair — devolution follows</span></button>
+      <button class="stone"><span class="sy">1998</span><span class="se">Good Friday Agreement</span></button>
+      <button class="stone"><span class="sy">2010</span><span class="se">Coalition — Cameron PM</span></button>
+    </div>
+  </div>
+
+  <!-- credits -->
+  <div class="credits">
+    <div class="wrap">
+      <p class="ep-kicker">Roll credits</p>
+      <h2>Cast — in order of appearance</h2>
+      <p class="sub">If a name below rings no bell, scroll back up — everyone here can appear on the test.</p>
+
+      <p class="cred-act" style="--ca:var(--era1)">Act I · Early Britain</p>
+      <p class="cred"><span class="cn">Boudicca</span><span class="cr">queen of the Iceni · statue on Westminster Bridge</span></p>
+      <p class="cred"><span class="cn">Hadrian</span><span class="cr">the emperor who walled off the Picts</span></p>
+      <p class="cred"><span class="cn">St Patrick · St Columba · St Augustine</span><span class="cr">Ireland · Iona · Canterbury</span></p>
+      <p class="cred"><span class="cn">Alfred the Great</span><span class="cr">united the Anglo-Saxons, beat the Vikings</span></p>
+      <p class="cred"><span class="cn">Kenneth MacAlpin</span><span class="cr">under him, "Scotland" gets its name</span></p>
+      <p class="cred"><span class="cn">Cnut (Canute)</span><span class="cr">first Danish king of England</span></p>
+      <p class="cred"><span class="cn">Harold &amp; William the Conqueror</span><span class="cr">Hastings, 1066 — the last invasion</span></p>
+
+      <p class="cred-act" style="--ca:var(--era2)">Act II · The Middle Ages</p>
+      <p class="cred"><span class="cn">King John</span><span class="cr">forced to seal Magna Carta, 1215</span></p>
+      <p class="cred"><span class="cn">Edward I</span><span class="cr">annexed Wales — Statute of Rhuddlan, 1284</span></p>
+      <p class="cred"><span class="cn">Robert the Bruce</span><span class="cr">Bannockburn, 1314 — Scotland stays free</span></p>
+      <p class="cred"><span class="cn">Henry V</span><span class="cr">Agincourt, 1415</span></p>
+      <p class="cred"><span class="cn">Geoffrey Chaucer &amp; William Caxton</span><span class="cr">The Canterbury Tales · England's first printer</span></p>
+      <p class="cred"><span class="cn">Richard III &amp; Henry VII</span><span class="cr">Bosworth, 1485 — the roses become one</span></p>
+
+      <p class="cred-act" style="--ca:var(--era3)">Act III · Tudors &amp; Stuarts</p>
+      <p class="cred"><span class="cn">Henry VIII</span><span class="cr">six wives, one brand-new Church</span></p>
+      <p class="cred"><span class="cn">Edward VI &amp; Mary I</span><span class="cr">the Prayer Book · "Bloody Mary"</span></p>
+      <p class="cred"><span class="cn">Elizabeth I</span><span class="cr">the settlement, the Armada, the golden age</span></p>
+      <p class="cred"><span class="cn">Sir Francis Drake</span><span class="cr">the Golden Hind, around the world</span></p>
+      <p class="cred"><span class="cn">William Shakespeare</span><span class="cr">Stratford's playwright to the nation</span></p>
+      <p class="cred"><span class="cn">Mary, Queen of Scots</span><span class="cr">queen at one week old · executed by her cousin</span></p>
+      <p class="cred"><span class="cn">James VI &amp; I</span><span class="cr">two crowns, one head · the King James Bible</span></p>
+      <p class="cred"><span class="cn">Charles I</span><span class="cr">Divine Right — and the scaffold, 1649</span></p>
+      <p class="cred"><span class="cn">Oliver Cromwell</span><span class="cr">Lord Protector of the republic</span></p>
+      <p class="cred"><span class="cn">Charles II</span><span class="cr">out of the oak tree, into the Restoration</span></p>
+      <p class="cred"><span class="cn">Samuel Pepys &amp; Sir Christopher Wren</span><span class="cr">the diary · the new St Paul's</span></p>
+      <p class="cred"><span class="cn">Isaac Newton &amp; Edmund Halley</span><span class="cr">the Royal Society's brightest</span></p>
+      <p class="cred"><span class="cn">James II · William &amp; Mary</span><span class="cr">the Glorious Revolution, 1688</span></p>
+
+      <p class="cred-act" style="--ca:var(--era4)">Act IV · A Global Power</p>
+      <p class="cred"><span class="cn">Queen Anne &amp; George I</span><span class="cr">the union of 1707 · the imported king</span></p>
+      <p class="cred"><span class="cn">Sir Robert Walpole</span><span class="cr">first Prime Minister, 1721–42</span></p>
+      <p class="cred"><span class="cn">Bonnie Prince Charlie</span><span class="cr">the last Jacobite throw — Culloden, 1746</span></p>
+      <p class="cred"><span class="cn">Robert Burns</span><span class="cr">"The Bard" · Auld Lang Syne</span></p>
+      <p class="cred"><span class="cn">Adam Smith · David Hume · James Watt</span><span class="cr">the Scottish Enlightenment</span></p>
+      <p class="cred"><span class="cn">Richard Arkwright</span><span class="cr">father of the profitable factory</span></p>
+      <p class="cred"><span class="cn">William Wilberforce &amp; the Quakers</span><span class="cr">the end of the slave trade</span></p>
+      <p class="cred"><span class="cn">Admiral Nelson &amp; the Duke of Wellington</span><span class="cr">Trafalgar 1805 · Waterloo 1815</span></p>
+      <p class="cred"><span class="cn">Sake Dean Mahomet</span><span class="cr">Britain's first curry house, 1810</span></p>
+      <p class="cred"><span class="cn">Queen Victoria</span><span class="cr">64 years · the largest empire ever</span></p>
+      <p class="cred"><span class="cn">The Stephensons &amp; Brunel</span><span class="cr">the railway age</span></p>
+      <p class="cred"><span class="cn">Florence Nightingale</span><span class="cr">founder of modern nursing</span></p>
+      <p class="cred"><span class="cn">Charles Stuart Parnell</span><span class="cr">the Home Rule campaign</span></p>
+      <p class="cred"><span class="cn">Emmeline Pankhurst</span><span class="cr">the suffragettes</span></p>
+      <p class="cred"><span class="cn">Rudyard Kipling</span><span class="cr">Nobel Prize 1907 · "If"</span></p>
+
+      <p class="cred-act" style="--ca:var(--era5)">Act V · The 20th Century</p>
+      <p class="cred"><span class="cn">Winston Churchill</span><span class="cr">1940's man of three · greatest Briton, 2002</span></p>
+      <p class="cred"><span class="cn">Alexander Fleming</span><span class="cr">penicillin, 1928 · Nobel Prize 1945</span></p>
+      <p class="cred"><span class="cn">Ernest Rutherford</span><span class="cr">first to split the atom</span></p>
+      <p class="cred"><span class="cn">Keynes · Greene · Waugh</span><span class="cr">the interwar minds</span></p>
+
+      <p class="cred-act" style="--ca:var(--era6)">Act VI · Britain since 1945</p>
+      <p class="cred"><span class="cn">Clement Attlee</span><span class="cr">the welfare state, 1945–51</span></p>
+      <p class="cred"><span class="cn">Beveridge · Butler · Bevan</span><span class="cr">the report · the Education Act · the NHS</span></p>
+      <p class="cred"><span class="cn">Harold Macmillan</span><span class="cr">"the wind of change"</span></p>
+      <p class="cred"><span class="cn">Dylan Thomas &amp; Roald Dahl</span><span class="cr">Wales's poet · Wales's storyteller</span></p>
+      <p class="cred"><span class="cn">Mary Peters</span><span class="cr">Olympic gold, 1972</span></p>
+      <p class="cred"><span class="cn">Margaret Thatcher</span><span class="cr">first woman PM, 1979–90</span></p>
+      <p class="cred"><span class="cn">Major · Blair · Brown · Cameron</span><span class="cr">peace process · devolution · 2007 · coalition</span></p>
+
+      <p class="cred-act" style="--ca:var(--gold)">Special effects — the inventors</p>
+      <p class="cred"><span class="cn">Baird · Whittle · Turing · Watson-Watt</span><span class="cr">television · jet engine · the computer · radar</span></p>
+      <p class="cred"><span class="cn">Cockerell · Crick · Lovell · Goodfellow</span><span class="cr">hovercraft · DNA · Jodrell Bank · the ATM</span></p>
+      <p class="cred"><span class="cn">Edwards &amp; Steptoe · Berners-Lee · Wilmut &amp; Campbell · Mansfield</span><span class="cr">IVF · the Web · Dolly the sheep · MRI</span></p>
+
+      <p class="fin">1066 and all the rest — now go pass the thing.</p>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  Story companion to Chapter 3 of the official <i>Life in the UK</i> handbook, faithful to the study
+  guide at lifeintheuktests.co.uk. Where modern events have moved on, the test follows the handbook's
+  wording — so should your answers.<br>
+  Revise the facts: <a href="life-in-uk-chapter3.html">Chapter 3 reference</a> · test yourself:
+  <a href="life-in-uk-quiz.html">the quiz</a>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* theme */
+  try {
+    var saved = localStorage.getItem("liuk-story-theme");
+    if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  } catch(e){}
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch(e){}
+  });
+
+  /* prologue stars */
+  var stars = document.getElementById("stars");
+  for (var i = 0; i < 42; i++) {
+    var s = document.createElement("i");
+    s.style.left = (Math.random()*100).toFixed(2) + "%";
+    s.style.top = (Math.random()*100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random()*4).toFixed(2) + "s";
+    stars.appendChild(s);
+  }
+
+  /* reveal on scroll */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+  /* ---- time machine HUD ---- */
+  var eraNames = [
+    "Prologue · the island story",
+    "Act I · Early Britain",
+    "Act II · The Middle Ages",
+    "Act III · Tudors & Stuarts",
+    "Act IV · A Global Power",
+    "Act V · The 20th Century",
+    "Act VI · Britain since 1945",
+    "Epilogue · the whole story"
+  ];
+  var eraColors = ["var(--gold)","var(--era1)","var(--era2)","var(--era3)","var(--era4)","var(--era5)","var(--era6)","var(--gold)"];
+  var hud = document.querySelector(".hud");
+  var hudYear = document.getElementById("hudYear");
+  var hudEra = document.getElementById("hudEra");
+  var marker = document.getElementById("hudMarker");
+  var marks = Array.prototype.slice.call(document.querySelectorAll("[data-year]"));
+  var current = null, ticking = false;
+
+  function update(){
+    ticking = false;
+    var mid = innerHeight * 0.5;
+    var active = marks[0];
+    for (var j = 0; j < marks.length; j++) {
+      if (marks[j].getBoundingClientRect().top < mid) active = marks[j];
+      else break;
+    }
+    if (active !== current) {
+      current = active;
+      hudYear.textContent = active.dataset.year;
+      hudEra.textContent = eraNames[+active.dataset.era] || eraNames[0];
+      hud.style.setProperty("--acc", eraColors[+active.dataset.era] || eraColors[0]);
+      if (!reduced) {
+        hudYear.classList.remove("pop");
+        void hudYear.offsetWidth;
+        hudYear.classList.add("pop");
+      }
+    }
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    marker.style.left = (p * 100).toFixed(2) + "%";
+  }
+  addEventListener("scroll", function(){
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
+
+  /* ---- play the story (auto-scroll) ---- */
+  var playBtn = document.getElementById("play");
+  var playing = false, lastT = 0, rafId = 0;
+  var SPEED = 62; /* px per second */
+
+  function step(t){
+    if (!playing) return;
+    if (lastT) {
+      document.documentElement.scrollTop += SPEED * (t - lastT) / 1000;
+    }
+    lastT = t;
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) { stopPlay(); return; }
+    rafId = requestAnimationFrame(step);
+  }
+  function startPlay(){
+    playing = true; lastT = 0;
+    root.style.scrollBehavior = "auto";
+    playBtn.textContent = "❚❚";
+    playBtn.title = "Pause";
+    rafId = requestAnimationFrame(step);
+  }
+  function stopPlay(){
+    if (!playing) return;
+    playing = false;
+    cancelAnimationFrame(rafId);
+    root.style.scrollBehavior = "";
+    playBtn.textContent = "▶";
+    playBtn.title = "Play the story (auto-scroll)";
+  }
+  playBtn.addEventListener("click", function(){ playing ? stopPlay() : startPlay(); });
+  ["wheel","touchstart","mousedown"].forEach(function(ev){
+    addEventListener(ev, function(e){
+      if (playing && e.target !== playBtn) stopPlay();
+    }, { passive: true });
+  });
+
+  /* ---- keyboard: 1-6 jump acts, arrows step scenes ---- */
+  var stops = Array.prototype.slice.call(document.querySelectorAll(".scene, .act-card, .prologue, .epilogue"));
+  addEventListener("keydown", function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key >= "1" && e.key <= "6") {
+      stopPlay();
+      var act = document.getElementById("act" + e.key);
+      if (act) act.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      stopPlay();
+      var mid = innerHeight * 0.5, idx = 0;
+      for (var k = 0; k < stops.length; k++) {
+        if (stops[k].getBoundingClientRect().top < mid) idx = k;
+      }
+      var next = e.key === "ArrowRight" ? Math.min(stops.length - 1, idx + 1) : Math.max(0, idx - 1);
+      stops[next].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    }
+  });
+
+  /* ---- date stones ---- */
+  document.querySelectorAll(".stone").forEach(function(b){
+    b.addEventListener("click", function(){ b.classList.toggle("on"); });
+  });
+  document.getElementById("stonesAll").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.add("on"); });
+  });
+  document.getElementById("stonesNone").addEventListener("click", function(){
+    document.querySelectorAll(".stone").forEach(function(b){ b.classList.remove("on"); });
+  });
+})();
+</script>
+</body>
+</html>
