@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Life in the UK">
+<meta name="theme-color" content="#0D0F14">
+<meta name="description" content="Life in the UK test — story chapters, reference notes, practice quiz and 45 mock tests.">
+<title>Life in the UK — Study Hub</title>
+<script>
+  /* set theme before first paint so there's no flash */
+  try {
+    var t = localStorage.getItem("liuk-story-theme");
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --pink:#FF4F9A;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --pink:#D62B72;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.62;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:56px;
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  a { color:inherit; text-decoration:none; }
+
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding:54px 0 30px; text-align:center; }
+  .mast .flag { font-size:34px; letter-spacing:3px; }
+  .mast h1 {
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(2rem, 7vw, 2.9rem); line-height:1.1;
+    margin:.35em 0 .25em; letter-spacing:-.01em;
+  }
+  .mast .sub { color:var(--ink-2); font-size:.95rem; margin:0 auto; max-width:34em; }
+  .rule { height:1px; background:linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent); margin:34px 0 0; }
+
+  /* ---------- section headings ---------- */
+  h2.sec {
+    font-family:var(--sans); font-size:.74rem; font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
+    margin:38px 0 14px; display:flex; align-items:center; gap:12px;
+  }
+  h2.sec::after { content:""; flex:1; height:1px; background:var(--line); }
+
+  /* ---------- big feature tiles ---------- */
+  .tiles { display:grid; gap:12px; }
+  .tile {
+    display:flex; align-items:center; gap:16px;
+    background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:17px 18px; box-shadow:var(--shadow);
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .tile:active { transform:scale(.985); }
+  .tile:hover { border-color:var(--accent, var(--gold)); }
+  .tile .ic {
+    flex:0 0 auto; width:50px; height:50px; border-radius:14px;
+    display:grid; place-items:center; font-size:24px;
+    background:color-mix(in srgb, var(--accent, var(--gold)) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--accent, var(--gold)) 38%, transparent);
+  }
+  .tile .body { flex:1; min-width:0; }
+  .tile .body b { display:block; font-size:1.02rem; font-weight:650; letter-spacing:-.005em; }
+  .tile .body span { display:block; font-size:.85rem; color:var(--ink-2); line-height:1.45; margin-top:2px; }
+  .tile .chev { color:var(--ink-3); font-size:1.1rem; flex:0 0 auto; }
+  .tile .tag {
+    font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent, var(--gold)); border:1px solid color-mix(in srgb, var(--accent, var(--gold)) 40%, transparent);
+    border-radius:999px; padding:2px 8px; margin-left:8px; vertical-align:2px;
+  }
+
+  /* ---------- chapter rows ---------- */
+  .chapters { display:grid; gap:10px; }
+  .ch {
+    display:flex; align-items:baseline; gap:14px;
+    background:var(--card); border:1px solid var(--line);
+    border-left:3px solid var(--accent, var(--gold));
+    border-radius:12px; padding:14px 16px;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .ch:active { transform:scale(.985); }
+  .ch:hover { border-color:var(--accent, var(--gold)); }
+  .ch .n {
+    font-family:var(--serif); font-size:1.15rem; color:var(--accent, var(--gold));
+    flex:0 0 auto; width:1.3em; text-align:center;
+  }
+  .ch .t { flex:1; min-width:0; }
+  .ch .t b { display:block; font-weight:650; font-size:.98rem; }
+  .ch .t span { display:block; font-size:.83rem; color:var(--ink-2); line-height:1.45; margin-top:1px; }
+
+  /* ---------- reference list ---------- */
+  .refs { display:grid; gap:8px; }
+  .ref {
+    display:flex; align-items:center; gap:12px;
+    border:1px solid var(--line); border-radius:10px;
+    padding:11px 14px; font-size:.92rem; color:var(--ink-2);
+    transition:color .12s ease, border-color .12s ease;
+  }
+  .ref:hover { color:var(--ink); border-color:var(--gold-dim); }
+  .ref .n { font-family:var(--serif); color:var(--ink-3); flex:0 0 auto; width:1.3em; text-align:center; }
+  .ref .t { flex:1; min-width:0; }
+
+  footer.foot {
+    margin:46px 0 0; padding-top:22px; border-top:1px solid var(--line);
+    text-align:center; color:var(--ink-3); font-size:.8rem; line-height:1.7;
+  }
+  footer.foot .tip { color:var(--ink-2); }
+
+  @media (max-width:420px) {
+    .wrap { padding:0 16px; }
+    .tile { padding:15px 15px; gap:13px; }
+    .tile .ic { width:44px; height:44px; font-size:21px; border-radius:12px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle light or dark theme">☀︎ Light</button>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="flag">🇬🇧</div>
+    <h1>Life in the UK</h1>
+    <p class="sub">Everything for the test in one place — the story of Britain, the reference notes, and enough practice questions to make the real thing feel boring.</p>
+    <div class="rule"></div>
+  </header>
+
+  <h2 class="sec">Start here</h2>
+  <div class="tiles">
+
+    <a class="tile" href="lituk.html" style="--accent:var(--pink)">
+      <div class="ic">💛</div>
+      <div class="body">
+        <b>Study Quest</b>
+        <span>The gamified one. Levels, coins and streaks — study without noticing you're studying.</span>
+      </div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="tile" href="life-in-uk-mock-tests.html" style="--accent:var(--era2)">
+      <div class="ic">📝</div>
+      <div class="body">
+        <b>Mock Tests <span class="tag">45 tests</span></b>
+        <span>Full 24-question exams under real timing. The closest thing to sitting the actual test.</span>
+      </div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="tile" href="life-in-uk-quiz.html" style="--accent:var(--era4)">
+      <div class="ic">🎯</div>
+      <div class="body">
+        <b>Practice Quiz</b>
+        <span>The exhaustive question bank. Drill by chapter, repeat what you keep getting wrong.</span>
+      </div>
+      <div class="chev">›</div>
+    </a>
+
+  </div>
+
+  <h2 class="sec">Read the story</h2>
+  <div class="chapters">
+
+    <a class="ch" href="life-in-uk-chapter1-story.html" style="--accent:var(--era1)">
+      <div class="n">1</div>
+      <div class="t"><b>The Deal</b><span>Values, principles, and what the test is actually asking of you.</span></div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="ch" href="life-in-uk-chapter2-story.html" style="--accent:var(--era2)">
+      <div class="n">2</div>
+      <div class="t"><b>The Map, Decoded</b><span>What exactly <em>is</em> the UK? Countries, nations, islands, and the bits people get wrong.</span></div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="ch" href="life-in-uk-chapter3-story.html" style="--accent:var(--era3)">
+      <div class="n">3</div>
+      <div class="t"><b>The Island Story</b><span>A time-travel retelling, Stone Age to now. The big one — take your time.</span></div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="ch" href="life-in-uk-chapter4-story.html" style="--accent:var(--era5)">
+      <div class="n">4</div>
+      <div class="t"><b>Your First Year</b><span>British life as one grand tour — sport, food, festivals, telly and pubs.</span></div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="ch" href="life-in-uk-chapter5-story.html" style="--accent:var(--era6)">
+      <div class="n">5</div>
+      <div class="t"><b>Follow the Power</b><span>How Britain actually runs — government, law, and your role in it.</span></div>
+      <div class="chev">›</div>
+    </a>
+
+  </div>
+
+  <h2 class="sec">Reference notes</h2>
+  <div class="refs">
+    <a class="ref" href="life-in-uk-chapter1.html"><span class="n">1</span><span class="t">The Values and Principles of the UK</span><span class="chev">›</span></a>
+    <a class="ref" href="life-in-uk-chapter2.html"><span class="n">2</span><span class="t">What is the UK?</span><span class="chev">›</span></a>
+    <a class="ref" href="life-in-uk-chapter3.html"><span class="n">3</span><span class="t">A Long and Illustrious History</span><span class="chev">›</span></a>
+    <a class="ref" href="life-in-uk-chapter4.html"><span class="n">4</span><span class="t">A Modern, Thriving Society</span><span class="chev">›</span></a>
+    <a class="ref" href="life-in-uk-chapter5.html"><span class="n">5</span><span class="t">The UK Government, the Law and Your Role</span><span class="chev">›</span></a>
+  </div>
+
+  <footer class="foot">
+    <p class="tip">Tip — tap Share → <b>Add to Home Screen</b> to keep this a tap away.<br>Everything works offline once loaded. Progress saves on this device.</p>
+    <p>Good luck. You've got this. 💛</p>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn  = document.getElementById("themeToggle");
+    function label() {
+      btn.textContent = root.dataset.theme === "light" ? "☾ Dark" : "☀︎ Light";
+    }
+    btn.addEventListener("click", function () {
+      root.dataset.theme = root.dataset.theme === "light" ? "dark" : "light";
+      try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch (e) {}
+      label();
+    });
+    label();
+  })();
+</script>
+
+</body>
+</html>
