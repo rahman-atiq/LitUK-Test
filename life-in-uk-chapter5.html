@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Life in the UK · Chapter 5: The UK Government, the Law and Your Role</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
@@ -781,11 +791,8 @@
 </footer>
 
 <script>
-document.getElementById('themeToggle').onclick = function(){
-  var cur = document.documentElement.getAttribute('data-theme');
-  var dark = cur ? cur === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
-};
+/* Shared across every page, and now actually remembered. */
+document.getElementById('themeToggle').onclick = function(){ LitUK.toggleTheme(); };
 </script>
 
 </body>

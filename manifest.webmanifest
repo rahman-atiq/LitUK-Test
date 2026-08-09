@@ -1,0 +1,44 @@
+{
+  "name": "Life in the UK — Study Hub",
+  "short_name": "Life in UK",
+  "description": "Story chapters, reference notes, a daily drill and 45 mock tests for the Life in the UK citizenship test.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0D0F14",
+  "theme_color": "#0D0F14",
+  "orientation": "portrait-primary",
+  "categories": ["education"],
+  "lang": "en-GB",
+  "dir": "ltr",
+  "icons": [
+    { "src": "./icons/icon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daily Drill",
+      "short_name": "Drill",
+      "description": "Today's 20 questions, weighted to what you keep getting wrong",
+      "url": "./life-in-uk-mock-tests.html#drill",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mock Tests",
+      "short_name": "Mocks",
+      "description": "45 full timed mock tests",
+      "url": "./life-in-uk-mock-tests.html",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mistakes",
+      "short_name": "Mistakes",
+      "description": "Practise the questions you have got wrong",
+      "url": "./life-in-uk-mock-tests.html#mistakes",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

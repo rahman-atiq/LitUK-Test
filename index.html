@@ -9,13 +9,16 @@
 <meta name="theme-color" content="#0D0F14">
 <meta name="description" content="Life in the UK test — story chapters, reference notes, practice quiz and 45 mock tests.">
 <title>Life in the UK — Study Hub</title>
-<script>
-  /* set theme before first paint so there's no flash */
-  try {
-    var t = localStorage.getItem("liuk-story-theme");
-    if (t) document.documentElement.dataset.theme = t;
-  } catch (e) {}
-</script>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
@@ -89,7 +92,8 @@
   }
   .tile .body { flex:1; min-width:0; }
   .tile .body b { display:block; font-size:1.02rem; font-weight:650; letter-spacing:-.005em; }
-  .tile .body span { display:block; font-size:.85rem; color:var(--ink-2); line-height:1.45; margin-top:2px; }
+  /* direct child only — the .tag pill inside <b> must stay inline */
+  .tile .body > span { display:block; font-size:.85rem; color:var(--ink-2); line-height:1.45; margin-top:2px; }
   .tile .chev { color:var(--ink-3); font-size:1.1rem; flex:0 0 auto; }
   .tile .tag {
     font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
@@ -128,11 +132,70 @@
   .ref .n { font-family:var(--serif); color:var(--ink-3); flex:0 0 auto; width:1.3em; text-align:center; }
   .ref .t { flex:1; min-width:0; }
 
+  /* ---------- progress ---------- */
+  #progress[hidden] { display:none; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+  .st {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:12px 8px; text-align:center;
+  }
+  .st b { display:block; font-size:1.35rem; font-weight:700; letter-spacing:-.02em; line-height:1.15; }
+  .st span { display:block; font-size:.66rem; color:var(--ink-3); letter-spacing:.04em; text-transform:uppercase; margin-top:3px; }
+  .st b.good { color:var(--era2); } .st b.bad { color:var(--era3); } .st b.gold { color:var(--gold); }
+  .cta {
+    display:flex; align-items:center; gap:12px;
+    background:linear-gradient(135deg, color-mix(in srgb, var(--era5) 20%, var(--card)), var(--card));
+    border:1px solid color-mix(in srgb, var(--era5) 42%, var(--line));
+    border-radius:14px; padding:14px 16px; box-shadow:var(--shadow);
+  }
+  .cta .ic { font-size:22px; flex:0 0 auto; }
+  .cta .body { flex:1; min-width:0; }
+  .cta .body b { display:block; font-size:.98rem; font-weight:650; }
+  .cta .body span { display:block; font-size:.82rem; color:var(--ink-2); margin-top:1px; }
+  .cta .chev { color:var(--era5); font-size:1.1rem; }
+  .weakline { font-size:.82rem; color:var(--ink-3); margin:10px 2px 0; }
+  .weakline b { color:var(--ink-2); font-weight:650; }
+  /* Four tiles get cramped on any phone, not just the small ones. */
+  @media (max-width:540px) {
+    .stats { grid-template-columns:repeat(2,1fr); }
+  }
+
+  /* ---------- search ---------- */
+  .searchbox { position:relative; margin-top:20px; }
+  .searchbox input {
+    width:100%; font-family:inherit; font-size:.95rem; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:13px 15px 13px 40px; box-shadow:var(--shadow); -webkit-appearance:none;
+  }
+  .searchbox input::placeholder { color:var(--ink-3); }
+  .searchbox input:focus { outline:none; border-color:var(--gold); }
+  .searchbox .mag { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--ink-3); font-size:.95rem; pointer-events:none; }
+  .results { margin-top:10px; display:grid; gap:7px; }
+  .results[hidden] { display:none; }
+  .rgroup { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin:10px 2px 2px; }
+  .rhit {
+    display:block; background:var(--card); border:1px solid var(--line);
+    border-radius:11px; padding:11px 13px; border-left:3px solid var(--accent, var(--gold));
+  }
+  .rhit:hover { border-color:var(--accent, var(--gold)); }
+  .rhit .rt { font-size:.9rem; font-weight:600; line-height:1.4; }
+  .rhit .rs { font-size:.8rem; color:var(--ink-2); line-height:1.45; margin-top:3px; }
+  .rhit .rm { font-size:.68rem; color:var(--ink-3); letter-spacing:.04em; text-transform:uppercase; margin-top:5px; }
+  .rhit mark { background:color-mix(in srgb, var(--gold) 38%, transparent); color:inherit; border-radius:3px; padding:0 1px; }
+  .rnone { color:var(--ink-3); font-size:.86rem; padding:14px 2px; }
+
   footer.foot {
     margin:46px 0 0; padding-top:22px; border-top:1px solid var(--line);
     text-align:center; color:var(--ink-3); font-size:.8rem; line-height:1.7;
   }
   footer.foot .tip { color:var(--ink-2); }
+  .offline {
+    font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
+    background:var(--card); color:var(--ink-2); border:1px solid var(--line);
+    border-radius:9px; padding:8px 14px; margin:6px 0 14px;
+  }
+  .offline:hover { color:var(--ink); border-color:var(--gold-dim); }
+  .offline[disabled] { opacity:.6; cursor:default; }
 
   @media (max-width:420px) {
     .wrap { padding:0 16px; }
@@ -154,6 +217,25 @@
     <div class="rule"></div>
   </header>
 
+  <section id="progress" hidden>
+    <h2 class="sec">Where you're up to</h2>
+    <div class="stats" id="stats"></div>
+    <a class="cta" id="cta" href="life-in-uk-mock-tests.html#drill">
+      <div class="ic">🔥</div>
+      <div class="body"><b id="ctaTitle">Daily drill</b><span id="ctaSub">20 questions, weighted to what you keep getting wrong</span></div>
+      <div class="chev">›</div>
+    </a>
+    <p class="weakline" id="weakline" hidden></p>
+  </section>
+
+  <div class="searchbox">
+    <span class="mag">⌕</span>
+    <input id="q" type="search" placeholder="Search questions, notes and chapters…"
+           autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search everything">
+  </div>
+  <div class="results" id="results" hidden></div>
+
+  <div id="browse">
   <h2 class="sec">Start here</h2>
   <div class="tiles">
 
@@ -229,9 +311,11 @@
     <a class="ref" href="life-in-uk-chapter4.html"><span class="n">4</span><span class="t">A Modern, Thriving Society</span><span class="chev">›</span></a>
     <a class="ref" href="life-in-uk-chapter5.html"><span class="n">5</span><span class="t">The UK Government, the Law and Your Role</span><span class="chev">›</span></a>
   </div>
+  </div><!-- /#browse -->
 
   <footer class="foot">
-    <p class="tip">Tip — tap Share → <b>Add to Home Screen</b> to keep this a tap away.<br>Everything works offline once loaded. Progress saves on this device.</p>
+    <button class="offline" id="offlineBtn" hidden></button>
+    <p class="tip">Tip — tap Share → <b>Add to Home Screen</b> to keep this a tap away.<br>Progress saves on this device.</p>
     <p>Good luck. You've got this. 💛</p>
   </footer>
 
@@ -245,12 +329,281 @@
       btn.textContent = root.dataset.theme === "light" ? "☾ Dark" : "☀︎ Light";
     }
     btn.addEventListener("click", function () {
-      root.dataset.theme = root.dataset.theme === "light" ? "dark" : "light";
-      try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch (e) {}
+      LitUK.toggleTheme();
       label();
     });
+    document.addEventListener("lituk:theme", label);
     label();
   })();
+</script>
+
+<script>
+/* Topic order matches DATA.topics in the mock-tests app. */
+var TOPIC_NAMES = [
+  "A modern, thriving society",
+  "A long and illustrious history",
+  "The UK government, the law and your role",
+  "The Values and principles of the UK",
+  "What is the UK?"
+];
+
+/* ============================================================
+   Progress — read straight out of the other apps' localStorage.
+   ============================================================ */
+(function () {
+  "use strict";
+  var TOTAL_MOCKS = 45;
+
+  function read(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function dayKey(d) {
+    d = d ? new Date(d) : new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  var M = read("lituk_v1", null) || {};
+  var quizBest = +(localStorage.getItem("lituk_best") || 0);
+  var quest = read("luk_quest_save_v1", null);
+
+  var tests = M.tests || {}, mistakes = M.mistakes || {}, sr = M.sr || {}, drill = M.drill || {};
+  var passed = Object.keys(tests).filter(function (k) { return tests[k].lastPass; }).length;
+  var answered = M.answered || 0;
+  var acc = answered ? Math.round((M.correct || 0) / answered * 100) : 0;
+  var toFix = Object.keys(mistakes).filter(function (g) { return !mistakes[g].done; }).length;
+  var streak = drill.streak || 0;
+  var doneToday = drill.last === dayKey();
+
+  var now = Date.now();
+  var due = Object.keys(sr).filter(function (g) { return sr[g].due <= now; }).length;
+  var seen = Object.keys(sr).length;
+
+  var hasProgress = answered > 0 || quizBest > 0 || (quest && quest.totalAnswered > 0);
+  if (hasProgress) {
+    document.getElementById("progress").hidden = false;
+
+    document.getElementById("stats").innerHTML = [
+      tile(passed + '<span style="font-size:.9rem;color:var(--ink-3)">/' + TOTAL_MOCKS + "</span>", "mocks passed", passed ? "good" : ""),
+      tile(acc + "%", "accuracy", acc >= 75 ? "good" : acc ? "bad" : ""),
+      tile(toFix, "to fix", toFix ? "bad" : "good"),
+      tile(streak, "day streak", streak ? "gold" : "")
+    ].join("");
+
+    var sub = [];
+    if (due) sub.push(due + " due for review");
+    if (toFix) sub.push(toFix + " to fix");
+    if (seen < 1080) sub.push((1080 - seen) + " never seen");
+    document.getElementById("ctaTitle").textContent = doneToday ? "Daily drill — done today ✓" : "Daily drill";
+    document.getElementById("ctaSub").textContent = sub.length
+      ? "20 questions · " + sub.slice(0, 2).join(" · ")
+      : "20 questions, weighted to what you keep getting wrong";
+
+    var extras = [];
+    var topics = M.topics || {};
+    var weakest = null;
+    Object.keys(topics).forEach(function (i) {
+      var t = topics[i];
+      if (!t.seen) return;
+      var pct = t.correct / t.seen;
+      if (!weakest || pct < weakest.pct) weakest = { i: i, pct: pct };
+    });
+    if (weakest && TOPIC_NAMES[weakest.i]) {
+      extras.push("Weakest topic: <b>" + TOPIC_NAMES[weakest.i] + "</b> at " + Math.round(weakest.pct * 100) + "%");
+    }
+    if (quizBest) extras.push("Practice quiz best: <b>" + quizBest + "</b>");
+    if (quest && quest.level > 1) extras.push("Study Quest: <b>level " + quest.level + "</b>");
+    if (extras.length) {
+      var w = document.getElementById("weakline");
+      w.innerHTML = extras.join(" · ");
+      w.hidden = false;
+    }
+  }
+
+  function tile(n, label, cls) {
+    return '<div class="st"><b class="' + (cls || "") + '">' + n + "</b><span>" + label + "</span></div>";
+  }
+})();
+
+/* ============================================================
+   Search — over every chapter block and all 1080 questions.
+   The index is ~430KB, so it only loads once you actually search.
+   ============================================================ */
+(function () {
+  "use strict";
+  var input = document.getElementById("q");
+  var out = document.getElementById("results");
+  var browse = document.getElementById("browse");
+  var progress = document.getElementById("progress");
+  var loading = null, timer = null;
+
+  var ACCENT = { story: "var(--era3)", ref: "var(--era4)", q: "var(--era2)" };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function hl(s, terms) {
+    var html = esc(s);
+    terms.forEach(function (t) {
+      if (t.length < 2) return;
+      html = html.replace(new RegExp("(" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi"), "<mark>$1</mark>");
+    });
+    return html;
+  }
+
+  function loadIndex() {
+    if (window.LITUK_INDEX) return Promise.resolve(window.LITUK_INDEX);
+    if (loading) return loading;
+    loading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = "search-index.js";
+      s.onload = function () { resolve(window.LITUK_INDEX); };
+      s.onerror = function () { loading = null; reject(new Error("index failed")); };
+      document.head.appendChild(s);
+    });
+    return loading;
+  }
+
+  function search(X, query) {
+    var terms = query.toLowerCase().split(/\s+/).filter(function (t) { return t.length > 1; });
+    if (!terms.length) return null;
+    var phrase = query.toLowerCase().trim();
+    var hits = { qs: [], blocks: [] };
+
+    X.qs.forEach(function (q) {
+      var expl = q[5] >= 0 ? X.expl[q[5]] : "";
+      var hay = (q[3] + " " + q[4] + " " + expl).toLowerCase();
+      for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return;
+      var score = 40;
+      if (q[3].toLowerCase().indexOf(phrase) >= 0) score += 45;
+      else if (hay.indexOf(phrase) >= 0) score += 20;
+      score -= Math.min(hay.indexOf(terms[0]), 60) / 6;
+      hits.qs.push({ score: score, q: q, expl: expl });
+    });
+
+    X.blocks.forEach(function (b) {
+      var head = b[2] >= 0 ? X.heads[b[2]] : "";
+      var hay = (b[3] + " " + head).toLowerCase();
+      for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return;
+      var score = b[4] ? 38 : 22;                       // headings outrank body text
+      if (b[3].toLowerCase().indexOf(phrase) >= 0) score += 30;
+      score -= Math.min(hay.indexOf(terms[0]), 90) / 8;
+      hits.blocks.push({ score: score, b: b, head: head });
+    });
+
+    hits.qs.sort(byScore).splice(8);
+    hits.blocks.sort(byScore).splice(12);
+    return { terms: terms, phrase: phrase, hits: hits };
+  }
+  function byScore(a, b) { return b.score - a.score; }
+
+  function render(X, r, query) {
+    if (!r || (!r.hits.qs.length && !r.hits.blocks.length)) {
+      out.innerHTML = '<p class="rnone">Nothing matches “' + esc(query) + '”.</p>';
+      return;
+    }
+    var html = "";
+
+    if (r.hits.qs.length) {
+      html += '<p class="rgroup">Questions</p>';
+      r.hits.qs.forEach(function (h) {
+        var q = h.q;
+        html += '<a class="rhit" style="--accent:' + ACCENT.q + '" href="life-in-uk-mock-tests.html#q=' + q[0] + '">' +
+          '<div class="rt">' + hl(q[3], r.terms) + "</div>" +
+          '<div class="rs"><b style="color:var(--era2)">' + hl(q[4], r.terms) + "</b>" +
+          (h.expl ? " — " + hl(h.expl, r.terms) : "") + "</div>" +
+          '<div class="rm">Test ' + q[1] + " · " + esc(X.topics[q[2]] || "") + "</div></a>";
+      });
+    }
+
+    if (r.hits.blocks.length) {
+      html += '<p class="rgroup">In the chapters</p>';
+      r.hits.blocks.forEach(function (h) {
+        var b = h.b, f = X.files[b[0]];
+        var href = f[0] + "?find=" + encodeURIComponent(pickTerm(b[3], r)) + (b[1] ? "#" + b[1] : "");
+        html += '<a class="rhit" style="--accent:' + ACCENT[f[1]] + '" href="' + esc(href) + '">' +
+          '<div class="rt">' + hl(b[3], r.terms) + "</div>" +
+          '<div class="rm">' + (f[1] === "story" ? "Story" : "Notes") + " · Chapter " + f[2] + " · " + esc(f[3]) +
+          (h.head && h.head !== b[3] ? " · " + esc(h.head) : "") + "</div></a>";
+      });
+    }
+    out.innerHTML = html;
+  }
+
+  /* Prefer the full phrase for ?find=, but only if the target actually has it. */
+  function pickTerm(text, r) {
+    var low = text.toLowerCase();
+    if (r.phrase.length > 2 && low.indexOf(r.phrase) >= 0) return r.phrase;
+    for (var i = 0; i < r.terms.length; i++) if (low.indexOf(r.terms[i]) >= 0) return r.terms[i];
+    return r.terms[0];
+  }
+
+  function run() {
+    var query = input.value.trim();
+    var active = query.length > 1;
+    out.hidden = !active;
+    browse.hidden = active;
+    if (progress) progress.hidden = active || progress.dataset.empty === "1";
+    if (!active) { out.innerHTML = ""; return; }
+
+    out.innerHTML = '<p class="rnone">Searching…</p>';
+    loadIndex().then(function (X) {
+      if (input.value.trim() !== query) return;          // typed on while loading
+      render(X, search(X, query), query);
+    }).catch(function () {
+      out.innerHTML = '<p class="rnone">Could not load the search index.</p>';
+    });
+  }
+
+  // Remember whether the progress block was showing, so search can restore it.
+  var pr = document.getElementById("progress");
+  if (pr) pr.dataset.empty = pr.hidden ? "1" : "0";
+
+  input.addEventListener("focus", function () { loadIndex().catch(function () {}); }, { once: true });
+  input.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(run, 110); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { input.value = ""; run(); input.blur(); }
+  });
+})();
+
+/* ============================================================
+   Save everything for offline.
+   ============================================================ */
+(function () {
+  "use strict";
+  var btn = document.getElementById("offlineBtn");
+  if (!("serviceWorker" in navigator) || location.protocol === "file:") return;
+
+  var saved = localStorage.getItem("lituk_offline") === "1";
+  btn.hidden = false;
+  btn.textContent = saved ? "✓ Saved for offline — update" : "⬇ Save everything for offline";
+
+  navigator.serviceWorker.addEventListener("message", function (e) {
+    var m = e.data || {};
+    if (m.type === "precache-progress") {
+      btn.textContent = "Saving… " + m.done + "/" + m.total;
+    } else if (m.type === "precache-done") {
+      btn.disabled = false;
+      btn.textContent = m.failed
+        ? "Saved, " + m.failed + " file(s) failed — retry"
+        : "✓ All " + m.total + " files available offline";
+      if (!m.failed) { try { localStorage.setItem("lituk_offline", "1"); } catch (err) {} }
+    }
+  });
+
+  btn.addEventListener("click", function () {
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+    navigator.serviceWorker.ready.then(function (reg) {
+      (reg.active || navigator.serviceWorker.controller).postMessage({ type: "precache-all" });
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = "Could not save — try again";
+    });
+  });
+})();
 </script>
 
 </body>

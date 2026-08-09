@@ -1,9 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" data-lituk-nohub>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Life in the UK — 45 Mock Tests</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
 <style>
 :root{
   --bg:#f4f6fb; --panel:#ffffff; --panel-2:#f7f9fc; --ink:#111827; --muted:#5b6472;
@@ -27,6 +37,8 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 8
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;cursor:pointer}
 .brand .flag{font-size:22px}
 .brand small{display:block;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:0}
+.hubLink{flex:0 0 auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:16px;font-weight:700;text-decoration:none}
+.hubLink:hover{border-color:var(--brand);color:var(--brand)}
 .spacer{flex:1}
 .icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px;display:grid;place-items:center}
 .icon-btn:hover{border-color:var(--brand)}
@@ -56,6 +68,22 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
 /* Actions */
 .actions{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:16px 0}
+/* Daily drill hero */
+.drill{display:flex;gap:16px;align-items:center;padding:18px;margin:18px 0;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 12%,var(--panel)),var(--panel));
+  border:1px solid color-mix(in srgb,var(--brand) 32%,var(--line))}
+.drill .emo{font-size:32px;flex:0 0 auto;line-height:1}
+.drill .body{flex:1;min-width:0}
+.drill .t{font-weight:800;font-size:16px;letter-spacing:-.01em}
+.drill .d{color:var(--muted);font-size:12.5px;margin-top:2px}
+.drill .streak{flex:0 0 auto;text-align:center;padding-left:14px;border-left:1px solid var(--line)}
+.drill .streak b{display:block;font-size:22px;font-weight:800;line-height:1.1}
+.drill .streak span{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:520px){
+  .drill{flex-wrap:wrap;gap:12px}
+  .drill .streak{padding-left:0;border-left:0;text-align:left}
+  .drill .go{width:100%}
+}
 .act{display:flex;gap:12px;align-items:center;text-align:left;padding:16px}
 .act .emo{font-size:24px}
 .act .t{font-weight:700}
@@ -164,6 +192,7 @@ select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:
 <body>
 <header>
   <div class="hd">
+    <a class="hubLink" href="index.html" title="Back to the study hub" aria-label="Back to the study hub">←</a>
     <div class="brand" onclick="go('dashboard')">
       <span class="flag">🇬🇧</span>
       <div>Life in the UK<small>45 Mock Tests · 1080 Questions</small></div>
@@ -171,6 +200,7 @@ select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:
     <div class="spacer"></div>
     <nav class="nav" id="nav">
       <button data-v="dashboard" onclick="go('dashboard')">Tests</button>
+      <button data-v="drill" onclick="startDrill()">Drill</button>
       <button data-v="mistakes" onclick="go('mistakes')">Mistakes</button>
       <button data-v="stats" onclick="go('stats')">Stats</button>
     </nav>
@@ -204,7 +234,9 @@ select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:
 <script>
 /* ============ STATE ============ */
 const LS='lituk_v1';
-const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,attempts:0,passes:0,history:[]};
+const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,attempts:0,passes:0,history:[],
+  sr:{},                                   /* g -> {box,due,seen,last} spaced repetition */
+  drill:{last:null,streak:0,best:0}};      /* daily drill streak */
 let S=load();
 function load(){try{const r=JSON.parse(localStorage.getItem(LS));return Object.assign(structuredClone(DEFAULT),r||{})}catch(e){return structuredClone(DEFAULT)}}
 function save(){localStorage.setItem(LS,JSON.stringify(S))}
@@ -218,8 +250,10 @@ const PASSMARK=DATA.passmark;
 const TOPICS=DATA.topics;
 
 /* ============ THEME ============ */
-function toggleTheme(){const d=document.documentElement;const dark=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',dark?'light':'dark');localStorage.setItem('lituk_theme',dark?'light':'dark');document.getElementById('themeBtn').textContent=dark?'🌙':'☀️'}
-(function(){const s=localStorage.getItem('lituk_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',s);document.getElementById('themeBtn').textContent=s==='dark'?'☀️':'🌙'})();
+function themeBtnLabel(){document.getElementById('themeBtn').textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'}
+function toggleTheme(){LitUK.toggleTheme();themeBtnLabel()}
+document.addEventListener('lituk:theme',themeBtnLabel);
+themeBtnLabel();
 
 /* ============ HELPERS ============ */
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -237,6 +271,24 @@ function go(v){
 }
 
 /* ============ DASHBOARD ============ */
+function drillCard(){
+  const plan=drillPlan();
+  const due=plan.filter(p=>p.why==='due').length;
+  const fix=plan.filter(p=>p.why==='mistake').length;
+  const fresh=plan.filter(p=>p.why==='new').length;
+  const done=drillDoneToday();
+  const streak=(S.drill&&S.drill.streak)||0;
+  const bits=[due?`${due} due for review`:'',fix?`${fix} to fix`:'',fresh?`${fresh} new`:''].filter(Boolean);
+  return `<div class="card drill">
+    <div class="emo">${done?'✅':'🔥'}</div>
+    <div class="body">
+      <div class="t">Daily drill${done?' — done today':''}</div>
+      <div class="d">${plan.length} questions · ${bits.join(' · ')||'a fresh mix'}</div>
+    </div>
+    ${streak?`<div class="streak"><b>${streak}</b><span>day${streak===1?'':'s'}</span></div>`:''}
+    <button class="btn primary go" onclick="startDrill()">${done?'Go again':'Start drill'} →</button>
+  </div>`;
+}
 function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
   const acc=S.answered?Math.round(S.correct/S.answered*100):0;
@@ -246,6 +298,7 @@ function renderDashboard(){
   el.innerHTML=`
     <h1>Your dashboard</h1>
     <p class="sub">45 official-style mock tests · 24 questions each · 75% to pass.</p>
+    ${drillCard()}
     <div class="grid stat-row">
       <div class="card stat"><div class="n brand">${passed}<span style="font-size:16px;color:var(--muted)">/45</span></div><div class="l">Tests passed</div></div>
       <div class="card stat"><div class="n ${acc>=75?'good':acc?'bad':''}">${acc}%</div><div class="l">Overall accuracy</div></div>
@@ -301,6 +354,46 @@ function practiceMistakes(){
   makeSession(ids,{title:'Mistake practice',timed:false,source:'mistakes'});
 }
 function startTopic(tp){const qs=ALLQ.filter(q=>q.p===tp);makeSession(shuffle(qs).slice(0,24),{title:TOPICS[tp],timed:false,source:'topic'})}
+
+/* ============ DAILY DRILL ============
+   20 questions: whatever spaced repetition says is due, then your open
+   mistakes, then fresh questions from your weakest topic. */
+const DRILL_N=20;
+function weakestTopics(){
+  return TOPICS.map((n,i)=>{const s=S.topics[i]||{seen:0,correct:0};
+    return{i,pct:s.seen?s.correct/s.seen:0,seen:s.seen}})
+    .sort((a,b)=>(a.seen?a.pct:2)-(b.seen?b.pct:2)).map(t=>t.i);
+}
+function drillPlan(){
+  const now=Date.now(),picked=[],taken=new Set();
+  const add=(g,why)=>{if(taken.has(g)||!QByG[g]||picked.length>=DRILL_N)return;taken.add(g);picked.push({q:QByG[g],why})};
+
+  srDue(now).slice(0,12).forEach(g=>add(+g,'due'));
+  Object.entries(S.mistakes).filter(([,m])=>!m.done)
+    .sort((a,b)=>(b[1].count||0)-(a[1].count||0)).forEach(([g])=>{if(picked.length<16)add(+g,'mistake')});
+  for(const tp of weakestTopics()){
+    if(picked.length>=DRILL_N)break;
+    shuffle(ALLQ.filter(q=>q.p===tp&&!S.sr[q.g])).forEach(q=>add(q.g,'new'));
+  }
+  shuffle(ALLQ).forEach(q=>add(q.g,'new'));   /* nothing new left → anything */
+  return picked;
+}
+function dayKey(d){d=d?new Date(d):new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function drillDoneToday(){return S.drill&&S.drill.last===dayKey()}
+function startDrill(){
+  const plan=drillPlan();
+  if(!plan.length){toast('Nothing to drill yet');return}
+  makeSession(plan.map(p=>p.q),{title:'Daily drill',timed:false,source:'drill'});
+}
+function noteDrillDone(){
+  const t=dayKey(),y=dayKey(Date.now()-DAY);
+  if(!S.drill)S.drill={last:null,streak:0,best:0};
+  if(S.drill.last===t)return;
+  S.drill.streak=S.drill.last===y?(S.drill.streak||0)+1:1;
+  S.drill.last=t;
+  S.drill.best=Math.max(S.drill.best||0,S.drill.streak);
+}
 
 /* ============ TIMER ============ */
 let timerInt=null;
@@ -411,9 +504,27 @@ function prevQ(){if(sess.idx>0){sess.idx--;renderQuiz()}}
 function nextQ(){if(sess.idx<sess.items.length-1){sess.idx++;renderQuiz()}}
 function jump(i){sess.idx=i;renderQuiz()}
 
+/* ============ SPACED REPETITION ============
+   Leitner boxes. Get it right, it comes back later; get it wrong, it drops to
+   box 0 and reappears in the same session's tail or the next drill. */
+const SR_DAYS=[0,1,3,7,16,35];
+const DAY=864e5;
+function srUpdate(g,correct){
+  const now=Date.now();
+  const e=S.sr[g]||(S.sr[g]={box:0,due:0,seen:0});
+  e.seen=(e.seen||0)+1;e.last=now;
+  e.box=correct?Math.min((e.box||0)+1,SR_DAYS.length-1):0;
+  e.due=e.box?now+SR_DAYS[e.box]*DAY:now+10*6e4;   /* wrong → back in 10 minutes */
+}
+function srDue(now){now=now||Date.now();
+  return Object.keys(S.sr).filter(g=>QByG[g]&&S.sr[g].due<=now)
+    .sort((a,b)=>S.sr[a].due-S.sr[b].due)}
+function srSeen(){return Object.keys(S.sr).length}
+
 /* record into topic/mistake stats (once per exam grading or per practice check) */
 function recordAnswer(q,correct){
   S.answered++;if(correct)S.correct++;
+  srUpdate(q.g,correct);
   const tp=S.topics[q.p]||(S.topics[q.p]={seen:0,correct:0});tp.seen++;if(correct)tp.correct++;
   const m=S.mistakes[q.g];
   if(correct){
@@ -443,6 +554,7 @@ function finishQuiz(){
     const st=testStat(sess.testN);
     S.tests[sess.testN]={best:Math.max(st.best??0,score),attempts:st.attempts+1,lastPass:passed,lastScore:score};
   }
+  if(sess.source==='drill')noteDrillDone();
   S.history.unshift({t:Date.now(),title:sess.title,score,total,passed});
   S.history=S.history.slice(0,50);
   save();
@@ -461,7 +573,9 @@ function renderResults(score,total,passed){
       <div class="result-hero">
         <div class="ring" style="--p:${pct};--rc:${rc}"><div class="inner"><div><div class="pct">${pct}%</div><div class="sc">${score}/${total}</div></div></div></div>
         <div>
-          <div class="verdict-big ${passed?'good':'bad'}">${passed?'🎉 Passed!':'Keep practising'}</div>
+          <div class="verdict-big ${passed?'good':'bad'}">${sess.source==='drill'
+            ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            :(passed?'🎉 Passed!':'Keep practising')}</div>
           <p class="sub" style="margin:6px 0 12px">You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span></p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">↻ Retry</button>
@@ -621,8 +735,34 @@ document.addEventListener('keydown',e=>{
 /* ============ GUARD LEAVING MID-EXAM ============ */
 window.addEventListener('beforeunload',e=>{if(sess&&sess.timed&&!sess.endTs&&document.getElementById('view-quiz')&&!document.getElementById('view-quiz').classList.contains('hidden')){e.preventDefault();e.returnValue=''}});
 
+/* ============ DEEP LINKS ============
+   #drill · #mistakes · #stats · #test=7 · #q=412 (from the hub's search) */
+function showQuestion(g){
+  const q=QByG[g];if(!q){toast('Question not found');return}
+  const ci=correctIdx(q);
+  modal(`<div class="tag" style="margin-bottom:6px">${esc(TOPICS[q.p])} · Test ${q._test}</div>
+    <h3 style="margin:0 0 12px;font-size:17px;line-height:1.4">${esc(q.t)}</h3>
+    ${q.o.map((o,i)=>`<div style="padding:5px 0;${ci.includes(i)?'color:var(--good);font-weight:700':'color:var(--muted)'}">${ci.includes(i)?'✓':'·'} ${esc(o[0])}</div>`).join('')}
+    <div class="lbl" style="margin-top:12px">Explanation</div><div>${esc(q.e||'—')}</div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn primary" onclick="closeModal();startTest(${q._test})">Take Test ${q._test}</button>
+      <button class="btn" onclick="closeModal();startTopic(${q.p})">Practise this topic</button>
+      <button class="btn ghost" onclick="closeModal()">Close</button>
+    </div>`);
+}
+function route(){
+  const h=(location.hash||'').replace(/^#/,'');
+  if(!h)return;
+  const q=h.match(/^q=(\d+)$/);   if(q){go('dashboard');showQuestion(+q[1]);return}
+  const t=h.match(/^test=(\d+)$/);if(t){startTest(+t[1]);return}
+  if(h==='drill'){startDrill();return}
+  if(h==='mistakes'||h==='stats')go(h);
+}
+addEventListener('hashchange',route);
+
 /* ============ INIT ============ */
 renderDashboard();
+route();
 </script>
 </body>
 </html>

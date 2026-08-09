@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chapter 3 · The Island Story — a time-travel retelling</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
@@ -1699,14 +1709,9 @@
   var root = document.documentElement;
   var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* theme */
-  try {
-    var saved = localStorage.getItem("liuk-story-theme");
-    if (saved === "light" || saved === "dark") root.dataset.theme = saved;
-  } catch(e){}
+  /* theme — set pre-paint in <head>, shared across every page by app.js */
   document.getElementById("themeToggle").addEventListener("click", function(){
-    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
-    try { localStorage.setItem("liuk-story-theme", root.dataset.theme); } catch(e){}
+    LitUK.toggleTheme();
   });
 
   /* prologue stars */
