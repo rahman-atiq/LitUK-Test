@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Chapter 4 · Your First Year — British life as one grand tour</title>
 <!-- lituk:shared -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,6 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Life in UK">
 <script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
 <script src="app.js" defer></script>
 <!-- /lituk:shared -->
 <style>
@@ -40,7 +41,7 @@
     -webkit-font-smoothing:antialiased; overflow-x:hidden;
   }
   b { color:var(--ink); font-weight:650; }
-  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  .wrap { --gutter:22px; max-width:760px; margin:0 auto; padding:0 var(--gutter); }
 
   /* ---------- fixed controls ---------- */
   .themeToggle {
@@ -109,7 +110,7 @@
   }
   @keyframes twinkle { 0%,100%{opacity:.15;} 50%{opacity:.7;} }
   :root[data-theme="light"] .stars i { opacity:.3; }
-  .pro-inner { position:relative; padding:70px 0 120px; }
+  .pro-inner { position:relative; padding-top:70px; padding-bottom:120px; }
   .eyebrow {
     font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
     color:var(--gold); font-weight:650; margin:0 0 20px;
@@ -170,9 +171,9 @@
   .act[data-era="3"] { --acc:var(--era3); } .act[data-era="4"] { --acc:var(--era4); }
   .act[data-era="5"] { --acc:var(--era5); } .act[data-era="6"] { --acc:var(--era6); }
 
-  .scenes { position:relative; padding:10px 0 30px; }
+  .scenes { position:relative; padding-top:10px; padding-bottom:30px; }
   .scenes::before {
-    content:""; position:absolute; top:0; bottom:0; left:29px; width:2px;
+    content:""; position:absolute; top:0; bottom:0; left:calc(var(--gutter, 0px) + 29px); width:2px;
     background:linear-gradient(to bottom, transparent, var(--acc) 60px, var(--acc) calc(100% - 60px), transparent);
     opacity:.35;
   }
@@ -235,7 +236,7 @@
   }
   @media (max-width:640px) {
     .scene { padding-left:52px; }
-    .scenes::before { left:19px; }
+    .scenes::before { left:calc(var(--gutter, 0px) + 19px); }
     .scene-dot { left:12px; }
     .because { padding-left:52px; }
     .because::before { left:13px; }

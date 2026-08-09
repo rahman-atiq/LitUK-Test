@@ -24,6 +24,18 @@ const THEME_SNIPPET =
   `if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";` +
   `document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>`;
 
+/* The layout half of the safe-area handling, inline so it lands on the first
+   paint rather than after app.js defers in. No page styles html/body padding of
+   its own, so cascade order does not matter here; the rules that do have to beat
+   page CSS (.themeToggle, .hud, …) live in app.js and are appended last. */
+const SAFE_SNIPPET =
+  `<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);` +
+  `--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}` +
+  `html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}` +
+  `body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}` +
+  `html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}` +
+  `html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>`;
+
 function sharedHead({ theme = true } = {}) {
   return [
     OPEN,
@@ -34,9 +46,23 @@ function sharedHead({ theme = true } = {}) {
     `<meta name="mobile-web-app-capable" content="yes">`,
     `<meta name="apple-mobile-web-app-title" content="Life in UK">`,
     theme ? THEME_SNIPPET : null,
+    SAFE_SNIPPET,
     `<script src="app.js" defer></script>`,
     CLOSE,
   ].filter(Boolean).join("\n");
+}
+
+/* ---------- viewport ----------
+   Installed on iOS the web view runs edge to edge behind the status bar, and
+   env(safe-area-inset-*) stays 0 unless the page asks for viewport-fit=cover.
+   Without it the insets above are all no-ops and fixed controls sit under the
+   status bar, where taps are swallowed. */
+const VIEWPORT = `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`;
+
+function normalizeViewport(src, file) {
+  const meta = /<meta\s+name="viewport"[^>]*\/?>/i;
+  if (!meta.test(src)) throw new Error(`no viewport meta in ${file}`);
+  return src.replace(meta, VIEWPORT);
 }
 
 const changes = [];
@@ -137,14 +163,42 @@ function applyThemeEdits(src, file) {
   return src;
 }
 
-/* ---------- 3. per-page odds and ends ---------- */
+/* ---------- 3. gutters ----------
+   .wrap owns the page gutter, but a couple of modifier classes set the padding
+   shorthand again for their vertical rhythm and silently reset it — so the
+   prologue and every scene ran edge to edge. Longhand keeps both.
+
+   Restoring the gutter moves the scene content in by 22px, but the act timeline
+   rail is absolutely positioned against .scenes, whose padding box does not
+   move — so the rail has to be offset by the gutter to stay under the dots.
+   Hence --gutter rather than a second hard-coded 22. */
+const gutterFixes = [
+  // [what to rewrite, what it becomes, how to tell it has already been done]
+  [/\.wrap \{ max-width:760px; margin:0 auto; padding:0 22px; \}/,
+    ".wrap { --gutter:22px; max-width:760px; margin:0 auto; padding:0 var(--gutter); }",
+    "padding:0 var(--gutter);"],
+  [/(\.pro-inner \{[^}]*?)padding:70px 0 120px;/,
+    "$1padding-top:70px; padding-bottom:120px;", "padding-top:70px; padding-bottom:120px;"],
+  [/(\.scenes \{[^}]*?)padding:10px 0 30px;/,
+    "$1padding-top:10px; padding-bottom:30px;", "padding-top:10px; padding-bottom:30px;"],
+  [/(\.scenes::before \{[^}]*?)left:29px;/,
+    "$1left:calc(var(--gutter, 0px) + 29px);", "calc(var(--gutter, 0px) + 29px)"],
+  [/\.scenes::before \{ left:19px; \}/,
+    ".scenes::before { left:calc(var(--gutter, 0px) + 19px); }", "calc(var(--gutter, 0px) + 19px)"],
+];
+
+function fixGutters(src, file) {
+  if (!STORY.includes(file)) return src;
+  for (const [from, to, done] of gutterFixes) {
+    if (from.test(src)) src = src.replace(from, to);
+    else if (!src.includes(done)) throw new Error(`gutter patch did not match in ${file}: ${from}`);
+  }
+  return src;
+}
+
+/* ---------- 4. per-page odds and ends ---------- */
 function extras(src, file) {
   if (file === "lituk.html") {
-    // Pinch-zoom is not ours to disable.
-    src = src.replace(
-      `<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />`,
-      `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />`
-    );
     // Its own top bar already occupies the corner — put the hub link inside it.
     if (!src.includes('class="questHub"')) {
       src = src.replace(
@@ -167,8 +221,16 @@ function extras(src, file) {
   }
 
   if (file === "life-in-uk-mock-tests.html") {
-    // Sticky header already owns the top-left corner.
-    src = src.replace(`<html lang="en" data-theme="light">`, `<html lang="en" data-theme="light" data-lituk-nohub>`);
+    // Sticky header already owns the top-left corner, and it — not <body> —
+    // absorbs the status-bar inset so it stays flush while the page scrolls.
+    src = src.replace(
+      `<html lang="en" data-theme="light">`,
+      `<html lang="en" data-theme="light" data-lituk-nohub data-lituk-topbar>`
+    );
+    src = src.replace(
+      `<html lang="en" data-theme="light" data-lituk-nohub>`,
+      `<html lang="en" data-theme="light" data-lituk-nohub data-lituk-topbar>`
+    );
     if (!src.includes('class="hubLink"')) {
       src = src.replace(
         `<header>\n  <div class="hd">`,
@@ -190,7 +252,13 @@ function extras(src, file) {
 /* ---------- run ---------- */
 let touched = 0;
 for (const file of ALL) {
-  const did = edit(file, (src) => extras(applyThemeEdits(injectHead(src, file), file), file));
+  const did = edit(file, (src) => {
+    src = injectHead(src, file);
+    src = normalizeViewport(src, file);
+    src = applyThemeEdits(src, file);
+    src = fixGutters(src, file);
+    return extras(src, file);
+  });
   if (did) { touched++; note(file, "patched"); } else note(file, "already up to date");
 }
 console.log(changes.join("\n"));

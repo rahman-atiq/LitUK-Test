@@ -49,13 +49,42 @@
     if (e.key === THEME_KEY && e.newValue) setTheme(e.newValue, true);
   });
 
-  /* ---------------- back to hub ---------------- */
+  /* ---------------- shared shell ---------------- */
+
+  /* Injected last, so single-class rules here beat the page's own copy of the
+     same selector without needing !important. */
+
+  /* Installed on iOS the app runs behind the status bar and the home indicator,
+     so every page has to inset itself. env() only reports real numbers once the
+     page opts into viewport-fit=cover — which patch-pages.mjs now guarantees —
+     and reports 0 in a plain browser tab, where these rules go quiet. */
+  var SAFE_CSS =
+    ":root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);" +
+    "--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);" +
+    "--lituk-inset:12px}" +
+    /* 100% stops iOS inflating body text on its own once a page goes full-bleed. */
+    "html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}" +
+    "body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}" +
+    "html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}" +
+    /* A page with its own sticky bar keeps the bar flush and pads it instead —
+       otherwise it detaches from the top edge on scroll. */
+    "html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}" +
+    /* The two fixed corner pills. Under the status bar they render but never
+       receive taps, so they clear it by the same inset as everything else. */
+    ".themeToggle{top:calc(var(--lituk-sat) + var(--lituk-inset));" +
+    "right:calc(var(--lituk-sar) + var(--lituk-inset));" +
+    "min-height:34px;display:inline-flex;align-items:center;justify-content:center}" +
+    /* Fixed furniture along the bottom edge clears the home indicator. */
+    ".hud{bottom:calc(var(--lituk-sab) + 14px);" +
+    "width:min(560px,calc(100vw - var(--lituk-sal) - var(--lituk-sar) - 24px))}" +
+    "#mascot{bottom:calc(var(--lituk-sab) + 18px)}" +
+    ".bubble{bottom:calc(var(--lituk-sab) + 150px)}";
 
   var HUB_CSS =
-    ".lituk-hub{position:fixed;z-index:60;top:max(14px,env(safe-area-inset-top));" +
-    "left:max(14px,env(safe-area-inset-left));display:inline-flex;align-items:center;gap:6px;" +
+    ".lituk-hub{position:fixed;z-index:60;top:calc(var(--lituk-sat) + var(--lituk-inset));" +
+    "left:calc(var(--lituk-sal) + var(--lituk-inset));display:inline-flex;align-items:center;gap:6px;" +
     "font:600 .78rem/1 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;" +
-    "padding:8px 12px;border-radius:9px;text-decoration:none;cursor:pointer;" +
+    "min-height:34px;padding:8px 12px;border-radius:9px;text-decoration:none;cursor:pointer;" +
     "color:var(--ink,var(--text,#222));background:var(--card,var(--panel,#fff));" +
     "border:1px solid var(--line,var(--stroke,rgba(128,128,128,.35)));" +
     "box-shadow:0 1px 2px rgba(0,0,0,.18),0 6px 18px rgba(0,0,0,.14);" +
@@ -85,7 +114,7 @@
 
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = HUB_CSS;
+    s.textContent = SAFE_CSS + HUB_CSS;
     document.head.appendChild(s);
   }
 
