@@ -678,17 +678,93 @@ function renderStats(){
     </div>
     <div class="card pad">
       <b>Manage data</b>
-      <p class="sub" style="margin:4px 0 12px">Progress lives in this browser. Back it up or move it to another device.</p>
+      <p class="sub" style="margin:4px 0 12px">Progress lives in this browser and nowhere else. Back it up before you change phone, clear your browser data, or update the app.</p>
       <div class="btn-row">
-        <button class="btn sm" onclick="exportData()">⬇ Export progress</button>
-        <button class="btn sm" onclick="document.getElementById('impFile').click()">⬆ Import</button>
+        <button class="btn sm" onclick="exportData()">⬇ Export backup</button>
+        <button class="btn sm" onclick="pickImport()">⬆ Restore…</button>
         <button class="btn sm ghost" onclick="resetAll()">Reset everything</button>
-        <input type="file" id="impFile" accept="application/json" class="hidden" onchange="importData(this)">
       </div>
     </div>`;
 }
-function exportData(){const blob=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lituk-progress.json';a.click();toast('Progress exported')}
-function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=Object.assign(structuredClone(DEFAULT),JSON.parse(r.result));save();toast('Progress imported');renderStats()}catch(e){toast('Invalid file')}};r.readAsText(f)}
+
+/* ============ BACKUP / RESTORE ============
+   Everything you have is two localStorage keys: lituk_v1 (progress) and
+   lituk_prefs (settings). Export writes both into one file; restore validates
+   the shape, confirms, writes both back and reloads.
+   An untested backup is not a backup — do a real restore at least once. */
+const BACKUP_APP='lituk',BACKUP_V=1,PREFS_LS='lituk_prefs';
+function stamp(d){const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`}
+function exportData(){
+  const payload={app:BACKUP_APP,v:BACKUP_V,exported:new Date().toISOString(),[LS]:S,[PREFS_LS]:prefs};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(payload)],{type:'application/json'}));
+  const a=document.createElement('a');
+  a.href=url;a.download=`lituk-progress-${stamp(new Date())}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('Backup downloaded');
+}
+/* One input, created on demand — a static one would need a unique id in both
+   the settings modal and the stats card. */
+function pickImport(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='application/json,.json';inp.className='hidden';
+  inp.onchange=()=>{importData(inp);inp.remove()};
+  document.body.appendChild(inp);inp.click();
+}
+/* A progress object is recognisable by its own shape, so the wrong file picked
+   by mistake gets refused instead of silently wiping everything. */
+function looksLikeState(o){
+  return !!o&&typeof o==='object'&&!Array.isArray(o)&&
+    ['tests','mistakes','sr'].every(k=>o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k]))&&
+    typeof o.answered==='number';
+}
+function readBackup(raw){
+  const j=JSON.parse(raw);
+  if(looksLikeState(j))return{state:j,prefs:null};       /* older export: a bare lituk_v1 dump */
+  if(j&&j.app===BACKUP_APP&&looksLikeState(j[LS]))
+    return{state:j[LS],prefs:j[PREFS_LS]&&typeof j[PREFS_LS]==='object'?j[PREFS_LS]:null,exported:j.exported};
+  return null;
+}
+let pendingRestore=null;
+function importData(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onerror=()=>toast('Could not read that file');
+  r.onload=()=>{
+    let b=null;try{b=readBackup(r.result)}catch(e){b=null}
+    if(!b){toast("That isn't a Life in the UK backup");return}
+    pendingRestore=b;confirmRestore(b);
+  };
+  r.readAsText(f);
+}
+function summarise(st){
+  const passed=Object.values(st.tests||{}).filter(t=>t.lastPass).length;
+  const open=Object.values(st.mistakes||{}).filter(m=>!m.done).length;
+  const streak=(st.drill&&st.drill.streak)||0;
+  return `${passed} test${passed===1?'':'s'} passed · ${st.answered||0} answered · ${open} open mistake${open===1?'':'s'} · ${streak}-day streak`;
+}
+function confirmRestore(b){
+  const when=b.exported?new Date(b.exported).toLocaleString():'an unknown date';
+  const busy=(S.answered||0)>0||Object.keys(S.tests).length>0;
+  modal(`<h3 style="margin:0 0 4px">Restore this backup?</h3>
+    <p class="sub" style="margin:0 0 14px">Saved ${esc(when)}.</p>
+    <div class="lbl">In the file</div><div style="margin-bottom:10px">${esc(summarise(b.state))}</div>
+    ${busy?`<div class="lbl">On this device now</div><div style="margin-bottom:10px">${esc(summarise(S))}</div>
+      <p class="sub" style="color:var(--bad);font-weight:600">This replaces everything above. It can't be undone — export first if you're not sure.</p>`
+     :`<p class="sub">There's no progress on this device yet, so nothing is lost.</p>`}
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn primary" onclick="applyRestore()">Restore &amp; reload</button>
+      <button class="btn ghost" onclick="pendingRestore=null;closeModal()">Cancel</button>
+    </div>`);
+}
+function applyRestore(){
+  const b=pendingRestore;if(!b)return;
+  localStorage.setItem(LS,JSON.stringify(b.state));
+  if(b.prefs)localStorage.setItem(PREFS_LS,JSON.stringify(b.prefs));
+  pendingRestore=null;
+  location.reload();      /* reload rather than patch S — nothing stale survives */
+}
 function resetAll(){modal(`<h3 style="margin:0 0 8px">Reset everything?</h3><p class="sub">Deletes all scores, mistakes and stats on this device.</p><div class="btn-row"><button class="btn primary" style="background:var(--bad);border-color:var(--bad)" onclick="S=structuredClone(DEFAULT);save();closeModal();go('dashboard');toast('All progress reset')">Delete all</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
 
 /* ============ TOPIC PICKER / MODAL ============ */
@@ -713,6 +789,12 @@ function openSettings(){
     <div class="lbl">Randomise</div>
     <label style="display:flex;gap:10px;align-items:center;padding:9px 0 2px;cursor:pointer;font-weight:600"><input type="checkbox" ${prefs.shufQ?'checked':''} onchange="prefs.shufQ=this.checked;savePrefs()"> Shuffle question order</label>
     <label style="display:flex;gap:10px;align-items:center;padding:2px 0 4px;cursor:pointer;font-weight:600"><input type="checkbox" ${prefs.shufO?'checked':''} onchange="prefs.shufO=this.checked;savePrefs()"> Shuffle answer options</label>
+    <div class="lbl" style="margin-top:18px">Your progress</div>
+    <p class="sub" style="margin:4px 0 10px">Saved in this browser only. Export before you change phone or clear browser data — and try a restore once, so you know it works.</p>
+    <div class="btn-row">
+      <button class="btn sm" onclick="exportData()">⬇ Export backup</button>
+      <button class="btn sm" onclick="pickImport()">⬆ Restore…</button>
+    </div>
     <div class="btn-row" style="margin-top:18px"><button class="btn primary" onclick="closeSettings()">Done</button></div>`);
 }
 function setFeedback(v){prefs.feedback=v;savePrefs();openSettings()}
