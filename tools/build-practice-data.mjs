@@ -1,0 +1,138 @@
+#!/usr/bin/env node
+/**
+ * Builds practice-data.js — the 39 LifeInTheUKTest.com practice tests as a
+ * second question bank.
+ *
+ *   node tools/build-practice-data.mjs
+ *
+ * Ids start at FIRST_ID and test numbers at 100, because saved progress is
+ * keyed on both and the existing bank owns 0-1079 and 1-45 forever. Never
+ * renumber: an id collision silently reattaches somebody's spaced-repetition
+ * history to the wrong question. tools/validate-banks.mjs is the guard.
+ *
+ * 126 of the 936 questions appear in more than one test. They share one id, so
+ * they are one card in your progress rather than two.
+ */
+import fs from "node:fs";
+import { R } from "./lib/banks.mjs";
+import { loadAll, PER_TEST } from "./fetch-practice-tests.mjs";
+
+const FIRST_ID = 1080;      // INV-2: the existing bank owns 0-1079
+const TEST_OFFSET = 100;    // INV-3: the existing bank owns tests 1-45
+const PASSMARK = 18;
+
+/* ---------------- topics ----------------
+   The Reference line gives the handbook chapter, which maps onto the topic
+   index order the app has used since day one. */
+const CH2TOPIC = { 1: 3, 2: 4, 3: 1, 4: 0, 5: 2 };
+
+/* Chapter references on the site are inconsistently formatted — missing
+   prefixes, typos ("A longa and illustrious history", "the law and you role"),
+   stray spacing — so fall back to distinctive words, then to section names
+   that belong to exactly one chapter. */
+const WORDS = [
+  [/thriving|modern.*society/, 0],
+  [/illustrious|middle ages|century|tudors|stuarts|global power|early britain|since 1945/, 1],
+  [/government|the law and you|law and your role|courts|constitution|democracy/, 2],
+  [/values|principles/, 3],
+  [/what is the uk/, 4],
+  // Chapter 4 section headings, seen without their chapter prefix.
+  [/arts and culture|places of interest|leisure|sport|religion|customs and traditions/, 0],
+];
+
+/* The stragglers with no usable reference at all, assigned by hand.
+   Shakespeare's plays: every other playwriting question in this scrape
+   references chapter 3. The dog question: matched to the identical question
+   already in the britizen bank, which sits under chapter 5. */
+const BY_HAND = [
+  [/^Which TWO are plays by William Shakespeare\?$/, 1],
+  [/^When walking with your dog in a public place, what must you ensure\?$/, 2],
+];
+
+function topicOf(q) {
+  const r = (q.ref || "").toLowerCase();
+  const ch = r.match(/chapter\s*(\d)/);
+  if (ch && CH2TOPIC[+ch[1]] !== undefined) return CH2TOPIC[+ch[1]];
+  for (const [re, t] of WORDS) if (re.test(r)) return t;
+  for (const [re, t] of BY_HAND) if (re.test(q.t)) return t;
+  return -1;
+}
+
+/* ---------------- dedup ----------------
+   Question text plus the sorted option set, punctuation and case stripped.
+   Text alone is not enough: stems like "Which of these statements is correct?"
+   recur many times with completely different options. */
+const norm = (t) => t.toLowerCase().replace(/[^a-z0-9]/g, "");
+const key = (q) => norm(q.t) + "||" + q.o.map((o) => norm(o[0])).sort().join("|");
+const answerKey = (q) => q.o.filter((o) => o[1]).map((o) => norm(o[0])).sort().join("|");
+
+/* ---------------- build ---------------- */
+
+const src = await loadAll({ quiet: true });
+
+const canon = new Map();      // dedup key -> the canonical question
+const tests = [];
+let nextId = FIRST_ID;
+const problems = [];
+
+for (const t of src) {
+  if (t.questions.length !== PER_TEST) problems.push(`test-${t.n}: ${t.questions.length} questions`);
+  const q = [];
+  for (const raw of t.questions) {
+    if (raw.bad) { problems.push(`test-${t.n}: ${raw.bad} — ${raw.t.slice(0, 60)}`); continue; }
+    const p = topicOf(raw);
+    if (p < 0) { problems.push(`test-${t.n}: no topic — ${raw.t.slice(0, 60)}`); continue; }
+
+    const k = key(raw);
+    const hit = canon.get(k);
+    if (hit) {
+      // Same question, seen in an earlier test. Two questions that dedup
+      // together but disagree on the answer would be a data bug, not a repeat.
+      if (answerKey(hit.raw) !== answerKey(raw)) problems.push(`conflicting answers for: ${raw.t.slice(0, 60)}`);
+      q.push(hit.q);
+      hit.seenIn.push(t.n);
+      continue;
+    }
+    const built = { g: nextId++, t: raw.t, e: raw.e, p, o: raw.o };
+    canon.set(k, { q: built, raw, seenIn: [t.n] });
+    q.push(built);
+  }
+  tests.push({ n: t.n + TEST_OFFSET, name: `Practice Test ${t.n}`, q });
+}
+
+if (problems.length) {
+  problems.slice(0, 20).forEach((p) => console.error("!! " + p));
+  throw new Error(`${problems.length} problem(s) — refusing to write practice-data.js`);
+}
+
+/* ---------------- emit ---------------- */
+
+const lastId = nextId - 1;
+const shared = [...canon.values()].filter((c) => c.seenIn.length > 1).length;
+const perTopic = [0, 0, 0, 0, 0];
+for (const c of canon.values()) perTopic[c.q.p]++;
+
+const head = `/* Question bank: 39 practice tests from lifeintheuktest.com, question ids
+   ${FIRST_ID}-${lastId}, test numbers ${tests[0].n}-${tests[tests.length - 1].n}.
+   Generated by tools/build-practice-data.mjs — do not edit by hand.
+
+   ${shared} questions appear in more than one test and share a single id, so they
+   are one card in your progress. Ids and test numbers are load-bearing: saved
+   progress is keyed on them, so never renumber. See tools/validate-banks.mjs. */
+(window.LITUK_BANKS = window.LITUK_BANKS || []).push({
+  id: "practice",
+  label: "Practice Tests",
+  source: "LifeInTheUKTest.com",
+  sourceUrl: "https://lifeintheuktest.com/practice-tests/",
+  passmark: ${PASSMARK},
+  perTest: ${PER_TEST},
+  tests: [\n`;
+
+const js = head + tests.map((t) => "    " + JSON.stringify(t)).join(",\n") + "\n  ],\n});\n";
+fs.writeFileSync(R("practice-data.js"), js);
+
+console.log(`practice-data.js  ${(js.length / 1024).toFixed(0)} KB`);
+console.log(`  ${tests.length} tests (${tests[0].n}-${tests[tests.length - 1].n}) · ${tests.reduce((a, t) => a + t.q.length, 0)} slots`);
+console.log(`  ${canon.size} unique questions, ids ${FIRST_ID}-${lastId} · ${shared} shared across tests`);
+console.log(`  per topic: ${perTopic.join(", ")}`);
+console.log(`  explanations ${[...canon.values()].filter((c) => c.q.e).length}/${canon.size}`);
