@@ -178,6 +178,59 @@ intact; all new tests read "New".
   rule stops crawlers reading the page at all, so they never see the `noindex` and
   any already-indexed URLs linger. A `robots.txt` disallow can follow later, once the
   site has dropped out of the index.
+- **AI crawler blocking — needs a second repo.** `robots.txt` is only honoured at the
+  *domain root*. This is a project site at `https://rahman-atiq.github.io/LitUK-Test/`
+  (verified: no custom domain), so a `robots.txt` committed here is served at
+  `/LitUK-Test/robots.txt` and **never read by anything**. No `rahman-atiq.github.io`
+  user-site repo currently exists, which means `/robots.txt` 404s and compliant
+  crawlers read that as "allow everything".
+
+  To actually block them, create a public `rahman-atiq.github.io` repo containing one
+  file — `robots.txt` — scoped to this path so other project sites are unaffected:
+
+  ```
+  # Search engines may crawl: they need to read the noindex meta tag to drop
+  # the site from their index. Nothing here is an access control.
+  User-agent: *
+  Disallow:
+
+  # AI training, dataset and retrieval crawlers.
+  # Retrieval bots are blocked too — the goal here is invisibility, not
+  # AI-search visibility, which is the opposite of most published guidance.
+  User-agent: GPTBot
+  User-agent: OAI-SearchBot
+  User-agent: ChatGPT-User
+  User-agent: ClaudeBot
+  User-agent: Claude-User
+  User-agent: Claude-SearchBot
+  User-agent: anthropic-ai
+  User-agent: CCBot
+  User-agent: Google-Extended
+  User-agent: Applebot-Extended
+  User-agent: meta-externalagent
+  User-agent: PerplexityBot
+  User-agent: Bytespider
+  User-agent: Amazonbot
+  User-agent: cohere-ai
+  User-agent: Diffbot
+  User-agent: omgilibot
+  User-agent: ImagesiftBot
+  User-agent: Timpibot
+  Disallow: /LitUK-Test/
+  ```
+
+  Blocking `GPTBot` and `ClaudeBot` does **not** cover `CCBot` — Common Crawl is an
+  independent pipeline feeding many downstream datasets, and is the single most
+  important line here.
+
+  Do **not** add `noai` / `noimageai` meta tags. They are not honoured by any major
+  crawler and only manufacture false confidence.
+
+  Limits, stated plainly: this is an honour system, user agents are spoofable, GitHub
+  Pages cannot set headers or run a WAF, and none of it retracts anything already
+  crawled. It also does nothing about the **public repo**, where the same data files
+  sit under github.com's robots.txt, not yours. Only making the repo private closes
+  that.
 - `sw.js` — bump `VERSION`, add both data files, drop `./lituk.html` from
   `EVERYTHING`.
 - Rebuild `search-index.js`. It grows from ~451 KB to roughly 800 KB. `index.html`
