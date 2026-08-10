@@ -104,8 +104,21 @@ for (const [file, list] of Object.entries(copies)) {
   }
 }
 
-/* ---- report ---- */
+/* ---- the hub's hardcoded totals ----
+   index.html does not load the 750KB of bank data just to draw four stat
+   tiles, so it carries the counts. Cheap to state, expensive to notice wrong. */
 const qCount = gSeen.size;
+const hub = fs.readFileSync(R("index.html"), "utf8");
+for (const [name, want] of [["TOTAL_TESTS", tests.length], ["TOTAL_QUESTIONS", qCount]]) {
+  const m = hub.match(new RegExp(`var ${name} = (\\d+);`));
+  if (!m) fail(`could not find ${name} in index.html`);
+  else if (+m[1] !== want) fail(`index.html has ${name} = ${m[1]}, the banks say ${want}`);
+}
+const tag = hub.match(/<span class="tag">(\d+) tests<\/span>/);
+if (!tag) fail(`could not find the tests tag in index.html`);
+else if (+tag[1] !== tests.length) fail(`index.html's tile says "${tag[1]} tests", the banks say ${tests.length}`);
+
+/* ---- report ---- */
 console.log(`${banks.length} bank(s): ${banks.map((b) => `${b.id} (${b.tests.length} tests)`).join(", ")}`);
 console.log(`${tests.length} tests · ${tests.reduce((a, t) => a + t.q.length, 0)} slots · ${qCount} unique questions · passmark ${pm}/${PER_TEST}`);
 for (const b of banks) {

@@ -45,6 +45,10 @@ function sharedHead({ theme = true } = {}) {
     `<meta name="apple-mobile-web-app-capable" content="yes">`,
     `<meta name="mobile-web-app-capable" content="yes">`,
     `<meta name="apple-mobile-web-app-title" content="Life in UK">`,
+    /* Keeps the study hub out of search results. Deliberately a meta tag and
+       not a robots.txt disallow: a disallow stops crawlers reading the page at
+       all, so they never see this, and anything already indexed lingers. */
+    `<meta name="robots" content="noindex">`,
     theme ? THEME_SNIPPET : null,
     SAFE_SNIPPET,
     `<script src="app.js" defer></script>`,

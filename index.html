@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Life in the UK">
 <meta name="theme-color" content="#0D0F14">
-<meta name="description" content="Life in the UK test — story chapters, reference notes, practice quiz and 45 mock tests.">
+<meta name="description" content="Life in the UK test — story chapters, reference notes, practice quiz and 84 practice tests.">
 <title>Life in the UK — Study Hub</title>
 <!-- lituk:shared -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -16,6 +16,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Life in UK">
+<meta name="robots" content="noindex">
 <script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
 <style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
 <script src="app.js" defer></script>
@@ -240,19 +241,10 @@
   <h2 class="sec">Start here</h2>
   <div class="tiles">
 
-    <a class="tile" href="lituk.html" style="--accent:var(--pink)">
-      <div class="ic">💛</div>
-      <div class="body">
-        <b>Study Quest</b>
-        <span>The gamified one. Levels, coins and streaks — study without noticing you're studying.</span>
-      </div>
-      <div class="chev">›</div>
-    </a>
-
     <a class="tile" href="life-in-uk-mock-tests.html" style="--accent:var(--era2)">
       <div class="ic">📝</div>
       <div class="body">
-        <b>Mock Tests <span class="tag">45 tests</span></b>
+        <b>Practice Tests <span class="tag">84 tests</span></b>
         <span>Full 24-question exams under real timing. The closest thing to sitting the actual test.</span>
       </div>
       <div class="chev">›</div>
@@ -353,7 +345,10 @@ var TOPIC_NAMES = [
    ============================================================ */
 (function () {
   "use strict";
-  var TOTAL_MOCKS = 45;
+  /* Both banks, both counted. tools/validate-banks.mjs asserts these still
+     match what the data files actually contain. */
+  var TOTAL_TESTS = 84;
+  var TOTAL_QUESTIONS = 1890;
 
   function read(key, fallback) {
     try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -366,7 +361,6 @@ var TOPIC_NAMES = [
 
   var M = read("lituk_v1", null) || {};
   var quizBest = +(localStorage.getItem("lituk_best") || 0);
-  var quest = read("luk_quest_save_v1", null);
 
   var tests = M.tests || {}, mistakes = M.mistakes || {}, sr = M.sr || {}, drill = M.drill || {};
   var passed = Object.keys(tests).filter(function (k) { return tests[k].lastPass; }).length;
@@ -380,12 +374,12 @@ var TOPIC_NAMES = [
   var due = Object.keys(sr).filter(function (g) { return sr[g].due <= now; }).length;
   var seen = Object.keys(sr).length;
 
-  var hasProgress = answered > 0 || quizBest > 0 || (quest && quest.totalAnswered > 0);
+  var hasProgress = answered > 0 || quizBest > 0;
   if (hasProgress) {
     document.getElementById("progress").hidden = false;
 
     document.getElementById("stats").innerHTML = [
-      tile(passed + '<span style="font-size:.9rem;color:var(--ink-3)">/' + TOTAL_MOCKS + "</span>", "mocks passed", passed ? "good" : ""),
+      tile(passed + '<span style="font-size:.9rem;color:var(--ink-3)">/' + TOTAL_TESTS + "</span>", "tests passed", passed ? "good" : ""),
       tile(acc + "%", "accuracy", acc >= 75 ? "good" : acc ? "bad" : ""),
       tile(toFix, "to fix", toFix ? "bad" : "good"),
       tile(streak, "day streak", streak ? "gold" : "")
@@ -394,7 +388,7 @@ var TOPIC_NAMES = [
     var sub = [];
     if (due) sub.push(due + " due for review");
     if (toFix) sub.push(toFix + " to fix");
-    if (seen < 1080) sub.push((1080 - seen) + " never seen");
+    if (seen < TOTAL_QUESTIONS) sub.push((TOTAL_QUESTIONS - seen) + " never seen");
     document.getElementById("ctaTitle").textContent = doneToday ? "Daily drill — done today ✓" : "Daily drill";
     document.getElementById("ctaSub").textContent = sub.length
       ? "20 questions · " + sub.slice(0, 2).join(" · ")
@@ -413,7 +407,6 @@ var TOPIC_NAMES = [
       extras.push("Weakest topic: <b>" + TOPIC_NAMES[weakest.i] + "</b> at " + Math.round(weakest.pct * 100) + "%");
     }
     if (quizBest) extras.push("Practice quiz best: <b>" + quizBest + "</b>");
-    if (quest && quest.level > 1) extras.push("Study Quest: <b>level " + quest.level + "</b>");
     if (extras.length) {
       var w = document.getElementById("weakline");
       w.innerHTML = extras.join(" · ");
@@ -427,8 +420,8 @@ var TOPIC_NAMES = [
 })();
 
 /* ============================================================
-   Search — over every chapter block and all 1080 questions.
-   The index is ~430KB, so it only loads once you actually search.
+   Search — over every chapter block and every question in every bank.
+   The index is ~800KB, so it only loads once you focus the search box.
    ============================================================ */
 (function () {
   "use strict";

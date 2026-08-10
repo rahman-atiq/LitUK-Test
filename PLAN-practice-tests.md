@@ -7,6 +7,40 @@ engine, without disturbing saved progress.
 > same day, to be executed in a fresh session. All findings below were verified
 > against the live site and the working tree on that date.
 
+## Status — executed 2026-08-10
+
+Phases 0–5 are shipped. Every count in §1 held: 936 scraped, 936 parsed, 810 unique,
+4 already present, 153 multi-answer. The merged bank is **1,890 ids** rather than
+§1's 1,858, because decision #2 gave the 4 overlapping questions fresh ids — 1,890 is
+the id count, 1,858 the content-level count. Both are correct; they answer different
+questions.
+
+Two things deliberately left for you:
+
+1. **The phone restore.** Phase 1's GO criteria and Phase 5's device check both need a
+   real device. Export on the phone, clear site data in a private tab, import back.
+   *An untested backup is not a backup.*
+2. **The AI-crawler `robots.txt`.** Still needs a second, public
+   `rahman-atiq/rahman-atiq.github.io` repo — re-verified 2026-08-10 that it does not
+   exist and `/robots.txt` 404s. The file is ready at
+   [tools/user-site-robots.txt](tools/user-site-robots.txt); creating a repo under your
+   account was not mine to do.
+
+Deviations from the plan as written, both deliberate:
+
+- **Load order.** Data files are ordered `<script src>` immediately before the engine,
+  not `defer`red. `defer` on all of them would mean moving the engine out of the HTML,
+  which `tools/patch-pages.mjs` patches by string match. At the end of `<body>` the
+  parser is already done, so the ordering guarantee is identical and the cost is not.
+- **Provenance.** Shown once per dashboard section and in the question modal, rather
+  than on each of the 84 tiles, where it would be the same string 84 times.
+
+Three extras the plan did not call for: the search index emits one entry per question
+id rather than per test slot (so it is 590 KB, not the ~800 KB budgeted, and shared
+questions are one hit); `tools/lib/banks.mjs` loads the data files the way the browser
+does, so no tool ever regexes markup for data again; and the validator also guards the
+three hardcoded copies of the topic list and the hub's hardcoded totals.
+
 ## Decided
 
 - **Hosting** — unchanged. GitHub Pages, origin `rahman-atiq.github.io`, repo stays

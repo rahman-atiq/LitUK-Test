@@ -1,0 +1,49 @@
+# NOT SERVED FROM THIS REPO — this is a template.
+#
+# robots.txt is only read at the domain root. This is a project site at
+# https://rahman-atiq.github.io/LitUK-Test/, so a robots.txt committed here is
+# served at /LitUK-Test/robots.txt and read by nothing at all. Verified
+# 2026-08-10: no rahman-atiq.github.io user-site repo exists, /robots.txt 404s,
+# and compliant crawlers read that as "allow everything".
+#
+# To make this live: create a PUBLIC repo named exactly
+#   rahman-atiq/rahman-atiq.github.io
+# containing this file as robots.txt at the repo root, with Pages enabled.
+# The Disallow is scoped to /LitUK-Test/ so any other project site is unaffected.
+#
+# Limits, stated plainly: this is an honour system, user agents are spoofable,
+# GitHub Pages cannot set headers or run a WAF, and none of it retracts anything
+# already crawled. It also does nothing about the public repo, where the same
+# data files sit under github.com's robots.txt, not yours. Only making the repo
+# private closes that.
+
+# Search engines may crawl: they need to read the noindex meta tag to drop
+# the site from their index. Nothing here is an access control.
+User-agent: *
+Disallow:
+
+# AI training, dataset and retrieval crawlers.
+# Retrieval bots are blocked too — the goal here is invisibility, not
+# AI-search visibility, which is the opposite of most published guidance.
+# CCBot matters most: Common Crawl is an independent pipeline feeding many
+# downstream datasets, so blocking GPTBot and ClaudeBot does not cover it.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: PerplexityBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: Diffbot
+User-agent: omgilibot
+User-agent: ImagesiftBot
+User-agent: Timpibot
+Disallow: /LitUK-Test/
