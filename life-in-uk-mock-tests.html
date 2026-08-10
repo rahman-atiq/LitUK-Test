@@ -30,22 +30,28 @@ html[data-theme="dark"]{
   --ring:#4d82ff44;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;
+  /* Nothing here is meant to scroll sideways — without this a single wide child
+     drags the whole page off-centre every time you tap. */
+  overflow-x:hidden}
+button,.opt,.dot,summary,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:var(--brand);text-decoration:none}
 .wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
 /* Header */
 header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.hd{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 16px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;cursor:pointer}
-.brand .flag{font-size:22px}
-.brand small{display:block;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:0}
+.hd{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;font-weight:800;letter-spacing:-.02em;cursor:pointer}
+.brand .flag{flex:none;font-size:22px}
+/* The title stays on one line and ellipsises — it must never wrap to "Life / in / the / UK". */
+.brand .name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:0;overflow:hidden;text-overflow:ellipsis}
 .hubLink{flex:0 0 auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:16px;font-weight:700;text-decoration:none}
 .hubLink:hover{border-color:var(--brand);color:var(--brand)}
 .spacer{flex:1}
-.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px;display:grid;place-items:center}
+.icon-btn{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px;display:grid;place-items:center}
 .icon-btn:hover{border-color:var(--brand)}
-.nav{display:flex;gap:4px}
-.nav button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:8px 12px;border-radius:9px;cursor:pointer;font-size:14px}
+.nav{display:flex;flex:none;gap:4px}
+.nav button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:8px 12px;border-radius:9px;cursor:pointer;font-size:14px;white-space:nowrap}
 .nav button:hover{background:var(--chip);color:var(--ink)}
 .nav button.on{background:var(--brand);color:var(--brand-ink)}
 /* Cards */
@@ -170,6 +176,9 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .rev .body{padding:0 14px 14px 46px;border-top:1px solid var(--line)}
 .rev[open] summary{border-bottom:0}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--chip);color:var(--muted);margin-left:auto}
+/* In a review row the topic name sits beside the question, so it stays on one
+   line and gives the question the space — a wrapped tag squeezed it to a sliver. */
+.rev summary .tag{flex:none;max-width:38%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Topic bars */
 .tbar{display:grid;grid-template-columns:1fr 60px;gap:10px;align-items:center;margin:10px 0}
 .tbar .tn{font-weight:600;font-size:13.5px}
@@ -189,11 +198,22 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:700;font-size:13.5px;opacity:0;transition:.25s;z-index:70;pointer-events:none;box-shadow:var(--shadow)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink)}
+/* Below this the brand + 4 nav tabs + 2 icon buttons no longer fit on one line,
+   so the nav wraps to a second row of its own instead of shoving the page sideways. */
+@media(max-width:700px){
+  .hd{gap:8px;padding:10px 12px 8px}
+  .nav{order:5;flex:1 0 100%;gap:2px;margin-top:2px}
+  .nav button{flex:1 1 0;padding:8px 6px;font-size:13px}
+  .hubLink,.icon-btn{width:34px;height:34px;font-size:15px}
+}
 @media(max-width:560px){
-  .brand small{display:none}
   h1{font-size:20px}
   .qtext{font-size:17px}
-  .nav button{padding:8px 9px;font-size:13px}
+  /* Truncated to "A modern, thri…" it says nothing — give the question the row. */
+  .rev summary .tag{display:none}
+}
+@media(max-width:400px){
+  .brand small{display:none}
 }
 </style>
 </head>
@@ -203,7 +223,7 @@ select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:
     <a class="hubLink" href="index.html" title="Back to the study hub" aria-label="Back to the study hub">←</a>
     <div class="brand" onclick="go('dashboard')">
       <span class="flag">🇬🇧</span>
-      <div>Life in the UK<small id="brandSub">Practice Tests</small></div>
+      <div class="name">Life in the UK<small id="brandSub">Practice Tests</small></div>
     </div>
     <div class="spacer"></div>
     <nav class="nav" id="nav">
