@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 /**
  * Builds search-index.js — everything the hub's search box looks through:
- * every text block of the ten chapter pages, plus all 1080 questions.
+ * every text block of the ten chapter pages, plus every question in every bank.
  *
  *   node tools/build-search-index.mjs
  */
 import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => path.join(ROOT, f);
+import { R, TOPICS, loadBanks, allQuestions } from "./lib/banks.mjs";
 
 const TITLES = {
   1: "The Values and Principles of the UK",
@@ -141,10 +137,7 @@ FILES.forEach((meta, fi) => {
 
 /* ---------------- questions ---------------- */
 
-const mock = fs.readFileSync(R("life-in-uk-mock-tests.html"), "utf8");
-const dm = mock.match(/<script>const DATA=(\{[\s\S]*?\});<\/script>/);
-if (!dm) throw new Error("could not find DATA in life-in-uk-mock-tests.html");
-const DATA = JSON.parse(dm[1]);
+const BANKS = loadBanks();
 
 const expl = [];
 const explIdx = new Map();
@@ -154,14 +147,16 @@ function exId(e) {
   return explIdx.get(e);
 }
 
+/* One entry per question id, not per test slot — a question that appears in
+   several tests is one thing to find, and one card in your progress. */
 const qs = [];
-for (const t of DATA.tests) {
-  for (const q of t.q) {
-    const answer = q.o.filter((o) => o[1]).map((o) => o[0]).join(" · ");
-    qs.push([q.g, t.n, q.p, q.t, answer, exId(clip(q.e || "", 150))]);
-  }
+for (const q of allQuestions(BANKS)) {
+  const answer = q.o.filter((o) => o[1]).map((o) => o[0]).join(" · ");
+  qs.push([q.g, q._test, q.p, q.t, answer, exId(clip(q.e || "", 150))]);
 }
-console.log(`${"questions".padEnd(32)} ${String(qs.length).padStart(4)} entries`);
+qs.sort((a, b) => a[0] - b[0]);
+console.log(`${"questions".padEnd(32)} ${String(qs.length).padStart(4)} entries` +
+  `  (${BANKS.map((b) => `${b.id}:${b.tests.length}`).join(" ")})`);
 
 /* ---------------- emit ---------------- */
 
@@ -170,7 +165,7 @@ const payload = {
   files: FILES.map((f) => [f.f, f.k, f.c, f.t]),
   heads,
   blocks,
-  topics: DATA.topics,
+  topics: TOPICS,
   expl,
   qs,
 };

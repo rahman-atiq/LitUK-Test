@@ -4,7 +4,7 @@
    as you visit it, or all at once via the hub's "Save for offline".
    Bump VERSION whenever the content changes.
    ============================================================ */
-const VERSION = "2026-08-09b";
+const VERSION = "2026-08-10a";
 const CORE_CACHE = "lituk-core-" + VERSION;
 const RUNTIME_CACHE = "lituk-runtime-" + VERSION;
 
@@ -25,6 +25,7 @@ const EVERYTHING = CORE.concat([
   "./lituk.html",
   "./life-in-uk-quiz.html",
   "./life-in-uk-mock-tests.html",
+  "./mock-data.js",
   "./life-in-uk-chapter1.html",
   "./life-in-uk-chapter2.html",
   "./life-in-uk-chapter3.html",
