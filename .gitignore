@@ -1,0 +1,6 @@
+# Scraped source pages — reproducible with tools/fetch-practice-tests.mjs,
+# and not ours to redistribute.
+tools/.cache/
+
+.DS_Store
+node_modules/
