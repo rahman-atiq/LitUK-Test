@@ -299,6 +299,56 @@ Gauntlet generates no option that is not lifted verbatim from existing bank cont
 distractor counts persist and render; "read why" lands on the right chapter section
 with the term highlighted.
 
+**Shipped 2026-08-12.** All five changes. 41 assertions against the real engine in a
+node VM with a stub DOM, no browser; `node tools/validate-banks.mjs` passes. Measured
+numbers and the decisions the plan above did not settle:
+
+- **Clustering is one mechanism, used by five modes.** `clusterOrder()` reorders any
+  list so questions sharing a salient entity are adjacent, and it is what change 1 and
+  change 2 both are. Two passes over keys drawn from `q.t + q.o + q.e`: years and
+  proper-noun runs first, then rare lowercase words for what that leaves behind,
+  rarest key first throughout. It puts **466 of the 509** two-option questions and
+  **93% of the whole bank** into a cluster of 2–5. Measured adjacency: **268 of 508**
+  neighbouring pairs in a Twist run share a key, against **30** for a plain shuffle.
+  Cost is 34ms cold, once, and it is lazy.
+  - A single-word capital is only a proper noun if that word is never seen lowercase
+    anywhere in the 1,858 — otherwise "However" and "Almost" cluster the bank.
+  - The drill and Sweep now cluster instead of shuffling. Sweep clusters the whole
+    unseen pool *then* cuts the batch, so cluster-mates arrive in the same session
+    rather than a fortnight apart.
+- **The Date Gauntlet is built on 62 questions, not 483.** Only 62 questions in the
+  bank are answered by a bare year, and those are the only place a year is asserted
+  rather than mentioned — 483 "carry a year" but mostly in passing, where nothing
+  verifies what the year attaches to. INV-7 makes that the whole design: forward is
+  the original stem verbatim with the three nearest years in the bank swapped in as
+  distractors; reverse is a year against four verbatim question stems. 124 derived
+  items, every option a character-for-character lift, checked in the harness against
+  the set of all bank strings. One direction per source question per session, or the
+  forward item hands you the reverse one's answer. Sessions longer than 62 pad with
+  real year-carrying questions, clustered — which groups them by date, since a year
+  is a cluster key.
+- **Gauntlets and Sweep no longer count as exam attempts** (`TRAINING`), because a
+  60-question pile-up of coin flips is not a sit and scoring it as one buries the pass
+  rate Phase 4 is about to build on. They still keep the daily streak.
+- **`m.picked` keys on the canonical question's option order.** A duplicate id can
+  list the same options in a different order, so an index copied straight across would
+  name the wrong distractor; the option is matched by normalised text instead. Derived
+  Date Gauntlet items record no index at all — their options are built for the session.
+- **`facts.js` stores offsets, not sentences.** `cut` is a `[start,length]` slice into
+  the question's own explanation, so a fact card is *provably* a substring of text a
+  human wrote, and the file is 77KB instead of ~400KB. 1,844 fact cards (median 97
+  chars), 1,854 chapter links. It is loaded on demand by the Mistakes view and
+  everything degrades to nothing if it is absent.
+- **The chapter link needed a prior and a text-node check.** Term overlap alone sent
+  drink-driving to a sentence about arrests in the Civil War; the five topics *are*
+  the five chapters, so `q.p` picks the chapter and **1,825 of 1,854** links land in
+  it. And `?find=` only highlights if the term sits inside one text node — "the Battle
+  of Hastings" is three, because the page sets the name in `<b>` — so the builder
+  verifies each term against the real page the way `app.js` will read it. 32 links
+  that would have silently failed to highlight now use a term that works.
+- **Not built:** nothing from this phase. The leech "read the chapter" deep link left
+  over from Phase 2 is now in, via change 4.
+
 ---
 
 ### Phase 4 — Readiness, and the last week

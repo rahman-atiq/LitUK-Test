@@ -180,6 +180,14 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .rev .ic.ok{background:var(--good)} .rev .ic.no{background:var(--bad)}
 .rev .body{padding:0 14px 14px 46px;border-top:1px solid var(--line)}
 .rev[open] summary{border-bottom:0}
+/* The distractor you keep falling for, named on the option itself. */
+.pickn{margin-left:8px;font-size:11px;font-weight:700;padding:1px 7px;border-radius:20px;
+  background:var(--chip);color:var(--bad);white-space:nowrap}
+.wrongpull{margin:10px 0 0;font-size:13px;font-weight:600;color:var(--bad)}
+/* One mined sentence of the explanation — the fact on its own, for the days
+   when reading the whole paragraph again is not going to help. */
+.fact{margin:10px 0 0;padding:9px 12px;border-radius:10px;background:var(--panel-2);
+  border-left:3px solid var(--warn);font-size:13.5px;line-height:1.5}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--chip);color:var(--muted);margin-left:auto}
 /* In a review row the topic name sits beside the question, so it stays on one
    line and gives the question the space — a wrapped tag squeezed it to a sliver. */
@@ -395,10 +403,13 @@ function mergeDuplicateState(){
     seen:(a.seen||0)+(b.seen||0),
     unsure:(a.unsure||0)+(b.unsure||0),
     last:Math.max(a.last||0,b.last||0)});
+  const addPicked=(a,b)=>{const o={...(a||{})};
+    for(const [k,v] of Object.entries(b||{}))o[k]=(o[k]||0)+v;return o};
   const worseMistake=(a,b)=>({count:(a.count||0)+(b.count||0),
     unsure:(a.unsure||0)+(b.unsure||0),
     ok:(a.ok||[]).filter(d=>(b.ok||[]).includes(d)),   /* only days BOTH copies were right */
     miss:[a.miss,b.miss].filter(Boolean).sort().pop(), /* the more recent miss */
+    picked:addPicked(a.picked,b.picked),               /* option indices are canonical either way */
     leech:!!(a.leech||b.leech),
     done:!!(a.done&&b.done)});
   for(const k of Object.keys(S.sr)){
@@ -487,7 +498,7 @@ function renderDashboard(){
   const acc=S.answered?Math.round(S.correct/S.answered*100):0;
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
-  const left=daysLeft();
+  const left=daysLeft(),tw=twistStats();
   const el=document.getElementById('view-dashboard');
   el.innerHTML=`
     <h1>Your dashboard</h1>
@@ -505,6 +516,8 @@ function renderDashboard(){
     </div>
     <div class="grid actions">
       <button class="card act" onclick="startSweep()"><span class="emo">🧭</span><div><div class="t">Sweep</div><div class="d">${unseen?`${Math.min(SWEEP_N,unseen)} you've never seen · ${unseen} left`:'Whole bank seen 🎉'}</div></div></button>
+      <button class="card act" onclick="startTwist()"><span class="emo">🌀</span><div><div class="t">Twist gauntlet</div><div class="d">${tw.total} two-option traps, in clusters${tw.fresh?` · ${tw.fresh} new`:tw.weak?` · ${tw.weak} still open`:''}</div></div></button>
+      <button class="card act" onclick="startDates()"><span class="emo">📅</span><div><div class="t">Date gauntlet</div><div class="d">${YEAR_Q.length} years, both directions</div></div></button>
       <button class="card act" onclick="startExam()"><span class="emo">🎲</span><div><div class="t">Random exam</div><div class="d">24 mixed questions, timed</div></div></button>
       <button class="card act" onclick="go('mistakes')"><span class="emo">🎯</span><div><div class="t">Practice mistakes</div><div class="d">${openMistakes} question${openMistakes===1?'':'s'} to fix</div></div></button>
       <button class="card act" onclick="topicPicker()"><span class="emo">📚</span><div><div class="t">Practice by topic</div><div class="d">Target a weak area</div></div></button>
@@ -533,10 +546,16 @@ let sess=null;
    (Sweep). Everything else — timed tests included — follows the pref: when you
    see the answer is your decision, not the app's. What the app does owe you is
    an honest label, so a `best` set with the answers on screen says so on the
-   tile (see testTile). */
-function makeSession(qs,{title,timed,testN=null,source='custom',instant=null}){
+   tile (see testTile).
+
+   `order` decides how the questions are laid out:
+     null      shuffle, unless the pref says otherwise (the old behaviour)
+     'cluster' related questions adjacent, neediest cluster first (see CLUSTERS)
+     'keep'    exactly as handed in — the caller has already ordered it */
+function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,order=null}){
   let list=qs.slice();
-  if(prefs.shufQ && source!=='mistakes')list=shuffle(list);
+  if(order==='cluster')list=clusterOrder(list);
+  else if(order!=='keep'&&prefs.shufQ&&source!=='mistakes')list=shuffle(list);
   if(instant==null)instant=prefs.feedback==='instant';
   sess={instant,title,timed,testN,source,idx:0,
     items:list.map(q=>{
@@ -624,7 +643,9 @@ function drillDoneToday(){return S.drill&&S.drill.last===dayKey()}
 function startDrill(){
   const plan=drillPlan();
   if(!plan.length){toast('Nothing to drill yet');return}
-  makeSession(plan.map(p=>p.q),{title:'Daily drill',timed:false,source:'drill'});
+  /* Clustered, not shuffled: the plan's priority order survives at cluster
+     level, but questions about the same thing arrive together (see CLUSTERS). */
+  makeSession(plan.map(p=>p.q),{title:'Daily drill',timed:false,source:'drill',order:'cluster'});
 }
 /* ---- Sweep: first contact with the bank ----
    Nothing but questions you have never seen, untimed, answer shown after each
@@ -635,9 +656,12 @@ function startDrill(){
 const SWEEP_N=50;
 function startSweep(n){
   const size=Math.max(1,Math.min(DRILL_MAX,Math.round(+n||SWEEP_N)));
-  const qs=unseenQuestions().slice(0,size);
+  /* Cluster the whole unseen pool and then cut, rather than cutting first:
+     that way cluster-mates land in the same batch instead of a fortnight
+     apart. */
+  const qs=clusterOrder(unseenQuestions()).slice(0,size);
   if(!qs.length){toast('Every question has been seen at least once 🎉');return}
-  makeSession(qs,{title:`Sweep — ${qs.length} unseen`,timed:false,instant:true,source:'sweep'});
+  makeSession(qs,{title:`Sweep — ${qs.length} unseen`,timed:false,instant:true,source:'sweep',order:'keep'});
 }
 function noteDrillDone(){
   const t=dayKey(),y=dayKey(Date.now()-DAY);
@@ -646,6 +670,236 @@ function noteDrillDone(){
   S.drill.streak=S.drill.last===y?(S.drill.streak||0)+1:1;
   S.drill.last=t;
   S.drill.best=Math.max(S.drill.best||0,S.drill.streak);
+}
+
+/* ============ CLUSTERS ============
+   Shuffling is what makes this bank easier than the exam. "Life peers are
+   appointed by the monarchy on the advice of the Prime Minister" is trivial on
+   its own — you recognise the wording. Put it straight after three other
+   statements about constitutional appointments and recognition stops working;
+   you have to actually know which way round it goes.
+
+   So questions that share a salient entity — a year, a proper noun, an Act —
+   are served adjacently. The signal is entirely derived from text already in
+   the bank (INV-7): no content is generated, only re-ordered.
+
+   Two passes, rarest key first, because a key shared by three questions says
+   far more than one shared by thirty:
+     1. proper nouns and years, the strong signal
+     2. rare lowercase content words, to catch what pass 1 leaves behind
+   That puts ~93% of the bank into a cluster; the rest are served alone. */
+const CLUSTER_MAX=5;                                  /* longer runs stop feeling like one topic */
+const YEAR_G=/\b(1[0-9]{3}|20[0-2][0-9])\b/g;
+const HAS_YEAR=/\b(1[0-9]{3}|20[0-2][0-9])\b/;        /* /g + .test() is a lastIndex trap */
+const qText=q=>q.t+' \n '+q.o.map(o=>o[0]).join(' \n ')+' \n '+(q.e||'');
+/* Words that start a sentence are capitalised too, so "However" and "Almost"
+   look like proper nouns. Anything also seen lowercase somewhere in 1,858
+   questions is not a name. */
+const CAP_STOP=new Set(('is are was were the a an of in on at to for and or which what who when where how why '+
+  'true false correct statement below this that you your it its as by with from they them their there here '+
+  'about into during over under between than then').split(' '));
+let _lowerVocab=null,_df=null;
+function lowerVocab(){
+  if(_lowerVocab)return _lowerVocab;
+  _lowerVocab=new Set();
+  for(const q of POOL)for(const w of qText(q).split(/[^A-Za-z'’-]+/))
+    if(/^[a-z][a-z'’-]{2,}$/.test(w))_lowerVocab.add(w);
+  return _lowerVocab;
+}
+/* Document frequency, for pass 2: a word in two questions is a link, a word in
+   two hundred is filler. */
+function df(){
+  if(_df)return _df;
+  _df=new Map();
+  for(const q of POOL){
+    for(const w of new Set(qText(q).toLowerCase().split(/[^a-z'’-]+/)))
+      if(w.length>4&&!CAP_STOP.has(w))_df.set(w,(_df.get(w)||0)+1);
+  }
+  return _df;
+}
+/* Pass 1 keys: every year mentioned, and every run of capitalised words. */
+function salientKeys(q){
+  const t=qText(q),out=new Set(),lo=lowerVocab();
+  for(const m of t.matchAll(YEAR_G))out.add('y:'+m[1]);
+  let run=[];
+  const flush=()=>{
+    if(run.length>1)out.add('n:'+run.join(' ').toLowerCase());
+    else if(run.length===1){const w=run[0].toLowerCase();if(!lo.has(w)&&!CAP_STOP.has(w))out.add('n:'+w)}
+    run=[];
+  };
+  for(const w of t.split(/[^A-Za-z0-9'’-]+/)){
+    if(/^[A-Z][A-Za-z’'-]{2,}$/.test(w)&&!CAP_STOP.has(w.toLowerCase()))run.push(w);else flush();
+  }
+  flush();
+  return out;
+}
+/* Pass 2 keys: uncommon ordinary words — "solicitor", "constituency". */
+function weakKeys(q){
+  const d=df(),out=new Set();
+  for(const w of new Set(qText(q).toLowerCase().split(/[^a-z'’-]+/))){
+    if(w.length<=4||CAP_STOP.has(w))continue;
+    const n=d.get(w)||0;
+    if(n>=2&&n<=25)out.add('w:'+w);
+  }
+  return out;
+}
+/* Greedy: take the rarest key first and give it every member still unclaimed.
+   Works on array indices, not ids, because the Date Gauntlet can put two
+   questions derived from the same id in one list. */
+function clusterSplit(qs){
+  const strong=new Map(),weak=new Map();
+  const push=(m,k,i)=>{const a=m.get(k);a?a.push(i):m.set(k,[i])};
+  qs.forEach((q,i)=>{
+    for(const k of salientKeys(q))push(strong,k,i);
+    for(const k of weakKeys(q))push(weak,k,i);
+  });
+  const taken=new Set(),clusters=[];
+  const sweep=m=>{
+    const cand=[...m.entries()].filter(([,v])=>v.length>1&&v.length<=CLUSTER_MAX*2)
+      .sort((a,b)=>a[1].length-b[1].length||(a[0]<b[0]?-1:1));   /* rarest, then stable by key */
+    for(const [,members] of cand){
+      const free=members.filter(i=>!taken.has(i));
+      for(let i=0;i+1<free.length;i+=CLUSTER_MAX){
+        const grp=free.slice(i,i+CLUSTER_MAX);
+        if(grp.length<2)break;
+        grp.forEach(x=>taken.add(x));clusters.push(grp);
+      }
+    }
+  };
+  sweep(strong);sweep(weak);
+  return {clusters,loners:qs.map((_,i)=>i).filter(i=>!taken.has(i))};
+}
+/* Reorders a list so cluster-mates are adjacent. `rank` (default: the position
+   the caller handed it in at) decides which cluster goes first — a cluster is
+   worth its most urgent member, so one unseen question drags its four relatives
+   to the front with it. That is the point: you meet the whole knot at once. */
+function clusterOrder(qs,rank){
+  if(qs.length<3)return qs.slice();
+  const pos=new Map();qs.forEach((q,i)=>{if(!pos.has(q))pos.set(q,i)});
+  const rk=rank?(q=>rank(q)):(q=>pos.get(q));
+  const {clusters,loners}=clusterSplit(qs);
+  const groups=clusters.map(c=>c.map(i=>qs[i])).concat(loners.map(i=>[qs[i]]));
+  const scored=groups.map(g=>{
+    const sorted=g.slice().sort((a,b)=>rk(a)-rk(b));
+    return {g:sorted,best:rk(sorted[0]),r:Math.random()};
+  });
+  scored.sort((a,b)=>a.best-b.best||a.r-b.r);         /* one random draw each: a stable comparator */
+  return scored.flatMap(s=>s.g);
+}
+
+/* ============ TWIST GAUNTLET ============
+   509 of the 1,858 questions have two options — 352 true/false and 157
+   discrimination pairs. They are a 50% guess in isolation and they are exactly
+   the format the real test twists you with. Diluted across the whole bank they
+   arrive one at a time, where recognition carries you. Clustered, they cannot:
+   four statements about the same appointment, three of them worded to look
+   right.
+
+   Order is by how much the question still owes you, so successive sessions walk
+   the whole 509 rather than re-serving the same batch. */
+const TWO_OPT=POOL.filter(q=>q.o.length===2);
+/* Lower = drill me sooner. Never seen beats leech beats open mistake beats
+   whatever is sitting in the lowest box. */
+function urgency(q){
+  const g=canon(q.g),e=S.sr[g],m=S.mistakes[g];
+  if(!e)return 0;
+  if(m&&!m.done)return m.leech?1:2;
+  return 3+(e.box||0);
+}
+const lastSeen=q=>{const e=S.sr[canon(q.g)];return e&&e.last||0};
+function twistOrder(){
+  const rank=new Map();
+  TWO_OPT.forEach(q=>rank.set(q,urgency(q)*1e13+lastSeen(q)));
+  return clusterOrder(TWO_OPT,q=>rank.get(q));
+}
+function twistStats(){
+  const fresh=TWO_OPT.filter(q=>!S.sr[canon(q.g)]).length;
+  const weak=TWO_OPT.filter(q=>{const m=S.mistakes[canon(q.g)];return m&&!m.done}).length;
+  return {total:TWO_OPT.length,fresh,weak};
+}
+function startTwist(n){
+  const size=Math.max(1,Math.min(DRILL_MAX,Math.round(+n||drillSize())));
+  const qs=twistOrder().slice(0,size);
+  if(!qs.length){toast('No two-option questions in the bank');return}
+  makeSession(qs,{title:`Twist gauntlet — ${qs.length}`,timed:false,source:'twist',order:'keep'});
+}
+
+/* ============ DATE GAUNTLET ============
+   62 questions in the bank are answered by a bare year, which makes them the
+   only place a year is stated as fact rather than mentioned in passing. Both
+   directions are drilled off them:
+
+     forward   the original question, verbatim, but with the three nearest
+               years found anywhere in the bank as distractors instead of the
+               four it shipped with. You cannot pass it on the shape of the
+               option list any more.
+     reverse   a year, and four verbatim question stems — only one of which it
+               answers.
+
+   INV-7 is the constraint that shapes this. Nothing here is written: every
+   option is a string lifted character-for-character out of the bank, and the
+   only new text is the frame around them. A year mined out of an explanation
+   and turned into a question would be a fact nobody checked, drilled daily.
+
+   Only one direction per source question per session — serve both and the
+   forward item hands you the answer to the reverse one. */
+const BARE_YEAR=/^\s*(1[0-9]{3}|20[0-2][0-9])\s*$/;
+function yearAnswer(q){
+  const c=q.o.filter(o=>o[1]);
+  return c.length===1&&BARE_YEAR.test(c[0][0])?c[0][0].trim():null;
+}
+const YEAR_Q=POOL.map(q=>({q,y:yearAnswer(q)})).filter(x=>x.y);
+/* Every year that appears anywhere in the bank — stems, options, explanations.
+   The distractor pool, so a near miss is a year the handbook actually uses. */
+const YEAR_POOL=(function(){const s=new Set();
+  for(const q of POOL)for(const m of qText(q).matchAll(YEAR_G))s.add(m[1]);
+  return [...s]})();
+/* Real questions that mention a year — what the gauntlet pads with once the 62
+   derived items run out. */
+const YEAR_CARRY=POOL.filter(q=>HAS_YEAR.test(qText(q)));
+function dateForward(x){
+  const y=+x.y;
+  const near=YEAR_POOL.filter(v=>+v!==y).sort((a,b)=>Math.abs(+a-y)-Math.abs(+b-y)||+a-+b).slice(0,3);
+  if(near.length<2)return null;
+  return {...x.q,o:shuffle([[x.y,1],...near.map(v=>[v,0])]),_derived:'date'};
+}
+function dateReverse(x){
+  /* A distractor must not be answered by this year too, and no two options may
+     read as the same question — the bank holds "When did the English civil war
+     begin?" and "When did the English Civil war begin?" as separate ids, and
+     offering both is noise at best and unanswerable at worst. */
+  const others=[],taken=new Set([dupNorm(x.q.t)]);
+  for(const o of shuffle(YEAR_Q)){
+    if(others.length===3)break;
+    if(o.y===x.y)continue;
+    const k=dupNorm(o.q.t);
+    if(taken.has(k))continue;
+    taken.add(k);others.push(o);
+  }
+  if(others.length<3)return null;
+  return {g:x.q.g,p:x.q.p,e:x.q.e,_test:x.q._test,_bank:x.q._bank,_derived:'date',
+    t:`${x.y} — which of these questions does it answer?`,
+    o:shuffle([[x.q.t,1],...others.map(o=>[o.q.t,0])])};
+}
+function startDates(n){
+  const size=Math.max(1,Math.min(DRILL_MAX,Math.round(+n||drillSize())));
+  const src=YEAR_Q.slice().sort((a,b)=>urgency(a.q)-urgency(b.q)||lastSeen(a.q)-lastSeen(b.q));
+  const qs=[],used=new Set();
+  for(const x of src){
+    if(qs.length>=size)break;
+    const item=Math.random()<.5?(dateForward(x)||dateReverse(x)):(dateReverse(x)||dateForward(x));
+    if(!item)continue;
+    qs.push(item);used.add(x.q.g);
+  }
+  /* Short of a full session? Top up with real questions that carry a year,
+     clustered — which, since a year is a cluster key, groups them by date. */
+  if(qs.length<size){
+    const pad=YEAR_CARRY.filter(q=>!used.has(q.g))
+      .sort((a,b)=>urgency(a)-urgency(b)||lastSeen(a)-lastSeen(b));
+    qs.push(...clusterOrder(pad).slice(0,size-qs.length));
+  }
+  if(!qs.length){toast('No dated questions in the bank');return}
+  makeSession(qs,{title:`Date gauntlet — ${qs.length}`,timed:false,source:'dates',order:'keep'});
 }
 
 /* ============ TIMER ============ */
@@ -732,7 +986,7 @@ function checkQ(){
   it.checked=true;
   const ci=correctIdx(it.q);
   it._correct=eqSet(it.picked,ci);
-  it._rec=recordAnswer(it.q,it._correct);
+  it._rec=recordAnswer(it.q,it._correct,it.picked);
   paintCheck();
   // swap button to Next/Finish
   renderQuiz();
@@ -853,9 +1107,29 @@ function srUnseen(){return Math.max(0,UNIQUE_N-srSeen())}
 const RETIRE_4=3,RETIRE_2=4,LEECH_AT=4;
 const retireDays=q=>q.o.length<=2?RETIRE_2:RETIRE_4;
 
+/* ---- Which wrong answer, not just that it was wrong ----
+   "You have chosen 1801 three times" is a different instruction from "you keep
+   getting this wrong": it names the belief that needs replacing. Counts are
+   kept per option on the CANONICAL question, because a duplicate id can list
+   the same options in a different order — an index copied across would accuse
+   you of the wrong answer. Matching on normalised text is what survives that.
+
+   Derived questions (the Date Gauntlet) are skipped: their options are built
+   for the session and do not correspond to the bank question's option list. */
+function notePicked(m,q,picked){
+  if(!picked||!picked.length||q._derived)return;
+  const cq=QByG[canon(q.g)];if(!cq)return;
+  const wrong=picked.filter(i=>q.o[i]&&!q.o[i][1]);
+  if(!wrong.length)return;
+  const p=m.picked||(m.picked={});
+  for(const i of wrong){
+    const k=cq.o.findIndex(o=>dupNorm(o[0])===dupNorm(q.o[i][0]));
+    if(k>=0)p[k]=(p[k]||0)+1;
+  }
+}
 /* record into topic/mistake stats (once per exam grading or per practice check).
    Returns what it did, so markUnsure() can take it back. */
-function recordAnswer(q,correct){
+function recordAnswer(q,correct,picked){
   S.answered++;if(correct)S.correct++;
   const rec={preBox:srUpdate(q.g,correct),credited:null,retired:false};
   const tp=S.topics[q.p]||(S.topics[q.p]={seen:0,correct:0});tp.seen++;if(correct)tp.correct++;
@@ -872,17 +1146,21 @@ function recordAnswer(q,correct){
     if(!m)m=S.mistakes[g]={count:0,ok:[],done:false};
     m.done=false;m.ok=[];m.miss=today;m.count=(m.count||0)+1;
     if(m.count>=LEECH_AT)m.leech=true;             /* four misses: stop pretending it will stick */
+    notePicked(m,q,picked);
   }
   save();
   return rec;
 }
 
-/* ============ FINISH / RESULTS ============ */
+/* ============ FINISH / RESULTS ============
+   Sources whose score is not a readiness signal: they are training sets, built
+   to be harder or stranger than a real sit. */
+const TRAINING=new Set(['sweep','twist','dates']);
 function finishQuiz(){
   clearInterval(timerInt);
   // grade any unchecked (exam) items now
   if(!sess.instant){
-    sess.items.forEach(it=>{const ci=correctIdx(it.q);it.checked=true;it._correct=it.picked.length?eqSet(it.picked,ci):false;recordAnswer(it.q,it._correct)});
+    sess.items.forEach(it=>{const ci=correctIdx(it.q);it.checked=true;it._correct=it.picked.length?eqSet(it.picked,ci):false;recordAnswer(it.q,it._correct,it.picked)});
   }else{
     // practice: unchecked & unpicked count as not-correct but only grade if attempted
     sess.items.forEach(it=>{if(!it.checked){it.checked=true;it._correct=false}});
@@ -890,10 +1168,11 @@ function finishQuiz(){
   const score=sess.items.filter(it=>it._correct).length;
   const total=sess.items.length;
   const passed=score>=Math.round(PASSMARK/24*total);
-  /* A sweep is first contact with unseen questions, not an attempt at a pass
-     mark — counting 25 of them would bury the exam pass rate. */
-  const isSweep=sess.source==='sweep';
-  if(!isSweep){S.attempts++;if(passed)S.passes++}
+  /* Sweep is first contact with unseen questions; the gauntlets are a deliberate
+     pile-up of the hardest format in the bank. Neither is an attempt at a pass
+     mark, and scoring them as one would bury the exam pass rate under sessions
+     that were never meant to be passed. */
+  if(!TRAINING.has(sess.source)){S.attempts++;if(passed)S.passes++}
   if(sess.testN){
     const st=testStat(sess.testN);
     /* `revealed` describes the best score, not the last sit: a 24 earned with
@@ -903,9 +1182,9 @@ function finishQuiz(){
     S.tests[sess.testN]={best:Math.max(st.best??0,score),attempts:st.attempts+1,
       lastPass:passed,lastScore:score,revealed:isBest?!!sess.instant:!!st.revealed};
   }
-  /* A sweep is the day's work during the coverage weeks — it keeps the streak
-     alive exactly like a drill does. */
-  if(sess.source==='drill'||sess.source==='sweep')noteDrillDone();
+  /* A sweep or a gauntlet is the day's work as much as a drill is — it keeps
+     the streak alive. */
+  if(sess.source==='drill'||TRAINING.has(sess.source))noteDrillDone();
   S.history.unshift({t:Date.now(),title:sess.title,score,total,passed,src:sess.source});
   S.history=S.history.slice(0,50);
   save();
@@ -914,7 +1193,8 @@ function finishQuiz(){
 }
 function renderResults(score,total,passed){
   const pct=Math.round(score/total*100);
-  const rc=sess.source==='sweep'?'var(--brand)':passed?'var(--good)':'var(--bad)';
+  const training=TRAINING.has(sess.source);
+  const rc=training?'var(--brand)':passed?'var(--good)':'var(--bad)';
   const el=document.getElementById('view-results');
   const wrongItems=sess.items.filter(it=>!it._correct);
   const secs=Math.round((Date.now()-sess.startTs)/1000);
@@ -924,17 +1204,25 @@ function renderResults(score,total,passed){
       <div class="result-hero">
         <div class="ring" style="--p:${pct};--rc:${rc}"><div class="inner"><div><div class="pct">${pct}%</div><div class="sc">${score}/${total}</div></div></div></div>
         <div>
-          <div class="verdict-big ${sess.source==='sweep'?'good':passed?'good':'bad'}">${
+          <div class="verdict-big ${training||passed?'good':'bad'}">${
             sess.source==='sweep'
             ?`🧭 ${total} more seen${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            :sess.source==='twist'
+            ?`🌀 Gauntlet run${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            :sess.source==='dates'
+            ?`📅 Dates drilled${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :sess.source==='drill'
             ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :(passed?'🎉 Passed!':'Keep practising')}</div>
           <p class="sub" style="margin:6px 0 12px">${sess.source==='sweep'
             ?`You got <b>${score}</b> of <b>${total}</b> first time. <b>${srUnseen()}</b> of ${UNIQUE_N} still never seen — a low score here is the point, not a problem.`
+            :sess.source==='twist'
+            ?`<b>${score}</b> of <b>${total}</b>. Every one of these was a coin flip served next to its own near-miss — this score is meant to be lower than a test, and it doesn't count towards your pass rate.`
+            :sess.source==='dates'
+            ?`<b>${score}</b> of <b>${total}</b>, with the near-miss years put back in. Doesn't count towards your pass rate.`
             :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span></p>
           <div class="btn-row">
-            <button class="btn primary" onclick="retrySame()">${sess.source==='sweep'?'🧭 Next batch':'↻ Retry'}</button>
+            <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
             ${wrongItems.length?`<button class="btn" onclick="practiceMistakes()">🎯 Fix ${wrongItems.length} mistake${wrongItems.length===1?'':'s'}</button>`:''}
             <button class="btn ghost" onclick="go('dashboard')">Dashboard</button>
           </div>
@@ -957,14 +1245,68 @@ function renderResults(score,total,passed){
     </div>`;
 }
 function retrySame(){
-  if(sess.source==='sweep')return startSweep(sess.items.length);   /* the next batch, not the same one */
+  /* The training modes walk a queue, so "again" means the next batch off it,
+     not a re-run of the one just finished. */
+  if(sess.source==='sweep')return startSweep(sess.items.length);
+  if(sess.source==='twist')return startTwist(sess.items.length);
+  if(sess.source==='dates')return startDates(sess.items.length);
   if(sess.testN)return startTest(sess.testN);
   const src=sess.items.map(it=>it.q);
   makeSession(src,{title:sess.title,timed:sess.timed,testN:sess.testN,source:sess.source});
 }
 
+/* ============ FACTS & CHAPTER LINKS ============
+   facts.js (tools/build-facts.mjs) carries two things per question, both
+   derived at build time from content already in the repo:
+
+     cut   [start,length] into the question's own explanation — the one
+           sentence that states the fact. Offsets, not text, so it is provably
+           verbatim (INV-7) and the file stays small.
+     link  the chapter block that explains it, as a target into the existing
+           ?find= machinery in app.js.
+
+   Loaded on demand, not up front: the Mistakes view is the only thing that
+   needs it, and it is 100KB nobody should pay for on a drill. Everything below
+   degrades to nothing if the file is missing. */
+let FACTS=null,_factsReq=null;                        /* null = untried, false = unavailable */
+function loadFacts(){
+  if(FACTS!==null)return Promise.resolve(FACTS);
+  if(_factsReq)return _factsReq;
+  _factsReq=new Promise(res=>{
+    const s=document.createElement('script');
+    s.src='facts.js';
+    s.onload=()=>{FACTS=window.LITUK_FACTS||false;res(FACTS)};
+    s.onerror=()=>{FACTS=false;res(false)};
+    document.head.appendChild(s);
+  });
+  return _factsReq;
+}
+/* The one sentence of the explanation that states the fact. A long enumeration
+   gets cut at a clause boundary by the builder, so anything not ending in a
+   full stop is marked as the fragment it is. */
+function factOf(q){
+  const c=FACTS&&FACTS.cut&&FACTS.cut[canon(q.g)];
+  if(!c||!q.e)return '';
+  const s=q.e.substr(c[0],c[1]).trim();
+  if(s.length<=10)return '';
+  return /[.!?]$/.test(s)?s:s+'…';
+}
+/* "Read why" — the chapter section this question comes out of, with the term
+   highlighted on arrival. */
+function chapterLink(q){
+  if(!FACTS||!FACTS.link||!FACTS.targets)return null;
+  const t=FACTS.targets[FACTS.link[canon(q.g)]];
+  if(!t)return null;
+  const f=FACTS.files[t[0]];if(!f)return null;
+  /* No term means nothing on that page can be highlighted in one piece — the
+     section anchor still puts you in the right place. */
+  return {href:f[0]+(t[2]?'?find='+encodeURIComponent(t[2]):'')+(t[1]?'#'+t[1]:''),
+    label:`Chapter ${f[2]} · ${f[3]}`};
+}
+
 /* ============ MISTAKES ============ */
 function renderMistakes(){
+  if(FACTS===null)loadFacts().then(f=>{if(f)renderMistakes()});   /* re-render once it lands */
   const all=Object.entries(S.mistakes).filter(([g,m])=>!m.done).map(([g,m])=>({q:QByG[g],m})).filter(x=>x.q);
   /* Three kinds of open entry, worst first: leeches, questions you have got
      wrong, and questions you have only ever guessed. */
@@ -993,22 +1335,37 @@ function renderMistakes(){
     ${flagged.length?`<b style="display:block;margin-top:22px">★ Flagged (${flagged.length})</b>`+flagged.map(q=>mistakeRow(q,S.mistakes[q.g]||{},true)).join(''):''}
   `;
 }
+const times=n=>n===1?'once':n===2?'twice':`${n} times`;
 function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
   const need=retireDays(q),got=(m.ok||[]).length,guess=m.unsure||0,miss=m.count||0;
   /* A guess-only entry is not a wrong answer and does not get the red badge. */
   const kind=isFlag?'flag':m.leech?'leech':miss?'wrong':'guess';
   const badge={flag:'★',leech:'🐛',wrong:miss||1,guess:'🤔'}[kind];
   const colour=kind==='wrong'?'var(--bad)':kind==='guess'?'var(--muted)':'var(--warn)';
+  /* Which wrong option you keep going for. Naming it is the whole point: the
+     fix for "you keep missing this" is unknowable, the fix for "you have picked
+     1801 three times" is one sentence long. */
+  const picks=m.picked||{};
+  const worst=Object.entries(picks).map(([oi,n])=>({oi:+oi,n:+n}))
+    .filter(x=>q.o[x.oi]&&!q.o[x.oi][1]&&x.n>0).sort((a,b)=>b.n-a.n)[0];
+  const fact=factOf(q),link=chapterLink(q);
   return `<details class="rev">
     <summary><span class="ic no" style="background:${colour}">${badge}</span>
       <span>${esc(q.t)}</span><span class="tag">${esc(TOPICS[q.p])}</span></summary>
     <div class="body">
-      ${q.o.map((o,oi)=>`<div style="${ci.includes(oi)?'color:var(--good);font-weight:700':'color:var(--muted)'}">${ci.includes(oi)?'✓':'·'} ${esc(o[0])}</div>`).join('')}
+      ${q.o.map((o,oi)=>{const n=picks[oi]||0;
+        return `<div style="${ci.includes(oi)?'color:var(--good);font-weight:700':'color:var(--muted)'}">${ci.includes(oi)?'✓':'·'} ${esc(o[0])}${
+          n&&!ci.includes(oi)?`<span class="pickn">you picked this ${times(n)}</span>`:''}</div>`}).join('')}
+      ${worst&&worst.n>1?`<p class="wrongpull">You have chosen “${esc(q.o[worst.oi][0])}” ${times(worst.n)}.</p>`:''}
+      ${fact?`<p class="fact">💡 ${esc(fact)}</p>`:''}
       <div class="lbl" style="margin-top:8px">Explanation</div><div>${esc(q.e||'—')}</div>
       ${isFlag?'':`<p class="sub" style="margin:8px 0 0;font-size:12.5px">${m.leech
         ? `Missed ${miss} times${guess?`, guessed ${guess}`:''} · right on ${got} day${got===1?'':'s'} since — clearing this one is a decision, not a counter.`
         : `Right on <b>${got}</b> of the ${need} separate days needed · ${miss?`missed ${miss}×`:'never actually got it wrong'}${guess?` · guessed ${guess}×`:''}${m.miss?` · last slip ${esc(m.miss)}`:''}.`}</p>`}
-      <div style="margin-top:8px"><button class="btn sm ghost" onclick="event.preventDefault();unflag(${q.g})">${isFlag?'Remove flag':m.leech?'I know this now':'Mark as known'}</button></div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn sm ghost" onclick="event.preventDefault();unflag(${q.g})">${isFlag?'Remove flag':m.leech?'I know this now':'Mark as known'}</button>
+        ${link?`<a class="btn sm ghost" href="${esc(link.href)}">📖 Read why · ${esc(link.label)}</a>`:''}
+      </div>
     </div>
   </details>`;
 }
@@ -1177,6 +1534,7 @@ function openSettings(){
     <div class="lbl">Randomise</div>
     <label style="display:flex;gap:10px;align-items:center;padding:9px 0 2px;cursor:pointer;font-weight:600"><input type="checkbox" ${prefs.shufQ?'checked':''} onchange="prefs.shufQ=this.checked;savePrefs()"> Shuffle question order</label>
     <label style="display:flex;gap:10px;align-items:center;padding:2px 0 4px;cursor:pointer;font-weight:600"><input type="checkbox" ${prefs.shufO?'checked':''} onchange="prefs.shufO=this.checked;savePrefs()"> Shuffle answer options</label>
+    <p class="sub" style="margin:6px 0 0;font-size:12.5px">Drills, Sweep and the two gauntlets group related questions together instead — the same date or the same Act, back to back. That is deliberate: a twisted statement is easy on its own and hard next to three of its neighbours.</p>
     <div class="lbl" style="margin-top:18px">Your progress</div>
     <p class="sub" style="margin:4px 0 10px">Saved in this browser only. Export before you change phone or clear browser data — and try a restore once, so you know it works.</p>
     <div class="btn-row">
@@ -1229,7 +1587,8 @@ document.addEventListener('keydown',e=>{
 window.addEventListener('beforeunload',e=>{if(sess&&sess.timed&&!sess.endTs&&document.getElementById('view-quiz')&&!document.getElementById('view-quiz').classList.contains('hidden')){e.preventDefault();e.returnValue=''}});
 
 /* ============ DEEP LINKS ============
-   #drill · #sweep · #mistakes · #stats · #test=7 · #q=412 (from the hub's search) */
+   #drill · #sweep · #twist · #dates · #mistakes · #stats · #test=7 ·
+   #q=412 (from the hub's search) */
 function showQuestion(g){
   const q=QByG[g];if(!q){toast('Question not found');return}
   const ci=correctIdx(q);
@@ -1250,6 +1609,8 @@ function route(){
   const t=h.match(/^test=(\d+)$/);if(t){startTest(+t[1]);return}
   if(h==='drill'){startDrill();return}
   if(h==='sweep'){startSweep();return}
+  if(h==='twist'){startTwist();return}
+  if(h==='dates'){startDates();return}
   if(h==='mistakes'||h==='stats')go(h);
 }
 addEventListener('hashchange',route);

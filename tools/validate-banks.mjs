@@ -129,6 +129,62 @@ else {
 /* INV-8: nothing may be scheduled past the exam. */
 if (!/function clampDue\(/.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no clampDue() — INV-8 (no due date after the exam) is unenforced`);
 
+/* ---- facts.js (INV-7) ----
+   Every fact card must be a slice of an explanation that is actually in the
+   bank, and every chapter link must point at a page that exists. The file is
+   generated, so the only way it goes wrong is a bank edit that moves an
+   explanation out from under an offset — which would show a fact card that
+   starts mid-word, or worse, reads as a different claim. */
+const factsPath = R("facts.js");
+if (!fs.existsSync(factsPath)) {
+  fail(`facts.js is missing — run "node tools/build-facts.mjs" (the Mistakes view's fact cards and "read why" links come from it)`);
+} else {
+  const w = {};
+  new Function("window", fs.readFileSync(factsPath, "utf8"))(w);
+  const F = w.LITUK_FACTS;
+  if (!F || !F.cut || !F.link || !F.targets || !F.files) fail(`facts.js did not define a usable window.LITUK_FACTS`);
+  else {
+    /* Same canonical set the engine drills: one question per piece of content. */
+    const canonQ = new Map();
+    for (const q of [...uniq.values()].map((g) => g.sort((a, b) => a.g - b.g)[0])) canonQ.set(q.g, q);
+    let badCut = 0, orphan = 0, badLink = 0, stale = 0;
+    for (const [g, c] of Object.entries(F.cut)) {
+      const q = canonQ.get(+g);
+      if (!q) { orphan++; continue; }
+      const s = (q.e || "").substr(c[0], c[1]);
+      if (!s || s.length !== c[1] || !(q.e || "").includes(s)) badCut++;
+    }
+    for (const [g, i] of Object.entries(F.link)) {
+      if (!canonQ.has(+g)) { orphan++; continue; }
+      const t = F.targets[i];
+      if (!t || !F.files[t[0]] || !fs.existsSync(R(F.files[t[0]][0]))) badLink++;
+    }
+    stale = [...canonQ.keys()].filter((g) => F.cut[g] === undefined && F.link[g] === undefined).length;
+    if (badCut) fail(`facts.js has ${badCut} fact slice(s) that no longer land inside their explanation — the banks moved, rerun tools/build-facts.mjs`);
+    if (orphan) fail(`facts.js carries ${orphan} entr(ies) for question ids that are not canonical any more — rerun tools/build-facts.mjs`);
+    if (badLink) fail(`facts.js has ${badLink} chapter link(s) pointing at a file that is not in the repo`);
+    if (stale > uniq.size * 0.05) fail(`facts.js covers neither a fact nor a link for ${stale} of ${uniq.size} questions — that is more than the 5% the builder should leave behind, so it is out of date`);
+    console.log(`facts.js: ${Object.keys(F.cut).length} fact cards · ${Object.keys(F.link).length} chapter links · ${F.targets.length} targets`);
+  }
+}
+
+/* ---- the twist material Phase 3 is built on ----
+   The Twist Gauntlet exists because 509 questions have two options. If a bank
+   edit collapses that number the gauntlet quietly becomes a short drill, and
+   the mode that trains the exam's hardest format stops being worth opening. */
+if (!/const TWO_OPT=POOL\.filter\(q=>q\.o\.length===2\)/.test(engineSrc)) {
+  fail(`life-in-uk-mock-tests.html no longer builds TWO_OPT from the two-option questions — the Twist Gauntlet has nothing to serve`);
+}
+if (twoOption < 300) fail(`only ${twoOption} two-option questions remain (was 509) — the Twist Gauntlet is built on them`);
+/* INV-7 as it applies to the Date Gauntlet: it may re-frame, never write. Its
+   options come from YEAR_POOL (years already in the bank) and from question
+   stems, verbatim. A future edit that starts composing option text would not
+   fail any other check here. */
+for (const [name, re] of [["dateForward", /function dateForward\(/], ["dateReverse", /function dateReverse\(/],
+                          ["YEAR_POOL", /const YEAR_POOL=/], ["clusterOrder", /function clusterOrder\(/]]) {
+  if (!re.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no ${name}() — Phase 3's gauntlets are gone or renamed`);
+}
+
 /* ---- passmark ---- */
 const pm = banks[0].passmark;
 for (const b of banks) if (b.passmark !== pm) fail(`bank "${b.id}" has passmark ${b.passmark}, "${banks[0].id}" has ${pm}`);
