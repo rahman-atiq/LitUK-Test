@@ -111,6 +111,24 @@ if (new Set(disc.map(dupKey)).size !== disc.length) {
   fail(`the dedup key merges ${disc.length - new Set(disc.map(dupKey)).size} of the ${disc.length} "which of these statements is correct" questions — INV-6 violated, the key is too loose`);
 }
 
+/* ---- two-option questions and the price of a coin flip ----
+   511 of the unique questions have two options: 354 true/false and 157
+   discrimination pairs. A question you can guess right half the time must cost
+   more days to retire than a four-option one, or the spaced-repetition boxes
+   fill with accidents. The engine prices that in RETIRE_2 / RETIRE_4. */
+const twoOption = [...uniq.values()].filter((g) => g[0].o.length === 2).length;
+const engineSrc = fs.readFileSync(R("life-in-uk-mock-tests.html"), "utf8");
+const retire = engineSrc.match(/const RETIRE_4=(\d+),RETIRE_2=(\d+),LEECH_AT=(\d+);/);
+if (!retire) fail(`could not find the RETIRE_4 / RETIRE_2 / LEECH_AT constants in life-in-uk-mock-tests.html`);
+else {
+  const [, r4, r2, leech] = retire.map(Number);
+  if (!(r2 > r4)) fail(`RETIRE_2 is ${r2} and RETIRE_4 is ${r4} — a two-option question must take MORE separate days to retire, not fewer, because half of getting it right is luck`);
+  if (r4 < 2) fail(`RETIRE_4 is ${r4}: one right answer retiring a mistake is the bug this rule exists to fix`);
+  if (leech < r4) fail(`LEECH_AT is ${leech}, below RETIRE_4 (${r4}) — every mistake would become a leech and nothing would ever retire`);
+}
+/* INV-8: nothing may be scheduled past the exam. */
+if (!/function clampDue\(/.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no clampDue() — INV-8 (no due date after the exam) is unenforced`);
+
 /* ---- passmark ---- */
 const pm = banks[0].passmark;
 for (const b of banks) if (b.passmark !== pm) fail(`bank "${b.id}" has passmark ${b.passmark}, "${banks[0].id}" has ${pm}`);
@@ -155,7 +173,6 @@ for (const [name, want] of [["TOTAL_TESTS", tests.length], ["TOTAL_QUESTIONS", q
 }
 /* The engine carries the same unique count, and warns in the console if its
    own dedup disagrees. Both copies have to move together. */
-const engineSrc = fs.readFileSync(R("life-in-uk-mock-tests.html"), "utf8");
 const ue = engineSrc.match(/const UNIQUE_EXPECT=(\d+);/);
 if (!ue) fail(`could not find UNIQUE_EXPECT in life-in-uk-mock-tests.html`);
 else if (+ue[1] !== uniq.size) fail(`life-in-uk-mock-tests.html has UNIQUE_EXPECT=${ue[1]}, the banks say ${uniq.size}`);
@@ -167,6 +184,7 @@ else if (+tag[1] !== tests.length) fail(`index.html's tile says "${tag[1]} tests
 console.log(`${banks.length} bank(s): ${banks.map((b) => `${b.id} (${b.tests.length} tests)`).join(", ")}`);
 console.log(`${tests.length} tests · ${tests.reduce((a, t) => a + t.q.length, 0)} slots · ${qCount} question ids · passmark ${pm}/${PER_TEST}`);
 console.log(`${uniq.size} unique questions · ${qCount - uniq.size} redundant ids in ${dupGroups.length} group(s), collapsed by the engine`);
+console.log(`${twoOption} two-option questions (${Math.round(twoOption / uniq.size * 100)}% — a 50% guess rate), retired on ${retire ? retire[2] : "?"} separate days against ${retire ? retire[1] : "?"} for the rest`);
 for (const b of banks) {
   const gs = b.tests.flatMap((t) => t.q.map((q) => q.g));
   const ns = b.tests.map((t) => t.n);

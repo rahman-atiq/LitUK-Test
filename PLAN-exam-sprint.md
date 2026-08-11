@@ -60,7 +60,9 @@ documented, and *small* problem. Phase 1 handles it in a footnote, not a subsyst
 ### The finding that shapes Phase 3
 
 **511 questions (27% of the bank) have two options** — 354 true/false and 157
-discrimination pairs. Two consequences:
+discrimination pairs. *(511 of the 1,890 **ids**; two of them are duplicates, so
+it is **509** unique questions. `tools/validate-banks.mjs` now prints the number
+on every run.)* Two consequences:
 
 1. A 50% guess rate, currently promoted through the spaced-repetition boxes exactly
    like a 4-option question. A meaningful share of "mastered" two-option cards are
@@ -176,7 +178,7 @@ No time gate anywhere. Wrong answers reschedule to `now + 10 minutes`
 1. **Day-keyed retirement.** Replace `m.streak` with `m.ok` — an array of distinct
    `dayKey()` strings. Retire when:
    - 4-option question: **3 distinct days**, none of them the day it was last missed.
-   - Two-option question (511 of them): **4 distinct days**. Priced for the 50% guess
+   - Two-option question (509 of them): **4 distinct days**. Priced for the 50% guess
      rate.
 
    Migration: existing `m.streak >= 2 && m.done` stays retired — do not reopen
@@ -190,6 +192,18 @@ No time gate anywhere. Wrong answers reschedule to `now + 10 minutes`
    553) beside the verdict. Marking a correct answer unsure: no SR box promotion
    (`e.box` unchanged, `due = now + 1 day`), no credit toward `m.ok`, and increments
    `S.sr[g].unsure`. Costs one tap and buys an honest model of what you know.
+
+   **Extended on request, 2026-08-12:** it also opens a record in `S.mistakes`, so a
+   guessed question is reviewable and practisable rather than only rescheduled. It
+   is a *distinct kind* of entry — `m.unsure` counts guesses, `m.count` stays the
+   count of real misses, and a record with `count: 0` is a question you have never
+   actually got wrong. The Mistakes view splits into three sections (🐛 Leeches ·
+   Got wrong · 🤔 Wasn't sure) and the guess-only rows carry a grey 🤔 badge, not
+   the red miss count. Clearing is the ordinary rule — right on 3 separate days
+   (4 for two-option), confidently. `m.miss` is stamped on a guess for the same
+   reason it is on a miss: a confident answer ten minutes after admitting you were
+   guessing is not a separate day. Guessing a question that had already cleared
+   re-opens it.
 4. **Exam date and interval clamping.** Add `S.examDate = '2026-09-05'` (settings
    field, default this date). Then:
    - `SR_DAYS = [0,1,3,7,16,35]` (line 576) is recomputed against days remaining, so
@@ -207,6 +221,38 @@ is still open; a two-option question needs four separate days; no `S.sr[g].due`
 exceeds 2026-09-03; "wasn't sure" leaves the box unchanged; existing retired
 mistakes stay retired across the migration.
 
+**Shipped 2026-08-12.** All four changes, all GO criteria verified against the real
+engine (loaded into a node VM with a stub DOM — 39 assertions, no browser). Notes
+on what the code does that the plan above did not spell out:
+
+- **`m.miss`** — the retirement rule needs "not the day it was last missed", so a
+  miss now stamps the record with its `dayKey()`. A correct answer on that same
+  day is worth nothing, which is the whole point: answering right ten minutes
+  after reading the explanation is recall of the last ten minutes.
+- **"Wasn't sure" is an undo, not a flag.** The button only exists once the answer
+  is checked, and by then `recordAnswer()` has already promoted the box. So it
+  returns what it did — `{preBox, credited, retired}` — and `markUnsure()` hands
+  all three back: box restored, due set to tomorrow, the banked day removed, and a
+  retirement earned by that answer reversed. It is offered on correct answers only;
+  on a wrong one there is nothing to take back. It then opens the mistakes-list
+  entry described in change 3 above.
+- **The drill's mistake queue sorts on misses + guesses**, behind leeches. A
+  question guessed three times has caused as much trouble as one missed three
+  times, and it is the same fix.
+- **`srDays()` scales the whole ladder**, rather than truncating it: with 22 days of
+  window `[0,1,3,7,16,35]` becomes `[0,1,2,4,10,22]`, and in a very short window it
+  rises one day at a time and then saturates. `clampDue()` is the backstop under
+  everything, including the 10-minute wrong-answer reschedule, so INV-8 holds even
+  if a future change forgets the ladder.
+- **The leech's "read the chapter" deep link is not built** — it needs the
+  question → chapter mapping from Phase 3 change 4. Everything else about leeches
+  is in: set at 4 misses, never auto-retires, pinned above the ordinary mistakes in
+  both the Mistakes view and the drill queue, cleared only by tapping "I know this
+  now" (which clears the leech flag too, so it can only return after 4 more misses).
+- **The validator now guards the pricing** — `RETIRE_2 > RETIRE_4`, `LEECH_AT >=
+  RETIRE_4`, and `clampDue()` still present. A future edit that makes a coin-flip
+  question cheaper to retire than a four-option one now fails the build.
+
 ---
 
 ### Phase 3 — Twist-proofing
@@ -214,13 +260,13 @@ mistakes stay retired across the migration.
 **Goal:** make the exam's twisted phrasing feel like Tuesday. This is the phase that
 decides the result.
 
-The insight from §1: the bank already contains 511 purpose-built twist questions.
+The insight from §1: the bank already contains 509 purpose-built twist questions.
 They are simply diluted across 1,858 and shuffled, so they arrive one at a time,
 where recognition memory carries you. Served in clusters, they cannot be.
 
 **Changes**
 
-1. **Twist Gauntlet** — a drill mode over the 511 two-option questions (157
+1. **Twist Gauntlet** — a drill mode over the 509 two-option questions (157
    discrimination + 354 true/false), served **in clusters of related content**, not
    shuffled globally. Answering "peers appointed by the monarchy on the advice of the
    PM" is easy in isolation and genuinely hard immediately after three other
@@ -248,7 +294,7 @@ where recognition memory carries you. Served in clusters, they cannot be.
    mistake view. **Display only.** Per INV-7 these never become auto-generated
    questions; a mined fact that is subtly wrong is a fact you would then drill.
 
-**GO criteria** — Twist Gauntlet serves all 511 with related items adjacent; Date
+**GO criteria** — Twist Gauntlet serves all 509 with related items adjacent; Date
 Gauntlet generates no option that is not lifted verbatim from existing bank content;
 distractor counts persist and render; "read why" lands on the right chapter section
 with the term highlighted.

@@ -142,8 +142,13 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .opt .otext{flex:1}
 .explain{margin-top:14px;padding:14px 15px;border-radius:12px;border-left:4px solid var(--brand);background:var(--panel-2);display:none}
 .explain.show{display:block;animation:fade .2s}
-.explain .verdict{font-weight:800;margin-bottom:4px}
+.explain .verdict{font-weight:800}
 .explain .verdict.good{color:var(--good)} .explain .verdict.bad{color:var(--bad)}
+/* The verdict and the "wasn't sure" escape hatch share one line — the honesty
+   button has to be as reachable as the tick is satisfying. */
+.explain .vrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.explain .vrow .unsure{margin-left:auto}
+.btn.unsure.on{color:var(--warn);border-color:var(--warn);opacity:1}
 .explain .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-bottom:2px}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
 .qnav{display:flex;gap:10px;margin-top:18px;align-items:center}
@@ -197,7 +202,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;line-height:1.6}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:700;font-size:13.5px;opacity:0;transition:.25s;z-index:70;pointer-events:none;box-shadow:var(--shadow)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink)}
+select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink)}
 /* Below this the brand + 4 nav tabs + 2 icon buttons no longer fit on one line,
    so the nav wraps to a second row of its own instead of shoving the page sideways. */
 @media(max-width:700px){
@@ -266,9 +271,14 @@ select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:
 <script>
 /* ============ STATE ============ */
 const LS='lituk_v1';
+/* The date everything is scheduled against. Every spaced-repetition interval is
+   squeezed to fit inside it and nothing is ever filed for after it (INV-8) —
+   a review booked for the week after the exam is a review that never happens. */
+const EXAM_DEFAULT='2026-09-05';
 const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,attempts:0,passes:0,history:[],
-  sr:{},                                   /* g -> {box,due,seen,last} spaced repetition */
+  sr:{},                                   /* g -> {box,due,seen,last,unsure} spaced repetition */
   drill:{last:null,streak:0,best:0},       /* daily drill streak */
+  examDate:EXAM_DEFAULT,                   /* '' = no date: standard ladder, coverage mode */
   mig:{}};                                 /* one-time migrations already applied */
 let S=load();
 function load(){try{const r=JSON.parse(localStorage.getItem(LS));return Object.assign(structuredClone(DEFAULT),r||{})}catch(e){return structuredClone(DEFAULT)}}
@@ -345,7 +355,34 @@ document.getElementById('brandSub').textContent=`${TESTS.length} Tests · ${UNIQ
    against state it has already migrated — a restored backup arrives here
    again. */
 function migrate(){
-  if(mergeDuplicateState())save();
+  let n=0;
+  n+=reshapeMistakes();      /* streak -> ok[] first, so the merge below sees one shape */
+  n+=mergeDuplicateState();
+  n+=clampAllDues();
+  if(n)save();
+}
+/* Retirement moved from "right twice, ever" to "right on N separate days"
+   (see recordAnswer). Already-retired mistakes stay retired: reopening
+   hundreds of them three weeks out is demoralising, and the old streak
+   counter cannot tell you which days they were earned on anyway. Open ones
+   start their day count from zero. */
+function reshapeMistakes(){
+  let n=0;
+  for(const m of Object.values(S.mistakes)){
+    if(Array.isArray(m.ok))continue;
+    m.ok=[];
+    if((m.count||0)>=LEECH_AT&&!m.done)m.leech=true;
+    delete m.streak;
+    n++;
+  }
+  return n;
+}
+/* INV-8, applied to state written before there was an exam date. */
+function clampAllDues(){
+  const c=lastReviewTs();if(c==null)return 0;
+  let n=0;
+  for(const e of Object.values(S.sr))if(e&&e.due>c){e.due=c;n++}
+  return n;
 }
 /* State that landed on a redundant id moves to the id that now owns it,
    taking the WORSE of the two records: a mistake anywhere is a mistake, and
@@ -356,9 +393,13 @@ function mergeDuplicateState(){
   const worseSr=(a,b)=>({box:Math.min(a.box||0,b.box||0),
     due:Math.min(a.due||0,b.due||0),
     seen:(a.seen||0)+(b.seen||0),
+    unsure:(a.unsure||0)+(b.unsure||0),
     last:Math.max(a.last||0,b.last||0)});
   const worseMistake=(a,b)=>({count:(a.count||0)+(b.count||0),
-    streak:Math.min(a.streak||0,b.streak||0),
+    unsure:(a.unsure||0)+(b.unsure||0),
+    ok:(a.ok||[]).filter(d=>(b.ok||[]).includes(d)),   /* only days BOTH copies were right */
+    miss:[a.miss,b.miss].filter(Boolean).sort().pop(), /* the more recent miss */
+    leech:!!(a.leech||b.leech),
     done:!!(a.done&&b.done)});
   for(const k of Object.keys(S.sr)){
     const c=canon(k);if(c===+k)continue;
@@ -446,12 +487,15 @@ function renderDashboard(){
   const acc=S.answered?Math.round(S.correct/S.answered*100):0;
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
+  const left=daysLeft();
   const el=document.getElementById('view-dashboard');
   el.innerHTML=`
     <h1>Your dashboard</h1>
     <p class="sub">${TESTS.length} official-style tests · 24 questions each · 75% to pass.</p>
     ${drillCard()}
     <div class="grid stat-row">
+      ${left==null?'':`<div class="card stat" onclick="openSettings()" style="cursor:pointer" title="${esc(S.examDate)} — tap to change">
+        <div class="n ${left<=6?'bad':left<=14?'brand':''}">${Math.max(0,left)}</div><div class="l">Days to exam</div></div>`}
       <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${cov}%</div><div class="l">Bank coverage</div></div>
       <div class="card stat"><div class="n ${unseen?'bad':'good'}">${unseen}</div><div class="l">Never seen</div></div>
       <div class="card stat"><div class="n ${acc>=75?'good':acc?'bad':''}">${acc}%</div><div class="l">Overall accuracy</div></div>
@@ -525,12 +569,11 @@ function startTopic(tp){const qs=POOL.filter(q=>q.p===tp);makeSession(shuffle(qs
 const MIX={coverage:   {due:.20,mistake:.20,new:.60},
            consolidate:{due:.35,mistake:.35,new:.30},
            final:      {due:.50,mistake:.50,new:.00}};
-/* Phase 2 adds the exam-date setting and with it the switch to consolidate at
-   14 days out and final at 6. Until that field exists the sprint is in its
-   coverage weeks. */
+/* Driven by the exam date: consolidate at 14 days out, final at 6. With no
+   date set the sprint is treated as being in its coverage weeks. */
 function drillMode(){
-  if(!S.examDate)return 'coverage';
-  const left=Math.ceil((new Date(S.examDate+'T00:00:00').getTime()-Date.now())/DAY);
+  const left=daysLeft();
+  if(left==null)return 'coverage';
   return left<=6?'final':left<=14?'consolidate':'coverage';
 }
 function weakestTopics(){
@@ -556,8 +599,12 @@ function drillPlan(){
   const fill=(list,why,quota)=>{let n=0;for(const g of list){if(n>=quota)break;if(add(g,why))n++}};
 
   const due=srDue(now);
+  /* Leeches first, always: four misses means the drill is where it gets fixed,
+     not somewhere behind 40 questions you have missed once. Then by how much
+     trouble the question has caused — misses and guesses both count. */
+  const trouble=m=>(m.count||0)+(m.unsure||0);
   const mistakes=Object.entries(S.mistakes).filter(([,m])=>!m.done)
-    .sort((a,b)=>(b[1].count||0)-(a[1].count||0)).map(([g])=>+g);
+    .sort((a,b)=>(b[1].leech?1:0)-(a[1].leech?1:0)||trouble(b[1])-trouble(a[1])).map(([g])=>+g);
   const unseen=mix.new>0?unseenQuestions().map(q=>q.g):[];
 
   fill(due,'due',Math.round(N*mix.due));
@@ -685,7 +732,7 @@ function checkQ(){
   it.checked=true;
   const ci=correctIdx(it.q);
   it._correct=eqSet(it.picked,ci);
-  recordAnswer(it.q,it._correct);
+  it._rec=recordAnswer(it.q,it._correct);
   paintCheck();
   // swap button to Next/Finish
   renderQuiz();
@@ -700,8 +747,44 @@ function paintCheck(){
   });
   const ex=document.getElementById('explain');
   ex.className='explain show';
-  ex.innerHTML=`<div class="verdict ${it._correct?'good':'bad'}">${it._correct?'✓ Correct':'✕ Not quite'}</div>
-    <div class="lbl">Explanation</div><div>${esc(it.q.e||'—')}</div>`;
+  ex.innerHTML=`<div class="vrow">
+      <div class="verdict ${it._correct?'good':'bad'}">${it._correct?'✓ Correct':'✕ Not quite'}</div>
+      ${it._correct?`<button class="btn sm ghost unsure${it.unsure?' on':''}" onclick="markUnsure()"${it.unsure?' disabled':''}>${it.unsure?'🤔 Marked unsure':'🤔 Wasn’t sure'}</button>`:''}
+    </div>
+    <div class="lbl">Explanation</div><div>${esc(it.q.e||'—')}</div>
+    ${it.unsure?'<div class="sub" style="margin:8px 0 0;font-size:12.5px">No promotion, no credit towards clearing it — back tomorrow, and added to your mistakes list to practise.</div>':''}`;
+}
+/* ---- "Wasn't sure" ----
+   A right answer you did not know is a lucky guess, and 509 questions here are
+   coin flips. One tap takes the promotion back: the box stays where it was,
+   the card returns tomorrow, and the day does not count towards retirement.
+
+   It also puts the question on the mistakes list, because a question you
+   guessed is a question to review — but as its own kind of entry. `count` is
+   misses and stays untouched; `unsure` counts the guesses. A record with
+   `count:0` means you have never actually got this wrong, you have just never
+   known it either, and the list says exactly that rather than accusing you of
+   forty wrong answers you did not give.
+
+   Clearing one is the ordinary rule: right on N separate days, confidently.
+   `miss` is set to today for the same reason a real miss sets it — answering
+   confidently ten minutes after admitting you guessed is not a separate day. */
+function markUnsure(){
+  const it=sess&&sess.items[sess.idx];
+  if(!it||!it.checked||it.unsure||!it._correct)return;
+  it.unsure=true;
+  const g=canon(it.q.g),e=S.sr[g],r=it._rec||{},today=dayKey();
+  if(e){
+    e.box=r.preBox||0;
+    e.due=clampDue(Date.now()+DAY);
+    e.unsure=(e.unsure||0)+1;
+  }
+  const m=S.mistakes[g]||(S.mistakes[g]={count:0,ok:[],done:false});
+  if(r.credited)m.ok=(m.ok||[]).filter(d=>d!==r.credited);   /* the day it just banked comes back off */
+  m.unsure=(m.unsure||0)+1;
+  m.miss=today;
+  m.done=false;                                    /* guessed is not mastered, even if it was */
+  save();paintCheck();
 }
 const flagged=g=>!!S.flags[canon(g)];              /* duplicates share one flag */
 function toggleFlag(g){const c=canon(g);S.flags[c]?delete S.flags[c]:S.flags[c]=1;save();
@@ -713,16 +796,40 @@ function jump(i){sess.idx=i;renderQuiz()}
 
 /* ============ SPACED REPETITION ============
    Leitner boxes. Get it right, it comes back later; get it wrong, it drops to
-   box 0 and reappears in the same session's tail or the next drill. */
-const SR_DAYS=[0,1,3,7,16,35];
+   box 0 and reappears in the same session's tail or the next drill.
+
+   The ladder is the standard one only while there is room for it. With a fixed
+   exam date the top box has to fit inside the days remaining: at 25 days out,
+   [0,1,3,7,16,35] files a well-known question 35 days ahead — ten days after
+   the exam. Every question you know best would be the one you never see
+   again. srDays() scales the whole ladder into the window; clampDue() is the
+   backstop that catches everything else (INV-8). */
+const SR_BASE=[0,1,3,7,16,35];
 const DAY=864e5;
+const EXAM_GAP=2;                    /* last useful review: two days before the exam */
+function examTs(){if(!S.examDate)return null;const t=new Date(S.examDate+'T00:00:00').getTime();return isNaN(t)?null:t}
+function daysLeft(){const e=examTs();return e==null?null:Math.ceil((e-Date.now())/DAY)}
+function lastReviewTs(){const e=examTs();return e==null?null:e-EXAM_GAP*DAY}
+function clampDue(t){const c=lastReviewTs();return c==null?t:Math.min(t,c)}
+function srDays(){
+  const c=lastReviewTs();if(c==null)return SR_BASE;
+  const top=SR_BASE[SR_BASE.length-1];
+  const win=Math.max(0,Math.floor((c-Date.now())/DAY));
+  if(win>=top)return SR_BASE;
+  const k=win/top;let prev=-1;                     /* stays strictly rising until it saturates */
+  return SR_BASE.map(d=>{const v=Math.min(win,Math.max(Math.round(d*k),prev+1));prev=v;return v});
+}
+/* Returns the box the question was in before this answer — what "wasn't sure"
+   puts back (see markUnsure). */
 function srUpdate(g,correct){
-  const now=Date.now();
+  const now=Date.now(),days=srDays();
   g=canon(g);                                      /* duplicates share one box */
   const e=S.sr[g]||(S.sr[g]={box:0,due:0,seen:0});
+  const preBox=e.box||0;
   e.seen=(e.seen||0)+1;e.last=now;
-  e.box=correct?Math.min((e.box||0)+1,SR_DAYS.length-1):0;
-  e.due=e.box?now+SR_DAYS[e.box]*DAY:now+10*6e4;   /* wrong → back in 10 minutes */
+  e.box=correct?Math.min(preBox+1,days.length-1):0;
+  e.due=clampDue(e.box?now+days[e.box]*DAY:now+10*6e4);   /* wrong → back in 10 minutes */
+  return preBox;
 }
 function srDue(now){now=now||Date.now();
   return Object.keys(S.sr).filter(g=>QByG[g]&&S.sr[g].due<=now)
@@ -733,20 +840,41 @@ function srDue(now){now=now||Date.now();
 function srSeen(){return Object.keys(S.sr).filter(g=>QByG[g]&&canon(g)===+g).length}
 function srUnseen(){return Math.max(0,UNIQUE_N-srSeen())}
 
-/* record into topic/mistake stats (once per exam grading or per practice check) */
+/* ---- Retirement ----
+   The old rule was "right twice", counted in answers. Wrong answers come back
+   in ten minutes, so a question missed at 09:00 could be answered at 09:10 and
+   09:20 and be filed as mastered before you had left the sofa. That is recall
+   of the last ten minutes, not knowledge.
+
+   So: right on N *separate days*, and never on the day you last missed it.
+   Two-option questions cost a fourth day because they are a coin flip — three
+   right answers there happen by accident one time in eight, and 509 of the
+   1,858 questions have two options. */
+const RETIRE_4=3,RETIRE_2=4,LEECH_AT=4;
+const retireDays=q=>q.o.length<=2?RETIRE_2:RETIRE_4;
+
+/* record into topic/mistake stats (once per exam grading or per practice check).
+   Returns what it did, so markUnsure() can take it back. */
 function recordAnswer(q,correct){
   S.answered++;if(correct)S.correct++;
-  srUpdate(q.g,correct);
+  const rec={preBox:srUpdate(q.g,correct),credited:null,retired:false};
   const tp=S.topics[q.p]||(S.topics[q.p]={seen:0,correct:0});tp.seen++;if(correct)tp.correct++;
-  const g=canon(q.g);                              /* duplicates share one record */
-  const m=S.mistakes[g];
+  const g=canon(q.g),today=dayKey();               /* duplicates share one record */
+  let m=S.mistakes[g];
   if(correct){
-    if(m&&!m.done){m.streak=(m.streak||0)+1;if(m.streak>=2){m.done=true}}
+    if(m&&!m.done){
+      if(!Array.isArray(m.ok))m.ok=[];
+      if(m.miss!==today&&!m.ok.includes(today)){m.ok.push(today);rec.credited=today}
+      /* A leech is never retired by the counter — it takes an explicit tap. */
+      if(!m.leech&&m.ok.length>=retireDays(q)){m.done=true;rec.retired=true}
+    }
   }else{
-    if(m){m.done=false;m.streak=0;m.count=(m.count||0)+1}
-    else S.mistakes[g]={count:1,streak:0,done:false};
+    if(!m)m=S.mistakes[g]={count:0,ok:[],done:false};
+    m.done=false;m.ok=[];m.miss=today;m.count=(m.count||0)+1;
+    if(m.count>=LEECH_AT)m.leech=true;             /* four misses: stop pretending it will stick */
   }
   save();
+  return rec;
 }
 
 /* ============ FINISH / RESULTS ============ */
@@ -837,37 +965,58 @@ function retrySame(){
 
 /* ============ MISTAKES ============ */
 function renderMistakes(){
-  const open=Object.entries(S.mistakes).filter(([g,m])=>!m.done).map(([g,m])=>({q:QByG[g],m})).filter(x=>x.q);
+  const all=Object.entries(S.mistakes).filter(([g,m])=>!m.done).map(([g,m])=>({q:QByG[g],m})).filter(x=>x.q);
+  /* Three kinds of open entry, worst first: leeches, questions you have got
+     wrong, and questions you have only ever guessed. */
+  const leeches=all.filter(x=>x.m.leech);
+  const open=all.filter(x=>!x.m.leech&&(x.m.count||0)>0);
+  const guessed=all.filter(x=>!x.m.leech&&!(x.m.count||0));
   const done=Object.entries(S.mistakes).filter(([g,m])=>m.done).length;
   const flagged=Object.keys(S.flags).map(g=>QByG[g]).filter(Boolean);
   const el=document.getElementById('view-mistakes');
   el.innerHTML=`
     <h1>Mistakes & flags</h1>
-    <p class="sub">Answer a question right <b>twice</b> to clear it from this list. ${done} mastered so far.</p>
+    <p class="sub">A question clears when you get it right on <b>${RETIRE_4} separate days</b> — ${RETIRE_2} for a two-option question, never on the day you slipped, and never on a day you tapped "wasn't sure". ${done} cleared so far.</p>
     <div class="btn-row" style="margin-bottom:16px">
-      <button class="btn primary" onclick="practiceMistakes()" ${open.length?'':'disabled'}>🎯 Practise ${open.length} mistake${open.length===1?'':'s'}</button>
+      <button class="btn primary" onclick="practiceMistakes()" ${all.length?'':'disabled'}>🎯 Practise ${all.length} mistake${all.length===1?'':'s'}</button>
       ${flagged.length?`<button class="btn" onclick="practiceFlagged()">★ Practise ${flagged.length} flagged</button>`:''}
-      ${open.length?`<button class="btn ghost" onclick="clearMistakes()">Clear list</button>`:''}
+      ${all.length?`<button class="btn ghost" onclick="clearMistakes()">Clear list</button>`:''}
     </div>
-    ${open.length?`<b>To review (${open.length})</b>`+open.map(({q,m})=>mistakeRow(q,m)).join(''):
-      `<div class="empty"><div class="e">🎉</div><p>No mistakes to review. Take a test to find weak spots!</p></div>`}
+    ${leeches.length?`<b>🐛 Leeches (${leeches.length})</b>
+      <p class="sub" style="margin:2px 0 8px">Missed ${LEECH_AT}+ times. These never clear on their own — read the explanation properly, then tap "I know this now".</p>`
+      +leeches.map(({q,m})=>mistakeRow(q,m)).join(''):''}
+    ${open.length?`<b style="display:block;margin-top:${leeches.length?'22px':'0'}">Got wrong (${open.length})</b>`+open.map(({q,m})=>mistakeRow(q,m)).join(''):''}
+    ${guessed.length?`<b style="display:block;margin-top:${leeches.length||open.length?'22px':'0'}">🤔 Wasn't sure (${guessed.length})</b>
+      <p class="sub" style="margin:2px 0 8px">Right answer, but you said you were guessing. Never actually got wrong — they clear the same way, by getting them right on ${RETIRE_4} separate days without tapping "wasn't sure".</p>`
+      +guessed.map(({q,m})=>mistakeRow(q,m)).join(''):''}
+    ${all.length?'':`<div class="empty"><div class="e">🎉</div><p>No mistakes to review. Take a test to find weak spots!</p></div>`}
     ${flagged.length?`<b style="display:block;margin-top:22px">★ Flagged (${flagged.length})</b>`+flagged.map(q=>mistakeRow(q,S.mistakes[q.g]||{},true)).join(''):''}
   `;
 }
 function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
+  const need=retireDays(q),got=(m.ok||[]).length,guess=m.unsure||0,miss=m.count||0;
+  /* A guess-only entry is not a wrong answer and does not get the red badge. */
+  const kind=isFlag?'flag':m.leech?'leech':miss?'wrong':'guess';
+  const badge={flag:'★',leech:'🐛',wrong:miss||1,guess:'🤔'}[kind];
+  const colour=kind==='wrong'?'var(--bad)':kind==='guess'?'var(--muted)':'var(--warn)';
   return `<details class="rev">
-    <summary><span class="ic no" style="background:${isFlag?'var(--warn)':'var(--bad)'}">${isFlag?'★':(m.count||1)}</span>
+    <summary><span class="ic no" style="background:${colour}">${badge}</span>
       <span>${esc(q.t)}</span><span class="tag">${esc(TOPICS[q.p])}</span></summary>
     <div class="body">
       ${q.o.map((o,oi)=>`<div style="${ci.includes(oi)?'color:var(--good);font-weight:700':'color:var(--muted)'}">${ci.includes(oi)?'✓':'·'} ${esc(o[0])}</div>`).join('')}
       <div class="lbl" style="margin-top:8px">Explanation</div><div>${esc(q.e||'—')}</div>
-      <div style="margin-top:8px"><button class="btn sm ghost" onclick="event.preventDefault();unflag(${q.g})">${isFlag?'Remove flag':'Mark as known'}</button></div>
+      ${isFlag?'':`<p class="sub" style="margin:8px 0 0;font-size:12.5px">${m.leech
+        ? `Missed ${miss} times${guess?`, guessed ${guess}`:''} · right on ${got} day${got===1?'':'s'} since — clearing this one is a decision, not a counter.`
+        : `Right on <b>${got}</b> of the ${need} separate days needed · ${miss?`missed ${miss}×`:'never actually got it wrong'}${guess?` · guessed ${guess}×`:''}${m.miss?` · last slip ${esc(m.miss)}`:''}.`}</p>`}
+      <div style="margin-top:8px"><button class="btn sm ghost" onclick="event.preventDefault();unflag(${q.g})">${isFlag?'Remove flag':m.leech?'I know this now':'Mark as known'}</button></div>
     </div>
   </details>`;
 }
 function practiceFlagged(){const qs=Object.keys(S.flags).map(g=>QByG[g]).filter(Boolean);if(!qs.length)return;makeSession(qs,{title:'Flagged review',timed:false,source:'mistakes'})}
-function unflag(g){const c=canon(g);if(S.flags[c])delete S.flags[c];if(S.mistakes[c]){S.mistakes[c].done=true}save();renderMistakes()}
-function clearMistakes(){modal(`<h3 style="margin:0 0 8px">Clear all mistakes?</h3><p class="sub">This marks every mistake as mastered. Can't be undone.</p><div class="btn-row"><button class="btn primary" onclick="Object.values(S.mistakes).forEach(m=>m.done=true);save();closeModal();renderMistakes()">Yes, clear</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
+/* The explicit tap a leech needs: it clears the leech flag too, so the question
+   only becomes one again if it is missed LEECH_AT more times. */
+function unflag(g){const c=canon(g),m=S.mistakes[c];if(S.flags[c])delete S.flags[c];if(m){m.done=true;m.leech=false}save();renderMistakes()}
+function clearMistakes(){modal(`<h3 style="margin:0 0 8px">Clear all mistakes?</h3><p class="sub">This marks every mistake — leeches included — as mastered. Can't be undone.</p><div class="btn-row"><button class="btn primary" onclick="Object.values(S.mistakes).forEach(m=>{m.done=true;m.leech=false});save();closeModal();renderMistakes()">Yes, clear</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
 
 /* ============ STATS ============ */
 function renderStats(){
@@ -1012,6 +1161,9 @@ function openSettings(){
       ${DRILL_SIZES.includes(n)?'':`<button class="btn sm primary">${n}</button>`}
     </div>
     <p class="sub" style="margin:0 0 16px;font-size:12.5px">${settingsCoverageLine(n,left)}</p>
+    <div class="lbl">Exam date</div>
+    <input type="date" value="${esc(S.examDate||'')}" onchange="setExamDate(this.value)" style="width:100%;margin:6px 0 6px">
+    <p class="sub" style="margin:0 0 16px;font-size:12.5px">${examLine()}</p>
     <div class="lbl">When do you see the answer?</div>
     <p class="sub" style="margin:2px 0 0;font-size:12.5px">Applies to everything, timed tests included. A test whose best score was set with feedback on is labelled "answers shown" on its tile.</p>
     <div class="grid" style="gap:8px;margin:6px 0 16px">
@@ -1040,6 +1192,20 @@ function settingsCoverageLine(n,left){
   const fresh=Math.round(n*(MIX[drillMode()]||MIX.coverage).new);
   if(!fresh)return `${left} of ${UNIQUE_N} still never seen — this mode serves no new questions, so use Sweep.`;
   return `${left} of ${UNIQUE_N} still never seen — ${fresh} new per drill, so ${Math.ceil(left/fresh)} days to see the bank once.`;
+}
+/* What the exam date is actually doing to your schedule. Changing it rewrites
+   every due date on the spot — an interval that outlives the exam is dead
+   weight, so it gets pulled back rather than left to expire (INV-8). */
+function examLine(){
+  const left=daysLeft();
+  if(left==null)return 'No date set — full spaced-repetition intervals, and the drill stays in coverage mode.';
+  if(left<0)return 'That date has passed. Everything is due, every day.';
+  const d=srDays();
+  return `${left} day${left===1?'':'s'} to go · drill in <b>${drillMode()}</b> mode · reviews spaced ${d.slice(1).join('/')} days, nothing after ${dayKey(lastReviewTs())}.`;
+}
+function setExamDate(v){
+  S.examDate=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';
+  clampAllDues();save();openSettings();
 }
 function setFeedback(v){prefs.feedback=v;savePrefs();openSettings()}
 function closeSettings(){closeModal();if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard()}
