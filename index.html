@@ -136,7 +136,9 @@
 
   /* ---------- progress ---------- */
   #progress[hidden] { display:none; }
-  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+  /* Six tiles, so they flow rather than sit on a fixed grid — three across on
+     a phone, all six on a laptop. */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px; margin-bottom:12px; }
   .st {
     background:var(--card); border:1px solid var(--line); border-radius:12px;
     padding:12px 8px; text-align:center;
@@ -157,8 +159,7 @@
   .cta .chev { color:var(--era5); font-size:1.1rem; }
   .weakline { font-size:.82rem; color:var(--ink-3); margin:10px 2px 0; }
   .weakline b { color:var(--ink-2); font-weight:650; }
-  /* Four tiles get cramped on any phone, not just the small ones. */
-  @media (max-width:540px) {
+  @media (max-width:400px) {
     .stats { grid-template-columns:repeat(2,1fr); }
   }
 
@@ -349,6 +350,12 @@ var TOPIC_NAMES = [
      match what the data files actually contain. */
   var TOTAL_TESTS = 84;
   var TOTAL_QUESTIONS = 1890;
+  /* 32 of those ids are the same question twice (see the dedup block in
+     life-in-uk-mock-tests.html), so coverage is measured against the unique
+     count — the engine records one shared spaced-repetition entry per pair.
+     tools/validate-banks.mjs asserts both numbers. */
+  var UNIQUE_QUESTIONS = 1858;
+  var DRILL_DEFAULT = 60;
 
   function read(key, fallback) {
     try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -372,27 +379,34 @@ var TOPIC_NAMES = [
 
   var now = Date.now();
   var due = Object.keys(sr).filter(function (g) { return sr[g].due <= now; }).length;
-  var seen = Object.keys(sr).length;
+  var seen = Math.min(Object.keys(sr).length, UNIQUE_QUESTIONS);
+  var unseen = UNIQUE_QUESTIONS - seen;
+  var cov = Math.round(seen / UNIQUE_QUESTIONS * 100);
+  var drillN = (read("lituk_prefs", {}) || {}).dailyTarget || DRILL_DEFAULT;
 
   var hasProgress = answered > 0 || quizBest > 0;
   if (hasProgress) {
     document.getElementById("progress").hidden = false;
 
+    /* Coverage leads. Seeing 5% of the bank at 90% accuracy is not progress,
+       and the old tile row had no way of saying so. */
     document.getElementById("stats").innerHTML = [
-      tile(passed + '<span style="font-size:.9rem;color:var(--ink-3)">/' + TOTAL_TESTS + "</span>", "tests passed", passed ? "good" : ""),
+      tile(cov + "%", "bank covered", cov >= 100 ? "good" : ""),
+      tile(unseen, "never seen", unseen ? "bad" : "good"),
       tile(acc + "%", "accuracy", acc >= 75 ? "good" : acc ? "bad" : ""),
       tile(toFix, "to fix", toFix ? "bad" : "good"),
+      tile(passed + '<span style="font-size:.9rem;color:var(--ink-3)">/' + TOTAL_TESTS + "</span>", "tests passed", passed ? "good" : ""),
       tile(streak, "day streak", streak ? "gold" : "")
     ].join("");
 
     var sub = [];
     if (due) sub.push(due + " due for review");
     if (toFix) sub.push(toFix + " to fix");
-    if (seen < TOTAL_QUESTIONS) sub.push((TOTAL_QUESTIONS - seen) + " never seen");
+    if (unseen) sub.push(unseen + " never seen");
     document.getElementById("ctaTitle").textContent = doneToday ? "Daily drill — done today ✓" : "Daily drill";
     document.getElementById("ctaSub").textContent = sub.length
-      ? "20 questions · " + sub.slice(0, 2).join(" · ")
-      : "20 questions, weighted to what you keep getting wrong";
+      ? drillN + " questions · " + sub.slice(0, 2).join(" · ")
+      : drillN + " questions, weighted to what you keep getting wrong";
 
     var extras = [];
     var topics = M.topics || {};

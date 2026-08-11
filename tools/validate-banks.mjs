@@ -72,6 +72,45 @@ for (const t of tests) {
   }
 }
 
+/* ---- duplicate content, and the key that must never merge too much (INV-6) ----
+   32 ids are the same question twice, so the engine collapses them onto one
+   canonical id and keys spaced repetition and mistakes there. It must use the
+   same key as this file: stem PLUS normalised option set.
+
+   The stem alone is forbidden. 141 questions ask "Which of these statements is
+   correct?" and differ only in their two options — they are the discrimination
+   pairs, the best twist-training material in the bank, and a stem-only key
+   would merge 140 of them into one. The assertions below are what stops that
+   happening the next time someone touches the key. */
+const dupNorm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const dupKey = (q) => dupNorm(q.t) + " " + q.o.map((o) => dupNorm(o[0])).sort().join("");
+const uniq = new Map();                // dupKey -> [q, ...]
+for (const q of canonical.values()) {
+  if (!uniq.has(dupKey(q))) uniq.set(dupKey(q), []);
+  uniq.get(dupKey(q)).push(q);
+}
+const dupGroups = [...uniq.values()].filter((g) => g.length > 1);
+const UNIQUE_EXPECT = 1858;            // the count both the engine and the hub carry
+if (uniq.size !== UNIQUE_EXPECT) {
+  fail(`the banks hold ${uniq.size} unique questions, expected ${UNIQUE_EXPECT}. If a bank was added on purpose, update UNIQUE_EXPECT here, in life-in-uk-mock-tests.html and UNIQUE_QUESTIONS in index.html together. If not, the dedup key is merging questions it should not.`);
+}
+/* A merged group whose members disagree on the answer would attach one
+   spaced-repetition box to two contradictory questions. */
+const answerOf = (q) => q.o.filter((o) => o[1]).map((o) => dupNorm(o[0])).sort().join("|");
+for (const g of dupGroups) {
+  if (new Set(g.map(answerOf)).size > 1) fail(`ids ${g.map((q) => q.g).join(", ")} look like the same question but disagree on the correct answer — they must not be merged`);
+}
+/* Normalisation must not flatten two options of one question into one. */
+for (const q of canonical.values()) {
+  const n = q.o.map((o) => dupNorm(o[0]));
+  if (new Set(n).size !== n.length) fail(`q${q.g}'s options collapse into each other once normalised: ${JSON.stringify(q.o.map((o) => o[0]))}`);
+}
+/* The discrimination family must survive the key intact. */
+const disc = [...canonical.values()].filter((q) => /which of these statements is correct/i.test(q.t));
+if (new Set(disc.map(dupKey)).size !== disc.length) {
+  fail(`the dedup key merges ${disc.length - new Set(disc.map(dupKey)).size} of the ${disc.length} "which of these statements is correct" questions — INV-6 violated, the key is too loose`);
+}
+
 /* ---- passmark ---- */
 const pm = banks[0].passmark;
 for (const b of banks) if (b.passmark !== pm) fail(`bank "${b.id}" has passmark ${b.passmark}, "${banks[0].id}" has ${pm}`);
@@ -109,18 +148,25 @@ for (const [file, list] of Object.entries(copies)) {
    tiles, so it carries the counts. Cheap to state, expensive to notice wrong. */
 const qCount = gSeen.size;
 const hub = fs.readFileSync(R("index.html"), "utf8");
-for (const [name, want] of [["TOTAL_TESTS", tests.length], ["TOTAL_QUESTIONS", qCount]]) {
+for (const [name, want] of [["TOTAL_TESTS", tests.length], ["TOTAL_QUESTIONS", qCount], ["UNIQUE_QUESTIONS", uniq.size]]) {
   const m = hub.match(new RegExp(`var ${name} = (\\d+);`));
   if (!m) fail(`could not find ${name} in index.html`);
   else if (+m[1] !== want) fail(`index.html has ${name} = ${m[1]}, the banks say ${want}`);
 }
+/* The engine carries the same unique count, and warns in the console if its
+   own dedup disagrees. Both copies have to move together. */
+const engineSrc = fs.readFileSync(R("life-in-uk-mock-tests.html"), "utf8");
+const ue = engineSrc.match(/const UNIQUE_EXPECT=(\d+);/);
+if (!ue) fail(`could not find UNIQUE_EXPECT in life-in-uk-mock-tests.html`);
+else if (+ue[1] !== uniq.size) fail(`life-in-uk-mock-tests.html has UNIQUE_EXPECT=${ue[1]}, the banks say ${uniq.size}`);
 const tag = hub.match(/<span class="tag">(\d+) tests<\/span>/);
 if (!tag) fail(`could not find the tests tag in index.html`);
 else if (+tag[1] !== tests.length) fail(`index.html's tile says "${tag[1]} tests", the banks say ${tests.length}`);
 
 /* ---- report ---- */
 console.log(`${banks.length} bank(s): ${banks.map((b) => `${b.id} (${b.tests.length} tests)`).join(", ")}`);
-console.log(`${tests.length} tests · ${tests.reduce((a, t) => a + t.q.length, 0)} slots · ${qCount} unique questions · passmark ${pm}/${PER_TEST}`);
+console.log(`${tests.length} tests · ${tests.reduce((a, t) => a + t.q.length, 0)} slots · ${qCount} question ids · passmark ${pm}/${PER_TEST}`);
+console.log(`${uniq.size} unique questions · ${qCount - uniq.size} redundant ids in ${dupGroups.length} group(s), collapsed by the engine`);
 for (const b of banks) {
   const gs = b.tests.flatMap((t) => t.q.map((q) => q.g));
   const ns = b.tests.map((t) => t.n);

@@ -268,7 +268,8 @@ select,input[type=text]{font:inherit;padding:9px 11px;border-radius:10px;border:
 const LS='lituk_v1';
 const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,attempts:0,passes:0,history:[],
   sr:{},                                   /* g -> {box,due,seen,last} spaced repetition */
-  drill:{last:null,streak:0,best:0}};      /* daily drill streak */
+  drill:{last:null,streak:0,best:0},       /* daily drill streak */
+  mig:{}};                                 /* one-time migrations already applied */
 let S=load();
 function load(){try{const r=JSON.parse(localStorage.getItem(LS));return Object.assign(structuredClone(DEFAULT),r||{})}catch(e){return structuredClone(DEFAULT)}}
 function save(){localStorage.setItem(LS,JSON.stringify(S))}
@@ -303,7 +304,78 @@ const ALLQ=Object.values(QByG);
 const PASSMARK=BANKS.length?BANKS[0].passmark:DEFAULT_PASSMARK;
 if(BANKS.some(b=>b.passmark!==PASSMARK))console.error('LITUK: banks disagree on passmark');
 
-document.getElementById('brandSub').textContent=`${TESTS.length} Tests · ${ALLQ.length} Questions`;
+/* ============ DUPLICATE COLLAPSE (INV-6) ============
+   32 of the 1,890 ids are the same question twice — "Who built the Tower of
+   London?" is both 118 and 984. Left alone each copy keeps its own spaced
+   repetition, so answering 118 today leaves 984 "never seen": coverage can
+   never reach 100% and the same fact is drilled twice.
+
+   The key is the stem PLUS the normalised option set, never the stem alone.
+   141 questions ask "Which of these statements is correct?" and differ only in
+   their two options; keying on the stem would merge 140 distinct discrimination
+   questions into one and delete the best twist-training material in the bank.
+   Punctuation is stripped because two of the 32 pairs differ only by a missing
+   apostrophe or full stop.
+
+   Question ids never change (INV-2) — only which id holds the shared state. */
+const UNIQUE_EXPECT=1858;
+const dupNorm=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const dupKey=q=>dupNorm(q.t)+' '+q.o.map(o=>dupNorm(o[0])).sort().join('');
+const CANON={};                            /* every g -> the id that owns its state */
+(function(){
+  const firstWithKey={};
+  for(const q of ALLQ.slice().sort((a,b)=>a.g-b.g)){       /* lowest id wins, stably */
+    const k=dupKey(q);
+    if(firstWithKey[k]===undefined)firstWithKey[k]=q.g;
+    CANON[q.g]=firstWithKey[k];
+  }
+  const n=Object.keys(firstWithKey).length;
+  if(n!==UNIQUE_EXPECT)console.error(`LITUK: dedup found ${n} unique questions, expected ${UNIQUE_EXPECT} — do not trust coverage until tools/validate-banks.mjs agrees`);
+})();
+const canon=g=>CANON[g]!==undefined?CANON[g]:+g;   /* unknown (stale) ids pass through */
+/* One question per piece of content: what every drill draws from, and the
+   denominator for coverage. */
+const POOL=ALLQ.filter(q=>CANON[q.g]===q.g);
+const UNIQUE_N=POOL.length;
+
+document.getElementById('brandSub').textContent=`${TESTS.length} Tests · ${UNIQUE_N} Questions`;
+
+/* ============ MIGRATIONS ============
+   Run once, at load, before anything reads S. Each one must be safe to run
+   against state it has already migrated — a restored backup arrives here
+   again. */
+function migrate(){
+  if(mergeDuplicateState())save();
+}
+/* State that landed on a redundant id moves to the id that now owns it,
+   taking the WORSE of the two records: a mistake anywhere is a mistake, and
+   the earlier due date is the safer one. Idempotent — once merged there are
+   no redundant keys left to find. */
+function mergeDuplicateState(){
+  let moved=0;
+  const worseSr=(a,b)=>({box:Math.min(a.box||0,b.box||0),
+    due:Math.min(a.due||0,b.due||0),
+    seen:(a.seen||0)+(b.seen||0),
+    last:Math.max(a.last||0,b.last||0)});
+  const worseMistake=(a,b)=>({count:(a.count||0)+(b.count||0),
+    streak:Math.min(a.streak||0,b.streak||0),
+    done:!!(a.done&&b.done)});
+  for(const k of Object.keys(S.sr)){
+    const c=canon(k);if(c===+k)continue;
+    S.sr[c]=S.sr[c]?worseSr(S.sr[k],S.sr[c]):S.sr[k];
+    delete S.sr[k];moved++;
+  }
+  for(const k of Object.keys(S.mistakes)){
+    const c=canon(k);if(c===+k)continue;
+    S.mistakes[c]=S.mistakes[c]?worseMistake(S.mistakes[k],S.mistakes[c]):S.mistakes[k];
+    delete S.mistakes[k];moved++;
+  }
+  for(const k of Object.keys(S.flags)){
+    const c=canon(k);if(c===+k)continue;
+    S.flags[c]=1;delete S.flags[k];moved++;
+  }
+  return moved;
+}
 
 /* ============ THEME ============ */
 function themeBtnLabel(){document.getElementById('themeBtn').textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'}
@@ -335,11 +407,12 @@ function drillCard(){
   const done=drillDoneToday();
   const streak=(S.drill&&S.drill.streak)||0;
   const bits=[due?`${due} due for review`:'',fix?`${fix} to fix`:'',fresh?`${fresh} new`:''].filter(Boolean);
+  const mode=drillMode();
   return `<div class="card drill">
     <div class="emo">${done?'✅':'🔥'}</div>
     <div class="body">
       <div class="t">Daily drill${done?' — done today':''}</div>
-      <div class="d">${plan.length} questions · ${bits.join(' · ')||'a fresh mix'}</div>
+      <div class="d">${plan.length} questions · ${bits.join(' · ')||'a fresh mix'}${mode!=='coverage'?` · ${mode}`:''}</div>
     </div>
     ${streak?`<div class="streak"><b>${streak}</b><span>day${streak===1?'':'s'}</span></div>`:''}
     <button class="btn primary go" onclick="startDrill()">${done?'Go again':'Start drill'} →</button>
@@ -348,10 +421,13 @@ function drillCard(){
 function testTile(t){
   const st=testStat(t.n),pct=st.best!=null?Math.round(st.best/24*100):0;
   const badge=st.best==null?'<span class="badge none">New</span>':st.lastPass?'<span class="badge pass">Passed</span>':'<span class="badge fail">Retry</span>';
-  return `<div class="card tcard" onclick="startTest(${t.n})">
+  /* Whether the best was set with the explanations on screen. Not a judgement,
+     just provenance — it is the difference between a score and a walkthrough. */
+  const shown=st.best!=null&&st.revealed?' · answers shown':'';
+  return `<div class="card tcard" onclick="startTest(${t.n})"${shown?' title="Best score was set with instant feedback on"':''}>
     ${badge}
     <div class="tt">Test ${t.n}</div>
-    <div class="meta">${st.best!=null?`Best ${st.best}/24`:'Not attempted'}${st.attempts?` · ${st.attempts}×`:''}</div>
+    <div class="meta">${st.best!=null?`Best ${st.best}/24`:'Not attempted'}${st.attempts?` · ${st.attempts}×`:''}${shown}</div>
     <div class="bar ${st.best==null?'':st.lastPass?'good':'bad'}"><i style="width:${pct}%"></i></div>
   </div>`;
 }
@@ -369,39 +445,55 @@ function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
   const acc=S.answered?Math.round(S.correct/S.answered*100):0;
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
+  const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
   const el=document.getElementById('view-dashboard');
   el.innerHTML=`
     <h1>Your dashboard</h1>
     <p class="sub">${TESTS.length} official-style tests · 24 questions each · 75% to pass.</p>
     ${drillCard()}
     <div class="grid stat-row">
-      <div class="card stat"><div class="n brand">${passed}<span style="font-size:16px;color:var(--muted)">/${TESTS.length}</span></div><div class="l">Tests passed</div></div>
+      <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${cov}%</div><div class="l">Bank coverage</div></div>
+      <div class="card stat"><div class="n ${unseen?'bad':'good'}">${unseen}</div><div class="l">Never seen</div></div>
       <div class="card stat"><div class="n ${acc>=75?'good':acc?'bad':''}">${acc}%</div><div class="l">Overall accuracy</div></div>
-      <div class="card stat"><div class="n">${S.attempts}</div><div class="l">Attempts taken</div></div>
       <div class="card stat"><div class="n ${openMistakes?'bad':'good'}">${openMistakes}</div><div class="l">Mistakes to review</div></div>
+      <div class="card stat"><div class="n brand">${passed}<span style="font-size:16px;color:var(--muted)">/${TESTS.length}</span></div><div class="l">Tests passed</div></div>
+      <div class="card stat"><div class="n">${S.attempts}</div><div class="l">Attempts taken</div></div>
     </div>
     <div class="grid actions">
+      <button class="card act" onclick="startSweep()"><span class="emo">🧭</span><div><div class="t">Sweep</div><div class="d">${unseen?`${Math.min(SWEEP_N,unseen)} you've never seen · ${unseen} left`:'Whole bank seen 🎉'}</div></div></button>
       <button class="card act" onclick="startExam()"><span class="emo">🎲</span><div><div class="t">Random exam</div><div class="d">24 mixed questions, timed</div></div></button>
       <button class="card act" onclick="go('mistakes')"><span class="emo">🎯</span><div><div class="t">Practice mistakes</div><div class="d">${openMistakes} question${openMistakes===1?'':'s'} to fix</div></div></button>
       <button class="card act" onclick="topicPicker()"><span class="emo">📚</span><div><div class="t">Practice by topic</div><div class="d">Target a weak area</div></div></button>
     </div>
     <div class="btn-row" style="margin:8px 0 14px;align-items:center">
       <b style="margin-right:auto">All tests</b>
-      <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="openSettings()">⚙️ ${prefs.feedback==='instant'?'Instant feedback':'Answers at end'} · ${prefs.shufQ?'Shuffled':'In order'}</button>
+      <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="openSettings()">⚙️ Drill ${drillSize()} · ${prefs.feedback==='instant'?'Instant feedback':'Answers at end'} · ${prefs.shufQ?'Shuffled':'In order'}</button>
     </div>
     ${BANKS.map(bankSection).join('')}`;
 }
 
-/* ============ PREFS ============ */
-let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant'},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
+/* ============ PREFS ============
+   dailyTarget is the drill size. 60 by default: 1,858 questions and a
+   four-week sprint means 60 a day is the floor for seeing the bank once with
+   room for a second pass. 20 was a habit-builder, not a study plan. */
+const DRILL_MIN=5,DRILL_MAX=200,DRILL_DEFAULT=60,DRILL_SIZES=[20,40,60,100];
+let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant',dailyTarget:DRILL_DEFAULT},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
 function savePrefs(){localStorage.setItem('lituk_prefs',JSON.stringify(prefs))}
+function drillSize(){const n=Math.round(+prefs.dailyTarget||DRILL_DEFAULT);
+  return Math.max(DRILL_MIN,Math.min(DRILL_MAX,n))}
+function setDailyTarget(n){prefs.dailyTarget=n;savePrefs();openSettings()}
 
 /* ============ SESSION ============ */
 let sess=null;
-function makeSession(qs,{title,timed,testN=null,source='custom'}){
+/* `instant` overrides the feedback pref for modes that only make sense one way
+   (Sweep). Everything else — timed tests included — follows the pref: when you
+   see the answer is your decision, not the app's. What the app does owe you is
+   an honest label, so a `best` set with the answers on screen says so on the
+   tile (see testTile). */
+function makeSession(qs,{title,timed,testN=null,source='custom',instant=null}){
   let list=qs.slice();
   if(prefs.shufQ && source!=='mistakes')list=shuffle(list);
-  const instant=prefs.feedback==='instant';
+  if(instant==null)instant=prefs.feedback==='instant';
   sess={instant,title,timed,testN,source,idx:0,
     items:list.map(q=>{
       let order=q.o.map((_,i)=>i);
@@ -413,35 +505,70 @@ function makeSession(qs,{title,timed,testN=null,source='custom'}){
   go('quiz');renderQuiz();
 }
 function startTest(n){const t=TESTS.find(x=>x.n===n);if(!t){toast('That test no longer exists');return}makeSession(t.q,{title:`Test ${n}`,timed:true,testN:n,source:'test'})}
-function startExam(){makeSession(shuffle(ALLQ).slice(0,24),{title:'Random exam',timed:true,source:'random'})}
+function startExam(){makeSession(shuffle(POOL).slice(0,24),{title:'Random exam',timed:true,source:'random'})}
 function practiceMistakes(){
   const ids=Object.entries(S.mistakes).filter(([g,m])=>!m.done).map(([g])=>QByG[g]).filter(Boolean);
   if(!ids.length){toast('No mistakes to review 🎉');return}
   makeSession(ids,{title:'Mistake practice',timed:false,source:'mistakes'});
 }
-function startTopic(tp){const qs=ALLQ.filter(q=>q.p===tp);makeSession(shuffle(qs).slice(0,24),{title:TOPICS[tp],timed:false,source:'topic'})}
+function startTopic(tp){const qs=POOL.filter(q=>q.p===tp);makeSession(shuffle(qs).slice(0,24),{title:TOPICS[tp],timed:false,source:'topic'})}
 
 /* ============ DAILY DRILL ============
-   20 questions: whatever spaced repetition says is due, then your open
-   mistakes, then fresh questions from your weakest topic. */
-const DRILL_N=20;
+   prefs.dailyTarget questions, mixed by an explicit ratio: what spaced
+   repetition says is due, your open mistakes, and questions you have never
+   seen.
+
+   The old mix gave 4 of its 20 slots to unseen questions — 100 questions
+   before exam day, 5% of the bank, with the other 16 slots recycling material
+   already known. Coverage first: while there is bank left to see, 60% of every
+   drill goes to questions you have never met. */
+const MIX={coverage:   {due:.20,mistake:.20,new:.60},
+           consolidate:{due:.35,mistake:.35,new:.30},
+           final:      {due:.50,mistake:.50,new:.00}};
+/* Phase 2 adds the exam-date setting and with it the switch to consolidate at
+   14 days out and final at 6. Until that field exists the sprint is in its
+   coverage weeks. */
+function drillMode(){
+  if(!S.examDate)return 'coverage';
+  const left=Math.ceil((new Date(S.examDate+'T00:00:00').getTime()-Date.now())/DAY);
+  return left<=6?'final':left<=14?'consolidate':'coverage';
+}
 function weakestTopics(){
   return TOPICS.map((n,i)=>{const s=S.topics[i]||{seen:0,correct:0};
     return{i,pct:s.seen?s.correct/s.seen:0,seen:s.seen}})
     .sort((a,b)=>(a.seen?a.pct:2)-(b.seen?b.pct:2)).map(t=>t.i);
 }
+/* Never-answered questions, weakest topic first. POOL, not ALLQ: a question
+   whose duplicate you have already answered is not unseen. */
+function unseenQuestions(){
+  const byTopic={};
+  for(const q of POOL)if(!S.sr[q.g])(byTopic[q.p]||(byTopic[q.p]=[])).push(q);
+  return weakestTopics().flatMap(tp=>shuffle(byTopic[tp]||[]));
+}
 function drillPlan(){
-  const now=Date.now(),picked=[],taken=new Set();
-  const add=(g,why)=>{if(taken.has(g)||!QByG[g]||picked.length>=DRILL_N)return;taken.add(g);picked.push({q:QByG[g],why})};
+  const now=Date.now(),N=drillSize(),mix=MIX[drillMode()]||MIX.coverage;
+  const picked=[],taken=new Set();
+  const add=(g,why)=>{g=canon(+g);
+    if(taken.has(g)||!QByG[g]||picked.length>=N)return false;
+    taken.add(g);picked.push({q:QByG[g],why});return true};
+  /* Take up to `quota` from this list. add() caps the total at N, so a quota
+     of N means "as many as still fit". */
+  const fill=(list,why,quota)=>{let n=0;for(const g of list){if(n>=quota)break;if(add(g,why))n++}};
 
-  srDue(now).slice(0,12).forEach(g=>add(+g,'due'));
-  Object.entries(S.mistakes).filter(([,m])=>!m.done)
-    .sort((a,b)=>(b[1].count||0)-(a[1].count||0)).forEach(([g])=>{if(picked.length<16)add(+g,'mistake')});
-  for(const tp of weakestTopics()){
-    if(picked.length>=DRILL_N)break;
-    shuffle(ALLQ.filter(q=>q.p===tp&&!S.sr[q.g])).forEach(q=>add(q.g,'new'));
-  }
-  shuffle(ALLQ).forEach(q=>add(q.g,'new'));   /* nothing new left → anything */
+  const due=srDue(now);
+  const mistakes=Object.entries(S.mistakes).filter(([,m])=>!m.done)
+    .sort((a,b)=>(b[1].count||0)-(a[1].count||0)).map(([g])=>+g);
+  const unseen=mix.new>0?unseenQuestions().map(q=>q.g):[];
+
+  fill(due,'due',Math.round(N*mix.due));
+  fill(mistakes,'mistake',Math.round(N*mix.mistake));
+  fill(unseen,'new',N);                      /* new takes its share plus every slot the other two left */
+  /* Still short? A thin category's slack goes to whatever is left, in order of
+     what it costs you to skip. `final` mode allows no new questions at all, so
+     it can legitimately come in under target. */
+  fill(due,'due',N);
+  fill(mistakes,'mistake',N);
+  if(mix.new>0)fill(shuffle(POOL).map(q=>q.g),'new',N);   /* nothing unseen left → anything */
   return picked;
 }
 function dayKey(d){d=d?new Date(d):new Date();
@@ -451,6 +578,19 @@ function startDrill(){
   const plan=drillPlan();
   if(!plan.length){toast('Nothing to drill yet');return}
   makeSession(plan.map(p=>p.q),{title:'Daily drill',timed:false,source:'drill'});
+}
+/* ---- Sweep: first contact with the bank ----
+   Nothing but questions you have never seen, untimed, answer shown after each
+   one. No due cards, no mistakes, no ratios — this is the mode the coverage
+   weeks are actually spent in, and the only job is to meet all 1,858 once.
+   A question leaves the pool the moment it is answered, so batches never
+   repeat until there is nothing unseen left. */
+const SWEEP_N=50;
+function startSweep(n){
+  const size=Math.max(1,Math.min(DRILL_MAX,Math.round(+n||SWEEP_N)));
+  const qs=unseenQuestions().slice(0,size);
+  if(!qs.length){toast('Every question has been seen at least once 🎉');return}
+  makeSession(qs,{title:`Sweep — ${qs.length} unseen`,timed:false,instant:true,source:'sweep'});
 }
 function noteDrillDone(){
   const t=dayKey(),y=dayKey(Date.now()-DAY);
@@ -483,7 +623,7 @@ function renderQuiz(){
       <span class="chip">Q ${sess.idx+1} / ${sess.items.length}</span>
       <div class="prog"><div class="bar"><i style="width:${(sess.idx+1)/sess.items.length*100}%"></i></div></div>
       ${sess.timed?`<span class="chip timer" id="timer">${fmt(sess.remain)}</span>`:''}
-      <button class="flagbtn ${S.flags[q.g]?'on':''}" id="flagBtn" onclick="toggleFlag(${q.g})">${S.flags[q.g]?'★ Flagged':'☆ Flag'}</button>
+      <button class="flagbtn ${flagged(q.g)?'on':''}" id="flagBtn" onclick="toggleFlag(${q.g})">${flagged(q.g)?'★ Flagged':'☆ Flag'}</button>
     </div>
     <div class="card pad">
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
@@ -514,7 +654,7 @@ function renderQuiz(){
     <div class="dots">
       ${sess.items.map((x,i)=>{let c='dot';if(i===sess.idx)c+=' cur';
         if(x.checked){c+=x._correct?' ok':' no'}else if(x.picked.length)c+=' ans';
-        if(S.flags[x.q.g])c+=' flag';
+        if(flagged(x.q.g))c+=' flag';
         return `<button class="${c}" onclick="jump(${i})">${i+1}</button>`}).join('')}
     </div>`;
   if(sess.instant && it.checked)paintCheck();
@@ -535,7 +675,7 @@ function pick(oi){
 function refreshDots(){
   document.querySelectorAll('.dots .dot').forEach((d,i)=>{
     d.className='dot'+(i===sess.idx?' cur':'')+(sess.items[i].picked.length&&!sess.items[i].checked?' ans':'')
-      +(sess.items[i].checked?(sess.items[i]._correct?' ok':' no'):'')+(S.flags[sess.items[i].q.g]?' flag':'');
+      +(sess.items[i].checked?(sess.items[i]._correct?' ok':' no'):'')+(flagged(sess.items[i].q.g)?' flag':'');
   });
   const mb=document.getElementById('mainBtn');
   if(mb&&sess.idx===sess.items.length-1&&!sess.instant){const a=sess.items.filter(x=>x.picked.length).length;mb.textContent=`Finish (${a}/${sess.items.length})`}
@@ -563,8 +703,9 @@ function paintCheck(){
   ex.innerHTML=`<div class="verdict ${it._correct?'good':'bad'}">${it._correct?'✓ Correct':'✕ Not quite'}</div>
     <div class="lbl">Explanation</div><div>${esc(it.q.e||'—')}</div>`;
 }
-function toggleFlag(g){S.flags[g]?delete S.flags[g]:S.flags[g]=1;save();
-  const b=document.getElementById('flagBtn');const on=!!S.flags[g];
+const flagged=g=>!!S.flags[canon(g)];              /* duplicates share one flag */
+function toggleFlag(g){const c=canon(g);S.flags[c]?delete S.flags[c]:S.flags[c]=1;save();
+  const b=document.getElementById('flagBtn');const on=flagged(g);
   b.classList.toggle('on',on);b.textContent=on?'★ Flagged':'☆ Flag';refreshDots()}
 function prevQ(){if(sess.idx>0){sess.idx--;renderQuiz()}}
 function nextQ(){if(sess.idx<sess.items.length-1){sess.idx++;renderQuiz()}}
@@ -577,6 +718,7 @@ const SR_DAYS=[0,1,3,7,16,35];
 const DAY=864e5;
 function srUpdate(g,correct){
   const now=Date.now();
+  g=canon(g);                                      /* duplicates share one box */
   const e=S.sr[g]||(S.sr[g]={box:0,due:0,seen:0});
   e.seen=(e.seen||0)+1;e.last=now;
   e.box=correct?Math.min((e.box||0)+1,SR_DAYS.length-1):0;
@@ -585,19 +727,24 @@ function srUpdate(g,correct){
 function srDue(now){now=now||Date.now();
   return Object.keys(S.sr).filter(g=>QByG[g]&&S.sr[g].due<=now)
     .sort((a,b)=>S.sr[a].due-S.sr[b].due)}
-function srSeen(){return Object.keys(S.sr).length}
+/* Coverage: how many of the 1,858 unique questions have ever been answered.
+   Counts canonical, in-bank ids only, so a stale key from an old bank cannot
+   inflate it. */
+function srSeen(){return Object.keys(S.sr).filter(g=>QByG[g]&&canon(g)===+g).length}
+function srUnseen(){return Math.max(0,UNIQUE_N-srSeen())}
 
 /* record into topic/mistake stats (once per exam grading or per practice check) */
 function recordAnswer(q,correct){
   S.answered++;if(correct)S.correct++;
   srUpdate(q.g,correct);
   const tp=S.topics[q.p]||(S.topics[q.p]={seen:0,correct:0});tp.seen++;if(correct)tp.correct++;
-  const m=S.mistakes[q.g];
+  const g=canon(q.g);                              /* duplicates share one record */
+  const m=S.mistakes[g];
   if(correct){
     if(m&&!m.done){m.streak=(m.streak||0)+1;if(m.streak>=2){m.done=true}}
   }else{
     if(m){m.done=false;m.streak=0;m.count=(m.count||0)+1}
-    else S.mistakes[q.g]={count:1,streak:0,done:false};
+    else S.mistakes[g]={count:1,streak:0,done:false};
   }
   save();
 }
@@ -615,13 +762,23 @@ function finishQuiz(){
   const score=sess.items.filter(it=>it._correct).length;
   const total=sess.items.length;
   const passed=score>=Math.round(PASSMARK/24*total);
-  S.attempts++;if(passed)S.passes++;
+  /* A sweep is first contact with unseen questions, not an attempt at a pass
+     mark — counting 25 of them would bury the exam pass rate. */
+  const isSweep=sess.source==='sweep';
+  if(!isSweep){S.attempts++;if(passed)S.passes++}
   if(sess.testN){
     const st=testStat(sess.testN);
-    S.tests[sess.testN]={best:Math.max(st.best??0,score),attempts:st.attempts+1,lastPass:passed,lastScore:score};
+    /* `revealed` describes the best score, not the last sit: a 24 earned with
+       the explanations on screen is a different thing from a 24 earned blind,
+       and the tile says which one you are looking at. */
+    const isBest=score>(st.best??-1);
+    S.tests[sess.testN]={best:Math.max(st.best??0,score),attempts:st.attempts+1,
+      lastPass:passed,lastScore:score,revealed:isBest?!!sess.instant:!!st.revealed};
   }
-  if(sess.source==='drill')noteDrillDone();
-  S.history.unshift({t:Date.now(),title:sess.title,score,total,passed});
+  /* A sweep is the day's work during the coverage weeks — it keeps the streak
+     alive exactly like a drill does. */
+  if(sess.source==='drill'||sess.source==='sweep')noteDrillDone();
+  S.history.unshift({t:Date.now(),title:sess.title,score,total,passed,src:sess.source});
   S.history=S.history.slice(0,50);
   save();
   renderResults(score,total,passed);
@@ -629,7 +786,7 @@ function finishQuiz(){
 }
 function renderResults(score,total,passed){
   const pct=Math.round(score/total*100);
-  const rc=passed?'var(--good)':'var(--bad)';
+  const rc=sess.source==='sweep'?'var(--brand)':passed?'var(--good)':'var(--bad)';
   const el=document.getElementById('view-results');
   const wrongItems=sess.items.filter(it=>!it._correct);
   const secs=Math.round((Date.now()-sess.startTs)/1000);
@@ -639,12 +796,17 @@ function renderResults(score,total,passed){
       <div class="result-hero">
         <div class="ring" style="--p:${pct};--rc:${rc}"><div class="inner"><div><div class="pct">${pct}%</div><div class="sc">${score}/${total}</div></div></div></div>
         <div>
-          <div class="verdict-big ${passed?'good':'bad'}">${sess.source==='drill'
+          <div class="verdict-big ${sess.source==='sweep'?'good':passed?'good':'bad'}">${
+            sess.source==='sweep'
+            ?`🧭 ${total} more seen${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            :sess.source==='drill'
             ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :(passed?'🎉 Passed!':'Keep practising')}</div>
-          <p class="sub" style="margin:6px 0 12px">You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span></p>
+          <p class="sub" style="margin:6px 0 12px">${sess.source==='sweep'
+            ?`You got <b>${score}</b> of <b>${total}</b> first time. <b>${srUnseen()}</b> of ${UNIQUE_N} still never seen — a low score here is the point, not a problem.`
+            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span></p>
           <div class="btn-row">
-            <button class="btn primary" onclick="retrySame()">↻ Retry</button>
+            <button class="btn primary" onclick="retrySame()">${sess.source==='sweep'?'🧭 Next batch':'↻ Retry'}</button>
             ${wrongItems.length?`<button class="btn" onclick="practiceMistakes()">🎯 Fix ${wrongItems.length} mistake${wrongItems.length===1?'':'s'}</button>`:''}
             <button class="btn ghost" onclick="go('dashboard')">Dashboard</button>
           </div>
@@ -667,6 +829,7 @@ function renderResults(score,total,passed){
     </div>`;
 }
 function retrySame(){
+  if(sess.source==='sweep')return startSweep(sess.items.length);   /* the next batch, not the same one */
   if(sess.testN)return startTest(sess.testN);
   const src=sess.items.map(it=>it.q);
   makeSession(src,{title:sess.title,timed:sess.timed,testN:sess.testN,source:sess.source});
@@ -703,7 +866,7 @@ function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
   </details>`;
 }
 function practiceFlagged(){const qs=Object.keys(S.flags).map(g=>QByG[g]).filter(Boolean);if(!qs.length)return;makeSession(qs,{title:'Flagged review',timed:false,source:'mistakes'})}
-function unflag(g){if(S.flags[g])delete S.flags[g];if(S.mistakes[g]){S.mistakes[g].done=true}save();renderMistakes()}
+function unflag(g){const c=canon(g);if(S.flags[c])delete S.flags[c];if(S.mistakes[c]){S.mistakes[c].done=true}save();renderMistakes()}
 function clearMistakes(){modal(`<h3 style="margin:0 0 8px">Clear all mistakes?</h3><p class="sub">This marks every mistake as mastered. Can't be undone.</p><div class="btn-row"><button class="btn primary" onclick="Object.values(S.mistakes).forEach(m=>m.done=true);save();closeModal();renderMistakes()">Yes, clear</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
 
 /* ============ STATS ============ */
@@ -736,7 +899,7 @@ function renderStats(){
     <div class="card pad" style="margin-bottom:18px">
       <b>Recent attempts</b>
       ${S.history.length?`<div style="margin-top:10px">${S.history.slice(0,12).map(h=>`<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
-        <span class="ic ${h.passed?'ok':'no'}" style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;background:${h.passed?'var(--good)':'var(--bad)'}">${h.passed?'✓':'✕'}</span>
+        <span class="ic" style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;background:${h.src==='sweep'?'var(--brand)':h.passed?'var(--good)':'var(--bad)'}">${h.src==='sweep'?'🧭':h.passed?'✓':'✕'}</span>
         <span style="flex:1">${esc(h.title)}</span><b>${h.score}/${h.total}</b>
         <span class="tag">${new Date(h.t).toLocaleDateString()}</span></div>`).join('')}</div>`
       :'<p class="sub" style="margin-top:8px">No attempts yet.</p>'}
@@ -840,9 +1003,17 @@ function topicPicker(){
     </div>`);
 }
 function openSettings(){
-  const fb=prefs.feedback;
+  const fb=prefs.feedback,n=drillSize();
+  const seen=srSeen(),left=UNIQUE_N-seen;
   modal(`<h3 style="margin:0 0 4px">Settings</h3><p class="sub" style="margin:0 0 14px">Applies to every test and practice you start next.</p>
+    <div class="lbl">Questions per drill</div>
+    <div class="btn-row" style="margin:6px 0 6px">
+      ${DRILL_SIZES.map(v=>`<button class="btn sm ${n===v?'primary':'ghost'}" onclick="setDailyTarget(${v})">${v}</button>`).join('')}
+      ${DRILL_SIZES.includes(n)?'':`<button class="btn sm primary">${n}</button>`}
+    </div>
+    <p class="sub" style="margin:0 0 16px;font-size:12.5px">${settingsCoverageLine(n,left)}</p>
     <div class="lbl">When do you see the answer?</div>
+    <p class="sub" style="margin:2px 0 0;font-size:12.5px">Applies to everything, timed tests included. A test whose best score was set with feedback on is labelled "answers shown" on its tile.</p>
     <div class="grid" style="gap:8px;margin:6px 0 16px">
       <button class="btn ghost setopt ${fb==='instant'?'on':''}" onclick="setFeedback('instant')">
         <b>✅ Right after each question</b>
@@ -861,6 +1032,14 @@ function openSettings(){
       <button class="btn sm" onclick="pickImport()">⬆ Restore…</button>
     </div>
     <div class="btn-row" style="margin-top:18px"><button class="btn primary" onclick="closeSettings()">Done</button></div>`);
+}
+/* What this drill size actually buys, in days — the only number that matters
+   with a fixed exam date. Drills alone; Sweep gets through it faster. */
+function settingsCoverageLine(n,left){
+  if(!left)return `All ${UNIQUE_N} questions seen at least once.`;
+  const fresh=Math.round(n*(MIX[drillMode()]||MIX.coverage).new);
+  if(!fresh)return `${left} of ${UNIQUE_N} still never seen — this mode serves no new questions, so use Sweep.`;
+  return `${left} of ${UNIQUE_N} still never seen — ${fresh} new per drill, so ${Math.ceil(left/fresh)} days to see the bank once.`;
 }
 function setFeedback(v){prefs.feedback=v;savePrefs();openSettings()}
 function closeSettings(){closeModal();if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard()}
@@ -884,7 +1063,7 @@ document.addEventListener('keydown',e=>{
 window.addEventListener('beforeunload',e=>{if(sess&&sess.timed&&!sess.endTs&&document.getElementById('view-quiz')&&!document.getElementById('view-quiz').classList.contains('hidden')){e.preventDefault();e.returnValue=''}});
 
 /* ============ DEEP LINKS ============
-   #drill · #mistakes · #stats · #test=7 · #q=412 (from the hub's search) */
+   #drill · #sweep · #mistakes · #stats · #test=7 · #q=412 (from the hub's search) */
 function showQuestion(g){
   const q=QByG[g];if(!q){toast('Question not found');return}
   const ci=correctIdx(q);
@@ -904,11 +1083,13 @@ function route(){
   const q=h.match(/^q=(\d+)$/);   if(q){go('dashboard');showQuestion(+q[1]);return}
   const t=h.match(/^test=(\d+)$/);if(t){startTest(+t[1]);return}
   if(h==='drill'){startDrill();return}
+  if(h==='sweep'){startSweep();return}
   if(h==='mistakes'||h==='stats')go(h);
 }
 addEventListener('hashchange',route);
 
 /* ============ INIT ============ */
+migrate();                 /* before anything reads S */
 renderDashboard();
 route();
 </script>

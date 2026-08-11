@@ -138,18 +138,20 @@ for(const tp of weakestTopics()){ ... }                     // new fills 16→20
    through it, so answering one member updates the group. Question ids themselves do
    not change (INV-2). Existing state for the redundant ids is merged on first load,
    taking the *worse* of the two records — a mistake anywhere is a mistake.
-6. **Timed tests stop leaking answers.** `makeSession()` line 404 honours
-   `prefs.feedback` even when `timed:true`, so by default every practice test is sat
-   with the answers revealed and still records a `best` and `lastPass`. Force
-   `instant:false` when `timed`. Existing `S.tests[n].best` values recorded under
-   instant feedback are not trustworthy; add a one-time `S.tests[n].dirty=true` flag
-   at migration and show those bests greyed with a "pre-fix" tag rather than
-   deleting them.
+6. **Timed test scores say how they were earned.** ~~Force `instant:false` when
+   `timed`.~~ **Reversed on 2026-08-11, by decision, after it shipped.** The
+   feedback pref governs every session including timed tests — when you see the
+   answer is the candidate's call, not the app's. The original concern stands
+   though: a `best` earned with the explanations on screen was going into "tests
+   passed" indistinguishable from one earned blind. So instead of forbidding it,
+   record it — `S.tests[n].revealed` is set from `sess.instant` whenever a sit
+   becomes the new best, and the tile appends "· answers shown". No migration:
+   bests predating this change carry no flag and are simply unlabelled.
 
 **GO criteria** — a 60-question drill on a fresh profile returns ≥ 33 unseen
 questions; Sweep mode never repeats a question until the unseen pool is empty;
-coverage tile matches `Object.keys(S.sr).length`; a timed test shows no answer until
-Finish; `node tools/validate-banks.mjs` passes.
+coverage tile matches `Object.keys(S.sr).length`; a test sat with feedback on is
+labelled "answers shown"; `node tools/validate-banks.mjs` passes.
 
 **This is the revert point for everything that follows.**
 
@@ -275,8 +277,11 @@ with the term highlighted.
 4. **Cram sheet.** One screen, print-friendly, generated from `S.mistakes` +
    `facts.js`: every leech, every open mistake, and the most-contested dates, grouped
    by topic. This is the 4 September artifact.
-5. **Retire the pre-fix test scores.** By now enough clean timed tests exist; drop
-   the `dirty` flag and its greyed styling from Phase 1.
+5. **Weight the pass probability by how each score was earned.** Phase 1 records
+   `S.tests[n].revealed`; a best set with the explanations on screen is weak
+   evidence of readiness and change 2 above should discount it rather than treat it
+   as a clean sit. *(Replaces the retired "drop the pre-fix `dirty` flag" item —
+   Phase 1 change 6 was reversed, see there.)*
 
 **GO criteria** — pass probability is stable across reloads and moves in the right
 direction after a good session; final-week mode activates on 30 Aug without
