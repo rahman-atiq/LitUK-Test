@@ -383,6 +383,55 @@ numbers and the decisions the plan above did not settle:
 direction after a good session; final-week mode activates on 30 Aug without
 intervention; cram sheet prints to one or two sides of A4.
 
+**Shipped 2026-08-12.** All five changes. 64 assertions against the real engine in a
+node VM with a stub DOM, no browser; `node tools/validate-banks.mjs` passes. What the
+code decided that the plan above left open:
+
+- **The pass probability is seeded.** 1,000 draws carry a sampling error of about
+  ±1.5 points, so an unseeded Monte Carlo would move the headline two points on a
+  reload — and a number that wobbles when you have done nothing is a number nobody
+  believes. A fixed-seed xorshift makes it a pure function of your saved progress,
+  and the result is cached against a state-revision counter that every `save()`
+  bumps. **3ms** to recompute over all 1,858; the whole dashboard renders in 1.1ms
+  with the cache warm.
+- **The guess floor is per question, not per format.** 1/nCk, so a "select 2 of 4"
+  floors at one in six rather than 25% — it is the hardest thing in the bank to fall
+  into by accident, and pricing it as a four-option question would have quietly
+  inflated every draw containing one of the 216.
+- **Calibration is measured on the questions the sat tests actually contain.**
+  Comparing a test score against a bank that is 80% unseen compares nothing, so for
+  each test with a best score the model's own prediction over *those 24* is what the
+  score is weighed against. `revealed` bests count for 0.35 of a blind one (change 5),
+  the whole correction is shrunk towards 1 by a prior worth three clean sits, and it
+  is clamped to ±25%. It nudges; it cannot take over. With no sits at all it is
+  exactly 1 and the model stands on its own.
+- **"Wasn't sure" does not take the tick back from rolling accuracy.** Accuracy is the
+  outcome — a guess that lands right would have landed right on the day. What it does
+  not know is *why*, and that is what `unsure` is for in `pKnow()`, where it costs 12%
+  a time. Two numbers, two jobs, and neither lying on the other's behalf.
+- **The hub reads the number rather than computing it.** `index.html` deliberately
+  carries no bank data (modelling there would mean loading 750KB to draw one tile), so
+  the engine leaves its answer in `S.readiness` and the hub renders that, with a line
+  saying how old it is once it is three days stale. Tests passed is demoted from tile
+  to footnote on both pages.
+- **The final week splits what is left between the two new buckets.** First cut let
+  "everything ever missed" take every remaining slot and "not seen in 10 days" never
+  appeared at all — caught by the harness, not by reading it. Now the remainder is cut
+  in half, and either mops up what the other cannot fill. `final` mode itself dates
+  from Phase 2's `drillMode()`; what Phase 4 added is what it *serves*: retired
+  mistakes reopened, and any card whose `last` is older than `STALE_DAYS` regardless of
+  the box it climbed to.
+- **The cram sheet is capped at 60 mistakes and 24 dates, measured.** A real
+  mid-sprint profile (220 open mistakes) typesets to **1.74 sides of A4** at 8.6pt in
+  two columns; the uncapped version ran to nine pages, which is read as none. A
+  "which of these statements is correct?" question prints its answer alone, because
+  there the answer *is* the fact and the stem says nothing.
+- **The results screen shows what the session moved** — "▲ pass 63% (+2)". A sweep of
+  50 unseen questions moves it whatever you score, because coverage is itself worth
+  something, and that is the argument for doing them on the days it does not feel
+  like progress.
+- **Not built:** nothing from this phase.
+
 ---
 
 ### Phase 5 — Bank verification *(parallel, no app code)*

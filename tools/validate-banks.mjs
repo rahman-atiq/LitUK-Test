@@ -185,6 +185,39 @@ for (const [name, re] of [["dateForward", /function dateForward\(/], ["dateRever
   if (!re.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no ${name}() — Phase 3's gauntlets are gone or renamed`);
 }
 
+/* ---- readiness, and the numbers it must never fake (Phase 4) ----
+   The pass probability is the headline on both the dashboard and the hub, so
+   the two things that make it honest are worth a build failure: an unseen
+   question contributes its guess rate rather than a zero, and the same saved
+   progress always produces the same number. A wobbling headline is a headline
+   nobody believes, and a floor of zero makes coverage look like knowledge. */
+for (const [name, re] of [["readiness", /function readiness\(/], ["guessRate", /function guessRate\(/],
+                          ["pKnow", /function pKnow\(/], ["calibration", /function calibration\(/],
+                          ["renderCram", /function renderCram\(/], ["noteRecent", /function noteRecent\(/]]) {
+  if (!re.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no ${name}() — Phase 4's readiness model or cram sheet is gone or renamed`);
+}
+if (!/if\(!e\)return floor;/.test(engineSrc)) {
+  fail(`pKnow() no longer floors an unseen question at its guess rate — a bank you have never opened would read as a 0% chance of passing, and coverage would look like knowledge`);
+}
+const seed = engineSrc.match(/MC_SEED=(0x[0-9a-f]+|\d+)/i);
+if (!seed) fail(`life-in-uk-mock-tests.html has no MC_SEED — the Monte Carlo is unseeded, so the pass probability moves a point or two on every reload`);
+const revealed = engineSrc.match(/const REVEALED_W=(\.?\d*\.?\d+)/);
+if (!revealed) fail(`could not find REVEALED_W in life-in-uk-mock-tests.html`);
+else if (!(+revealed[1] < 1)) fail(`REVEALED_W is ${revealed[1]} — a best score set with the answers on screen must count for LESS than a blind one, not the same or more`);
+/* The final week serves nothing new. A drill that introduces fresh material
+   six days out is spending the last hours on questions there is no time to
+   learn, and it is the one mix ratio that must stay at zero. */
+const finalMix = engineSrc.match(/final:\s*\{due:\.?\d*\.?\d+,mistake:\.?\d*\.?\d+,new:(\.?\d*\.?\d+)\}/);
+if (!finalMix) fail(`could not find the final-week entry in MIX in life-in-uk-mock-tests.html`);
+else if (+finalMix[1] !== 0) fail(`MIX.final.new is ${finalMix[1]} — the last six days must serve no new questions`);
+if (!/@media print\{/.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no print stylesheet — the cram sheet prints the dark theme as a black rectangle`);
+/* The hub cannot model anything (no bank data), so it reads what the engine
+   left in S.readiness. Both halves have to exist or the tile is blank. */
+const hubSrc = fs.readFileSync(R("index.html"), "utf8");
+if (!/S\.readiness=/.test(engineSrc)) fail(`the engine never writes S.readiness — the hub's pass-chance tile has nothing to read`);
+if (!/M\.readiness/.test(hubSrc)) fail(`index.html does not read M.readiness — the hub is still leading on tests passed`);
+if (!/M\.recent/.test(hubSrc)) fail(`index.html does not read M.recent — the hub is still showing lifetime accuracy`);
+
 /* ---- passmark ---- */
 const pm = banks[0].passmark;
 for (const b of banks) if (b.passmark !== pm) fail(`bank "${b.id}" has passmark ${b.passmark}, "${banks[0].id}" has ${pm}`);
@@ -221,7 +254,7 @@ for (const [file, list] of Object.entries(copies)) {
    index.html does not load the 750KB of bank data just to draw four stat
    tiles, so it carries the counts. Cheap to state, expensive to notice wrong. */
 const qCount = gSeen.size;
-const hub = fs.readFileSync(R("index.html"), "utf8");
+const hub = hubSrc;
 for (const [name, want] of [["TOTAL_TESTS", tests.length], ["TOTAL_QUESTIONS", qCount], ["UNIQUE_QUESTIONS", uniq.size]]) {
   const m = hub.match(new RegExp(`var ${name} = (\\d+);`));
   if (!m) fail(`could not find ${name} in index.html`);

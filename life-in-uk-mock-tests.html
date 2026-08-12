@@ -64,7 +64,11 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .stat{padding:14px 16px}
 .stat .n{font-size:26px;font-weight:800;letter-spacing:-.02em}
 .stat .l{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+/* The figure the headline replaced, kept where it can still be read but not
+   mistaken for the answer — lifetime accuracy under the rolling one. */
+.stat .s{color:var(--muted);font-size:11px;font-weight:600;margin-top:3px}
 .stat .n.good{color:var(--good)} .stat .n.bad{color:var(--bad)} .stat .n.brand{color:var(--brand)}
+.stat.tap{cursor:pointer} .stat.tap:hover{border-color:var(--brand)}
 /* Buttons */
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);font-weight:700;padding:11px 16px;border-radius:11px;cursor:pointer;font-size:14px;transition:.12s}
 .btn:hover{border-color:var(--brand)}
@@ -228,6 +232,39 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
 @media(max-width:400px){
   .brand small{display:none}
 }
+/* ---- Cram sheet ----
+   Built to be read off paper the night before, so it is laid out in columns
+   and every item is one unbreakable line-and-a-half. */
+.cram{columns:2;column-gap:26px;margin-top:14px}
+.cram .grp{break-inside:avoid-column;margin:0 0 14px}
+.cram .grp h3{font-size:13px;margin:0 0 6px;letter-spacing:-.01em;
+  border-bottom:1px solid var(--line);padding-bottom:4px}
+.cram .it{break-inside:avoid;margin:0 0 7px;font-size:12.5px;line-height:1.45}
+.cram .it .a{font-weight:800}
+.cram .it .k{color:var(--muted)}
+.cram .it .y{font-weight:800;font-variant-numeric:tabular-nums;margin-right:6px}
+.cram .it .why{display:block;color:var(--muted);font-size:11.5px}
+.cram .b{color:var(--bad)} .cram .w{color:var(--warn)}
+.cram-head{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:2px}
+@media(max-width:700px){.cram{columns:1}}
+/* ---- Print ----
+   The dark theme prints as a black rectangle and the header prints as a
+   navigation bar nobody can tap. Both go; what is left is the cram sheet on
+   two sides of A4. */
+@media print{
+  html,html[data-theme="dark"]{--bg:#fff;--panel:#fff;--panel-2:#fff;--ink:#000;--muted:#3a3a3a;
+    --line:#b0b0b0;--chip:#eee;--shadow:none;--brand:#000;--good:#0a5a34;--bad:#8a1420;--warn:#6b4c00;--radius:0}
+  header,.foot,.toast,.modal-bg,.noprint{display:none!important}
+  body{background:#fff;font-size:9.5pt}
+  .wrap{max-width:none;padding:0}
+  .card{border:0;box-shadow:none}
+  h1{font-size:15pt;margin:0 0 2px}
+  .cram{columns:2;column-gap:14pt;margin-top:8pt}
+  .cram .it{font-size:8.6pt;line-height:1.32;margin-bottom:5pt}
+  .cram .it .why{font-size:8pt}
+  .cram .grp h3{font-size:10pt}
+  @page{margin:11mm}
+}
 </style>
 </head>
 <body>
@@ -261,6 +298,8 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
   <section id="view-mistakes" class="hidden"></section>
   <!-- STATS -->
   <section id="view-stats" class="hidden"></section>
+  <!-- CRAM SHEET -->
+  <section id="view-cram" class="hidden"></section>
 
   <div class="foot">
     Your progress is saved on this device only (browser localStorage). Nothing is uploaded.<br>
@@ -287,10 +326,15 @@ const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,atte
   sr:{},                                   /* g -> {box,due,seen,last,unsure} spaced repetition */
   drill:{last:null,streak:0,best:0},       /* daily drill streak */
   examDate:EXAM_DEFAULT,                   /* '' = no date: standard ladder, coverage mode */
+  recent:[],                               /* rolling 0/1 ring, last RECENT_N answers */
+  readiness:null,                          /* last computed pass probability, for the hub to read */
   mig:{}};                                 /* one-time migrations already applied */
 let S=load();
 function load(){try{const r=JSON.parse(localStorage.getItem(LS));return Object.assign(structuredClone(DEFAULT),r||{})}catch(e){return structuredClone(DEFAULT)}}
-function save(){localStorage.setItem(LS,JSON.stringify(S))}
+/* Every write bumps the revision, which is how the Monte Carlo knows its
+   cached answer is still the current one (see readiness()). */
+let _rev=0;
+function save(){_rev++;localStorage.setItem(LS,JSON.stringify(S))}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
 
 /* ============ BANKS ============
@@ -442,23 +486,24 @@ const correctIdx=q=>q.o.map((o,i)=>o[1]?i:-1).filter(i=>i>=0);
 const eqSet=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
 function testStat(n){return S.tests[n]||{best:null,attempts:0,lastPass:null}}
 function go(v){
-  ['dashboard','quiz','results','mistakes','stats'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
+  ['dashboard','quiz','results','mistakes','stats','cram'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   window.scrollTo(0,0);
   if(v==='dashboard')renderDashboard();
   if(v==='mistakes')renderMistakes();
   if(v==='stats')renderStats();
+  if(v==='cram')renderCram();
 }
 
 /* ============ DASHBOARD ============ */
 function drillCard(){
   const plan=drillPlan();
-  const due=plan.filter(p=>p.why==='due').length;
-  const fix=plan.filter(p=>p.why==='mistake').length;
-  const fresh=plan.filter(p=>p.why==='new').length;
+  const n=w=>plan.filter(p=>p.why===w).length;
   const done=drillDoneToday();
   const streak=(S.drill&&S.drill.streak)||0;
-  const bits=[due?`${due} due for review`:'',fix?`${fix} to fix`:'',fresh?`${fresh} new`:''].filter(Boolean);
+  const bits=[n('due')?`${n('due')} due for review`:'',n('mistake')?`${n('mistake')} to fix`:'',
+    n('new')?`${n('new')} new`:'',n('missed')?`${n('missed')} missed before`:'',
+    n('stale')?`${n('stale')} gone cold`:''].filter(Boolean);
   const mode=drillMode();
   return `<div class="card drill">
     <div class="emo">${done?'✅':'🔥'}</div>
@@ -496,23 +541,29 @@ function bankSection(b){
 function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
   const acc=S.answered?Math.round(S.correct/S.answered*100):0;
+  const rec=recentAcc();
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
   const left=daysLeft(),tw=twistStats();
+  const rd=readiness(),rp=Math.round(rd.p*100);
   const el=document.getElementById('view-dashboard');
   el.innerHTML=`
     <h1>Your dashboard</h1>
     <p class="sub">${TESTS.length} official-style tests · 24 questions each · 75% to pass.</p>
     ${drillCard()}
     <div class="grid stat-row">
-      ${left==null?'':`<div class="card stat" onclick="openSettings()" style="cursor:pointer" title="${esc(S.examDate)} — tap to change">
+      ${left==null?'':`<div class="card stat tap" onclick="openSettings()" title="${esc(S.examDate)} — tap to change">
         <div class="n ${left<=6?'bad':left<=14?'brand':''}">${Math.max(0,left)}</div><div class="l">Days to exam</div></div>`}
+      <div class="card stat tap" onclick="explainReadiness()" title="How this is worked out">
+        <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}">${rp}%</div><div class="l">Pass probability</div>
+        <div class="s">≈ ${rd.mean.toFixed(1)}/24 · ${readyLabel(rd.p)}</div></div>
       <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${cov}%</div><div class="l">Bank coverage</div></div>
       <div class="card stat"><div class="n ${unseen?'bad':'good'}">${unseen}</div><div class="l">Never seen</div></div>
-      <div class="card stat"><div class="n ${acc>=75?'good':acc?'bad':''}">${acc}%</div><div class="l">Overall accuracy</div></div>
+      <div class="card stat"><div class="n ${!rec?'':rec.pct>=75?'good':'bad'}">${rec?rec.pct+'%':'—'}</div><div class="l">Recent accuracy</div>
+        <div class="s">${rec?`last ${rec.n} · ${acc}% all time`:'no answers yet'}</div></div>
       <div class="card stat"><div class="n ${openMistakes?'bad':'good'}">${openMistakes}</div><div class="l">Mistakes to review</div></div>
-      <div class="card stat"><div class="n brand">${passed}<span style="font-size:16px;color:var(--muted)">/${TESTS.length}</span></div><div class="l">Tests passed</div></div>
-      <div class="card stat"><div class="n">${S.attempts}</div><div class="l">Attempts taken</div></div>
+      <div class="card stat"><div class="n brand">${passed}<span style="font-size:16px;color:var(--muted)">/${TESTS.length}</span></div><div class="l">Tests passed</div>
+        <div class="s">${S.attempts} attempt${S.attempts===1?'':'s'}</div></div>
     </div>
     <div class="grid actions">
       <button class="card act" onclick="startSweep()"><span class="emo">🧭</span><div><div class="t">Sweep</div><div class="d">${unseen?`${Math.min(SWEEP_N,unseen)} you've never seen · ${unseen} left`:'Whole bank seen 🎉'}</div></div></button>
@@ -521,6 +572,7 @@ function renderDashboard(){
       <button class="card act" onclick="startExam()"><span class="emo">🎲</span><div><div class="t">Random exam</div><div class="d">24 mixed questions, timed</div></div></button>
       <button class="card act" onclick="go('mistakes')"><span class="emo">🎯</span><div><div class="t">Practice mistakes</div><div class="d">${openMistakes} question${openMistakes===1?'':'s'} to fix</div></div></button>
       <button class="card act" onclick="topicPicker()"><span class="emo">📚</span><div><div class="t">Practice by topic</div><div class="d">Target a weak area</div></div></button>
+      <button class="card act" onclick="go('cram')"><span class="emo">📄</span><div><div class="t">Cram sheet</div><div class="d">${cramCount()} to revise, printable</div></div></button>
     </div>
     <div class="btn-row" style="margin:8px 0 14px;align-items:center">
       <b style="margin-right:auto">All tests</b>
@@ -558,6 +610,7 @@ function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,ord
   else if(order!=='keep'&&prefs.shufQ&&source!=='mistakes')list=shuffle(list);
   if(instant==null)instant=prefs.feedback==='instant';
   sess={instant,title,timed,testN,source,idx:0,
+    readyBefore:readiness().p,             /* so the results screen can show what the session moved */
     items:list.map(q=>{
       let order=q.o.map((_,i)=>i);
       if(prefs.shufO)order=shuffle(order);
@@ -588,6 +641,9 @@ function startTopic(tp){const qs=POOL.filter(q=>q.p===tp);makeSession(shuffle(qs
 const MIX={coverage:   {due:.20,mistake:.20,new:.60},
            consolidate:{due:.35,mistake:.35,new:.30},
            final:      {due:.50,mistake:.50,new:.00}};
+/* Not laid eyes on in this many days = cold, and in the final week it comes
+   back regardless of which box it is sitting in. */
+const STALE_DAYS=10;
 /* Driven by the exam date: consolidate at 14 days out, final at 6. With no
    date set the sprint is treated as being in its coverage weeks. */
 function drillMode(){
@@ -608,7 +664,7 @@ function unseenQuestions(){
   return weakestTopics().flatMap(tp=>shuffle(byTopic[tp]||[]));
 }
 function drillPlan(){
-  const now=Date.now(),N=drillSize(),mix=MIX[drillMode()]||MIX.coverage;
+  const now=Date.now(),N=drillSize(),mode=drillMode(),mix=MIX[mode]||MIX.coverage,fin=mode==='final';
   const picked=[],taken=new Set();
   const add=(g,why)=>{g=canon(+g);
     if(taken.has(g)||!QByG[g]||picked.length>=N)return false;
@@ -625,10 +681,27 @@ function drillPlan(){
   const mistakes=Object.entries(S.mistakes).filter(([,m])=>!m.done)
     .sort((a,b)=>(b[1].leech?1:0)-(a[1].leech?1:0)||trouble(b[1])-trouble(a[1])).map(([g])=>+g);
   const unseen=mix.new>0?unseenQuestions().map(q=>q.g):[];
+  /* Final week only. Everything you have ever missed comes back, retired or
+     not — cleared in August is not the same as known in September — and so
+     does anything you have not laid eyes on in STALE_DAYS, whatever box it
+     climbed to. Spaced repetition is a plan for a year you do not have. */
+  const missed=fin?Object.entries(S.mistakes).filter(([,m])=>m.done)
+    .sort((a,b)=>trouble(b[1])-trouble(a[1])).map(([g])=>+g):[];
+  const stale=fin?Object.keys(S.sr).filter(g=>QByG[g]&&(S.sr[g].last||0)<now-STALE_DAYS*DAY)
+    .sort((a,b)=>(S.sr[a].last||0)-(S.sr[b].last||0)).map(g=>+g):[];
 
   fill(due,'due',Math.round(N*mix.due));
   fill(mistakes,'mistake',Math.round(N*mix.mistake));
   fill(unseen,'new',N);                      /* new takes its share plus every slot the other two left */
+  /* Both empty outside the final week. Inside it they split what is left
+     rather than letting one eat the drill: there are hundreds of old mistakes
+     and hundreds of cold cards, and a session of nothing but old mistakes
+     never checks whether the questions you got right in August survived. */
+  if(fin){
+    fill(missed,'missed',Math.ceil((N-picked.length)/2));
+    fill(stale,'stale',N);
+    fill(missed,'missed',N);                 /* nothing cold left → back to the mistakes */
+  }
   /* Still short? A thin category's slack goes to whatever is left, in order of
      what it costs you to skip. `final` mode allows no new questions at all, so
      it can legitimately come in under target. */
@@ -1131,6 +1204,7 @@ function notePicked(m,q,picked){
    Returns what it did, so markUnsure() can take it back. */
 function recordAnswer(q,correct,picked){
   S.answered++;if(correct)S.correct++;
+  noteRecent(correct);
   const rec={preBox:srUpdate(q.g,correct),credited:null,retired:false};
   const tp=S.topics[q.p]||(S.topics[q.p]={seen:0,correct:0});tp.seen++;if(correct)tp.correct++;
   const g=canon(q.g),today=dayKey();               /* duplicates share one record */
@@ -1150,6 +1224,134 @@ function recordAnswer(q,correct,picked){
   }
   save();
   return rec;
+}
+
+/* ============ ROLLING ACCURACY ============
+   Lifetime accuracy never forgets your first week. In a sprint that starts by
+   deliberately serving 1,500 questions you have never seen, it is a number
+   that can only fall for a fortnight and then crawl — precisely when you need
+   to see the recovery. So the headline is the last RECENT_N answers and the
+   lifetime figure sits underneath it in small type.
+
+   A "wasn't sure" tap does not take the tick back here. Accuracy is the
+   outcome — a guess that lands right would have landed right on the day too.
+   What it does not know is *why*, and that is what the pass probability below
+   is for: `unsure` is evidence there, not here. */
+const RECENT_N=200;
+function noteRecent(correct){
+  const r=S.recent||(S.recent=[]);
+  r.push(correct?1:0);
+  if(r.length>RECENT_N)r.splice(0,r.length-RECENT_N);
+}
+function recentAcc(){
+  const r=S.recent||[];
+  if(!r.length)return null;
+  return {pct:Math.round(r.reduce((a,b)=>a+b,0)/r.length*100),n:r.length};
+}
+
+/* ============ READINESS ============
+   An honest answer to "are we ready?".
+
+   Tests passed is the wrong headline. It counts sits — mostly retries of the
+   same 24 questions — and says nothing about the 1,500 you have never met. So
+   instead: draw 24 questions out of the bank the way the real exam does, grade
+   them against what your history says you know about each one, and do it a
+   thousand times. The number is the share of those exams that clear 18/24.
+
+   Every question contributes something, including the unseen ones, floored at
+   the rate you would guess it right and never zero. A paper of 24 questions
+   you have never seen is not a 0% chance of passing — it is about 1% — and
+   keeping that floor is what makes the figure rise honestly with coverage
+   instead of jumping the day you happen to sit a test. */
+const MC_DRAWS=1000, MC_SEED=0x5eed1;
+/* P(right | box). Deliberately modest at the top: box 5 means "right four
+   times across two weeks", not "cannot get this wrong". */
+const BOX_P=[.45,.60,.72,.82,.90,.95];
+const nCk=(n,k)=>{let r=1;for(let i=1;i<=k;i++)r=r*(n-i+1)/i;return Math.round(r)};
+/* What pure guessing is worth on this question. Two options is the coin flip
+   the whole sprint is about; a "select 2 of 4" is one in six, the hardest
+   thing in the bank to fall into by accident. */
+function guessRate(q){
+  const k=correctIdx(q).length||1;
+  return 1/Math.max(2,nCk(q.o.length,k));
+}
+function pKnow(q){
+  const g=canon(q.g),e=S.sr[g],m=S.mistakes[g],floor=guessRate(q);
+  if(!e)return floor;                                  /* never seen: a coin flip, not a zero */
+  let p=BOX_P[Math.min(e.box||0,BOX_P.length-1)];
+  if(m&&!m.done)p*=m.leech?.62:.80;                    /* open mistake — and the ones that keep coming back */
+  p*=Math.pow(.88,Math.min(e.unsure||0,4));            /* every "wasn't sure" is you telling the model something */
+  if((e.seen||0)<=1)p*=.9;                             /* one right answer is one data point */
+  return Math.max(floor,Math.min(.98,p));
+}
+/* ---- Calibration: what the tests you have actually sat say ----
+   Boxes and mistake counts are the model's own bookkeeping; a real sit is the
+   only outside check on it. Where sits exist the model is pulled towards
+   them — but measured only over the questions those tests contain, because
+   comparing a test score against a bank that is 80% unseen compares nothing.
+
+   Phase 4 change 5: a best score set with the answers on screen is a softer
+   room, so it counts for REVEALED_W of a blind one. And bests are optimistic
+   by construction — the best of every attempt — which is why the whole
+   correction is shrunk towards 1 by a prior worth CAL_PRIOR clean sits and
+   then clamped. It nudges; it never takes over. */
+const REVEALED_W=.35, CAL_PRIOR=3, CAL_MIN=.75, CAL_MAX=1.25;
+function calibration(){
+  let w=0,obs=0,mod=0;
+  for(const [n,st] of Object.entries(S.tests)){
+    if(!st||st.best==null)continue;
+    const t=TESTS.find(x=>x.n===+n);if(!t||!t.q.length)continue;
+    const wt=st.revealed?REVEALED_W:1;
+    w+=wt;
+    obs+=wt*(st.best/t.q.length);
+    mod+=wt*(t.q.reduce((a,q)=>a+pKnow(q),0)/t.q.length);
+  }
+  if(!w||mod<=0)return {k:1,w:0};
+  const k=(w*(obs/w)+CAL_PRIOR*(mod/w))/((w+CAL_PRIOR)*(mod/w));
+  return {k:Math.max(CAL_MIN,Math.min(CAL_MAX,k)),w};
+}
+/* xorshift with a fixed seed. The same progress must produce the same number
+   every time the app opens: a headline that wobbles two points on a reload is
+   a headline nobody believes, and 1,000 draws wobble about that much. */
+function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+let _ready=null;
+function readiness(){
+  if(_ready&&_ready.rev===_rev)return _ready;
+  const cal=calibration();
+  const p=POOL.map(q=>Math.max(guessRate(q),Math.min(.99,pKnow(q)*cal.k)));
+  const n=p.length,K=Math.min(24,n),idx=p.map((_,i)=>i),rnd=rng(MC_SEED);
+  let pass=0,score=0;
+  for(let d=0;d<MC_DRAWS;d++){
+    let hit=0;
+    /* Partial Fisher-Yates: 24 *distinct* questions, like the real paper. */
+    for(let i=0;i<K;i++){
+      const j=i+((rnd()*(n-i))|0),t=idx[i];idx[i]=idx[j];idx[j]=t;
+      if(rnd()<p[idx[i]])hit++;
+    }
+    score+=hit;
+    if(hit>=PASSMARK)pass++;
+  }
+  const out={p:pass/MC_DRAWS,mean:score/MC_DRAWS,cal:cal.k,sits:cal.w,seen:srSeen(),ts:Date.now()};
+  /* The hub carries no bank data, so it cannot model anything — it reads the
+     last figure this page worked out. Stale by definition, and it says so. */
+  S.readiness={p:out.p,mean:out.mean,seen:out.seen,ts:out.ts};
+  save();
+  _ready=Object.assign({rev:_rev},out);      /* after save(), which bumps _rev */
+  return _ready;
+}
+const readyLabel=p=>p>=.85?'ready':p>=.6?'nearly there':p>=.3?'not yet':'early days';
+function explainReadiness(){
+  const r=readiness(),cov=Math.round(r.seen/UNIQUE_N*100);
+  const sits=r.sits?`${r.sits.toFixed(1)} sit${r.sits===1?'':'s'} of evidence, pulling the model ${r.cal>=1?'up':'down'} by ${Math.abs(Math.round((r.cal-1)*100))}%`
+    :'no test sits yet, so this is the model on its own';
+  modal(`<h3 style="margin:0 0 4px">${Math.round(r.p*100)}% — ${readyLabel(r.p)}</h3>
+    <p class="sub" style="margin:0 0 14px">Out of ${MC_DRAWS} simulated papers of 24 questions drawn from the whole bank, ${Math.round(r.p*MC_DRAWS)} scored ${PASSMARK} or better. Typical score ${r.mean.toFixed(1)}/24.</p>
+    <div class="lbl">How each question is scored</div>
+    <p class="sub" style="margin:4px 0 12px;font-size:12.5px">From its spaced-repetition box, whether it is an open mistake or a leech, and how often you have tapped "wasn't sure" — floored at the rate you would guess it right. A question you have never seen counts as that floor (50% for a two-option, 25% for four), never as a zero. Bank coverage is ${cov}%, so ${100-cov}% of every simulated paper is still guesswork.</p>
+    <div class="lbl">Tests you have sat</div>
+    <p class="sub" style="margin:4px 0 0;font-size:12.5px">${esc(sits)}. A best score set with instant feedback on counts for ${REVEALED_W} of a blind one — you answered before you saw the mark, but the explanations arriving between questions is a softer room than the real thing.</p>
+    <div class="btn-row" style="margin-top:18px"><button class="btn primary" onclick="closeModal()">Got it</button>
+      <button class="btn ghost" onclick="closeModal();go('cram')">📄 Cram sheet</button></div>`);
 }
 
 /* ============ FINISH / RESULTS ============
@@ -1220,7 +1422,7 @@ function renderResults(score,total,passed){
             ?`<b>${score}</b> of <b>${total}</b>. Every one of these was a coin flip served next to its own near-miss — this score is meant to be lower than a test, and it doesn't count towards your pass rate.`
             :sess.source==='dates'
             ?`<b>${score}</b> of <b>${total}</b>, with the near-miss years put back in. Doesn't count towards your pass rate.`
-            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span></p>
+            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span>${readinessMove()}</p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
             ${wrongItems.length?`<button class="btn" onclick="practiceMistakes()">🎯 Fix ${wrongItems.length} mistake${wrongItems.length===1?'':'s'}</button>`:''}
@@ -1243,6 +1445,16 @@ function renderResults(score,total,passed){
         </div>
       </details>`}).join('')}
     </div>`;
+}
+/* What the session did to the only number that matters. A sweep of 50 unseen
+   questions moves it a point or two whatever you score, because coverage is
+   itself worth something — which is exactly the argument for doing them. */
+function readinessMove(){
+  const b=sess&&sess.readyBefore;
+  if(b==null)return '';
+  const a=readiness().p,d=Math.round(a*100)-Math.round(b*100);
+  return `<span class="chip" style="margin-left:6px;color:${d>0?'var(--good)':d<0?'var(--bad)':'var(--muted)'}" title="Chance of passing a random 24-question paper">${
+    d>0?'▲':d<0?'▼':'='} pass ${Math.round(a*100)}%${d?` (${d>0?'+':''}${d})`:''}</span>`;
 }
 function retrySame(){
   /* The training modes walk a queue, so "again" means the next batch off it,
@@ -1322,6 +1534,7 @@ function renderMistakes(){
     <div class="btn-row" style="margin-bottom:16px">
       <button class="btn primary" onclick="practiceMistakes()" ${all.length?'':'disabled'}>🎯 Practise ${all.length} mistake${all.length===1?'':'s'}</button>
       ${flagged.length?`<button class="btn" onclick="practiceFlagged()">★ Practise ${flagged.length} flagged</button>`:''}
+      ${all.length?`<button class="btn ghost" onclick="go('cram')">📄 Cram sheet</button>`:''}
       ${all.length?`<button class="btn ghost" onclick="clearMistakes()">Clear list</button>`:''}
     </div>
     ${leeches.length?`<b>🐛 Leeches (${leeches.length})</b>
@@ -1374,6 +1587,99 @@ function practiceFlagged(){const qs=Object.keys(S.flags).map(g=>QByG[g]).filter(
    only becomes one again if it is missed LEECH_AT more times. */
 function unflag(g){const c=canon(g),m=S.mistakes[c];if(S.flags[c])delete S.flags[c];if(m){m.done=true;m.leech=false}save();renderMistakes()}
 function clearMistakes(){modal(`<h3 style="margin:0 0 8px">Clear all mistakes?</h3><p class="sub">This marks every mistake — leeches included — as mastered. Can't be undone.</p><div class="btn-row"><button class="btn primary" onclick="Object.values(S.mistakes).forEach(m=>{m.done=true;m.leech=false});save();closeModal();renderMistakes()">Yes, clear</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
+
+/* ============ CRAM SHEET ============
+   The 4 September artifact: one screen, printable, everything still unresolved
+   on two sides of A4. Nothing here is new information — it is S.mistakes and
+   facts.js with the questions taken off, because on the last night you do not
+   want to be tested, you want to be told.
+
+   Ordered by what it costs you to have forgotten it: leeches, then open
+   mistakes by topic, then the dates you keep losing. Capped, because a sheet
+   that runs to nine pages is a sheet nobody reads. */
+/* 60 mistakes and 24 dates is what fits on two sides of A4 at 8.6pt in two
+   columns — measured against a real mid-sprint profile, not guessed. Past
+   that the sheet is nine pages and nine pages get read as none. */
+const CRAM_MISTAKES=60, CRAM_DATES=24;
+const cramRank=m=>(m.leech?1e6:0)+(m.count||0)*10+(m.unsure||0);
+function cramList(){
+  return Object.entries(S.mistakes).filter(([,m])=>!m.done)
+    .map(([g,m])=>({q:QByG[canon(g)],m})).filter(x=>x.q)
+    .sort((a,b)=>cramRank(b.m)-cramRank(a.m));
+}
+function cramCount(){return Object.values(S.mistakes).filter(m=>!m.done).length}
+/* How many questions in the bank turn on each year — 1066 in 21 of them, 2012
+   in 32. A contested year is one the exam can twist, so it earns its line even
+   when you have not got it wrong yet. */
+let _yearDf=null;
+function yearDf(){
+  if(_yearDf)return _yearDf;
+  _yearDf=new Map();
+  for(const q of POOL)for(const y of new Set([...qText(q).matchAll(YEAR_G)].map(m=>m[1])))
+    _yearDf.set(y,(_yearDf.get(y)||0)+1);
+  return _yearDf;
+}
+function cramDates(){
+  const df=yearDf(),weak=[],rest=[];
+  for(const x of YEAR_Q){
+    const g=canon(x.q.g),e=S.sr[g],m=S.mistakes[g];
+    ((!e||(m&&!m.done)||(e.box||0)<=1||(e.unsure||0)>0)?weak:rest).push(x);
+  }
+  const byContest=(a,b)=>(df.get(b.y)||0)-(df.get(a.y)||0)||+a.y-+b.y;
+  /* The bank holds "When did the English civil war begin?" and "When did the
+     English Civil war begin?" as separate ids — different option sets, so the
+     dedup keeps both, and rightly. On a sheet you read once they are one line. */
+  const seen=new Set(),out=[];
+  const take=(list,n)=>{for(const x of list){if(out.length>=n)break;
+    const k=dupNorm(x.q.t);if(seen.has(k))continue;seen.add(k);out.push(x)}};
+  take(weak.sort(byContest),CRAM_DATES);
+  take(rest.sort(byContest),CRAM_DATES);
+  return out.sort((a,b)=>+a.y-+b.y);          /* chronological: that is how dates stick */
+}
+/* "Which of these statements is correct?" is not worth printing — there the
+   answer IS the fact. Everything else reads stem → answer. */
+const STATEMENT_Q=/which (of these |of the following )?statements? (is|are) (correct|true)/i;
+function cramItem(x){
+  const {q,m}=x,ci=correctIdx(q);
+  const ans=ci.map(i=>q.o[i][0]).join(' + ');
+  const stem=STATEMENT_Q.test(q.t)?'':esc(q.t)+' ';
+  const fact=m&&m.leech?factOf(q):'';
+  const picks=(m&&m.picked)||{};
+  const worst=Object.entries(picks).map(([oi,n])=>({oi:+oi,n:+n}))
+    .filter(y=>q.o[y.oi]&&!q.o[y.oi][1]&&y.n>1).sort((a,b)=>b.n-a.n)[0];
+  return `<div class="it">${m&&m.leech?'<span class="w">🐛 </span>':''}${stem?`<span class="k">${stem}</span>`:''}<span class="a">${esc(ans)}</span>${
+    fact&&fact!==ans?`<span class="why">${esc(fact)}</span>`:''}${
+    worst?`<span class="why b">not “${esc(q.o[worst.oi][0])}” — you have picked that ${times(worst.n)}</span>`:''}</div>`;
+}
+function renderCram(){
+  if(FACTS===null)loadFacts().then(f=>{if(f)renderCram()});     /* leech facts land on the re-render */
+  const all=cramList(),shown=all.slice(0,CRAM_MISTAKES),dates=cramDates();
+  const leeches=shown.filter(x=>x.m.leech),open=shown.filter(x=>!x.m.leech);
+  const byTopic=TOPICS.map((name,i)=>({name,items:open.filter(x=>x.q.p===i)})).filter(t=>t.items.length);
+  const left=daysLeft(),r=readiness();
+  const el=document.getElementById('view-cram');
+  el.innerHTML=`
+    <h1>Cram sheet</h1>
+    <div class="cram-head">
+      <p class="sub" style="margin:0">${S.examDate?`Exam ${esc(S.examDate)}${left!=null?` · ${Math.max(0,left)} day${left===1?'':'s'} to go`:''} · `:''}pass probability ${Math.round(r.p*100)}% · ${all.length} still open</p>
+      <div class="btn-row noprint" style="margin-left:auto">
+        <button class="btn sm primary" onclick="window.print()">🖨 Print</button>
+        <button class="btn sm ghost" onclick="go('dashboard')">Back</button>
+      </div>
+    </div>
+    ${all.length?'':dates.length
+      ?`<p class="sub" style="margin:0 0 4px">Nothing open on your mistakes list 🎉 — what follows is the dates the bank contests most.</p>`
+      :`<div class="empty"><div class="e">🎉</div><p>Nothing open. Sit a test or run a gauntlet and this fills itself.</p></div>`}
+    <div class="cram">
+      ${leeches.length?`<div class="grp"><h3>🐛 Leeches — read these twice</h3>${leeches.map(cramItem).join('')}</div>`:''}
+      ${byTopic.map(t=>`<div class="grp"><h3>${esc(t.name)}</h3>${t.items.map(cramItem).join('')}</div>`).join('')}
+      ${dates.length?`<div class="grp"><h3>📅 Dates</h3>${dates.map(x=>{
+        const g=canon(x.q.g),e=S.sr[g],m=S.mistakes[g],bad=(m&&!m.done)||!e;
+        return `<div class="it"><span class="y${bad?' b':''}">${esc(x.y)}</span><span class="k">${esc(x.q.t)}</span></div>`}).join('')}</div>`:''}
+    </div>
+    ${all.length>shown.length?`<p class="sub" style="margin-top:12px;font-size:12.5px">Showing the ${shown.length} worst of ${all.length} open — clear some and the rest appear.</p>`:''}
+    <p class="sub" style="margin-top:14px;font-size:12px">Every line is your own mistake list plus the sentence from the explanation that states the fact. Nothing here is generated.</p>`;
+}
 
 /* ============ STATS ============ */
 function renderStats(){
@@ -1587,7 +1893,7 @@ document.addEventListener('keydown',e=>{
 window.addEventListener('beforeunload',e=>{if(sess&&sess.timed&&!sess.endTs&&document.getElementById('view-quiz')&&!document.getElementById('view-quiz').classList.contains('hidden')){e.preventDefault();e.returnValue=''}});
 
 /* ============ DEEP LINKS ============
-   #drill · #sweep · #twist · #dates · #mistakes · #stats · #test=7 ·
+   #drill · #sweep · #twist · #dates · #mistakes · #stats · #cram · #test=7 ·
    #q=412 (from the hub's search) */
 function showQuestion(g){
   const q=QByG[g];if(!q){toast('Question not found');return}
@@ -1611,7 +1917,7 @@ function route(){
   if(h==='sweep'){startSweep();return}
   if(h==='twist'){startTwist();return}
   if(h==='dates'){startDates();return}
-  if(h==='mistakes'||h==='stats')go(h);
+  if(h==='mistakes'||h==='stats'||h==='cram')go(h);
 }
 addEventListener('hashchange',route);
 

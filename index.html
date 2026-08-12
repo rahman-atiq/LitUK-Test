@@ -373,6 +373,19 @@ var TOPIC_NAMES = [
   var passed = Object.keys(tests).filter(function (k) { return tests[k].lastPass; }).length;
   var answered = M.answered || 0;
   var acc = answered ? Math.round((M.correct || 0) / answered * 100) : 0;
+  /* Rolling accuracy over the last 200 answers. Lifetime accuracy never
+     forgets the first week of a sprint that starts on 1,500 unseen questions,
+     so it is the recent figure that goes on the tile. */
+  var recent = Array.isArray(M.recent) ? M.recent : [];
+  var recAcc = recent.length
+    ? Math.round(recent.reduce(function (a, b) { return a + b; }, 0) / recent.length * 100)
+    : null;
+  /* Pass probability, as the tests app last worked it out. This page carries
+     no question bank — modelling 1,858 questions here would mean loading
+     750KB to draw one tile — so it reads the number rather than computing it,
+     and says how old it is if it has gone stale. */
+  var R = M.readiness && typeof M.readiness.p === "number" ? M.readiness : null;
+  var readyAge = R ? Math.floor((Date.now() - (R.ts || 0)) / 864e5) : 0;
   var toFix = Object.keys(mistakes).filter(function (g) { return !mistakes[g].done; }).length;
   var streak = drill.streak || 0;
   var doneToday = drill.last === dayKey();
@@ -388,14 +401,17 @@ var TOPIC_NAMES = [
   if (hasProgress) {
     document.getElementById("progress").hidden = false;
 
-    /* Coverage leads. Seeing 5% of the bank at 90% accuracy is not progress,
-       and the old tile row had no way of saying so. */
+    /* Pass probability leads, then coverage. Tests passed used to be the
+       headline and it was the wrong number twice over: it counts retries of
+       the same 24 questions, and it says nothing about the ones never met.
+       Seeing 5% of the bank at 90% accuracy is not progress either. */
     document.getElementById("stats").innerHTML = [
+      R ? tile(Math.round(R.p * 100) + "%", "pass chance", R.p >= .85 ? "good" : R.p >= .5 ? "" : "bad") : "",
       tile(cov + "%", "bank covered", cov >= 100 ? "good" : ""),
       tile(unseen, "never seen", unseen ? "bad" : "good"),
-      tile(acc + "%", "accuracy", acc >= 75 ? "good" : acc ? "bad" : ""),
+      tile(recAcc == null ? acc + "%" : recAcc + "%", recAcc == null ? "accuracy" : "recent accuracy",
+        (recAcc == null ? acc : recAcc) >= 75 ? "good" : "bad"),
       tile(toFix, "to fix", toFix ? "bad" : "good"),
-      tile(passed + '<span style="font-size:.9rem;color:var(--ink-3)">/' + TOTAL_TESTS + "</span>", "tests passed", passed ? "good" : ""),
       tile(streak, "day streak", streak ? "gold" : "")
     ].join("");
 
@@ -420,6 +436,9 @@ var TOPIC_NAMES = [
     if (weakest && TOPIC_NAMES[weakest.i]) {
       extras.push("Weakest topic: <b>" + TOPIC_NAMES[weakest.i] + "</b> at " + Math.round(weakest.pct * 100) + "%");
     }
+    extras.push("<b>" + passed + "</b>/" + TOTAL_TESTS + " tests passed");
+    if (recAcc != null) extras.push("All-time accuracy <b>" + acc + "%</b>");
+    if (R && readyAge >= 3) extras.push("Pass chance last worked out <b>" + readyAge + " days ago</b>");
     if (quizBest) extras.push("Practice quiz best: <b>" + quizBest + "</b>");
     if (extras.length) {
       var w = document.getElementById("weakline");
