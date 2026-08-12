@@ -17,9 +17,10 @@ questions.
 
 Two things deliberately left for you:
 
-1. **The phone restore.** Phase 1's GO criteria and Phase 5's device check both need a
-   real device. Export on the phone, clear site data in a private tab, import back.
-   *An untested backup is not a backup.*
+1. ~~**The phone restore.**~~ **Done 2026-08-12, on both phones** — exported, restored
+   in a different browser, dashboard checked against the phone. Closes Phase 1's GO
+   criteria and the device check in
+   [PLAN-exam-sprint.md](PLAN-exam-sprint.md).
 2. **The AI-crawler `robots.txt`.** Still needs a second, public
    `rahman-atiq/rahman-atiq.github.io` repo — re-verified 2026-08-10 that it does not
    exist and `/robots.txt` 404s. The file is ready at
@@ -157,7 +158,7 @@ refactor. Shipping it first converts every later phase from *careful* to
 
 **GO criteria** — export on the phone; in a private tab, clear site data and import
 the file back; test bests, drill streak, open mistakes and SR state all return
-identically. *An untested backup is not a backup — do the restore.*
+identically. **Met 2026-08-12 on both phones.**
 
 ### Phase 2 — Refactor to one engine, zero content change
 

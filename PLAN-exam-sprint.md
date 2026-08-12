@@ -85,16 +85,15 @@ changes, fixed origin. This plan adds three.
 | INV-7 | No phase generates new question content. Auto-derived questions risk teaching a wrong fact, which is worse than no question. Re-ordering, re-weighting and re-surfacing existing content is in scope; synthesis is not. |
 | INV-8 | No SR due date may fall after **2026-09-03**. A review scheduled past the exam is a review that never happens. |
 
-### Prerequisite — do this before Phase 1
+### Prerequisite — done 2026-08-12
 
 **Export progress on both phones.** Settings → ⬇ Export backup, save both files
 off-device. Every phase from here rewrites scheduling state; the export/import path
 shipped in the previous plan is the only way back.
 
-The phone restore test is still outstanding from
-[PLAN-practice-tests.md](PLAN-practice-tests.md). Do it now, on one device: export,
-clear site data in a private tab, import, confirm the numbers return. *An untested
-backup is not a backup* — and this is the week it stops being theoretical.
+**Both phones exported and both restores verified on the device**, closing the item
+carried over from [PLAN-practice-tests.md](PLAN-practice-tests.md). The backup is no
+longer theoretical, and the risk table's top row is retired.
 
 ---
 
@@ -543,7 +542,7 @@ checks) pins every ruling it produced.
 
 ---
 
-### Backup and restore — the risk table's top item
+### Backup and restore — closed 2026-08-12
 
 **Code side cleared 2026-08-12.** `tools/test-backup.mjs`, 348 checks against
 the real functions in a node VM with a stub DOM and a localStorage that survives
@@ -557,11 +556,11 @@ throws on malformed JSON by design and the caller's try/catch is what turns the
 throw into a refusal; testing the inner function alone would still pass on the
 day that try/catch is deleted.
 
-**Device side still open, and it is the whole point.** This proves the code
-restores, not that either phone's file does. Per device: export, move the file
-off the phone, restore it in a different browser, check the dashboard reads what
-it read on the phone. Until that has happened on both phones the sprint has no
-insurance.
+**Device side cleared 2026-08-12, on both phones.** The code test proves the code
+restores, not that either phone's file does, so each device was exported, the file
+moved off the phone, restored in a different browser, and the dashboard checked
+against what it read on the phone. Both matched. The sprint has its insurance and
+this item is closed — do not re-open it in a later session.
 
 ---
 
@@ -617,7 +616,7 @@ session. It should follow Phase 2, never precede Phase 1.
 
 | Risk | Notes |
 | --- | --- |
-| Progress lost mid-sprint | Export both phones **before Phase 1**. The restore test is still unperformed. Highest-consequence risk in this plan. |
+| ~~Progress lost mid-sprint~~ | **Retired 2026-08-12.** Both phones exported and both restores verified on the device. Was the highest-consequence risk in this plan; it is now covered. |
 | Accuracy drops and morale follows | Guaranteed and correct — you are trading 85% on familiar questions for 65% on new ones. Phase 4's rolling accuracy makes the recovery visible. Say this out loud to each other on day 3. |
 | Dedup merges the discrimination pairs | INV-6. The stem-only key destroys 140 questions. Any dedup code must assert the unique count lands on 1,858. |
 | Retirement rules reopen hundreds of mistakes | Phase 2 migration keeps already-retired mistakes retired. Do not "recompute from history" — it is demoralising and the history is not trustworthy anyway. |
