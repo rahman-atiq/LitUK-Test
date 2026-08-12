@@ -454,6 +454,59 @@ including alongside another phase.
 **GO criteria** — the report runs clean over all 1,858 and its top 20 flags are
 worth a human's time.
 
+**Started 2026-08-12, not at GO.** `tools/verify-bank.mjs` runs over all 1,858
+against 1,999 chapter blocks and emits three signals. Where it stands, and the
+two dead ends already paid for:
+
+- **Cross-bank conflict reports 0, and the zero is verified.** The rule is
+  identical option set plus a near-identical stem, keyed differently. Every
+  candidate pair down to stem-Jaccard 0.30 was read by hand and every one was
+  innocent — two questions sharing a menu ("which TWO countries are in the
+  Commonwealth?" over different lists) have different right answers and neither
+  is wrong. Separately: the **32 duplicate pairs the engine collapses all agree**
+  on their answer, so the CANON collapse is not silently choosing between two
+  different keys. That was worth knowing and is now known.
+- **The two chapter-based signals are unreviewed**: 137 "chapters disagree",
+  209 "not in the chapters". Reviewing the top 20 of each for precision, and
+  tuning the thresholds from that rather than from theory, is the next task and
+  is what the GO bar is asking for.
+- **Dead end 1 — IDF cosine over answer-plus-explanation.** Near-duplicate
+  questions share one long explanation and ask about different numbers inside
+  it, so the discriminator is a single word — a saint's name, England vs
+  Northern Ireland, "join" vs "leave" the EU — and cosine over the shared prose
+  drowns it. Every one of the top 16 hits was a false positive.
+- **Dead end 2 — the strict version of the same idea.** Requiring near-identical
+  stems instead yields exactly one pair in the whole bank, also a false positive
+  ("at what age did Victoria become queen" 18 vs "when" 1837). Cross-question
+  numeric comparison does not work on this data. Do not rebuild it.
+- **What ground truth means here.** The chapter pages are this repo's rendering
+  of the handbook, not the handbook. "Unsupported" can only ever mean *this repo
+  does not say it* — never *the handbook does not say it*. Any future
+  auto-correction would launder the tool's own false positives into the bank,
+  which is why it prints and never edits.
+
+---
+
+### Backup and restore — the risk table's top item
+
+**Code side cleared 2026-08-12.** `tools/test-backup.mjs`, 348 checks against
+the real functions in a node VM with a stub DOM and a localStorage that survives
+a simulated reload: round trip, wrong file refused, pre-Phase-4 backup migrated,
+bare dump, restore over live progress, cancel is a no-op. Mutation-tested — an
+export that drops `recent`, a shape check that accepts anything, a restore that
+skips prefs, and a `migrate()` that stops being idempotent are all caught.
+
+Refusals are tested through `importData()`, not `readBackup()`. `readBackup`
+throws on malformed JSON by design and the caller's try/catch is what turns the
+throw into a refusal; testing the inner function alone would still pass on the
+day that try/catch is deleted.
+
+**Device side still open, and it is the whole point.** This proves the code
+restores, not that either phone's file does. Per device: export, move the file
+off the phone, restore it in a different browser, check the dashboard reads what
+it read on the phone. Until that has happened on both phones the sprint has no
+insurance.
+
 ---
 
 ## 4. The study protocol
