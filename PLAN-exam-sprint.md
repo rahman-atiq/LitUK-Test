@@ -454,9 +454,11 @@ including alongside another phase.
 **GO criteria** — the report runs clean over all 1,858 and its top 20 flags are
 worth a human's time.
 
-**Started 2026-08-12, not at GO.** `tools/verify-bank.mjs` runs over all 1,858
-against 1,999 chapter blocks and emits three signals. Where it stands, and the
-two dead ends already paid for:
+**Shipped 2026-08-12, at GO.** `tools/verify-bank.mjs` runs over all 1,858
+against 1,999 chapter blocks and emits three signals, now **0 conflict · 9
+chapters-disagree · 47 not-in-the-chapters**. The review the GO bar asks for was
+done by hand against the chapter pages, and `tools/test-verify-bank.mjs` (43
+checks) pins every ruling it produced.
 
 - **Cross-bank conflict reports 0, and the zero is verified.** The rule is
   identical option set plus a near-identical stem, keyed differently. Every
@@ -466,10 +468,53 @@ two dead ends already paid for:
   is wrong. Separately: the **32 duplicate pairs the engine collapses all agree**
   on their answer, so the CANON collapse is not silently choosing between two
   different keys. That was worth knowing and is now known.
-- **The two chapter-based signals are unreviewed**: 137 "chapters disagree",
-  209 "not in the chapters". Reviewing the top 20 of each for precision, and
-  tuning the thresholds from that rather than from theory, is the next task and
-  is what the GO bar is asking for.
+- **The review said the thresholds were not the problem.** The plan expected
+  tuning; reading the flags said the features were measuring the wrong thing.
+  Of the top 20 "chapters disagree", **one** was real. Of the top 20 "not in the
+  chapters", **none** were — and in several the passage printed underneath the
+  flag contained the answer. No threshold fixes that.
+- **What the four findings are, and why they are one finding.** Every survivor
+  is the bank stating the world as it is now against chapters describing the
+  handbook edition: Commonwealth **56 members vs 54** (q194, q748), small claims
+  **£10,000 vs £5,000** (q170, q142, q22, q735), jury service **18–75 vs 18–70**
+  (q112), and **Brexit in 2020**, which the chapters never mention at all (q7).
+  The banks are more up to date than the handbook — and the exam is set from the
+  handbook, so on these the *right* answer is the older one. Worth deciding
+  deliberately rather than by whichever the drill happened to teach. The 2021
+  census figures (q102, 6% Muslim against the chapters' 4%) are the same shape
+  and surface in the other signal.
+- **Signal 2 now tests the figure the question stakes itself on.** It read every
+  number in answer *and* explanation, and 577 of the 768 questions carrying a
+  number carry none in the answer — so it argued about Bobby Moore's dates in a
+  question asking which sport he played. It now reads the answer only, plus a
+  TRUE-keyed stem, and never a FALSE-keyed or NOT- stem, whose numbers are wrong
+  on purpose. Four print-noise constructs are stripped first: lifespans in
+  brackets (92 questions), metric conversions (1,865 km² also passes for a
+  year), `see page N`, and clock times.
+- **Corroboration is what killed the rest.** The locator matches on topical
+  overlap, so "how many members does a jury have in Scotland?" landed on a
+  paragraph about 129 MSPs and 60 AMs and the tool reported that the chapters
+  say 129. They say 15 too, three pages away. A figure is now only contested if
+  no block stating it is at least 0.6× as on-topic as the one being cited — a
+  self-calibrating bar, and the list is identical from 0.6 down to 0.4.
+- **Signal 1 was measuring verbosity.** Scoring a whole claim against one block
+  penalises a wordy scrape and rewards a terse chapter: "countries join the
+  Commonwealth voluntarily" scored 19% against a block reading *"Membership is
+  voluntary"*. It now asks the only question it can honestly answer — do the
+  chapters use these words anywhere — and needs **two** absent words, because an
+  absent word scores at the maximum idf and one of them swamps a short claim.
+- **The tokenizer stemmed nothing and that was half the noise.** It stripped a
+  plural *s*. The banks and the chapters inflect differently — `recycling` vs
+  `recycle`, `the right to vote` vs `voting age`, `voluntarily` vs `voluntary` —
+  and every one of those read as a word the chapters never use. Crude suffix
+  stripping plus trailing `e`/`y` normalisation fixed more flags than any
+  threshold did.
+- **What is left is a coverage report, and it is useful.** The surviving 47 are
+  mostly questions you *cannot revise from the chapter pages*: banknotes,
+  allotments, vets, the tobacco age, `EastEnders`, the PTA spelled out, John
+  O'Groats to Land's End. Roughly three in twenty are the chapters saying the
+  same thing in other words — the Commonwealth's "shared goals" phrasing is the
+  repeat offender. Read it as a gap list, not an error list.
 - **Dead end 1 — IDF cosine over answer-plus-explanation.** Near-duplicate
   questions share one long explanation and ask about different numbers inside
   it, so the discriminator is a single word — a saint's name, England vs
@@ -483,7 +528,18 @@ two dead ends already paid for:
   of the handbook, not the handbook. "Unsupported" can only ever mean *this repo
   does not say it* — never *the handbook does not say it*. Any future
   auto-correction would launder the tool's own false positives into the bank,
-  which is why it prints and never edits.
+  which is why it prints and never edits. The same caution applies to the four
+  findings above: they are the chapters disagreeing with the banks, which is
+  evidence about the handbook, not a ruling from it. Buying the official
+  handbook (§5) is what would settle them.
+- **The review is pinned, not remembered.** `tools/test-verify-bank.mjs` holds
+  the 8 flags the reading kept and the 29 it ruled out, each tagged with its
+  failure mode, and asserts all four findings survive. Every constant in this
+  tool is a judgement over prose, and the temptation with a noisy triage tool is
+  to turn a knob until the count looks tidy; turning one now has to keep 37
+  hand-checked rulings on the right side of the line. The MUST-NOT ids were the
+  literal top of the old report, so the file fails against the tool as it stood
+  that morning.
 
 ---
 
@@ -546,7 +602,10 @@ Two additions that are worth it, both legitimate purchases:
   check on them, not just more volume.
 - **The official handbook, *Life in the United Kingdom: A Guide for New Residents*
   (3rd ed.).** Ground truth. Everything on the real test comes from it, and Phase 5
-  needs an authority to verify against.
+  needs an authority to verify against. **Phase 5 has now made this concrete:** it
+  found four places where the banks and the chapters disagree, all of them the
+  banks being more current than the handbook, and nothing in this repo can rule on
+  which the exam wants. £14 settles them.
 
 If either is bought, folding it in is a new bank file under the existing
 architecture — ids from 1890, test numbers from 201 — and a validator run. Half a
