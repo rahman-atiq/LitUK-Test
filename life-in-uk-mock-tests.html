@@ -96,6 +96,16 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
   .drill .streak{padding-left:0;border-left:0;text-align:left}
   .drill .go{width:100%}
 }
+/* Resume list — sessions you walked away from and can walk back into.
+   Capped at 3 rows on the dashboard with an expander, so an unbounded pile of
+   abandoned drills can never push the drill card below the fold (§3.1). */
+.rsm{display:flex;gap:8px;align-items:center;padding:11px 14px;border-top:1px solid var(--line)}
+.rsm .body{flex:1;min-width:0}
+.rsm .t{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rsm .d{color:var(--muted);font-size:12px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rsm .btn{flex:none}
+.rsm .x{padding:7px 10px}
+.rsmhd{display:flex;align-items:center;gap:8px;padding:13px 14px 11px;font-weight:800;font-size:13.5px}
 .act{display:flex;gap:12px;align-items:center;text-align:left;padding:16px}
 .act .emo{font-size:24px}
 .act .t{font-weight:700}
@@ -297,10 +307,13 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
     <div class="spacer"></div>
     <nav class="nav" id="nav">
       <button data-v="dashboard" onclick="go('dashboard')">Tests</button>
-      <button data-v="drill" onclick="startDrill()">Drill</button>
+      <button data-v="drill" onclick="drillTab()">Drill</button>
       <button data-v="mistakes" onclick="go('mistakes')">Mistakes</button>
       <button data-v="stats" onclick="go('stats')">Stats</button>
     </nav>
+    <!-- One tap back into the session you are in the middle of. The resume list
+         on the dashboard is the durable way in; this is the quick one. -->
+    <button class="btn sm primary hidden" id="resumeChip" onclick="resumeActive()" title="Back to your session">▶ Resume</button>
     <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
     <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
   </div>
@@ -507,11 +520,16 @@ function testStat(n){return S.tests[n]||{best:null,attempts:0,lastPass:null}}
 function go(v){
   ['dashboard','quiz','results','mistakes','stats','cram'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  /* A clock only runs while you are looking at it. A timed session left behind
+     on another screen used to keep ticking and then grade itself (INV-9/INV-10);
+     the deadline is absolute, so nothing is gained by counting in the dark. */
+  if(v!=='quiz')stopTimer();
   window.scrollTo(0,0);
   if(v==='dashboard')renderDashboard();
   if(v==='mistakes')renderMistakes();
   if(v==='stats')renderStats();
   if(v==='cram')renderCram();
+  syncResumeChip();
 }
 
 /* ============ DASHBOARD ============ */
@@ -569,6 +587,7 @@ function renderDashboard(){
   el.innerHTML=`
     <h1>Your dashboard</h1>
     <p class="sub">${TESTS.length} official-style tests · 24 questions each · 75% to pass.</p>
+    ${resumeSection()}
     ${drillCard()}
     <div class="grid stat-row">
       ${left==null?'':`<div class="card stat tap" onclick="openSettings()" title="${esc(S.examDate)} — tap to change">
@@ -611,8 +630,229 @@ function drillSize(){const n=Math.round(+prefs.dailyTarget||DRILL_DEFAULT);
   return Math.max(DRILL_MIN,Math.min(DRILL_MAX,n))}
 function setDailyTarget(n){prefs.dailyTarget=n;savePrefs();openSettings()}
 
+/* ============ SESSION STORE ============
+   A session used to be one module variable with no way back into it. Leave the
+   quiz view and it was unreachable; reload and it was gone; and a timed one kept
+   ticking under whatever screen you had moved to until it graded fifteen
+   unanswered questions, incremented S.attempts and filed the sit — the one bug
+   in this app that made it lie to you about how ready you are.
+
+   So sessions live in their own localStorage key, as a keyed collection rather
+   than a slot: several at once, and starting one never destroys another (D-2).
+
+   What is stored is a slim projection, never the session itself. items[].q is a
+   live reference into the bank, so persisting sessions whole would duplicate
+   ~60 KB of question text per drill; only the global id goes to disk and QByG
+   rehydrates it — ~5 KB for a default drill, against an S that is already
+   rewritten in full on every single answer.
+
+   INV-11: this is a third key. lituk_v1 and lituk_prefs are untouched, and the
+   store is deliberately absent from backups — an unfinished session is not
+   progress, and a backup restored onto another phone should not resurrect a
+   half-finished mock from this one. */
+const SESS_LS='lituk_sess_v1';
+const TEST_MINUTES=45;
+let sess=null;                             /* the live session, in memory only */
+let sessOpen=false;                        /* "N more" expander — view state, never stored */
+let _sessDropped=0;
+
+/* Items of the Date Gauntlet are built for the session, not drawn from the bank:
+   their options do not correspond to the bank question's option list, so `picked`
+   would be meaningless against it. Their stem and options ride along; everything
+   else still comes from the id. */
+function slimItem(it){
+  const o={g:it.q.g,order:it.order,picked:it.picked,checked:!!it.checked};
+  if(it.checked)o._correct=!!it._correct;
+  if(it.unsure)o.unsure=1;
+  /* Not optional (F-7): without it "Wasn't sure" on a resumed question reads
+     preBox as undefined, zeroes the box instead of restoring it, and leaves the
+     credited day banked. */
+  if(it._rec)o._rec=it._rec;
+  if(it.q._derived)o.d={t:it.q.t,o:it.q.o,_derived:it.q._derived};
+  return o;
+}
+function fatItem(si){
+  const base=QByG[si.g];
+  if(!base)return null;
+  const q=si.d?Object.assign({},base,{t:si.d.t,o:si.d.o,_derived:si.d._derived}):base;
+  const it={q,order:si.order,picked:si.picked,checked:!!si.checked};
+  if(si.checked)it._correct=!!si._correct;
+  if(si.unsure)it.unsure=true;
+  if(si._rec)it._rec=si._rec;
+  return it;
+}
+/* INV-12, the loud half: a stored session is only offered if every one of its
+   ids still resolves and every index is still in range. The silent failure —
+   resuming a 24-question test with 23 questions — is the one thing worse than
+   not resuming at all. */
+function sessOk(s){
+  if(!s||typeof s!=='object'||!Array.isArray(s.items)||!s.items.length)return false;
+  if(typeof s.sid!=='number'||typeof s.idx!=='number'||s.idx<0||s.idx>=s.items.length)return false;
+  if(typeof s.title!=='string')return false;
+  if(s.timed&&typeof s.deadline!=='number')return false;
+  return s.items.every(it=>{
+    if(!it||typeof it.g!=='number'||!Array.isArray(it.order)||!Array.isArray(it.picked))return false;
+    const opts=it.d?it.d.o:(QByG[it.g]&&QByG[it.g].o);
+    if(!Array.isArray(opts)||it.order.length!==opts.length)return false;
+    return it.order.every(i=>i>=0&&i<opts.length)&&it.picked.every(i=>i>=0&&i<opts.length);
+  });
+}
+function slimSess(s){
+  return {sid:s.sid,instant:s.instant,title:s.title,timed:s.timed,testN:s.testN,
+    source:s.source,idx:s.idx,readyBefore:s.readyBefore,startTs:s.startTs,
+    deadline:s.deadline,items:s.items.map(slimItem)};
+}
+function hydrate(s){
+  if(!sessOk(s))return null;
+  const items=s.items.map(fatItem);
+  if(items.some(x=>!x))return null;        /* all or nothing (INV-12) */
+  return {sid:s.sid,instant:!!s.instant,title:s.title,timed:!!s.timed,
+    testN:s.testN==null?null:s.testN,source:s.source,idx:s.idx,
+    readyBefore:s.readyBefore,startTs:s.startTs,deadline:s.deadline,items};
+}
+function loadSessions(){
+  let raw=null;const out={};let dropped=0;
+  try{raw=JSON.parse(localStorage.getItem(SESS_LS))}catch(e){raw=null}
+  if(raw&&raw.v===1&&raw.sessions&&typeof raw.sessions==='object'){
+    for(const s of Object.values(raw.sessions)){
+      if(sessOk(s))out[s.sid]=s;else dropped++;
+    }
+  }
+  /* One bad session never blocks the others (INV-12). */
+  if(dropped)console.error(`LITUK: dropped ${dropped} unfinished session(s) that no longer resolve against the bank`);
+  _sessDropped=dropped;
+  return out;
+}
+let sessions=loadSessions();
+if(_sessDropped)saveSessions();
+
+function saveSessions(){
+  try{localStorage.setItem(SESS_LS,JSON.stringify({v:1,sessions}))}
+  catch(e){console.error('LITUK: could not write the session store',e)}
+}
+/* Called on every state change the quiz can make — pick, check, unsure, and
+   every move between questions. Strictly cheaper than the full-S write that
+   already happens alongside it. */
+function touchSess(){
+  if(!sess)return;
+  sessions[sess.sid]=slimSess(sess);
+  saveSessions();
+}
+/* One of exactly two places a session leaves the store; the other is an explicit
+   discard. No expiry, no cap, no eviction (INV-13). */
+function forgetSess(sid){delete sessions[sid];saveSessions()}
+function discardSess(sid){
+  forgetSess(sid);
+  if(sess&&sess.sid===sid){stopTimer();sess=null}
+  syncResumeChip();
+}
+function confirmDiscard(sid){
+  const s=sessions[sid];if(!s)return;
+  modal(`<h3 style="margin:0 0 8px">Discard ${esc(s.title)}?</h3>
+    <p class="sub">${esc(sessLine(s))}. Nothing is recorded and nothing is taken back — answers you already checked keep whatever they did to your progress.</p>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn primary" style="background:var(--bad);border-color:var(--bad)" onclick="closeModal();discardSess(${sid});renderDashboard();toast('Session discarded')">Discard</button>
+      <button class="btn ghost" onclick="closeModal()">Keep it</button>
+    </div>`);
+}
+const quizHidden=()=>document.getElementById('view-quiz').classList.contains('hidden');
+const remainSecs=s=>s&&s.deadline?Math.max(0,(s.deadline-Date.now())/1000|0):null;
+/* Newest first: sid is startTs, so recency sorting is free. */
+function sessList(){return Object.values(sessions).sort((a,b)=>b.sid-a.sid)}
+function newestOf(source,testN){
+  return sessList().find(s=>s.source===source&&(testN===undefined||s.testN===testN));
+}
+function startedAgo(ts){
+  const d=new Date(ts),hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const k=dayKey(ts);
+  if(k===dayKey())return `started ${hm} today`;
+  if(k===dayKey(Date.now()-DAY))return `started ${hm} yesterday`;
+  return `started ${Math.round((Date.now()-ts)/DAY)} days ago`;
+}
+function sessLine(s){
+  const bits=[`Q${s.idx+1}/${s.items.length}`];
+  if(s.timed){const r=remainSecs(s);bits.push(r?`${Math.ceil(r/60)} min left`:'time up')}
+  bits.push(startedAgo(s.startTs));
+  return bits.join(' · ');
+}
+function toggleSessOpen(){sessOpen=!sessOpen;renderDashboard()}
+function resumeSection(){
+  const all=sessList();
+  if(!all.length)return '';
+  const shown=sessOpen?all:all.slice(0,3),hidden=all.length-shown.length;
+  return `<div class="card" style="margin-top:18px">
+    <div class="rsmhd">▶ Carry on<span class="tag" style="margin-left:auto">${all.length} unfinished</span></div>
+    ${shown.map(s=>`<div class="rsm">
+      <div class="body">
+        <div class="t">${esc(s.title)}</div>
+        <div class="d">${esc(sessLine(s))}</div>
+      </div>
+      <button class="btn sm primary" onclick="resumeSess(${s.sid})">Resume</button>
+      <button class="btn sm ghost x" title="Discard this session" aria-label="Discard ${esc(s.title)}" onclick="confirmDiscard(${s.sid})">✕</button>
+    </div>`).join('')}
+    ${hidden>0||sessOpen?`<div class="rsm" style="justify-content:center">
+      <button class="btn sm ghost" onclick="toggleSessOpen()">${sessOpen?'Show fewer':`${hidden} more`}</button></div>`:''}
+  </div>`;
+}
+function syncResumeChip(){
+  const b=document.getElementById('resumeChip');if(!b)return;
+  /* Only while a session is genuinely live: a finished one is off the store the
+     moment it is graded, so the chip cannot outlive it onto the results screen. */
+  b.classList.toggle('hidden',!(sess&&sessions[sess.sid]&&quizHidden()));
+}
+function resumeActive(){if(sess)resumeSess(sess.sid)}
+function resumeSess(sid){
+  const live=(sess&&sess.sid===sid)?sess:hydrate(sessions[sid]);
+  if(!live){toast('That session could not be restored');forgetSess(sid);renderDashboard();return}
+  sess=live;
+  closeModal();
+  /* Past the deadline you get a choice, never a verdict (INV-9, D-1). */
+  if(sess.timed&&remainSecs(sess)<=0){expiredPrompt();return}
+  go('quiz');renderQuiz();
+  if(sess.timed)startTimer();
+}
+/* The only screen that may offer to record a timed sit you did not finish, and
+   it offers — it never acts. No third option, no default, nothing on a timer. */
+function expiredPrompt(){
+  const s=sess;if(!s)return;
+  const answered=s.items.filter(x=>x.picked.length).length;
+  modal(`<h3 style="margin:0 0 4px">Time's up — ${esc(s.title)}</h3>
+    <p class="sub" style="margin:0 0 14px">The ${TEST_MINUTES} minutes ran out. You answered <b>${answered}</b> of <b>${s.items.length}</b>, and nothing has been recorded yet.</p>
+    <div class="lbl">Submit what I had</div>
+    <p class="sub" style="margin:2px 0 12px;font-size:12.5px">Grades the ${s.items.length - answered} unanswered question${s.items.length-answered===1?'':'s'} as wrong and files the attempt${s.testN?` against Test ${s.testN}`:''}.</p>
+    <div class="lbl">Discard, record nothing</div>
+    <p class="sub" style="margin:2px 0 14px;font-size:12.5px">The session goes; your score, attempts and pass probability are untouched.</p>
+    <div class="btn-row">
+      <button class="btn primary" onclick="closeModal();finishQuiz()">Submit what I had</button>
+      <button class="btn ghost" onclick="closeModal();discardSess(${s.sid});go('dashboard')">Discard, record nothing</button>
+    </div>`);
+}
+/* ---- A tab navigates, a button acts (§3.1) ----
+   The Drill tab used to be a start action wearing a navigation label: Drill →
+   Stats → Drill left two half-finished drills behind. Now the tab walks back
+   into the newest one, and the dashboard's Start drill button is the thing that
+   deliberately begins a fresh one. */
+function resumeOrStart(source,start){
+  const s=newestOf(source);
+  if(s)return resumeSess(s.sid);
+  start();
+}
+function drillTab(){resumeOrStart('drill',startDrill)}
+/* The one genuinely ambiguous case: source AND testN both matching. A Test 12
+   against an open Daily drill is not a collision — it is the point of D-2. */
+let _freshFn=null;
+function runFresh(){const f=_freshFn;_freshFn=null;if(f)f()}
+function collisionPrompt(s,fresh){
+  _freshFn=fresh;
+  modal(`<h3 style="margin:0 0 4px">${esc(s.title)} is already open</h3>
+    <p class="sub" style="margin:0 0 14px">${esc(sessLine(s))}. Starting fresh leaves that one waiting on your dashboard.</p>
+    <div class="btn-row">
+      <button class="btn primary" onclick="closeModal();resumeSess(${s.sid})">Resume</button>
+      <button class="btn" onclick="closeModal();runFresh()">Start fresh</button>
+    </div>`);
+}
+
 /* ============ SESSION ============ */
-let sess=null;
 /* `instant` overrides the feedback pref for modes that only make sense one way
    (Sweep). Everything else — timed tests included — follows the pref: when you
    see the answer is your decision, not the app's. What the app does owe you is
@@ -628,18 +868,33 @@ function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,ord
   if(order==='cluster')list=clusterOrder(list);
   else if(order!=='keep'&&prefs.shufQ&&source!=='mistakes')list=shuffle(list);
   if(instant==null)instant=prefs.feedback==='instant';
-  sess={instant,title,timed,testN,source,idx:0,
+  /* startTs doubles as the session id: unique per session for any human, and it
+     sorts the resume list by recency for free. The loop is pure insurance
+     against two sessions landing in the same millisecond. */
+  let startTs=Date.now();while(sessions[startTs])startTs++;
+  sess={sid:startTs,instant,title,timed,testN,source,idx:0,
     readyBefore:readiness().p,             /* so the results screen can show what the session moved */
     items:list.map(q=>{
       let order=q.o.map((_,i)=>i);
       if(prefs.shufO)order=shuffle(order);
       return {q,order,picked:[],checked:false};
     }),
-    startTs:Date.now(),endTs:null,remain:timed?45*60:null};
-  if(timed)startTimer();
+    startTs,
+    /* INV-10: an absolute deadline, so time passes whether the app is on screen
+       or not. The old counter was decremented once per interval tick, which a
+       backgrounded PWA stops firing — every timed test was quietly longer than
+       45 minutes by however long you had looked away. */
+    deadline:timed?startTs+TEST_MINUTES*60000:null};
+  touchSess();
   go('quiz');renderQuiz();
+  if(timed)startTimer();
 }
-function startTest(n){const t=TESTS.find(x=>x.n===n);if(!t){toast('That test no longer exists');return}makeSession(t.q,{title:`Test ${n}`,timed:true,testN:n,source:'test'})}
+function startTest(n){
+  const t=TESTS.find(x=>x.n===n);if(!t){toast('That test no longer exists');return}
+  const fresh=()=>makeSession(t.q,{title:`Test ${n}`,timed:true,testN:n,source:'test'});
+  const open=newestOf('test',n);
+  open?collisionPrompt(open,fresh):fresh();
+}
 function startExam(){makeSession(shuffle(POOL).slice(0,24),{title:'Random exam',timed:true,source:'random'})}
 function practiceMistakes(){
   const ids=Object.entries(S.mistakes).filter(([g,m])=>!m.done).map(([g])=>QByG[g]).filter(Boolean);
@@ -996,13 +1251,28 @@ function startDates(n){
 
 /* ============ TIMER ============ */
 let timerInt=null;
-function startTimer(){clearInterval(timerInt);timerInt=setInterval(()=>{
-  if(!sess||!sess.timed)return;
-  sess.remain--;
-  const t=document.getElementById('timer');
-  if(t){t.textContent=fmt(sess.remain);t.classList.toggle('warn',sess.remain<=60)}
-  if(sess.remain<=0){clearInterval(timerInt);toast("Time's up!");finishQuiz()}
-},1000)}
+function stopTimer(){clearInterval(timerInt);timerInt=null}
+/* The tick paints; it does not keep score. Remaining time is derived from the
+   absolute deadline every second (INV-10), so a dropped tick costs nothing and a
+   backgrounded app cannot grant you extra minutes.
+
+   The visibility guard is belt and braces on top of go() clearing the interval:
+   no path may resurrect a hidden session's clock, because a clock reaching zero
+   off screen is exactly how the app used to file a sit nobody asked for. */
+function tickTimer(){
+  if(!sess||!sess.timed||quizHidden()){stopTimer();return}
+  const r=remainSecs(sess),t=document.getElementById('timer');
+  if(t){t.textContent=fmt(r);t.classList.toggle('warn',r<=60)}
+  /* Even here, watching it happen, expiry offers — it never submits (INV-9). */
+  if(r<=0){stopTimer();expiredPrompt()}
+}
+function startTimer(){stopTimer();tickTimer();timerInt=setInterval(tickTimer,1000)}
+/* iOS suspends a backgrounded PWA's intervals outright, so coming back to the
+   app would otherwise show a clock frozen where you left it — the display lying
+   about a deadline that never stopped. Repaint from the wall clock on return. */
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&sess&&sess.timed&&!quizHidden())startTimer();
+});
 function fmt(s){s=Math.max(0,s);return`${String(s/60|0).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
 
 /* ============ QUIZ RENDER ============ */
@@ -1015,7 +1285,7 @@ function renderQuiz(){
       <span class="chip title">${esc(sess.title)}</span>
       <span class="chip count">Q ${sess.idx+1} / ${sess.items.length}</span>
       <div class="spacer"></div>
-      ${sess.timed?`<span class="chip timer" id="timer">${fmt(sess.remain)}</span>`:''}
+      ${sess.timed?`<span class="chip timer" id="timer">${fmt(remainSecs(sess))}</span>`:''}
       <button class="flagbtn ${flagged(q.g)?'on':''}" id="flagBtn" onclick="toggleFlag(${q.g})">${flagged(q.g)?'★ Flagged':'☆ Flag'}</button>
     </div>
     <div class="qprog"><i style="width:${(sess.idx+1)/sess.items.length*100}%"></i></div>
@@ -1071,6 +1341,7 @@ function pick(oi){
   });
   // auto-advance in exam single-choice? no — let user move. But refresh dot + finish count
   if(!sess.instant)refreshDots();
+  touchSess();
 }
 function refreshDots(){
   document.querySelectorAll('.dots .dot').forEach((d,i)=>{
@@ -1086,6 +1357,7 @@ function checkQ(){
   const ci=correctIdx(it.q);
   it._correct=eqSet(it.picked,ci);
   it._rec=recordAnswer(it.q,it._correct,it.picked);
+  touchSess();
   paintCheck();
   // swap button to Next/Finish
   renderQuiz();
@@ -1141,7 +1413,7 @@ function markUnsure(){
   m.unsure=(m.unsure||0)+1;
   m.miss=today;
   m.done=false;                                    /* guessed is not mastered, even if it was */
-  save();paintCheck();
+  save();touchSess();paintCheck();
 }
 const flagged=g=>!!S.flags[canon(g)];              /* duplicates share one flag */
 function toggleFlag(g){const c=canon(g);S.flags[c]?delete S.flags[c]:S.flags[c]=1;save();
@@ -1157,9 +1429,9 @@ function toQuestionTop(){
     -((hd?hd.offsetHeight:0)+8);
   window.scrollTo(0,Math.max(0,top));
 }
-function prevQ(){if(sess.idx>0){sess.idx--;renderQuiz();toQuestionTop()}}
-function nextQ(){if(sess.idx<sess.items.length-1){sess.idx++;renderQuiz();toQuestionTop()}}
-function jump(i){sess.idx=i;renderQuiz();toQuestionTop()}
+function prevQ(){if(sess.idx>0){sess.idx--;touchSess();renderQuiz();toQuestionTop()}}
+function nextQ(){if(sess.idx<sess.items.length-1){sess.idx++;touchSess();renderQuiz();toQuestionTop()}}
+function jump(i){sess.idx=i;touchSess();renderQuiz();toQuestionTop()}
 
 /* ============ SPACED REPETITION ============
    Leitner boxes. Get it right, it comes back later; get it wrong, it drops to
@@ -1399,7 +1671,11 @@ function explainReadiness(){
    to be harder or stranger than a real sit. */
 const TRAINING=new Set(['sweep','twist','dates']);
 function finishQuiz(){
-  clearInterval(timerInt);
+  stopTimer();
+  /* Graded is finished: the store entry goes here and on an explicit discard,
+     and nowhere else (INV-13). `sess` stays live — the results screen and
+     retrySame() are still reading it. */
+  forgetSess(sess.sid);
   // grade any unchecked (exam) items now
   if(!sess.instant){
     sess.items.forEach(it=>{const ci=correctIdx(it.q);it.checked=true;it._correct=it.picked.length?eqSet(it.picked,ci):false;recordAnswer(it.q,it._correct,it.picked)});
@@ -1439,7 +1715,11 @@ function renderResults(score,total,passed){
   const rc=training?'var(--brand)':passed?'var(--good)':'var(--bad)';
   const el=document.getElementById('view-results');
   const wrongItems=sess.items.filter(it=>!it._correct);
+  /* Elapsed, not effort. Now that a session can be left and picked up tomorrow,
+     that gap is inside this number — so past a few hours it stops describing
+     anything and is dropped rather than reported as "1440:00 taken". */
   const secs=Math.round((Date.now()-sess.startTs)/1000);
+  const took=secs<6*3600?`<span class="chip" style="margin-left:6px">${fmt(secs)} taken</span>`:'';
   el.innerHTML=`
     <h1>${sess.title} — results</h1>
     <div class="card pad" style="margin-bottom:16px">
@@ -1462,7 +1742,7 @@ function renderResults(score,total,passed){
             ?`<b>${score}</b> of <b>${total}</b>. Every one of these was a coin flip served next to its own near-miss — this score is meant to be lower than a test, and it doesn't count towards your pass rate.`
             :sess.source==='dates'
             ?`<b>${score}</b> of <b>${total}</b>, with the near-miss years put back in. Doesn't count towards your pass rate.`
-            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} <span class="chip" style="margin-left:6px">${fmt(secs)} taken</span>${readinessMove()}</p>
+            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} ${took}${readinessMove()}</p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
             ${wrongItems.length?`<button class="btn" onclick="practiceMistakes()">🎯 Fix ${wrongItems.length} mistake${wrongItems.length===1?'':'s'}</button>`:''}
@@ -1845,7 +2125,11 @@ function applyRestore(){
   pendingRestore=null;
   location.reload();      /* reload rather than patch S — nothing stale survives */
 }
-function resetAll(){modal(`<h3 style="margin:0 0 8px">Reset everything?</h3><p class="sub">Deletes all scores, mistakes and stats on this device.</p><div class="btn-row"><button class="btn primary" style="background:var(--bad);border-color:var(--bad)" onclick="S=structuredClone(DEFAULT);save();closeModal();go('dashboard');toast('All progress reset')">Delete all</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
+/* The one user action that also clears the session store — "everything" has to
+   mean everything, and leaving half-finished sessions pointing at wiped progress
+   would be a stranger outcome than deleting them (INV-13 wants a user action,
+   and this is the most explicit one in the app). */
+function resetAll(){modal(`<h3 style="margin:0 0 8px">Reset everything?</h3><p class="sub">Deletes all scores, mistakes, stats and unfinished sessions on this device.</p><div class="btn-row"><button class="btn primary" style="background:var(--bad);border-color:var(--bad)" onclick="S=structuredClone(DEFAULT);save();sess=null;stopTimer();sessions={};saveSessions();closeModal();go('dashboard');toast('All progress reset')">Delete all</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
 
 /* ============ TOPIC PICKER / MODAL ============ */
 function topicPicker(){
@@ -1919,7 +2203,7 @@ document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==
 
 /* ============ KEYBOARD ============ */
 document.addEventListener('keydown',e=>{
-  if(document.getElementById('view-quiz').classList.contains('hidden'))return;
+  if(quizHidden()||!sess)return;
   if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;
   const it=sess.items[sess.idx];
   if(/^[1-9]$/.test(e.key)){const pos=+e.key-1;if(pos<it.order.length){pick(it.order[pos]);e.preventDefault()}}
@@ -1929,8 +2213,10 @@ document.addEventListener('keydown',e=>{
   else if(e.key.toLowerCase()==='f')toggleFlag(it.q.g);
 });
 
-/* ============ GUARD LEAVING MID-EXAM ============ */
-window.addEventListener('beforeunload',e=>{if(sess&&sess.timed&&!sess.endTs&&document.getElementById('view-quiz')&&!document.getElementById('view-quiz').classList.contains('hidden')){e.preventDefault();e.returnValue=''}});
+/* The "are you sure you want to leave?" guard that used to live here is gone.
+   It warned about losing a timed session, and a timed session is now durable —
+   close the tab, come back, resume it off the dashboard. A dialog defending
+   against a loss that can no longer happen is just a dialog. */
 
 /* ============ DEEP LINKS ============
    #drill · #sweep · #twist · #dates · #mistakes · #stats · #cram · #test=7 ·
@@ -1953,10 +2239,13 @@ function route(){
   if(!h)return;
   const q=h.match(/^q=(\d+)$/);   if(q){go('dashboard');showQuestion(+q[1]);return}
   const t=h.match(/^test=(\d+)$/);if(t){startTest(+t[1]);return}
-  if(h==='drill'){startDrill();return}
-  if(h==='sweep'){startSweep();return}
-  if(h==='twist'){startTwist();return}
-  if(h==='dates'){startDates();return}
+  /* Deep links take the tab behaviour, not the button's: a bookmarked launch
+     should land you back in the drill you were doing, not open a second one
+     beside it (§3.1). */
+  if(h==='drill'){drillTab();return}
+  if(h==='sweep'){resumeOrStart('sweep',()=>startSweep());return}
+  if(h==='twist'){resumeOrStart('twist',()=>startTwist());return}
+  if(h==='dates'){resumeOrStart('dates',()=>startDates());return}
   if(h==='mistakes'||h==='stats'||h==='cram')go(h);
 }
 addEventListener('hashchange',route);

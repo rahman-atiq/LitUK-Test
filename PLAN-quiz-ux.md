@@ -120,6 +120,27 @@ risk table is explicit that build hours are drill hours.
 
 ### Phase 1 — A session you cannot lose
 
+> **Status: built 2026-08-13, not yet GO.** All nine changes are in
+> `life-in-uk-mock-tests.html`; `sw.js` VERSION bumped to `2026-08-13b` so the
+> phones actually pick it up. The GO list below is unrun — every line of it is a
+> thing to do on a device, and none of it is done.
+>
+> Two things the plan did not anticipate, both resolved in code:
+>
+> - **The Date Gauntlet builds questions the bank does not contain.**
+>   `dateForward`/`dateReverse` synthesise option lists, so rehydrating from `g`
+>   alone would hand back the bank question with the wrong options and `picked`
+>   indices pointing at nothing. Derived items now persist their own stem and
+>   options (`d:{t,o,_derived}`); everything else still comes from the id.
+> - **Elapsed time on the results screen is now wall clock across a break.** A
+>   drill resumed the next morning would have claimed "1440:00 taken". The chip
+>   is dropped past 6 hours rather than reported.
+>
+> One deliberate omission: `toggleFlag` is **not** a session write point. Flags
+> live in `S.flags`, not in the session, so the slim projection is byte-identical
+> before and after — the write would cost a localStorage round trip per flag tap
+> and change nothing.
+
 **Goal:** navigate away, close the app, come back tomorrow, carry on. And nothing is
 ever recorded that you did not ask to record.
 
@@ -214,6 +235,16 @@ survives as Phase 4, on its own merits.
   still resume (INV-12).
 - Export a backup mid-session → the JSON contains no session key.
 - `node tools/test-backup.mjs` and `node tools/validate-banks.mjs` pass.
+
+**What has been checked without a device (2026-08-13).** `tools/test-backup.mjs`
+(348 checks) and `tools/validate-banks.mjs` both pass. A throwaway harness ran the
+real engine in node behind a stub DOM — no browser — booting it repeatedly over one
+localStorage to stand in for app restarts: 43 assertions covering persist/rehydrate,
+option-order stability, `_rec` survival, backup exclusion, parallel sessions, the
+Drill-tab and same-identity rules, single-session removal on finish, INV-12's
+all-or-nothing drop, and the derived Date Gauntlet round trip. **It proves the data
+survives. It proves nothing about how any of this feels or looks on a phone** — the
+GO list above is still the gate.
 
 **This is the revert point for everything that follows.**
 
@@ -310,7 +341,8 @@ change. Do it while the file is already open; do not make a session of it.
 
 1. ~~Resolve D-1 through D-4.~~ **Done 2026-08-13** — see §3. D-2 came back as
    *several*, which is why §3.1 exists.
-2. Phase 1, in one session, ending with the full GO list run on both phones.
+2. ~~Phase 1, in one session~~ **Built 2026-08-13** — see the status note in Phase 1.
+   Ending with the full GO list run on both phones: **still to do.**
 3. Commit and deploy. Use it for a day.
 4. Phase 5 (one line), then Phase 2.
 5. Phase 3 only if the drills still feel like work.
