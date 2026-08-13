@@ -38,7 +38,15 @@ button,.opt,.dot,summary,a{-webkit-tap-highlight-color:transparent;touch-action:
 a{color:var(--brand);text-decoration:none}
 .wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
 /* Header */
-header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  transition:transform .2s ease}
+/* Two rows of header pinned at every scroll position is ~100px of a phone
+   screen spent on navigation you are not using while you read a question. It
+   leaves on the way down and comes back the moment you scroll up — no tap, no
+   hunting for it. Layout is untouched, so toQuestionTop() still measures the
+   same header it always did. */
+header.hd-away{transform:translateY(-100%)}
+@media(prefers-reduced-motion:reduce){header{transition:none}}
 .hd{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;font-weight:800;letter-spacing:-.02em;cursor:pointer}
 .brand .flag{flex:none;font-size:22px}
@@ -138,8 +146,17 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .qtop .chip{flex:none}
 .qtop .chip.title{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .qtop .count{font-variant-numeric:tabular-nums}
-.qprog{height:3px;border-radius:3px;background:var(--chip);overflow:hidden;margin:0 0 14px}
-.qprog > i{display:block;height:100%;border-radius:3px;background:var(--brand);transition:width .25s ease}
+/* One segment per question, in the space the plain progress bar used to take.
+   It says everything that bar said — how far along you are is where the tall
+   brand-coloured segment sits — and adds what the dot grid was really being
+   kept on screen for: which ones you got right, which you got wrong, which are
+   answered but unchecked. 6px instead of six rows of buttons. */
+.qstrip{display:flex;align-items:flex-end;height:6px;margin:0 0 14px}
+.qstrip > i{flex:1 1 0;min-width:0;height:3px;border-radius:2px;background:var(--chip);transition:height .15s ease}
+.qstrip > i.ans{background:var(--muted)}
+.qstrip > i.ok{background:var(--good)}
+.qstrip > i.no{background:var(--bad)}
+.qstrip > i.cur{height:6px;background:var(--brand)}
 .chip{background:var(--chip);color:var(--muted);font-weight:700;font-size:12px;padding:5px 10px;border-radius:20px;white-space:nowrap}
 .chip.topic{background:transparent;border:1px solid var(--line)}
 .timer{font-variant-numeric:tabular-nums;font-weight:800}
@@ -188,8 +205,13 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .qnav .spacer{flex:1}
 .flagbtn{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 11px;cursor:pointer;font-weight:700;font-size:12.5px;line-height:1.4;color:var(--muted)}
 .flagbtn.on{color:var(--warn);border-color:var(--warn)}
-/* Dot navigator */
-.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+/* Dot navigator — the thing you use twice a session. At the default drill size
+   of 60 it was six rows, ~210px, under every single question. It now folds
+   behind its own label and the strip above carries the overview. */
+.jtog{display:block;border:0;background:transparent;color:var(--muted);font-weight:700;
+  font-size:12.5px;padding:5px 0;margin-top:10px;cursor:pointer}
+.jtog:hover{color:var(--brand)}
+.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .dot{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:700;cursor:pointer;color:var(--muted)}
 .dot.cur{border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 2px var(--ring)}
 .dot.ans{background:var(--chip);color:var(--ink)}
@@ -247,10 +269,11 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
 /* Below this the brand + 4 nav tabs + 2 icon buttons no longer fit on one line,
    so the nav wraps to a second row of its own instead of shoving the page sideways. */
 @media(max-width:700px){
-  .hd{gap:8px;padding:10px 12px 8px}
-  .nav{order:5;flex:1 0 100%;gap:2px;margin-top:2px}
-  .nav button{flex:1 1 0;padding:8px 6px;font-size:13px}
-  .hubLink,.icon-btn{width:34px;height:34px;font-size:15px}
+  .hd{gap:8px;padding:8px 12px 6px}
+  .nav{order:5;flex:1 0 100%;gap:2px;margin-top:0}
+  .nav button{flex:1 1 0;padding:7px 6px;font-size:12.5px}
+  .hubLink,.icon-btn{width:32px;height:32px;font-size:15px}
+  .brand .flag{font-size:20px}
 }
 @media(max-width:560px){
   h1{font-size:20px}
@@ -1276,9 +1299,26 @@ document.addEventListener('visibilitychange',()=>{
 function fmt(s){s=Math.max(0,s);return`${String(s/60|0).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
 
 /* ============ QUIZ RENDER ============ */
+/* Expanded at 24 or fewer — the exam-shaped sessions, where going back over
+   your flagged ones is the point — collapsed above that, where the grid was
+   costing more screen than it earned. prefs.jumpOpen is null until you say
+   otherwise, and then it is your answer everywhere. */
+const jumpOpen=()=>prefs.jumpOpen==null?sess.items.length<=24:!!prefs.jumpOpen;
+function toggleJump(){prefs.jumpOpen=!jumpOpen();savePrefs();renderQuiz()}
+/* One class function for both navigators, so the strip and the grid can never
+   disagree about the same question. */
+function dotClass(x,i){
+  let c=i===sess.idx?' cur':'';
+  if(x.checked)c+=x._correct?' ok':' no';else if(x.picked.length)c+=' ans';
+  return c;
+}
+/* The gap closes as the session gets longer: at 200 questions, a 1px gap
+   between every pair would be more gap than strip. */
+function stripGap(){const n=sess.items.length;return n>100?0:n>40?1:2}
 function renderQuiz(){
   const it=sess.items[sess.idx],q=it.q,ci=correctIdx(q),multi=ci.length>1;
   const answeredCount=sess.items.filter(x=>x.picked.length).length;
+  const open=jumpOpen();
   const el=document.getElementById('view-quiz');
   el.innerHTML=`
     <div class="qtop">
@@ -1288,7 +1328,9 @@ function renderQuiz(){
       ${sess.timed?`<span class="chip timer" id="timer">${fmt(remainSecs(sess))}</span>`:''}
       <button class="flagbtn ${flagged(q.g)?'on':''}" id="flagBtn" onclick="toggleFlag(${q.g})">${flagged(q.g)?'★ Flagged':'☆ Flag'}</button>
     </div>
-    <div class="qprog"><i style="width:${(sess.idx+1)/sess.items.length*100}%"></i></div>
+    <div class="qstrip" id="qstrip" style="gap:${stripGap()}px">
+      ${sess.items.map((x,i)=>`<i class="${dotClass(x,i).trim()}"></i>`).join('')}
+    </div>
     <div class="card pad">
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
         <span class="chip topic">${esc(TOPICS[q.p])}</span>
@@ -1321,11 +1363,9 @@ function renderQuiz(){
             ? `<button class="btn primary" id="mainBtn" onclick="nextQ()">Next →</button>`
             : `<button class="btn primary" id="mainBtn" onclick="finishQuiz()">Finish (${answeredCount}/${sess.items.length})</button>`)}
     </div>
-    <div class="dots">
-      ${sess.items.map((x,i)=>{let c='dot';if(i===sess.idx)c+=' cur';
-        if(x.checked){c+=x._correct?' ok':' no'}else if(x.picked.length)c+=' ans';
-        if(flagged(x.q.g))c+=' flag';
-        return `<button class="${c}" onclick="jump(${i})">${i+1}</button>`}).join('')}
+    <button class="jtog" onclick="toggleJump()" aria-expanded="${open}">Jump to question ${open?'▴':`▾ (${sess.items.length})`}</button>
+    <div class="dots${open?'':' hidden'}">
+      ${sess.items.map((x,i)=>`<button class="dot${dotClass(x,i)}${flagged(x.q.g)?' flag':''}" onclick="jump(${i})">${i+1}</button>`).join('')}
     </div>`;
   if(sess.instant && it.checked)paintCheck();
 }
@@ -1340,14 +1380,16 @@ function pick(oi){
     if(multi)o.querySelector('.mark').textContent=s?'✓':'';
   });
   // auto-advance in exam single-choice? no — let user move. But refresh dot + finish count
-  if(!sess.instant)refreshDots();
+  refreshDots();
   touchSess();
 }
 function refreshDots(){
   document.querySelectorAll('.dots .dot').forEach((d,i)=>{
-    d.className='dot'+(i===sess.idx?' cur':'')+(sess.items[i].picked.length&&!sess.items[i].checked?' ans':'')
-      +(sess.items[i].checked?(sess.items[i]._correct?' ok':' no'):'')+(flagged(sess.items[i].q.g)?' flag':'');
+    d.className='dot'+dotClass(sess.items[i],i)+(flagged(sess.items[i].q.g)?' flag':'');
   });
+  /* The strip is the only navigator on screen while the grid is folded away, so
+     it cannot be the one that goes stale. */
+  document.querySelectorAll('#qstrip > i').forEach((s,i)=>{s.className=dotClass(sess.items[i],i).trim()});
   const mb=document.getElementById('mainBtn');
   if(mb&&sess.idx===sess.items.length-1&&!sess.instant){const a=sess.items.filter(x=>x.picked.length).length;mb.textContent=`Finish (${a}/${sess.items.length})`}
 }
@@ -1358,8 +1400,8 @@ function checkQ(){
   it._correct=eqSet(it.picked,ci);
   it._rec=recordAnswer(it.q,it._correct,it.picked);
   touchSess();
-  paintCheck();
-  // swap button to Next/Finish
+  /* renderQuiz() reassigns innerHTML and paints the check itself, so painting
+     here first only ever decorated a DOM that was about to be thrown away (F-9). */
   renderQuiz();
   /* Four options push the verdict below the fold on a phone. `nearest` means
      this does nothing at all when it is already on screen. */
@@ -1432,6 +1474,54 @@ function toQuestionTop(){
 function prevQ(){if(sess.idx>0){sess.idx--;touchSess();renderQuiz();toQuestionTop()}}
 function nextQ(){if(sess.idx<sess.items.length-1){sess.idx++;touchSess();renderQuiz();toQuestionTop()}}
 function jump(i){sess.idx=i;touchSess();renderQuiz();toQuestionTop()}
+
+/* ---- Swipe between questions ----
+   Next is a small target at the bottom of the screen that you aim at sixty
+   times with one thumb; a swipe lands anywhere. That is the whole win — the tap
+   count barely moves, the precision does.
+
+   A forward swipe does whatever #mainBtn says, which makes it a big invisible
+   main button and costs no new mental model: picked-but-unchecked reveals the
+   answer and stays put, everything else moves on. That is a guard, not a
+   flourish (F-10) — an item picked and never checked is scored wrong at the end
+   and never reaches recordAnswer(), so it costs a point and teaches the
+   schedule nothing. Aiming at Prev mid-answer can do that today and rarely
+   does; a gesture this cheap would make it routine.
+
+   An untouched question moves rather than toasting "pick an answer first": a
+   gesture that silently does nothing reads as broken, because there is no
+   target to blame. */
+const SWIPE_MIN=60, SWIPE_EDGE=24;
+let _swx=0,_swy=0,_swLive=false;
+(()=>{
+  const vq=document.getElementById('view-quiz');
+  vq.addEventListener('touchstart',e=>{
+    const t=e.touches[0];
+    /* iOS Safari owns the first 24px of either edge for back/forward. In a
+       browser tab, hijacking that is worse than not having the feature; in
+       standalone PWA mode there is no such gesture, so it costs nothing where
+       this matters most. */
+    _swLive=e.touches.length===1&&t.clientX>SWIPE_EDGE&&t.clientX<innerWidth-SWIPE_EDGE;
+    _swx=t.clientX;_swy=t.clientY;
+  },{passive:true});
+  vq.addEventListener('touchend',e=>{
+    if(!_swLive||!sess||quizHidden())return;
+    _swLive=false;
+    const t=e.changedTouches[0],dx=t.clientX-_swx,dy=t.clientY-_swy;
+    /* Twice the vertical delta, so scrolling a long explanation never turns
+       into a question change, and a tap on an option is never a swipe. */
+    if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<=Math.abs(dy)*2)return;
+    if(dx<0)swipeForward();else prevQ();
+  },{passive:true});
+  vq.addEventListener('touchcancel',()=>{_swLive=false},{passive:true});
+})();
+function swipeForward(){
+  const it=sess.items[sess.idx];
+  if(sess.instant&&it.picked.length&&!it.checked){checkQ();return}
+  /* The last question's forward swipe does nothing. Finishing stays an aimed
+     tap on a button that names the score. */
+  nextQ();
+}
 
 /* ============ SPACED REPETITION ============
    Leitner boxes. Get it right, it comes back later; get it wrong, it drops to
@@ -2212,6 +2302,27 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft')prevQ();
   else if(e.key.toLowerCase()==='f')toggleFlag(it.q.g);
 });
+
+/* ============ HEADER ON SCROLL ============
+   Reading down a question hides it; any scroll back up brings it straight
+   back, as does every go() (which scrolls to 0) and every toQuestionTop().
+   The 6px threshold keeps a thumb resting mid-scroll from flapping it, and it
+   never hides in the first 140px, so the top of a page always has its nav. */
+(()=>{
+  const hd=document.querySelector('header');
+  let lastY=0,queued=false;
+  addEventListener('scroll',()=>{
+    if(queued)return;queued=true;
+    requestAnimationFrame(()=>{
+      queued=false;
+      const y=Math.max(0,window.scrollY),d=y-lastY;
+      if(Math.abs(d)<6)return;                 /* below the threshold, remember nothing */
+      if(d<0||y<140)hd.classList.remove('hd-away');
+      else hd.classList.add('hd-away');
+      lastY=y;
+    });
+  },{passive:true});
+})();
 
 /* The "are you sure you want to leave?" guard that used to live here is gone.
    It warned about losing a timed session, and a timed session is now durable —
