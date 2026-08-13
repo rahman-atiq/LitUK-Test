@@ -163,6 +163,13 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .qstrip > i.ok{background:var(--good)}
 .qstrip > i.no{background:var(--bad)}
 .qstrip > i.cur{height:6px;background:var(--brand)}
+/* Topic name and the "Select 2" badge. Chips are nowrap, and a nowrap flex item
+   will not shrink below its own text — so "The UK government, the law and your
+   role" pushed the badge clean off the card. The badge is the half you lose
+   marks without; the topic is context you already have. Topic truncates. */
+.qhead{display:flex;gap:8px;align-items:center;margin-bottom:6px;min-width:0}
+.qhead .topic{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.qhead .chip:not(.topic){flex:none}
 .chip{background:var(--chip);color:var(--muted);font-weight:700;font-size:12px;padding:5px 10px;border-radius:20px;white-space:nowrap}
 .chip.topic{background:transparent;border:1px solid var(--line)}
 .timer{font-variant-numeric:tabular-nums;font-weight:800}
@@ -1339,7 +1346,7 @@ function renderQuiz(){
       ${sess.items.map((x,i)=>`<i class="${dotClass(x,i).trim()}"></i>`).join('')}
     </div>
     <div class="card pad">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      <div class="qhead">
         <span class="chip topic">${esc(TOPICS[q.p])}</span>
         ${multi?`<span class="chip" style="color:var(--warn)">Select ${ci.length}</span>`:''}
       </div>
