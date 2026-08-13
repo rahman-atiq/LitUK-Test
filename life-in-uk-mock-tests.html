@@ -146,13 +146,19 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .qtop .chip{flex:none}
 .qtop .chip.title{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .qtop .count{font-variant-numeric:tabular-nums}
+/* The flag button is the only thing in this row that isn't a chip; match it to
+   one, or the row reads as ragged. */
+.qtop .flagbtn{padding:5px 10px;font-size:12px}
 /* One segment per question, in the space the plain progress bar used to take.
    It says everything that bar said — how far along you are is where the tall
    brand-coloured segment sits — and adds what the dot grid was really being
    kept on screen for: which ones you got right, which you got wrong, which are
-   answered but unchecked. 6px instead of six rows of buttons. */
-.qstrip{display:flex;align-items:flex-end;height:6px;margin:0 0 14px}
-.qstrip > i{flex:1 1 0;min-width:0;height:3px;border-radius:2px;background:var(--chip);transition:height .15s ease}
+   answered but unchecked. 6px instead of six rows of buttons.
+   It is one unbroken track, not a row of ticks — gaps between the segments read
+   as a dashed line hanging off the chips above rather than as progress. */
+.qstrip{display:flex;align-items:flex-end;height:6px;margin:4px 0 14px;
+  background:var(--chip);border-radius:3px;overflow:hidden}
+.qstrip > i{flex:1 1 0;min-width:0;height:3px;background:transparent;transition:background .15s ease}
 .qstrip > i.ans{background:var(--muted)}
 .qstrip > i.ok{background:var(--good)}
 .qstrip > i.no{background:var(--bad)}
@@ -196,8 +202,10 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 /* Pinned to the bottom of the screen for as long as the question is taller than
    the viewport. Checking an answer used to push Next below the explanation, so
    every question cost a scroll down to advance and a scroll back up to read the
-   next one. It bleeds past the wrap padding so the blur covers the full width,
-   and releases into its natural place above the dots at the end of the page. */
+   next one. It bleeds past the wrap padding so the blur covers the full width.
+   It is the last thing on the page: anything rendered under a pinned bar is
+   stranded there, half-cut at the fold, which is exactly where the jump
+   navigator used to sit. */
 .qnav{position:sticky;bottom:0;z-index:30;display:flex;gap:10px;align-items:center;
   margin:16px -16px 0;padding:10px 16px calc(10px + var(--lituk-sab));
   background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);
@@ -1314,7 +1322,6 @@ function dotClass(x,i){
 }
 /* The gap closes as the session gets longer: at 200 questions, a 1px gap
    between every pair would be more gap than strip. */
-function stripGap(){const n=sess.items.length;return n>100?0:n>40?1:2}
 function renderQuiz(){
   const it=sess.items[sess.idx],q=it.q,ci=correctIdx(q),multi=ci.length>1;
   const answeredCount=sess.items.filter(x=>x.picked.length).length;
@@ -1328,7 +1335,7 @@ function renderQuiz(){
       ${sess.timed?`<span class="chip timer" id="timer">${fmt(remainSecs(sess))}</span>`:''}
       <button class="flagbtn ${flagged(q.g)?'on':''}" id="flagBtn" onclick="toggleFlag(${q.g})">${flagged(q.g)?'★ Flagged':'☆ Flag'}</button>
     </div>
-    <div class="qstrip" id="qstrip" style="gap:${stripGap()}px">
+    <div class="qstrip" id="qstrip">
       ${sess.items.map((x,i)=>`<i class="${dotClass(x,i).trim()}"></i>`).join('')}
     </div>
     <div class="card pad">
@@ -1354,6 +1361,10 @@ function renderQuiz(){
       </div>
       <div class="explain" id="explain"></div>
     </div>
+    <button class="jtog" onclick="toggleJump()" aria-expanded="${open}">Jump to question ${open?'▴':`▾ (${sess.items.length})`}</button>
+    <div class="dots${open?'':' hidden'}">
+      ${sess.items.map((x,i)=>`<button class="dot${dotClass(x,i)}${flagged(x.q.g)?' flag':''}" onclick="jump(${i})">${i+1}</button>`).join('')}
+    </div>
     <div class="qnav">
       <button class="btn" onclick="prevQ()" ${sess.idx===0?'disabled':''}>← Prev</button>
       <div class="spacer"></div>
@@ -1362,10 +1373,6 @@ function renderQuiz(){
         : (sess.idx<sess.items.length-1
             ? `<button class="btn primary" id="mainBtn" onclick="nextQ()">Next →</button>`
             : `<button class="btn primary" id="mainBtn" onclick="finishQuiz()">Finish (${answeredCount}/${sess.items.length})</button>`)}
-    </div>
-    <button class="jtog" onclick="toggleJump()" aria-expanded="${open}">Jump to question ${open?'▴':`▾ (${sess.items.length})`}</button>
-    <div class="dots${open?'':' hidden'}">
-      ${sess.items.map((x,i)=>`<button class="dot${dotClass(x,i)}${flagged(x.q.g)?' flag':''}" onclick="jump(${i})">${i+1}</button>`).join('')}
     </div>`;
   if(sess.instant && it.checked)paintCheck();
 }
