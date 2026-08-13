@@ -28,6 +28,7 @@ minutes later and records a failure.
 | F-7 | `it._rec` (`{preBox, credited, retired}`) is read by `markUnsure()` to roll the SR box back. It exists only in memory. | [:1248](life-in-uk-mock-tests.html#L1248), [:1133](life-in-uk-mock-tests.html#L1133) |
 | F-8 | The dot navigator renders one 30px button per question. At the default drill size of 60 that is six rows — **~210px on every question**. | [:163-164](life-in-uk-mock-tests.html#L163-L164), `DRILL_DEFAULT=60` at [:607](life-in-uk-mock-tests.html#L607) |
 | F-9 | `checkQ()` calls `paintCheck()`, then `renderQuiz()`, which reassigns `innerHTML` and calls `paintCheck()` again. The first call paints a discarded DOM. | [:1083-1092](life-in-uk-mock-tests.html#L1083-L1092) |
+| F-10 | In instant mode a **picked but unchecked** item is scored wrong at the end and never reaches `recordAnswer()` — it costs a point on the results screen and teaches the Leitner schedule nothing. `recordAnswer()` is reached from `checkQ()` and from `finishQuiz()`'s exam branch only. | [:1684](life-in-uk-mock-tests.html#L1684) vs [:1359](life-in-uk-mock-tests.html#L1359), [:1681](life-in-uk-mock-tests.html#L1681) |
 
 ### What F-1 through F-4 cost together
 
@@ -274,27 +275,71 @@ grid; the strip's colours match the grid's for the same session.
 
 ### Phase 3 — Swipe between questions
 
-**Goal:** 60-question drills cost 180 taps. Make the common one a gesture.
+**Goal:** make the common move a gesture instead of an aimed tap.
+
+**Correcting the drafted goal.** "180 taps, make it one gesture" oversells it. With
+instant feedback on, a question is *pick → Check answer → Next*; the swipe replaces
+the third of those, so three taps become one tap and two swipes. The count barely
+moves. What moves is precision: **Next** is a small target at the bottom of the
+screen that you aim at sixty times with one thumb, and a swipe lands anywhere. That
+is the win, and it is enough of one. Do not expect a drill to get shorter.
 
 **Changes**
 
 1. `touchstart` / `touchend` on `#view-quiz`. Horizontal delta > 60px **and** > 2×
-   the vertical delta → `nextQ()` / `prevQ()`. Left is forward.
+   the vertical delta → forward / back. Left is forward.
 2. **Ignore gestures starting within 24px of either screen edge.** In a browser tab
    that region is iOS Safari's back/forward swipe; hijacking it is worse than not
    having the feature. In standalone PWA mode there is no such gesture, so this costs
    nothing where it matters most.
-3. Same rules as the buttons — no advancing past the end, no skipping the check step
-   that the buttons enforce.
+3. **A forward swipe does whatever `#mainBtn` says**, and its three states are the
+   whole rule:
+
+   | State of the current item | Forward swipe does |
+   | --- | --- |
+   | Nothing picked | Moves on. Skipping an untouched question is legitimate; the dot grid brings you back. |
+   | Picked, not checked | **Reveals the answer** (`checkQ()`). It does not move. A second swipe moves on. |
+   | Checked | Moves on. |
+
+   In one sentence: **a swipe never throws away an answer you gave.** The main button
+   already changes identity in place — *Check answer*, then *Next →* — so a gesture
+   inheriting that identity costs no new mental model. The swipe is a big invisible
+   main button.
+
+   This is a guard, not a nicety. F-10: an item picked but never checked is scored
+   wrong and never reaches `recordAnswer()`, so it costs a point and teaches the
+   schedule nothing. That hole exists today via Prev and the dot grid, but both are
+   deliberate aimed taps. A swipe is cheap and mistap-prone, and would turn a rare
+   accident into a routine one.
+
+4. **Never let a swipe leave the screen looking jammed.** `checkQ()` toasts *"Pick an
+   answer first"* and returns — inherit that literally and an untouched question
+   would answer a swipe with a toast and no movement, which reads as broken. Hence
+   the first row of the table: nothing picked, swipe moves. A gesture that silently
+   does nothing is worse than a button that does nothing, because there is no target
+   to blame.
+5. In exam mode (`!sess.instant`) there is no check step — the button is *Next →*
+   throughout, so forward swipe is plainly forward and none of the above applies.
+6. Back swipe is `prevQ()` unconditionally, matching the Prev button. No advancing
+   past the last question; the last question's forward swipe does **not** call
+   `finishQuiz()` — finishing stays an aimed tap on a button that names the score.
 
 **Explicitly not doing: auto-check on selecting an option.** It would save 60 taps a
 drill and cost the integrity of the Leitner schedule the entire app is built on — one
 fat-fingered tap becomes a permanent wrong answer and a rescheduled card. Not a trade
 worth making three weeks out.
 
-**GO criteria** — swipe moves questions on the phone; vertical scrolling inside a long
-explanation still works; a tap on an option never registers as a swipe; an edge swipe
-in a browser tab still does browser-back.
+**GO criteria**
+
+- Swipe moves questions on the phone; vertical scrolling inside a long explanation
+  still works; a tap on an option never registers as a swipe; an edge swipe in a
+  browser tab still does browser-back.
+- Pick an option, swipe forward → the answer is **revealed**, the question does not
+  change. Swipe again → next question.
+- Swipe forward on an untouched question → it moves. No toast, no stuck screen.
+- Do a 24-question test entirely by swiping, then check `S.sr` → every question you
+  answered has been recorded. Nothing scored wrong that you actually answered.
+- Swipe forward on the last question → nothing happens. Finishing is still a tap.
 
 ---
 
@@ -331,6 +376,7 @@ change. Do it while the file is already open; do not make a session of it.
 | The resume list becomes a graveyard | D-2 creates freely, D-3 never expires, INV-13 forbids eviction. The 3-row cap with an expander keeps it off the dashboard's face, but nothing stops fifteen abandoned drills accumulating. That is a prompt to discard them, not a bug — but if the list is still growing after a week, revisit D-3 rather than adding a cap in code. |
 | Parallel timed tests | D-2 permits two timed tests running at once, both burning wall clock, both able to expire unattended. Nothing breaks — INV-9 means neither records without a tap — but it is a way to lose two mocks instead of one. Worth noticing on device before deciding it needs a guard. |
 | Timed tests will suddenly feel shorter | They will, because F-5 was quietly making them longer. Expect the first post-fix mock to score worse and do not read it as a regression. Say this out loud to each other. |
+| F-10 rides on a phase that may get dropped | The picked-but-unchecked hole is live today, and the fix for it is written into Phase 3 because that is where it becomes easy to hit. Drop Phase 3 and the hole stays — small, rare, and only reachable by aiming at Prev or the dot grid mid-answer. Acceptable to leave; not acceptable to forget, which is what this row is for. |
 | Two new touch behaviours at once | The sticky action bar shipped 2026-08-13 and is still unproven on device. Ship Phase 1 alone, use it for a day, then decide on Phase 3. |
 | localStorage write volume | One extra ~5 KB write per answer alongside the existing full-`S` write. Measured as noise, but if a 200-question drill ever feels sticky on the phone, debounce the session write — not the `S` write. |
 | Verification is manual | No headless browser in this project. Every GO criterion above is a thing to do on the phone; budget for that rather than assuming a test run covers it. |
