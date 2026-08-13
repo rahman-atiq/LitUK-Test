@@ -12,7 +12,7 @@ export const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), ".."
 export const R = (f) => path.join(ROOT, f);
 
 /** Data files, in the same order the page loads them. */
-export const BANK_FILES = ["mock-data.js", "practice-data.js"];
+export const BANK_FILES = ["mock-data.js", "practice-data.js", "testprep-data.js"];
 
 /** Topic index. Order is load-bearing: q.p and S.topics[i] are keyed on it.
  *  Must match TOPICS in life-in-uk-mock-tests.html and TOPIC_NAMES in

@@ -90,7 +90,7 @@ for (const q of canonical.values()) {
   uniq.get(dupKey(q)).push(q);
 }
 const dupGroups = [...uniq.values()].filter((g) => g.length > 1);
-const UNIQUE_EXPECT = 1858;            // the count both the engine and the hub carry
+const UNIQUE_EXPECT = 2757;            // the count both the engine and the hub carry
 if (uniq.size !== UNIQUE_EXPECT) {
   fail(`the banks hold ${uniq.size} unique questions, expected ${UNIQUE_EXPECT}. If a bank was added on purpose, update UNIQUE_EXPECT here, in life-in-uk-mock-tests.html and UNIQUE_QUESTIONS in index.html together. If not, the dedup key is merging questions it should not.`);
 }
