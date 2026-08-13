@@ -34,6 +34,14 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system
   /* Nothing here is meant to scroll sideways — without this a single wide child
      drags the whole page off-centre every time you tap. */
   overflow-x:hidden}
+/* Buttons inherit neither colour nor font — the UA hands them `buttontext`,
+   which is black, and its own 13.33px face. Every button class here sets its
+   own colour except the three built on .card (.act, .drill, .tcard), and those
+   rendered black titles on the dark theme's dark panels. The font half of the
+   same gap is why .act .t (no size of its own) sat at 13.33px above a .d that
+   is explicitly 12.5px — a title 0.8px larger than its description was never
+   the intent. Anything with its own colour or size still wins on specificity. */
+button{font:inherit;color:inherit}
 button,.opt,.dot,summary,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:var(--brand);text-decoration:none}
 .wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
