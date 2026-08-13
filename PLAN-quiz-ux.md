@@ -253,6 +253,24 @@ GO list above is still the gate.
 
 ### Phase 2 — Give the question screen its space back
 
+> **Status: built 2026-08-13, not yet GO.** Item 3 — the one that said "worth a
+> look, not worth forcing" — turned out to be the whole answer, so the shape
+> differs from the draft: **the strip replaced `.qprog` rather than sitting where
+> the grid was.** A per-question segment says everything the progress bar said
+> (how far along you are is where the tall brand segment sits) and adds what the
+> grid was really being kept on screen for. So the top of the question costs 6px
+> instead of 3px, and the bottom loses the grid entirely — on paper, from the CSS
+> rather than from a phone, ~210px of grid becomes a ~39px toggle.
+>
+> Two things worth knowing before it goes on a device:
+>
+> - **Flags are not on the strip.** A 3px segment cannot carry the grid's border
+>   colour. Flagged questions show in the grid, which is one tap away and is
+>   where you go to jump to them anyway.
+> - **`pick()` now refreshes the navigator in instant mode too**, which it did
+>   not before. With the grid folded away the strip is the only thing on screen
+>   that knows a question is answered; it could not be the thing that goes stale.
+
 **Goal:** stop spending 210px per question on a control you use twice a session.
 
 **Changes**
@@ -274,6 +292,22 @@ grid; the strip's colours match the grid's for the same session.
 ---
 
 ### Phase 3 — Swipe between questions
+
+> **Status: built 2026-08-13, not yet GO.** Built as specified, including the
+> picked-but-unchecked guard, the 24px edge exclusion and the last-question
+> no-op. Listeners are `passive:true` and never call `preventDefault()`, so
+> scrolling is untouched by construction.
+>
+> The risk table said to ship Phase 1 alone, use it for a day, then decide on
+> Phase 3 — **that did not happen; both are landing together.** The sticky action
+> bar, the swipe and the folded navigator are three touch changes on one screen
+> arriving in one go. If the question screen feels wrong on the phone, that is
+> the thing to remember, and Phase 3 is the cheapest of the three to revert.
+>
+> **F-10 is only shut for swipes.** Picking an option and then leaving via Prev
+> or the dot grid still costs a point and still teaches the schedule nothing.
+> That hole is exactly as open as it was this morning; the plan said it was
+> acceptable to leave and not acceptable to forget, so here it is, not forgotten.
 
 **Goal:** make the common move a gesture instead of an aimed tap.
 
@@ -345,6 +379,18 @@ worth making three weeks out.
 
 ### Phase 4 — The sticky header
 
+> **Status: built 2026-08-13, not yet GO.** Two of the three listed options, not
+> the third: the tab typography and padding shrank (~8px off both rows), and the
+> header now leaves on scroll-down and returns on scroll-up — `transform`, so
+> layout never moves and `toQuestionTop()` still measures the header it always
+> did. **Dropping the brand to an icon was not done**: the arithmetic at 393pt
+> only fits if the ▶ Resume chip is absent, and it is present exactly when you
+> are most likely to be on a question. A layout that fits until you need it is
+> not a fit.
+>
+> The scroll handler is `passive`, rAF-throttled, ignores movements under 6px so
+> a resting thumb cannot flap it, and never hides inside the first 140px.
+
 **Goal:** ~110px of header is pinned at every scroll position, on a screen where the
 2026-08-13 work fought for 80px.
 
@@ -360,6 +406,9 @@ idea in three weeks.
 ---
 
 ### Phase 5 — Dead paint
+
+> **Status: done 2026-08-13.** One line, gone. No GO criteria; if the explanation
+> still appears when you check an answer, it worked.
 
 Delete the first `paintCheck()` call in `checkQ()` (F-9). One line, no behaviour
 change. Do it while the file is already open; do not make a session of it.
@@ -377,7 +426,7 @@ change. Do it while the file is already open; do not make a session of it.
 | Parallel timed tests | D-2 permits two timed tests running at once, both burning wall clock, both able to expire unattended. Nothing breaks — INV-9 means neither records without a tap — but it is a way to lose two mocks instead of one. Worth noticing on device before deciding it needs a guard. |
 | Timed tests will suddenly feel shorter | They will, because F-5 was quietly making them longer. Expect the first post-fix mock to score worse and do not read it as a regression. Say this out loud to each other. |
 | F-10 rides on a phase that may get dropped | The picked-but-unchecked hole is live today, and the fix for it is written into Phase 3 because that is where it becomes easy to hit. Drop Phase 3 and the hole stays — small, rare, and only reachable by aiming at Prev or the dot grid mid-answer. Acceptable to leave; not acceptable to forget, which is what this row is for. |
-| Two new touch behaviours at once | The sticky action bar shipped 2026-08-13 and is still unproven on device. Ship Phase 1 alone, use it for a day, then decide on Phase 3. |
+| Two new touch behaviours at once | **This one happened.** The advice was to ship Phase 1 alone and decide on Phase 3 after a day; instead the sticky action bar, the swipe and the folded navigator all reach the phone together, none of them proven. Nothing is broken by it — it just means a bad feeling on the question screen has three suspects instead of one. Phase 3 is the cheapest to revert, Phase 2 the next. |
 | localStorage write volume | One extra ~5 KB write per answer alongside the existing full-`S` write. Measured as noise, but if a 200-question drill ever feels sticky on the phone, debounce the session write — not the `S` write. |
 | Verification is manual | No headless browser in this project. Every GO criterion above is a thing to do on the phone; budget for that rather than assuming a test run covers it. |
 
@@ -388,8 +437,26 @@ change. Do it while the file is already open; do not make a session of it.
 1. ~~Resolve D-1 through D-4.~~ **Done 2026-08-13** — see §3. D-2 came back as
    *several*, which is why §3.1 exists.
 2. ~~Phase 1, in one session~~ **Built 2026-08-13** — see the status note in Phase 1.
-   Ending with the full GO list run on both phones: **still to do.**
-3. Commit and deploy. Use it for a day.
-4. Phase 5 (one line), then Phase 2.
-5. Phase 3 only if the drills still feel like work.
-6. Phase 4 probably never, and that is fine.
+3. ~~Phase 5, then Phase 2, then Phase 3, then Phase 4~~ **All built 2026-08-13**,
+   in that order, in one sitting. `sw.js` VERSION is `2026-08-13c`.
+4. **The whole GO list — Phases 1, 2, 3 and 4 — run on both phones. Still to do,
+   and it is now the only thing standing between this and done.**
+
+**The order this was meant to go in did not survive.** The plan said ship Phase 1,
+use it for a day, then decide on Phase 3; it said Phase 4 was probably never. Both
+were overtaken by a single instruction to build the rest, which is a legitimate
+call — but it means the device pass is now carrying four phases' worth of unproven
+change on one screen instead of one. Run the GO lists in phase order and stop at
+the first thing that feels wrong, rather than reading the screen as a whole and
+trying to work out which of four changes caused it.
+
+**What has been checked without a device (2026-08-13).** `tools/test-backup.mjs`
+(348 checks) and `tools/validate-banks.mjs` pass. A second throwaway node harness
+behind a stub DOM — no browser — ran 35 assertions over the real engine: the
+collapse default at 24 and at 60, the toggle's round trip through `prefs`, the
+strip and the grid agreeing per question, the strip staying fresh on `pick` and on
+a flag, all three forward-swipe states, a full 24-question test done by swipe alone
+reaching `recordAnswer()` 24 times with nothing picked-but-unchecked left behind,
+the last-question no-op, exam mode's plain forward swipe, and Phase 1's persistence
+still intact through the new render path. **None of that says anything about how it
+feels under a thumb.**
