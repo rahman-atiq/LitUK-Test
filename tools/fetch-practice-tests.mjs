@@ -10,7 +10,9 @@
  * Each page is cached to tools/.cache/practice-tests/ so re-runs cost nothing
  * and the parser can be iterated on without touching the network again.
  *
- * Exports parse() and loadAll() for tools/build-practice-data.mjs.
+ * Exports parse() and loadAll() for tools/build-practice-data.mjs, and also
+ * ents / dec / txt for tools/fetch-lituktestweb-exams.mjs — a fourth entity
+ * decoder and tag-stripper would be a third copy of the same nine lines.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -31,15 +33,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ---------------- text ---------------- */
 
-const ents = {
+export const ents = {
   "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#039;": "'",
   "&#8217;": "’", "&#8216;": "‘", "&#8220;": "“", "&#8221;": "”",
   "&#8211;": "–", "&#8212;": "—", "&nbsp;": " ", "&hellip;": "…",
   "&pound;": "£", "&eacute;": "é",
 };
-const dec = (s) => s.replace(/&#(\d+);|&[a-z]+;/gi, (m) =>
+export const dec = (s) => s.replace(/&#(\d+);|&[a-z]+;/gi, (m) =>
   ents[m.toLowerCase()] ?? (m[1] === "#" ? String.fromCharCode(+m.slice(2, -1)) : m));
-const txt = (h) => dec(h.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, ""))
+export const txt = (h) => dec(h.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, ""))
   .replace(/[ \t]+/g, " ").replace(/\n /g, "\n").trim();
 
 /* ---------------- parser ----------------
