@@ -347,8 +347,14 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
    never reaches it. Installed on iOS that put the modal's first line under the
    Dynamic Island and its last button under the home indicator. */
 .modal-bg{position:fixed;inset:0;background:rgba(6,10,18,.55);display:none;z-index:60;
+  overscroll-behavior:contain;
   padding:calc(var(--lituk-sat) + 16px) calc(var(--lituk-sar) + 16px) calc(var(--lituk-sab) + 16px) calc(var(--lituk-sal) + 16px)}
 .modal-bg.show{display:grid}
+/* Pinned by lockScroll() while a modal is open. iOS otherwise keeps scrolling
+   the document behind the backdrop: the drag rubber-bands the page, Safari
+   collapses its toolbar mid-gesture, and the fixed backdrop — sized off a
+   viewport that just changed height — lurches under your finger. */
+body.modal-open{position:fixed;left:0;right:0;width:auto}
 /* margin:auto centres a modal that fits. place-items:center centred one that
    did not, which overflows a grid item off BOTH edges — that is what cut the
    top off Settings and put "Done" below the screen. max-height + overflow-y
@@ -356,6 +362,7 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .modal{max-width:420px;width:100%;margin:auto;max-height:100%;overflow-y:auto;
   -webkit-overflow-scrolling:touch;overscroll-behavior:contain;animation:pop .16s}
 @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.modal{animation:none}}
 .hidden{display:none!important}
 .empty{text-align:center;color:var(--muted);padding:40px 16px}
 .empty .e{font-size:40px}
@@ -2537,36 +2544,55 @@ function noteBackup(){
   S.backup={at:Date.now()};save();
   if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard();
 }
-/* Installed on iOS there is no download UI: <a download> either opens the JSON
-   in place or does nothing at all, so the backup fails silently — worse than no
-   backup, because you believe you have one. The share sheet is the only
-   reliable "Save to Files" on that platform, so it is tried first wherever it
-   is offered. Everything up to navigator.share() is synchronous, which is what
-   keeps the click's transient activation alive. */
+/* Where the share sheet is the ONLY way to save a file, which is iOS and iPadOS
+   and nowhere else. Installed on iOS there is no download UI: <a download>
+   either opens the JSON in place or does nothing at all, so the backup fails
+   silently — worse than no backup, because you believe you have one.
+   Desktop is the opposite case, and asking canShare() instead of asking the
+   platform is what broke it: Chrome and Edge answer canShare({files}) with
+   true, then hand a .json to a sheet with nowhere useful to put it. iPadOS 13+
+   reports itself as a Mac, so touch points are what give it away. */
+function shareIsOnlyWayToSave(){
+  return /iP(hone|od|ad)/.test(navigator.userAgent)||
+    (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+}
+/* Returns false rather than throwing, so the caller can say "that failed"
+   instead of claiming a backup that never landed. */
+function downloadFile(text,name){
+  try{
+    const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+    const a=document.createElement('a');
+    a.href=url;a.download=name;a.rel='noopener';a.style.display='none';
+    document.body.appendChild(a);a.click();
+    /* Both outlive the click by a beat: tearing the anchor or the blob URL down
+       in the same tick cancels the save outright in Firefox. */
+    setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},1000);
+    return true;
+  }catch(e){return false}
+}
 async function exportData(){
   const payload={app:BACKUP_APP,v:BACKUP_V,exported:new Date().toISOString(),[LS]:S,[PREFS_LS]:prefs};
   const json=JSON.stringify(payload);
   const name=`lituk-progress-${stamp(new Date())}.json`;
 
-  let file=null;
-  try{file=new File([json],name,{type:'application/json'})}catch(e){}
-  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
-    try{
-      await navigator.share({files:[file],title:'Life in the UK progress'});
-      noteBackup();toast('Backup saved');return;
-    }catch(e){
-      /* Cancelling the sheet is a decision, not a failure — do not then fire a
-         download the user did not ask for. Any other error falls through. */
-      if(e&&(e.name==='AbortError'||e.name==='NotAllowedError'))return;
+  if(shareIsOnlyWayToSave()){
+    let file=null;
+    try{file=new File([json],name,{type:'application/json'})}catch(e){}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file],title:'Life in the UK progress'});
+        noteBackup();toast('Backup saved');return;
+      }catch(e){
+        /* Cancelling the sheet is a decision, not a failure — do not then fire a
+           save the user did not ask for. Every other error, NotAllowedError
+           included, means the sheet never saved anything, so keep going. */
+        if(e&&e.name==='AbortError')return;
+      }
     }
   }
 
-  const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));
-  const a=document.createElement('a');
-  a.href=url;a.download=name;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  noteBackup();toast('Backup downloaded');
+  if(downloadFile(json,name)){noteBackup();toast('Backup downloaded')}
+  else toast('Export failed — allow downloads for this site');
 }
 /* One input, created on demand — a static one would need a unique id in both
    the settings modal and the stats card. */
@@ -2676,7 +2702,7 @@ function openSettings(){
       <button class="btn sm" onclick="exportData()">⬇ Export backup</button>
       <button class="btn sm" onclick="pickImport()">⬆ Restore…</button>
     </div>
-    <div class="btn-row" style="margin-top:18px"><button class="btn primary" onclick="closeSettings()">Done</button></div>`);
+    <div class="btn-row" style="margin-top:18px"><button class="btn primary" onclick="closeSettings()">Done</button></div>`,'settings');
 }
 /* What this drill size actually buys, in days — the only number that matters
    with a fixed exam date. Drills alone; Sweep gets through it faster. */
@@ -2702,8 +2728,45 @@ function setExamDate(v){
 }
 function setFeedback(v){prefs.feedback=v;savePrefs();openSettings()}
 function closeSettings(){closeModal();if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard()}
-function modal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show')}
-function closeModal(){document.getElementById('modalBg').classList.remove('show')}
+/* The page keeps its scroll position across a modal rather than being sent to
+   the top: body.modal-open pins it, and the offset it was pinned at is put back
+   on close. See the .modal-open rule for why iOS needs pinning at all. */
+let _lockY=0,_locked=false;
+function lockScroll(){
+  if(_locked)return;
+  _lockY=window.scrollY||window.pageYOffset||0;
+  document.body.style.top=(-_lockY)+'px';
+  document.body.classList.add('modal-open');
+  _locked=true;
+}
+function unlockScroll(){
+  if(!_locked)return;
+  document.body.classList.remove('modal-open');
+  document.body.style.top='';
+  _locked=false;
+  window.scrollTo(0,_lockY);
+}
+/* `key` marks a modal that re-renders itself in place — Settings rebuilds on
+   every drill size, feedback and exam date change. innerHTML resets scrollTop,
+   so without this the panel snapped back to the top the moment you tapped
+   anything halfway down it. Only a modal replacing itself keeps its scroll;
+   one modal opening a different one still starts at the top. */
+function modal(html,key){
+  const bg=document.getElementById('modalBg'),box=document.getElementById('modalBox');
+  const same=bg.classList.contains('show')&&!!key&&box.dataset.key===key;
+  const keep=same?box.scrollTop:0;
+  box.innerHTML=html;
+  box.dataset.key=key||'';
+  bg.classList.add('show');
+  lockScroll();
+  if(keep)box.scrollTop=keep;
+}
+function closeModal(){
+  const bg=document.getElementById('modalBg');
+  bg.classList.remove('show');
+  document.getElementById('modalBox').dataset.key='';
+  unlockScroll();
+}
 document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeModal()});
 
 /* ============ KEYBOARD ============ */
