@@ -5,13 +5,27 @@ Add testprep.uk as a third question bank: 38 Mock tests and 11 Exam tests, with
 
 > Canonical source of truth for execution. Drafted 2026-08-13. Every count below was
 > measured against the live site and the working tree on that date, not estimated.
-> Status: **planned, not executed.**
+> Status: **Phases 0–5 executed 2026-08-13/14.**
 
 ## Status
 
-Nothing built. Baseline on the day of drafting: `node tools/validate-banks.mjs`
-reports 2 banks · 84 tests · 2,016 slots · 1,890 ids · 1,858 unique · **All checks
-pass**. That clean baseline is the revert point.
+All six phases shipped. `node tools/validate-banks.mjs` reports 3 banks · 133 tests ·
+3,192 slots · 2,792 ids · 2,757 unique · 263 exam questions · **All checks pass**.
+
+Baseline before any of it, kept as the revert point: 2 banks · 84 tests · 2,016 slots ·
+1,890 ids · 1,858 unique.
+
+### Found while building, not anticipated here
+
+- **`rated-0` is the site's "unrated" state, not zero stars.** `r` is omitted for those
+  84 of the 902 questions, so anything reading `r` must handle absent. §3's table said
+  "the site's 1–5★ rating" without saying what happens when there isn't one.
+- **Four questions have three correct answers**; both older banks cap at two. g1928 is
+  five options and *"Select 3"* — a badge the app has never rendered. The engine handles
+  it unchanged (`nCk`, `eqSet`, `pick()` and the Select N badge are all general), but it
+  has not been seen on a screen. **Open: needs one eyes-on check in a live session.**
+- §Phase 3 claimed both generated files were validator-enforced. Only `facts.js` was.
+  Closed in Phase 5 by adding the check rather than softening the claim — see below.
 
 ---
 
@@ -262,40 +276,63 @@ problems.
 
 Both are validator-enforced, and skipping either fails the build:
 
-1. `node tools/build-facts.mjs` — `validate-banks.mjs:166` fails if more than 5% of
-   canonical questions have neither a fact card nor a chapter link. Adding 899
-   questions is 33% of the new total, so **this is a guaranteed failure if skipped.**
+1. `node tools/build-facts.mjs` — the validator fails if more than 5% of canonical
+   questions have neither a fact card nor a chapter link. Adding 899 questions is 33% of
+   the new total, so **this is a guaranteed failure if skipped.**
 2. `node tools/build-search-index.mjs` — grows roughly 590 KB → ~880 KB. It is
    injected lazily by `index.html`; confirm that still holds.
 
-### Phase 4 — Surface the differentiation
+> When this was written only (1) was true: nothing in the validator looked at
+> `search-index.js` at all. **Phase 5 added the check rather than weakening the
+> sentence** — the index is now asserted to hold exactly one entry per question id in
+> the banks, with matching stem text and a matching topic list. A bank edit without a
+> rebuild now fails the build instead of quietly leaving the hub's search box unable to
+> find the new questions.
 
-This is the part the request is actually about. `bankSection()` currently renders one
-flat grid per bank; the testprep bank needs two.
+### Phase 4 — Surface the differentiation — **done**
+
+This is the part the request is actually about. `bankSection()` rendered one flat grid
+per bank; the testprep bank needed two.
 
 1. **Two sections in the dashboard**, split on `t.kind` — *"TestPrep Mock Tests"* (38)
    and *"TestPrep Exam Tests"* (11), the latter subtitled with the source's own claim:
-   *"Reported by test-takers as recently asked in real 2026 exams."*
-2. **Exam badge on the question**, wherever a question is shown with its provenance —
-   the review row, the mistakes view, the question modal. `x:1` → a small "Seen in a
-   real exam" mark. This is the payoff for the one-bank decision: the badge shows up
-   on a question you met in Mock 12, because it is the same question.
-3. **A drill filter** — "Exam questions only", 263 cards. The natural companion to the
-   existing gauntlets, and the highest-yield 263 questions in the app.
-4. Attribution: testprep.uk publishes under OGL v3.0 with a DMCA badge. Its footer
-   disclaimer is worth mirroring in the bank's `source` line — same posture as the other
-   two banks, plus the licence.
+   *"Reported by test-takers as recently asked in real 2026 exams."* `bankSection()`
+   now delegates to `testGroup()` once per declared kind, and is unchanged in behaviour
+   for the two banks that declare none.
+2. **Exam badge on the question** — the review row, the mistakes row and the question
+   modal, via one `examBadge()`. This is the payoff for the one-bank decision: the badge
+   shows up on a question you met in Mock 12, because it is the same question. 261 of
+   the 263 sit in a mock paper.
+3. **A drill filter** — "Real-exam questions", 263 cards, ordered by what each question
+   still owes you exactly as the gauntlets are, so successive sessions walk all 263.
+   Session source `examq`, and it joins `TRAINING`: hardest-first is not a fair sample,
+   so it keeps the streak but must not move the pass rate.
+4. Attribution: the licence and disclaimer from testprep.uk's own footer, mirrored under
+   the bank's last grid, plus testprep.uk added to the page footer's source list.
 
-### Phase 5 — Verification
+**The trap, and it is not in the plan above:** `x` must be read through `canon()`, never
+straight off the question. q2228 (*"What is the capital of Wales?"*) carries `x:1` and
+collapses under INV-6 onto q166 from the britizen bank, which does not. A naive `q.x`
+read off `POOL` gives **262**, and the badge never appears on the id the app actually
+drills. `EXAM_SEEN` is therefore a set of *canonical* ids.
 
-Extend `tools/validate-banks.mjs`:
+### Phase 5 — Verification — **done**
 
-- every `x` is `1` or absent, and `x:1` **iff** reachable from a `kind:"exam"` test
-  (INV-9 — this is the assertion that keeps the differentiation honest)
+`tools/validate-banks.mjs` gained, with every existing check untouched:
+
+- INV-9 in both directions: every `x` is `1` or absent, and `x:1` **iff** the id is
+  reachable from a `kind:"exam"` test in the same bank — checked per *slot*, so one
+  copy of a repeated question losing its `x` fails too
 - every `r` is an integer 1–5 where present
 - every test in a bank that declares `kind` has one, and it is `mock` or `exam`
-- new ids ≥ 1890; new test numbers in 201–238 ∪ 301–311
-- the existing checks, unchanged
+- id and test-number blocks per bank (`BLOCKS`): testprep owns ids ≥ 1890 and test
+  numbers 201–238 ∪ 301–311. This fires on *drift*, before the pre-existing collision
+  check has anything to collide with
+- `search-index.js` coverage and text agreement — see the note under Phase 3
+
+Each of the eleven was proved by breaking a copy of the data one way at a time, watching
+the intended message fire and exit 1, then restoring. A guard that has never failed is
+not known to work.
 
 On the phone: export progress (Phase 1 of the practice plan, shipped and verified
 2026-08-12), snapshot `lituk_v1`, deploy, hard reload, compare. Old test bests, drill

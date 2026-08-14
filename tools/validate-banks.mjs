@@ -44,6 +44,63 @@ for (const t of tests) {
   if (t.bank.id !== LEGACY_BANK && t.n <= EXISTING_MAX_N) fail(`test ${t.n} in "${t.bank.id}" collides with the ${LEGACY_BANK} bank's 1-${EXISTING_MAX_N}`);
 }
 
+/* ---- id and test-number blocks (INV-2 / INV-3) ----
+   Each bank owns a block of both number spaces and the blocks never move.
+   Progress is keyed on those numbers, so a test or a question that drifts out
+   of its block is one step from colliding with another bank's — and the
+   collision above only catches it once the two actually overlap. This catches
+   the drift itself, while it is still harmless.
+
+   The two older banks are pinned by EXISTING_MAX_G / EXISTING_MAX_N above. */
+const BLOCKS = {
+  testprep: { g: [1890, Infinity], n: [[201, 238], [301, 311]] },
+};
+const showRange = ([lo, hi]) => `${lo}-${hi === Infinity ? "∞" : hi}`;
+for (const b of banks) {
+  const blk = BLOCKS[b.id];
+  if (!blk) continue;
+  const badN = b.tests.filter((t) => !blk.n.some(([lo, hi]) => t.n >= lo && t.n <= hi)).map((t) => t.n);
+  const badG = [...new Set(b.tests.flatMap((t) => t.q.map((q) => q.g)))]
+    .filter((g) => g < blk.g[0] || g > blk.g[1]);
+  if (badN.length) fail(`INV-3: test number(s) ${badN.slice(0, 5).join(", ")}${badN.length > 5 ? `, +${badN.length - 5} more` : ""} in "${b.id}" are outside its block ${blk.n.map(showRange).join(" / ")}`);
+  if (badG.length) fail(`INV-2: question id(s) ${badG.slice(0, 5).join(", ")}${badG.length > 5 ? `, +${badG.length - 5} more` : ""} in "${b.id}" are outside its block ${showRange(blk.g)}`);
+}
+
+/* ---- kind, x and r, and the assertion that keeps the differentiation honest ----
+   testprep.uk is one pool of questions sliced two ways: 38 mock tests and 11
+   exam tests, and 261 of the 263 exam questions also sit in a mock. So exam-ness
+   rides on the question as `x:1`, not on a bank boundary — which is the only
+   reason the badge can fire on a question you first met in Mock 12.
+
+   `x` is DERIVED, never authored (INV-9). The moment someone hand-sets it — or
+   a rebuild drops a slot's copy of it — the badge starts claiming a question was
+   asked in a real exam when nothing in the data says so, and there is no screen
+   anywhere that would look wrong. This is that screen. */
+const KINDS = ["mock", "exam"];
+const examCount = new Map();               // bank id -> question ids carrying x:1
+for (const b of banks) {
+  const slots = b.tests.flatMap((t) => t.q);
+  if (b.tests.some((t) => t.kind !== undefined)) {
+    for (const t of b.tests) {
+      if (t.kind === undefined) fail(`test ${t.n} in "${b.id}" has no kind, but other tests in the bank declare one — the dashboard splits on it, so an undeclared test lands in neither section`);
+      else if (!KINDS.includes(t.kind)) fail(`test ${t.n} in "${b.id}" has kind "${t.kind}", expected one of ${KINDS.join(" / ")}`);
+    }
+  }
+  /* Reachable from a kind:"exam" test in this bank — the whole of what x means. */
+  const examG = new Set();
+  for (const t of b.tests) if (t.kind === "exam") for (const q of t.q) examG.add(q.g);
+  const badVal = [...new Set(slots.filter((q) => q.x !== undefined && q.x !== 1).map((q) => q.g))];
+  const stray = [...new Set(slots.filter((q) => q.x === 1 && !examG.has(q.g)).map((q) => q.g))];
+  const absent = [...new Set(slots.filter((q) => q.x === undefined && examG.has(q.g)).map((q) => q.g))];
+  const badR = [...new Set(slots.filter((q) => q.r !== undefined && (!Number.isInteger(q.r) || q.r < 1 || q.r > 5)).map((q) => q.g))];
+  const list = (a) => a.slice(0, 5).join(", ") + (a.length > 5 ? `, +${a.length - 5} more` : "");
+  if (badVal.length) fail(`INV-9: q${list(badVal)} in "${b.id}" carr(ies) an x that is neither 1 nor absent — x is a flag, not a count`);
+  if (stray.length) fail(`INV-9: q${list(stray)} in "${b.id}" carr(ies) x:1 but appear(s) in no kind:"exam" test — x is derived from exam membership, never hand-written, so this is a badge claiming an exam sighting the data does not support`);
+  if (absent.length) fail(`INV-9: q${list(absent)} in "${b.id}" appear(s) in a kind:"exam" test but carr(ies) no x — every slot of an exam question needs it, or the badge fires on some of its tests and not others`);
+  if (badR.length) fail(`q${list(badR)} in "${b.id}" has a rating that is not an integer 1-5`);
+  examCount.set(b.id, examG.size);
+}
+
 /* ---- question shape ---- */
 for (const t of tests) {
   if (t.q.length !== PER_TEST) fail(`test ${t.n} ("${t.bank.id}") has ${t.q.length} questions, expected ${PER_TEST}`);
@@ -168,6 +225,36 @@ if (!fs.existsSync(factsPath)) {
   }
 }
 
+/* ---- search-index.js ----
+   The hub's search box is the only way into one specific question, and the
+   index is generated. Edit a bank without rebuilding it and the box searches
+   the old text: new questions cannot be found at all, and a search that finds
+   nothing is indistinguishable from a search with no matches. Nothing here
+   looked at the index until now, which made PLAN-testprep-source.md §Phase 3's
+   "both are validator-enforced" half true. It is true now. */
+const idxPath = R("search-index.js");
+if (!fs.existsSync(idxPath)) {
+  fail(`search-index.js is missing — run "node tools/build-search-index.mjs" (the hub's search box reads it)`);
+} else {
+  const w = {};
+  new Function("window", fs.readFileSync(idxPath, "utf8"))(w);
+  const I = w.LITUK_INDEX;
+  if (!I || !Array.isArray(I.qs) || !Array.isArray(I.blocks) || !Array.isArray(I.topics)) {
+    fail(`search-index.js did not define a usable window.LITUK_INDEX`);
+  } else {
+    const indexed = new Map(I.qs.map((r) => [r[0], r]));
+    const missing = [...gSeen.keys()].filter((g) => !indexed.has(g));
+    const orphan = [...indexed.keys()].filter((g) => !gSeen.has(g));
+    const drift = [...indexed.values()].filter((r) => canonical.has(r[0]) && canonical.get(r[0]).t !== r[3]).length;
+    const near = (a) => a.slice(0, 3).join(", ") + (a.length > 3 ? ", …" : "");
+    if (missing.length) fail(`search-index.js has no entry for ${missing.length} question(s) that are in the banks (${near(missing)}) — rerun tools/build-search-index.mjs`);
+    if (orphan.length) fail(`search-index.js carries ${orphan.length} question id(s) no bank holds any more (${near(orphan)}) — rerun tools/build-search-index.mjs`);
+    if (drift) fail(`search-index.js has ${drift} question(s) whose indexed text no longer matches the bank — rerun tools/build-search-index.mjs`);
+    if (JSON.stringify(I.topics) !== JSON.stringify(TOPICS)) fail(`search-index.js ships a topic list that does not match tools/lib/banks.mjs — rerun tools/build-search-index.mjs`);
+    console.log(`search-index.js: ${I.qs.length} questions · ${I.blocks.length} chapter blocks`);
+  }
+}
+
 /* ---- the twist material Phase 3 is built on ----
    The Twist Gauntlet exists because 509 questions have two options. If a bank
    edit collapses that number the gauntlet quietly becomes a short drill, and
@@ -277,7 +364,10 @@ console.log(`${twoOption} two-option questions (${Math.round(twoOption / uniq.si
 for (const b of banks) {
   const gs = b.tests.flatMap((t) => t.q.map((q) => q.g));
   const ns = b.tests.map((t) => t.n);
-  console.log(`  ${b.id.padEnd(9)} ids ${Math.min(...gs)}-${Math.max(...gs)}  tests ${Math.min(...ns)}-${Math.max(...ns)}  ${b.source}`);
+  const kinds = KINDS.map((k) => `${b.tests.filter((t) => t.kind === k).length} ${k}`).filter((s) => !s.startsWith("0 "));
+  const ex = examCount.get(b.id);
+  console.log(`  ${b.id.padEnd(9)} ids ${Math.min(...gs)}-${Math.max(...gs)}  tests ${Math.min(...ns)}-${Math.max(...ns)}` +
+    `${kinds.length ? `  ${kinds.join(" / ")} · ${ex} exam question${ex === 1 ? "" : "s"}` : ""}  ${b.source}`);
 }
 
 if (fails.length) {

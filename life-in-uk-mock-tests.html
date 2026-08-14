@@ -133,6 +133,12 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .bankhd .src{margin-left:auto;color:var(--muted);font-size:12px}
 .bankhd .src a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
 .bankhd .src a:hover{color:var(--brand)}
+/* A bank whose tests declare a kind gets one section per kind, and the exam
+   section needs to say what makes it an exam section before you tap a tile. */
+.banksub{color:var(--muted);font-size:12.5px;margin:-4px 0 10px}
+/* The source's own licence and disclaimer, once per bank, under its last grid. */
+.banknote{color:var(--muted);font-size:11.5px;line-height:1.55;margin:10px 0 0}
+.banknote a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
 .tests{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .tcard{padding:14px;cursor:pointer;position:relative;transition:.12s;display:flex;flex-direction:column;gap:8px}
 .tcard:hover{border-color:var(--brand);transform:translateY(-2px)}
@@ -270,6 +276,12 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 /* In a review row the topic name sits beside the question, so it stays on one
    line and gives the question the space — a wrapped tag squeezed it to a sliver. */
 .rev summary .tag{flex:none;max-width:38%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* "Seen in a real exam". Short on purpose: it shares a row with the question
+   text and the topic tag, and it is the one of the three that survives a phone. */
+.xbadge{display:inline-block;flex:none;font-size:11px;font-weight:800;padding:2px 8px;
+  border-radius:20px;background:var(--chip);color:var(--warn);white-space:nowrap}
+.rev summary .xbadge{margin-left:auto}
+.rev summary .xbadge + .tag{margin-left:6px}
 /* Topic bars */
 .tbar{display:grid;grid-template-columns:1fr 60px;gap:10px;align-items:center;margin:10px 0}
 .tbar .tn{font-weight:600;font-size:13.5px}
@@ -382,8 +394,9 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
   <div class="foot">
     Your progress is saved on this device only (browser localStorage). Nothing is uploaded.<br>
     Pass mark: <b>18 / 24 (75%)</b> · Study aid built for personal practice from questions on
-    <a href="https://britizen.uk" target="_blank" rel="noopener noreferrer">britizen.uk</a> and
-    <a href="https://lifeintheuktest.com/practice-tests/" target="_blank" rel="noopener noreferrer">lifeintheuktest.com</a>.
+    <a href="https://britizen.uk" target="_blank" rel="noopener noreferrer">britizen.uk</a>,
+    <a href="https://lifeintheuktest.com/practice-tests/" target="_blank" rel="noopener noreferrer">lifeintheuktest.com</a> and
+    <a href="https://testprep.uk/life-in-the-uk-test/practice-tests" target="_blank" rel="noopener noreferrer">testprep.uk</a>.
   </div>
 </div>
 
@@ -478,6 +491,27 @@ const canon=g=>CANON[g]!==undefined?CANON[g]:+g;   /* unknown (stale) ids pass t
    denominator for coverage. */
 const POOL=ALLQ.filter(q=>CANON[q.g]===q.g);
 const UNIQUE_N=POOL.length;
+
+/* ============ SEEN IN A REAL EXAM (x) ============
+   testprep.uk slices one pool of questions two ways — 38 mock papers and 11
+   "exam" papers — and 261 of the 263 exam questions also sit in a mock. So
+   exam-ness is a property of the question, carried as x:1 and derived at build
+   time from membership of an exam paper (INV-9). That is the whole reason the
+   badge can fire on a question you first met in Mock 12: it is the same
+   question, not a copy of it.
+
+   Keyed on the CANONICAL id, never the raw one. q2228 is "What is the capital
+   of Wales?" with x:1, and it collapses onto q166 from the britizen bank, which
+   has no x — read q.x straight off a POOL question and that one silently drops
+   out, leaving a drill of 262 and a badge that never appears on the question
+   you actually drill. */
+const EXAM_SEEN=new Set(ALLQ.filter(q=>q.x===1).map(q=>canon(q.g)));
+const isExamQ=q=>q&&EXAM_SEEN.has(canon(q.g));
+const EXAM_POOL=POOL.filter(isExamQ);
+/* One label, three call sites — the review row, the mistakes row and the
+   question modal all say the same thing in the same words. */
+const EXAM_CLAIM='Reported by test-takers as recently asked in real 2026 exams';
+const examBadge=q=>isExamQ(q)?`<span class="xbadge" title="${EXAM_CLAIM}">⭐ Real exam</span>`:'';
 
 document.getElementById('brandSub').textContent=`${TESTS.length} Tests · ${UNIQUE_N} Questions`;
 
@@ -612,15 +646,41 @@ function testTile(t){
     <div class="bar ${st.best==null?'':st.lastPass?'good':'bad'}"><i style="width:${pct}%"></i></div>
   </div>`;
 }
-/* One labelled section per bank, each carrying where its questions came from. */
-function bankSection(b){
-  const done=b.tests.filter(t=>testStat(t.n).lastPass).length;
+/* One labelled section per bank, each carrying where its questions came from —
+   except that a bank whose tests declare a `kind` gets one section per kind.
+   testprep.uk's 38 mocks and its 11 exam papers are the same pool sliced two
+   ways, and which slice a test came from is the most useful thing that source
+   knows. One flat grid of 49 tiles throws it away. */
+const KIND_LABEL={mock:'Mock Tests',exam:'Exam Tests'};
+const KIND_SUB={exam:EXAM_CLAIM+'.'};
+/* The source's own licence and disclaimer, mirrored rather than paraphrased.
+   testprep.uk's footer, verbatim in substance: independent study material built
+   on public sector information under the OGL, no affiliation with government.
+   Presentation, not data — the bank files are generated and nothing here is
+   allowed to need a rebuild. */
+const OGL='https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/';
+const BANK_NOTE={
+  testprep:`TestPrep.UK publishes these as independent study material based on public sector information licensed under the <a href="${OGL}" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>. Neither that site nor this one is affiliated with the Home Office, the DVSA or any UK Government body, and the UK Government does not accept responsibility for the accuracy of the material.`,
+};
+function testGroup(b,tests,label,sub){
+  const done=tests.filter(t=>testStat(t.n).lastPass).length;
   return `<div class="bankhd">
-      <b>${esc(b.label)}</b>
-      <span class="tag">${done}/${b.tests.length} passed</span>
+      <b>${esc(label)}</b>
+      <span class="tag">${done}/${tests.length} passed</span>
       <span class="src">Questions from <a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(b.source)}</a></span>
     </div>
-    <div class="grid tests">${b.tests.map(testTile).join('')}</div>`;
+    ${sub?`<p class="banksub">${esc(sub)}</p>`:''}
+    <div class="grid tests">${tests.map(testTile).join('')}</div>`;
+}
+function bankSection(b){
+  /* First-seen order, so the section order follows the test numbers: mocks
+     (201-238) then exams (301-311). */
+  const kinds=[...new Set(b.tests.map(t=>t.kind))].filter(k=>KIND_LABEL[k]);
+  const stem=b.label.replace(/\s*Tests$/,'');
+  const body=kinds.length<2
+    ? testGroup(b,b.tests,b.label,null)
+    : kinds.map(k=>testGroup(b,b.tests.filter(t=>t.kind===k),`${stem} ${KIND_LABEL[k]}`,KIND_SUB[k])).join('');
+  return body+(BANK_NOTE[b.id]?`<p class="banknote">${BANK_NOTE[b.id]}</p>`:'');
 }
 function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
@@ -628,7 +688,7 @@ function renderDashboard(){
   const rec=recentAcc();
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
-  const left=daysLeft(),tw=twistStats();
+  const left=daysLeft(),tw=twistStats(),ex=examStats();
   const rd=readiness(),rp=Math.round(rd.p*100);
   const el=document.getElementById('view-dashboard');
   el.innerHTML=`
@@ -654,6 +714,7 @@ function renderDashboard(){
       <button class="card act" onclick="startSweep()"><span class="emo">🧭</span><div><div class="t">Sweep</div><div class="d">${unseen?`${Math.min(SWEEP_N,unseen)} you've never seen · ${unseen} left`:'Whole bank seen 🎉'}</div></div></button>
       <button class="card act" onclick="startTwist()"><span class="emo">🌀</span><div><div class="t">Twist gauntlet</div><div class="d">${tw.total} two-option traps, in clusters${tw.fresh?` · ${tw.fresh} new`:tw.weak?` · ${tw.weak} still open`:''}</div></div></button>
       <button class="card act" onclick="startDates()"><span class="emo">📅</span><div><div class="t">Date gauntlet</div><div class="d">${YEAR_Q.length} years, both directions</div></div></button>
+      ${ex.total?`<button class="card act" onclick="startExamQs()"><span class="emo">⭐</span><div><div class="t">Real-exam questions</div><div class="d">${ex.total} reported as recently asked${ex.fresh?` · ${ex.fresh} new`:ex.weak?` · ${ex.weak} still open`:''}</div></div></button>`:''}
       <button class="card act" onclick="startExam()"><span class="emo">🎲</span><div><div class="t">Random exam</div><div class="d">24 mixed questions, timed</div></div></button>
       <button class="card act" onclick="go('mistakes')"><span class="emo">🎯</span><div><div class="t">Practice mistakes</div><div class="d">${openMistakes} question${openMistakes===1?'':'s'} to fix</div></div></button>
       <button class="card act" onclick="topicPicker()"><span class="emo">📚</span><div><div class="t">Practice by topic</div><div class="d">Target a weak area</div></div></button>
@@ -1216,6 +1277,29 @@ function startTwist(n){
   const qs=twistOrder().slice(0,size);
   if(!qs.length){toast('No two-option questions in the bank');return}
   makeSession(qs,{title:`Twist gauntlet — ${qs.length}`,timed:false,source:'twist',order:'keep'});
+}
+
+/* ============ REAL-EXAM QUESTIONS ============
+   263 of the 2,757 are reported by testprep.uk's test-takers as recently asked
+   in a real exam. That is 10% of the bank carrying the strongest yield signal
+   anything here has, and until now the only way to meet them was to happen to
+   sit one of the 11 exam papers — which serve them 24 at a time, mixed with
+   nothing, and say nothing about the 239 you have not seen.
+
+   Ordered like the gauntlets, by what the question still owes you, so
+   successive sessions walk all 263 instead of re-serving the same batch. It is
+   a filter over the same pool, not a new one: every card is a real question,
+   answered against its own id, feeding the same spaced repetition. */
+function examStats(){
+  const fresh=EXAM_POOL.filter(q=>!S.sr[canon(q.g)]).length;
+  const weak=EXAM_POOL.filter(q=>{const m=S.mistakes[canon(q.g)];return m&&!m.done}).length;
+  return {total:EXAM_POOL.length,fresh,weak};
+}
+function startExamQs(n){
+  const size=Math.max(1,Math.min(DRILL_MAX,Math.round(+n||drillSize())));
+  const qs=EXAM_POOL.slice().sort((a,b)=>urgency(a)-urgency(b)||lastSeen(a)-lastSeen(b)).slice(0,size);
+  if(!qs.length){toast('No exam-reported questions in the bank');return}
+  makeSession(qs,{title:`Real-exam questions — ${qs.length}`,timed:false,source:'examq',order:'keep'});
 }
 
 /* ============ DATE GAUNTLET ============
@@ -1782,7 +1866,12 @@ function explainReadiness(){
 /* ============ FINISH / RESULTS ============
    Sources whose score is not a readiness signal: they are training sets, built
    to be harder or stranger than a real sit. */
-const TRAINING=new Set(['sweep','twist','dates']);
+/* Not scored as a pass attempt, and not a test result. Each of these serves a
+   deliberately unrepresentative slice — unseen questions, coin flips, dates, or
+   the 263 hardest-yield questions in the bank ordered by what you owe them — so
+   a score here is not an estimate of anything and must not move the pass rate.
+   All four still count as the day's work and keep the streak alive. */
+const TRAINING=new Set(['sweep','twist','dates','examq']);
 function finishQuiz(){
   stopTimer();
   /* Graded is finished: the store entry goes here and on an explicit discard,
@@ -1846,6 +1935,8 @@ function renderResults(score,total,passed){
             ?`🌀 Gauntlet run${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :sess.source==='dates'
             ?`📅 Dates drilled${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            :sess.source==='examq'
+            ?`⭐ Exam questions drilled${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :sess.source==='drill'
             ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :(passed?'🎉 Passed!':'Keep practising')}</div>
@@ -1855,6 +1946,8 @@ function renderResults(score,total,passed){
             ?`<b>${score}</b> of <b>${total}</b>. Every one of these was a coin flip served next to its own near-miss — this score is meant to be lower than a test, and it doesn't count towards your pass rate.`
             :sess.source==='dates'
             ?`<b>${score}</b> of <b>${total}</b>, with the near-miss years put back in. Doesn't count towards your pass rate.`
+            :sess.source==='examq'
+            ?`<b>${score}</b> of <b>${total}</b>, all of them reported as recently asked in a real exam. <b>${examStats().fresh}</b> of the ${EXAM_POOL.length} still never seen. Doesn't count towards your pass rate — hardest-first is not a fair sample.`
             :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} ${took}${readinessMove()}</p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
@@ -1869,7 +1962,7 @@ function renderResults(score,total,passed){
     ${sess.items.map((it,i)=>{const ci=correctIdx(it.q);
       return `<details class="rev" ${it._correct?'':'open'}>
         <summary><span class="ic ${it._correct?'ok':'no'}">${it._correct?'✓':'✕'}</span>
-          <span>${i+1}. ${esc(it.q.t)}</span><span class="tag">${esc(TOPICS[it.q.p])}</span></summary>
+          <span>${i+1}. ${esc(it.q.t)}</span>${examBadge(it.q)}<span class="tag">${esc(TOPICS[it.q.p])}</span></summary>
         <div class="body">
           ${it.q.o.map((o,oi)=>{const isC=ci.includes(oi),isP=it.picked.includes(oi);
             let cls=isC?'style="color:var(--good);font-weight:700"':(isP?'style="color:var(--bad);font-weight:700"':'style="color:var(--muted)"');
@@ -1895,6 +1988,7 @@ function retrySame(){
   if(sess.source==='sweep')return startSweep(sess.items.length);
   if(sess.source==='twist')return startTwist(sess.items.length);
   if(sess.source==='dates')return startDates(sess.items.length);
+  if(sess.source==='examq')return startExamQs(sess.items.length);
   if(sess.testN)return startTest(sess.testN);
   const src=sess.items.map(it=>it.q);
   makeSession(src,{title:sess.title,timed:sess.timed,testN:sess.testN,source:sess.source});
@@ -1997,7 +2091,7 @@ function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
   const fact=factOf(q),link=chapterLink(q);
   return `<details class="rev">
     <summary><span class="ic no" style="background:${colour}">${badge}</span>
-      <span>${esc(q.t)}</span><span class="tag">${esc(TOPICS[q.p])}</span></summary>
+      <span>${esc(q.t)}</span>${examBadge(q)}<span class="tag">${esc(TOPICS[q.p])}</span></summary>
     <div class="body">
       ${q.o.map((o,oi)=>{const n=picks[oi]||0;
         return `<div style="${ci.includes(oi)?'color:var(--good);font-weight:700':'color:var(--muted)'}">${ci.includes(oi)?'✓':'·'} ${esc(o[0])}${
@@ -2353,12 +2447,15 @@ document.addEventListener('keydown',e=>{
    against a loss that can no longer happen is just a dialog. */
 
 /* ============ DEEP LINKS ============
-   #drill · #sweep · #twist · #dates · #mistakes · #stats · #cram · #test=7 ·
-   #q=412 (from the hub's search) */
+   #drill · #sweep · #twist · #dates · #examq · #mistakes · #stats · #cram ·
+   #test=7 · #q=412 (from the hub's search) */
 function showQuestion(g){
   const q=QByG[g];if(!q){toast('Question not found');return}
   const ci=correctIdx(q);
-  modal(`<div class="tag" style="margin-bottom:6px">${esc(TOPICS[q.p])} · Test ${q._test}${q._bank?` · ${esc(q._bank.source)}`:''}</div>
+  modal(`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
+      <span class="tag" style="margin-left:0">${esc(TOPICS[q.p])} · Test ${q._test}${q._bank?` · ${esc(q._bank.source)}`:''}</span>${examBadge(q)}
+    </div>
+    ${isExamQ(q)?`<p class="sub" style="margin:0 0 10px;font-size:12px">${esc(EXAM_CLAIM)}.</p>`:''}
     <h3 style="margin:0 0 12px;font-size:17px;line-height:1.4">${esc(q.t)}</h3>
     ${q.o.map((o,i)=>`<div style="padding:5px 0;${ci.includes(i)?'color:var(--good);font-weight:700':'color:var(--muted)'}">${ci.includes(i)?'✓':'·'} ${esc(o[0])}</div>`).join('')}
     <div class="lbl" style="margin-top:12px">Explanation</div><div>${esc(q.e||'—')}</div>
@@ -2380,6 +2477,7 @@ function route(){
   if(h==='sweep'){resumeOrStart('sweep',()=>startSweep());return}
   if(h==='twist'){resumeOrStart('twist',()=>startTwist());return}
   if(h==='dates'){resumeOrStart('dates',()=>startDates());return}
+  if(h==='examq'){resumeOrStart('examq',()=>startExamQs());return}
   if(h==='mistakes'||h==='stats'||h==='cram')go(h);
 }
 addEventListener('hashchange',route);
