@@ -6,7 +6,7 @@ The site's ~60 mock/practice tests are deliberately not imported.
 > Canonical source of truth for execution. Drafted 2026-08-14. Every count below was
 > measured against the live site and the working tree on that date, not estimated —
 > all 17 pages were fetched and parsed during planning.
-> Status: **Phases 0–5 executed 2026-08-14. Two eyes-on screen checks outstanding.**
+> Status: **Complete. Phases 0–5 executed and both screen checks passed 2026-08-14.**
 
 ## Status
 
@@ -45,9 +45,11 @@ pre-Phase-2 `testprep: { g: [1890, Infinity] }`, the identical drift produced
 that a developer would clear by rerunning the builders, shipping the drift
 silently. The block closure is load-bearing, not decorative.
 
-**Outstanding — needs a human on a real screen, cannot be settled by a tool:**
-the Select-3 badge (see §5; `g2916`, and note there are **5** such questions in
-the pool, not 1) and the phone backup/restore round-trip.
+Both eyes-on checks confirmed on a real screen 2026-08-14: the Select-3 badge
+(`g2916` in test 406 — and note the pool holds **5** such questions, not the 1
+the plan expected; `g1928` is 3-of-5) and the phone backup/restore round-trip.
+That closes the "Select N badge never seen rendering" item the testprep plan
+opened and this one inherited.
 
 Revert point: 3 banks · 133 tests · 3,192 slots · 2,792 ids · 2,757 unique ·
 263 exam questions.
@@ -430,7 +432,7 @@ but you should know the distinction exists rather than discover it later, and th
 | `BLOCKS` still says testprep owns `[1890, Infinity]` | **High, silent** | §2; close it in the same commit |
 | `facts.js` not rebuilt — 12% of canonical questions uncovered | **Certain** | Phase 3.1; the validator catches it, so this fails loudly |
 | Explanations keep `<strong>` and render as literal markup | Medium | Strip in the parser; the engine `esc()`s |
-| The Select 3 question has still never been seen on screen | Medium | Phase 5, eyes-on. Second instance of a known-open item |
+| The Select 3 question has still never been seen on screen | ~~Medium~~ **Closed** | Phase 5, eyes-on: confirmed rendering 2026-08-14. The pool turned out to hold 5, not 2 — 4 of them shipped unseen in testprep |
 | Exam claim overstated across two sources with different claims | Medium | §6 |
 | Source asserts copyright and publishes no licence | Medium | §6 — your call, stated rather than papered over |
 | Page weight: four banks + ~1.0 MB search index | Medium | Search index stays lazily injected; data files cache independently |
