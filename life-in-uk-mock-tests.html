@@ -329,9 +329,18 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .tbar .track > i{display:block;height:100%;border-radius:9px}
 .tbar .pctl{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 /* Modal */
-.modal-bg{position:fixed;inset:0;background:rgba(6,10,18,.55);display:none;place-items:center;z-index:60;padding:16px}
+/* Insets, not a flat 16px: the backdrop is position:fixed, so body padding
+   never reaches it. Installed on iOS that put the modal's first line under the
+   Dynamic Island and its last button under the home indicator. */
+.modal-bg{position:fixed;inset:0;background:rgba(6,10,18,.55);display:none;z-index:60;
+  padding:calc(var(--lituk-sat) + 16px) calc(var(--lituk-sar) + 16px) calc(var(--lituk-sab) + 16px) calc(var(--lituk-sal) + 16px)}
 .modal-bg.show{display:grid}
-.modal{max-width:420px;width:100%;animation:pop .16s}
+/* margin:auto centres a modal that fits. place-items:center centred one that
+   did not, which overflows a grid item off BOTH edges — that is what cut the
+   top off Settings and put "Done" below the screen. max-height + overflow-y
+   makes the long modals scroll inside themselves instead. */
+.modal{max-width:420px;width:100%;margin:auto;max-height:100%;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;animation:pop .16s}
 @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 .hidden{display:none!important}
 .empty{text-align:center;color:var(--muted);padding:40px 16px}
@@ -462,13 +471,67 @@ const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,atte
   examDate:EXAM_DEFAULT,                   /* '' = no date: standard ladder, coverage mode */
   recent:[],                               /* rolling 0/1 ring, last RECENT_N answers */
   readiness:null,                          /* last computed pass probability, for the hub to read */
+  /* When this device last wrote a backup file. It rides along in the export, so
+     a restored backup reports the SOURCE device's previous backup — always
+     older than the truth, never newer. That errs towards nagging, which is the
+     safe direction to be wrong in. */
+  backup:{at:0},
   mig:{}};                                 /* one-time migrations already applied */
 let S=load();
 function load(){try{const r=JSON.parse(localStorage.getItem(LS));return Object.assign(structuredClone(DEFAULT),r||{})}catch(e){return structuredClone(DEFAULT)}}
 /* Every write bumps the revision, which is how the Monte Carlo knows its
    cached answer is still the current one (see readiness()). */
 let _rev=0;
-function save(){_rev++;localStorage.setItem(LS,JSON.stringify(S))}
+/* This is the only copy of your progress, so a failed write can never be
+   silent. It used to be bare: a QuotaExceededError threw uncaught out of
+   recordAnswer(), mid-answer, and every write after it died the same way while
+   the app carried on looking fine.
+
+   Abandoned sessions are the one thing in localStorage that grows without a cap
+   (INV-13), so they are what gets sacrificed — oldest first, retrying after
+   each, so we give up the least we can get away with. The session being sat is
+   never evicted. If even an empty session store is not enough, S is still
+   intact in memory: saveFailed() says so and offers the export that rescues it. */
+let _saveBroken=false;
+function save(){
+  _rev++;
+  const body=JSON.stringify(S);
+  try{localStorage.setItem(LS,body);return}catch(e){}
+
+  /* save() can run during boot migrations, before `sessions` is initialised —
+     touching a let in its TDZ throws ReferenceError, which try/catch absorbs. */
+  let stale=[];
+  try{stale=Object.values(sessions).sort((a,b)=>(a.startTs||0)-(b.startTs||0))}catch(e){}
+  let dropped=0;
+  for(const s of stale){
+    if(sess&&sess.sid===s.sid)continue;
+    forgetSess(s.sid);dropped++;
+    try{localStorage.setItem(LS,body);
+      toast(`Storage was full — dropped ${dropped} unfinished session${dropped===1?'':'s'}`);return}
+    catch(e){}
+  }
+  /* Last resort: the store itself, in case a partial write left it oversized. */
+  try{localStorage.removeItem(SESS_LS);localStorage.setItem(LS,body);
+    toast('Storage was full — unfinished sessions were cleared');return}catch(e){}
+
+  saveFailed();
+}
+/* Loud, once, and with the way out attached. A toast would be wrong here: it
+   is gone in 1.8s and this is the app telling you it has stopped remembering. */
+function saveFailed(){
+  if(_saveBroken)return;
+  _saveBroken=true;
+  console.error('LITUK: localStorage is full — progress is no longer being written to disk');
+  try{
+    modal(`<h3 style="margin:0 0 4px;color:var(--bad)">Progress isn't being saved</h3>
+      <p class="sub" style="margin:0 0 14px">This browser's storage is full, so the last few answers were not written to disk. Everything you have done <b>is</b> still here in memory — until you close this tab.</p>
+      <p class="sub" style="margin:0 0 14px">Export a backup now. It is built from memory, not from storage, so it will be complete. Then restore it to carry on.</p>
+      <div class="btn-row">
+        <button class="btn primary" onclick="exportData()">⬇ Export backup now</button>
+        <button class="btn ghost" onclick="closeModal()">Dismiss</button>
+      </div>`);
+  }catch(e){}
+}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
 
 /* ============ BANKS ============
@@ -813,6 +876,7 @@ function renderDashboard(){
   el.innerHTML=`
     <h1>Your dashboard</h1>
     <p class="sub">${TESTS.length} official-style tests · 24 questions each · 75% to pass.</p>
+    ${backupNag()}
     ${resumeSection()}
     ${drillCard()}
     <div class="grid stat-row">
@@ -853,7 +917,10 @@ function renderDashboard(){
    room for a second pass. 20 was a habit-builder, not a study plan. */
 const DRILL_MIN=5,DRILL_MAX=200,DRILL_DEFAULT=60,DRILL_SIZES=[20,40,60,100];
 let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant',dailyTarget:DRILL_DEFAULT},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
-function savePrefs(){localStorage.setItem('lituk_prefs',JSON.stringify(prefs))}
+/* Same reasoning as save(): a settings write must not throw out of an onchange
+   handler. Prefs are small and re-derivable, so a lost one is a nuisance, not a
+   loss — it does not deserve the full reclaim dance. */
+function savePrefs(){try{localStorage.setItem('lituk_prefs',JSON.stringify(prefs))}catch(e){saveFailed()}}
 function drillSize(){const n=Math.round(+prefs.dailyTarget||DRILL_DEFAULT);
   return Math.max(DRILL_MIN,Math.min(DRILL_MAX,n))}
 function setDailyTarget(n){prefs.dailyTarget=n;savePrefs();openSettings()}
@@ -2384,14 +2451,66 @@ function renderStats(){
 const BACKUP_APP='lituk',BACKUP_V=1,PREFS_LS='lituk_prefs';
 function stamp(d){const p=n=>String(n).padStart(2,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`}
-function exportData(){
+/* How stale a backup has to get before the dashboard says so. A permanent
+   "last backed up today" line is furniture people stop seeing, so this stays
+   silent until there is genuinely something to lose. */
+const BACKUP_STALE_DAYS=7;
+function backupAge(){
+  const at=(S.backup&&S.backup.at)||0;
+  return at?Math.floor((Date.now()-at)/DAY):null;      /* null = never */
+}
+function lastBackupLine(){
+  const d=backupAge();
+  if(d===null)return 'Never exported.';
+  return d===0?'Backed up today.':`Last backup ${d} day${d===1?'':'s'} ago.`;
+}
+function backupNag(){
+  if(!(S.answered>0))return '';                        /* nothing to lose yet */
+  const d=backupAge();
+  if(d!==null&&d<BACKUP_STALE_DAYS)return '';
+  return `<div class="card pad" style="border-color:var(--bad);margin-bottom:14px">
+    <b>⚠️ Back up your progress</b>
+    <p class="sub" style="margin:4px 0 10px">${esc(lastBackupLine())} It lives only in this browser — deleting the Home Screen icon or clearing website data takes it with it, and there is no undo.</p>
+    <div class="btn-row"><button class="btn sm primary" onclick="exportData()">⬇ Export backup</button></div>
+  </div>`;
+}
+/* Records that a backup left the device, for backupNag(). Deliberately not
+   called when the share sheet is cancelled: nothing was saved, so claiming
+   otherwise would be the one lie this feature cannot afford. */
+function noteBackup(){
+  S.backup={at:Date.now()};save();
+  if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard();
+}
+/* Installed on iOS there is no download UI: <a download> either opens the JSON
+   in place or does nothing at all, so the backup fails silently — worse than no
+   backup, because you believe you have one. The share sheet is the only
+   reliable "Save to Files" on that platform, so it is tried first wherever it
+   is offered. Everything up to navigator.share() is synchronous, which is what
+   keeps the click's transient activation alive. */
+async function exportData(){
   const payload={app:BACKUP_APP,v:BACKUP_V,exported:new Date().toISOString(),[LS]:S,[PREFS_LS]:prefs};
-  const url=URL.createObjectURL(new Blob([JSON.stringify(payload)],{type:'application/json'}));
+  const json=JSON.stringify(payload);
+  const name=`lituk-progress-${stamp(new Date())}.json`;
+
+  let file=null;
+  try{file=new File([json],name,{type:'application/json'})}catch(e){}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file],title:'Life in the UK progress'});
+      noteBackup();toast('Backup saved');return;
+    }catch(e){
+      /* Cancelling the sheet is a decision, not a failure — do not then fire a
+         download the user did not ask for. Any other error falls through. */
+      if(e&&(e.name==='AbortError'||e.name==='NotAllowedError'))return;
+    }
+  }
+
+  const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));
   const a=document.createElement('a');
-  a.href=url;a.download=`lituk-progress-${stamp(new Date())}.json`;
+  a.href=url;a.download=name;
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  toast('Backup downloaded');
+  noteBackup();toast('Backup downloaded');
 }
 /* One input, created on demand — a static one would need a unique id in both
    the settings modal and the stats card. */
@@ -2495,7 +2614,8 @@ function openSettings(){
     <label style="display:flex;gap:10px;align-items:center;padding:2px 0 4px;cursor:pointer;font-weight:600"><input type="checkbox" ${prefs.shufO?'checked':''} onchange="prefs.shufO=this.checked;savePrefs()"> Shuffle answer options</label>
     <p class="sub" style="margin:6px 0 0;font-size:12.5px">Drills, Sweep and the two gauntlets group related questions together instead — the same date or the same Act, back to back. That is deliberate: a twisted statement is easy on its own and hard next to three of its neighbours.</p>
     <div class="lbl" style="margin-top:18px">Your progress</div>
-    <p class="sub" style="margin:4px 0 10px">Saved in this browser only. Export before you change phone or clear browser data — and try a restore once, so you know it works.</p>
+    <p class="sub" style="margin:4px 0 4px"><b>${esc(lastBackupLine())}</b></p>
+    <p class="sub" style="margin:0 0 10px">Saved in this browser only. Export before you change phone or clear browser data — and try a restore once, so you know it works.</p>
     <div class="btn-row">
       <button class="btn sm" onclick="exportData()">⬇ Export backup</button>
       <button class="btn sm" onclick="pickImport()">⬆ Restore…</button>
