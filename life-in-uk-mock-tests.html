@@ -127,17 +127,57 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .act .t{font-weight:700}
 .act .d{color:var(--muted);font-size:12.5px}
 /* Test grid */
-.bankhd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:22px 0 10px}
-.bankhd:first-of-type{margin-top:0}
-.bankhd b{font-size:15px}
-.bankhd .src{margin-left:auto;color:var(--muted);font-size:12px}
+/* Five grids of tiles below the fold, and everything under them pushed off the
+   screen. Each group collapses to its header row, so the tail of the dashboard
+   reads as a five-line index. <details> rather than a hand-rolled toggle: the
+   keyboard, find-in-page and print behaviour come for free. */
+/* Each header is a card carrying its bank's accent (--acc, set per section in
+   testGroup): a tinted wash left to right, a matching icon tile, and its own
+   progress in the bar. Shut, the five of them read as a stack of cards rather
+   than five lines of text — and open, the header and its grid share one border
+   so the section is visibly one object. */
+.bankgrp{margin:10px 0 0}
+.bankgrp:first-of-type{margin-top:0}
+.bankhd{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;list-style:none;transition:.14s;
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(100deg,color-mix(in srgb,var(--acc) 14%,var(--panel)),var(--panel) 62%)}
+.bankhd::-webkit-details-marker{display:none}
+.bankhd:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));
+  box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 16%,transparent)}
+.bankgrp[open] > .bankhd{border-radius:var(--radius) var(--radius) 0 0}
+.bankhd .ico{flex:0 0 auto;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;line-height:1;
+  background:color-mix(in srgb,var(--acc) 18%,var(--panel));border:1px solid color-mix(in srgb,var(--acc) 34%,var(--line))}
+.bankhd .nm{flex:1;min-width:0}
+.bankhd b{display:block;font-size:16px;font-weight:800;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bankhd .src{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bankhd .src a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
 .bankhd .src a:hover{color:var(--brand)}
+/* The right-hand cluster is the same shape in every section — fixed bar, fixed
+   badge, fixed caret — so the counts sit in a column down the page instead of
+   landing wherever each title happened to end. */
+.bankhd .prog{flex:0 0 auto;width:76px;height:6px;border-radius:6px;background:var(--chip);overflow:hidden}
+.bankhd .prog > i{display:block;height:100%;border-radius:6px;background:var(--acc);transition:width .3s}
+.bankhd .tag{flex:0 0 auto;margin-left:0;width:96px;text-align:center;font-size:11.5px;padding:4px 0}
+.bankhd .tag.done{background:var(--good-bg);color:var(--good)}
+.bankhd .chev{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);font-size:12px;transition:transform .16s}
+.bankgrp[open] > .bankhd .chev{transform:rotate(90deg);color:var(--acc)}
+.bankbody{border:1px solid var(--line);border-top:0;border-radius:0 0 var(--radius) var(--radius);padding:14px;background:var(--panel-2)}
+@keyframes grpIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.bankgrp[open] > .bankbody{animation:grpIn .18s ease}
+@media(prefers-reduced-motion:reduce){.bankgrp[open] > .bankbody{animation:none}.bankhd .chev,.bankhd .prog > i{transition:none}}
+@media (max-width:560px){
+  .bankhd{gap:10px;padding:11px 12px}
+  .bankhd .prog{display:none}
+  .bankbody{padding:12px 10px}
+}
+/* Under ~400px the fixed badge column is eating the title. Let it shrink to its
+   text — the badges are flex-end anchored, so their right edges stay in line. */
+@media (max-width:420px){.bankhd .tag{width:auto;padding:4px 9px}}
 /* A bank whose tests declare a kind gets one section per kind, and the exam
    section needs to say what makes it an exam section before you tap a tile. */
-.banksub{color:var(--muted);font-size:12.5px;margin:-4px 0 10px}
+.banksub{color:var(--muted);font-size:12.5px;margin:0 0 10px}
 /* The source's own licence and disclaimer, once per bank, under its last grid. */
-.banknote{color:var(--muted);font-size:11.5px;line-height:1.55;margin:10px 0 0}
+.banknote{color:var(--muted);font-size:11.5px;line-height:1.55;margin:12px 0 0}
 .banknote a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
 .tests{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .tcard{padding:14px;cursor:pointer;position:relative;transition:.12s;display:flex;flex-direction:column;gap:8px}
@@ -678,17 +718,69 @@ const BANK_NOTE={
   testprep:`TestPrep.UK publishes these as independent study material based on public sector information licensed under the <a href="${OGL}" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>. Neither that site nor this one is affiliated with the Home Office, the DVSA or any UK Government body, and the UK Government does not accept responsibility for the accuracy of the material.`,
   lituktestweb:`LifeInTheUKTestWeb.co.uk publishes these as “a compilation of exam questions reported by candidates”. That site publishes no licence of its own: its footer reads “© Copyright 2026 · Life in the UK Test Web · All Rights Reserved”, and it runs advertising against the pages. There is no Open Government Licence grant to point at here — only Crown copyright handbook material underneath a compilation the site claims as its own. Neither that site nor this one is affiliated with the Home Office, the DVSA or any UK Government body.`,
 };
-function testGroup(b,tests,label,sub){
+/* Which groups are open. A view preference, not progress, so it lives on its own
+   key rather than in the save — and it has to live somewhere outside the DOM at
+   all, because renderDashboard() rebuilds innerHTML on every answer and would
+   otherwise shut every section you just opened. */
+const GRP_LS='lituk_groups';
+let grpOpen=(()=>{try{return JSON.parse(localStorage.getItem(GRP_LS))||{}}catch(e){return{}}})();
+function grpSave(){try{localStorage.setItem(GRP_LS,JSON.stringify(grpOpen))}catch(e){}}
+function grpToggle(k,open){grpOpen[k]=open;grpSave()}
+/* Section keys in render order, so `grpKeys()[0]` is the one group open by
+   default and "expand/collapse all" can speak for sections it cannot see. */
+function bankKinds(b){return [...new Set(b.tests.map(t=>t.kind))].filter(k=>KIND_LABEL[k])}
+function grpKeys(){return BANKS.flatMap(b=>{const ks=bankKinds(b);return ks.length<2?[`${b.id}:all`]:ks.map(k=>`${b.id}:${k}`)})}
+function grpAnyOpen(){return grpKeys().some((k,i)=>grpOpen[k]??i===0)}
+function toggleAllGroups(){const open=!grpAnyOpen();grpKeys().forEach(k=>grpOpen[k]=open);grpSave();renderDashboard()}
+/* A face per section, keyed the same way the section is: bank id + kind.
+   `name` is the section's own, because five headings built out of their sources
+   read as a bibliography — "TestPrep Mock Tests" above "TestPrep Exam Tests"
+   names the publisher twice and the thing itself never. The source moves to the
+   line under it, which is where the attribution belongs and where it still is:
+   the sources are credited here, in each panel's note, and on the tests.
+   `unit` keeps the plain words on screen, so a named section still says what it
+   holds. Presentation keyed on bank id like BANK_NOTE above, and a bank arriving
+   without an entry falls back to its own label. */
+const GRP_ACC=['#6366f1','#0ea5e9','#14b8a6','#f59e0b','#ec4899'];
+const GRP_FACE={
+  /* Every London cabbie's word for learning a whole city by heart — and this is
+     the biggest bank of the five. */
+  'mock:all':{ico:'🧠',acc:'#6366f1',name:'The Knowledge',unit:'mock tests'},
+  'practice:all':{ico:'📘',acc:'#0ea5e9',name:'The Reading Room',unit:'practice tests'},
+  'testprep:mock':{ico:'🧪',acc:'#14b8a6',name:'The Proving Ground',unit:'mock tests'},
+  'testprep:exam':{ico:'⭐',acc:'#f59e0b',name:'Exam Conditions',unit:'exam papers'},
+  /* Not a paper anyone sat here — it is what came back out of the test centre. */
+  'lituktestweb:all':{ico:'🔥',acc:'#ec4899',name:'Word from the Room',unit:'reported papers'},
+};
+/* `key` is bank id + kind, the same pair the section is built from, so it is
+   stable across renders and across a bank gaining tests. `dflt` opens the first
+   group on a first visit: a page of nothing but shut headers doesn't show what
+   a test tile is. */
+function testGroup(b,tests,label,sub,key,dflt,note,seq){
   const done=tests.filter(t=>testStat(t.n).lastPass).length;
-  return `<div class="bankhd">
-      <b>${esc(label)}</b>
-      <span class="tag">${done}/${tests.length} passed</span>
-      <span class="src">Questions from <a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(b.source)}</a></span>
+  const face=GRP_FACE[key]||{ico:'📄',acc:GRP_ACC[seq%GRP_ACC.length]};
+  const pct=Math.round(done/tests.length*100);
+  /* `nm`, not `lbl`: .lbl is the app's small-caps caption class, and borrowing it
+     here uppercased both the section name and the source under it. */
+  return `<details class="bankgrp" style="--acc:${face.acc}"${(grpOpen[key]??dflt)?' open':''} ontoggle="grpToggle('${key}',this.open)">
+    <summary class="bankhd" title="${esc(label)}">
+      <span class="ico" aria-hidden="true">${face.ico}</span>
+      <span class="nm">
+        <b>${esc(face.name||label)}</b>
+        <span class="src">${tests.length} ${esc(face.unit||'tests')} · <a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(b.source)}</a></span>
+      </span>
+      <span class="prog" aria-hidden="true"><i style="width:${pct}%"></i></span>
+      <span class="tag${done===tests.length?' done':''}">${done}/${tests.length} passed</span>
+      <span class="chev" aria-hidden="true">▸</span>
+    </summary>
+    <div class="bankbody">
+      ${sub?`<p class="banksub">${esc(sub)}</p>`:''}
+      <div class="grid tests">${tests.map(testTile).join('')}</div>
+      ${note?`<p class="banknote">${note}</p>`:''}
     </div>
-    ${sub?`<p class="banksub">${esc(sub)}</p>`:''}
-    <div class="grid tests">${tests.map(testTile).join('')}</div>`;
+  </details>`;
 }
-function bankSection(b){
+function bankSection(b,bi){
   /* First-seen order, so the section order follows the test numbers: mocks
      (201-238) then exams (301-311).
 
@@ -699,12 +791,15 @@ function bankSection(b){
      single test is one. mock and practice declare no kind at all, so `kinds` is
      empty, `kinds[0]` is undefined and the subtitle stays null exactly as
      before. */
-  const kinds=[...new Set(b.tests.map(t=>t.kind))].filter(k=>KIND_LABEL[k]);
+  const kinds=bankKinds(b);
   const stem=b.label.replace(/\s*Tests$/,'');
-  const body=kinds.length<2
-    ? testGroup(b,b.tests,b.label,KIND_SUB[kinds[0]]??null)
-    : kinds.map(k=>testGroup(b,b.tests.filter(t=>t.kind===k),`${stem} ${KIND_LABEL[k]}`,KIND_SUB[k])).join('');
-  return body+(BANK_NOTE[b.id]?`<p class="banknote">${BANK_NOTE[b.id]}</p>`:'');
+  /* The source's note goes inside the bank's last panel rather than under it:
+     it documents the tiles above it, and a paragraph of licence text left
+     stranded beneath a shut section is exactly the scrolling this removes. */
+  const note=BANK_NOTE[b.id]||'';
+  return kinds.length<2
+    ? testGroup(b,b.tests,b.label,KIND_SUB[kinds[0]]??null,`${b.id}:all`,bi===0,note,bi)
+    : kinds.map((k,i)=>testGroup(b,b.tests.filter(t=>t.kind===k),`${stem} ${KIND_LABEL[k]}`,KIND_SUB[k],`${b.id}:${k}`,bi===0&&i===0,i===kinds.length-1?note:'',bi+i)).join('');
 }
 function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
@@ -746,6 +841,7 @@ function renderDashboard(){
     </div>
     <div class="btn-row" style="margin:8px 0 14px;align-items:center">
       <b style="margin-right:auto">All tests</b>
+      <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="toggleAllGroups()">${grpAnyOpen()?'▴ Collapse all':'▾ Expand all'}</button>
       <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="openSettings()">⚙️ Drill ${drillSize()} · ${prefs.feedback==='instant'?'Instant feedback':'Answers at end'} · ${prefs.shufQ?'Shuffled':'In order'}</button>
     </div>
     ${BANKS.map(bankSection).join('')}`;
