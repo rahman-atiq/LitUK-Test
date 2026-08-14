@@ -53,7 +53,8 @@ for (const t of tests) {
 
    The two older banks are pinned by EXISTING_MAX_G / EXISTING_MAX_N above. */
 const BLOCKS = {
-  testprep: { g: [1890, Infinity], n: [[201, 238], [301, 311]] },
+  testprep: { g: [1890, 2791], n: [[201, 238], [301, 311]] },
+  lituktestweb: { g: [2792, Infinity], n: [[401, 417]] },
 };
 const showRange = ([lo, hi]) => `${lo}-${hi === Infinity ? "∞" : hi}`;
 for (const b of banks) {
@@ -147,7 +148,7 @@ for (const q of canonical.values()) {
   uniq.get(dupKey(q)).push(q);
 }
 const dupGroups = [...uniq.values()].filter((g) => g.length > 1);
-const UNIQUE_EXPECT = 2757;            // the count both the engine and the hub carry
+const UNIQUE_EXPECT = 3147;            // the count both the engine and the hub carry
 if (uniq.size !== UNIQUE_EXPECT) {
   fail(`the banks hold ${uniq.size} unique questions, expected ${UNIQUE_EXPECT}. If a bank was added on purpose, update UNIQUE_EXPECT here, in life-in-uk-mock-tests.html and UNIQUE_QUESTIONS in index.html together. If not, the dedup key is merging questions it should not.`);
 }

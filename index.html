@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Life in the UK">
 <meta name="theme-color" content="#0D0F14">
-<meta name="description" content="Life in the UK test — story chapters, reference notes, practice quiz and 133 practice tests.">
+<meta name="description" content="Life in the UK test — story chapters, reference notes, practice quiz and 150 practice tests.">
 <title>Life in the UK — Study Hub</title>
 <!-- lituk:shared -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -245,7 +245,7 @@
     <a class="tile" href="life-in-uk-mock-tests.html" style="--accent:var(--era2)">
       <div class="ic">📝</div>
       <div class="body">
-        <b>Practice Tests <span class="tag">133 tests</span></b>
+        <b>Practice Tests <span class="tag">150 tests</span></b>
         <span>Full 24-question exams under real timing. The closest thing to sitting the actual test.</span>
       </div>
       <div class="chev">›</div>
@@ -346,15 +346,15 @@ var TOPIC_NAMES = [
    ============================================================ */
 (function () {
   "use strict";
-  /* All three banks, all counted. tools/validate-banks.mjs asserts these still
+  /* All four banks, all counted. tools/validate-banks.mjs asserts these still
      match what the data files actually contain. */
-  var TOTAL_TESTS = 133;
-  var TOTAL_QUESTIONS = 2792;
-  /* 35 of those ids are the same question twice (see the dedup block in
+  var TOTAL_TESTS = 150;
+  var TOTAL_QUESTIONS = 3198;
+  /* 51 of those ids are the same question twice (see the dedup block in
      life-in-uk-mock-tests.html), so coverage is measured against the unique
      count — the engine records one shared spaced-repetition entry per pair.
      tools/validate-banks.mjs asserts both numbers. */
-  var UNIQUE_QUESTIONS = 2757;
+  var UNIQUE_QUESTIONS = 3147;
   var DRILL_DEFAULT = 60;
 
   function read(key, fallback) {

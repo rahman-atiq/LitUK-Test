@@ -407,6 +407,7 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
 <script src="mock-data.js"></script>
 <script src="practice-data.js"></script>
 <script src="testprep-data.js"></script>
+<script src="lituktestweb-data.js"></script>
 <script>
 /* ============ STATE ============ */
 const LS='lituk_v1';
@@ -472,7 +473,7 @@ if(BANKS.some(b=>b.passmark!==PASSMARK))console.error('LITUK: banks disagree on 
    apostrophe or full stop.
 
    Question ids never change (INV-2) — only which id holds the shared state. */
-const UNIQUE_EXPECT=2757;
+const UNIQUE_EXPECT=3147;
 const dupNorm=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const dupKey=q=>dupNorm(q.t)+' '+q.o.map(o=>dupNorm(o[0])).sort().join('');
 const CANON={};                            /* every g -> the id that owns its state */

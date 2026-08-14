@@ -6,7 +6,23 @@ The site's ~60 mock/practice tests are deliberately not imported.
 > Canonical source of truth for execution. Drafted 2026-08-14. Every count below was
 > measured against the live site and the working tree on that date, not estimated —
 > all 17 pages were fetched and parsed during planning.
-> Status: **not started.**
+> Status: **Phases 0–2 executed 2026-08-14. Phases 3–5 not started.**
+
+## Status
+
+Phases 0–2 shipped exactly as measured in planning: 17 exam URLs discovered from
+`/exams/` (1–17, no gaps), 408 slots, 0 parse problems, 406 unique questions
+(ids 2792–3197), 0 answer conflicts against the existing banks. `node
+tools/validate-banks.mjs` reports 4 banks · 150 tests · 3,600 slots · 3,198 ids ·
+3,147 unique · **and fails on exactly the two checks Phase 3 exists to close**:
+`facts.js` and `search-index.js` haven't been rebuilt yet, so they're missing
+entries for the 390 net-new canonical questions. That is the expected, correct
+state of a Phase-0–2-only checkout — not a bug to chase.
+
+Phases 3 (rebuild `facts.js` / `search-index.js`), 4 (surface it — the
+`bankSection` subtitle fix, `BANK_NOTE` attribution, the §6 wording calls) and 5
+(the guard-breaking proof pass and the two eyes-on screen checks: the "Select 3"
+badge and a phone backup/restore round-trip) are unstarted.
 
 Revert point: 3 banks · 133 tests · 3,192 slots · 2,792 ids · 2,757 unique ·
 263 exam questions.
