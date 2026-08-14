@@ -6,23 +6,48 @@ The site's ~60 mock/practice tests are deliberately not imported.
 > Canonical source of truth for execution. Drafted 2026-08-14. Every count below was
 > measured against the live site and the working tree on that date, not estimated —
 > all 17 pages were fetched and parsed during planning.
-> Status: **Phases 0–2 executed 2026-08-14. Phases 3–5 not started.**
+> Status: **Phases 0–5 executed 2026-08-14. Two eyes-on screen checks outstanding.**
 
 ## Status
 
 Phases 0–2 shipped exactly as measured in planning: 17 exam URLs discovered from
 `/exams/` (1–17, no gaps), 408 slots, 0 parse problems, 406 unique questions
-(ids 2792–3197), 0 answer conflicts against the existing banks. `node
-tools/validate-banks.mjs` reports 4 banks · 150 tests · 3,600 slots · 3,198 ids ·
-3,147 unique · **and fails on exactly the two checks Phase 3 exists to close**:
-`facts.js` and `search-index.js` haven't been rebuilt yet, so they're missing
-entries for the 390 net-new canonical questions. That is the expected, correct
-state of a Phase-0–2-only checkout — not a bug to chase.
+(ids 2792–3197), 0 answer conflicts against the existing banks.
 
-Phases 3 (rebuild `facts.js` / `search-index.js`), 4 (surface it — the
-`bankSection` subtitle fix, `BANK_NOTE` attribution, the §6 wording calls) and 5
-(the guard-breaking proof pass and the two eyes-on screen checks: the "Select 3"
-badge and a phone backup/restore round-trip) are unstarted.
+Phase 3 rebuilt both generated files — note the dependency the plan listed
+backwards: `build-facts.mjs` reads `search-index.js`, so **search index first,
+facts second**. `search-index.js` 871 KB / 3,198 questions; `facts.js` 123 KB /
+3,114 fact cards / 3,137 chapter links. `node tools/validate-banks.mjs` is now
+fully green: 4 banks · 150 tests · 3,600 slots · 3,198 ids · 3,147 unique.
+
+Phase 4 landed the `bankSection()` subtitle fix (verified against all four real
+banks: only `lituktestweb` changes, mock/practice/testprep byte-identical), both
+§6 calls — `EXAM_CLAIM` softened to drop "2026", and a `BANK_NOTE.lituktestweb`
+that states the site's actual footer rather than inventing an OGL grant — plus
+the footer source list and the service-worker `VERSION` bump that Phases 3–4
+made necessary again (`facts.js`, `search-index.js` and the engine all changed
+after Phase 2 bumped it). §4.2 confirmed by derivation rather than assertion:
+`EXAM_POOL` is **663**, the badge fires on 663 of 3,147, and 17 of the flagged
+ids are non-canonical — the exact case the `canon()` comment warns about.
+
+Phase 5's guards both fired on a broken copy and exited 1, then restored clean
+(sha256-verified):
+
+| Break | Message |
+| --- | --- |
+| testprep q2791 → 3198 | `INV-2: question id(s) 3198 in "testprep" are outside its block 1890-2791` |
+| legend: chapter 2 renamed to chapter 1's name | `topic "…" is matched by more than one chapter` + `not a bijection` |
+| legend: chapter 1 renamed off the TOPICS list | `no TOPICS entry matches "…"` + `not a bijection` |
+
+And the counterfactual that makes the first one worth having: with the
+pre-Phase-2 `testprep: { g: [1890, Infinity] }`, the identical drift produced
+**no INV-2 line at all** — only the collateral "rerun the builders" complaints
+that a developer would clear by rerunning the builders, shipping the drift
+silently. The block closure is load-bearing, not decorative.
+
+**Outstanding — needs a human on a real screen, cannot be settled by a tool:**
+the Select-3 badge (see §5; `g2916`, and note there are **5** such questions in
+the pool, not 1) and the phone backup/restore round-trip.
 
 Revert point: 3 banks · 133 tests · 3,192 slots · 2,792 ids · 2,757 unique ·
 263 exam questions.

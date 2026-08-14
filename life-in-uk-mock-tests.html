@@ -395,8 +395,9 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
     Your progress is saved on this device only (browser localStorage). Nothing is uploaded.<br>
     Pass mark: <b>18 / 24 (75%)</b> · Study aid built for personal practice from questions on
     <a href="https://britizen.uk" target="_blank" rel="noopener noreferrer">britizen.uk</a>,
-    <a href="https://lifeintheuktest.com/practice-tests/" target="_blank" rel="noopener noreferrer">lifeintheuktest.com</a> and
-    <a href="https://testprep.uk/life-in-the-uk-test/practice-tests" target="_blank" rel="noopener noreferrer">testprep.uk</a>.
+    <a href="https://lifeintheuktest.com/practice-tests/" target="_blank" rel="noopener noreferrer">lifeintheuktest.com</a>,
+    <a href="https://testprep.uk/life-in-the-uk-test/practice-tests" target="_blank" rel="noopener noreferrer">testprep.uk</a> and
+    <a href="https://lifeintheuktestweb.co.uk/exams/" target="_blank" rel="noopener noreferrer">lifeintheuktestweb.co.uk</a>.
   </div>
 </div>
 
@@ -510,8 +511,17 @@ const EXAM_SEEN=new Set(ALLQ.filter(q=>q.x===1).map(q=>canon(q.g)));
 const isExamQ=q=>q&&EXAM_SEEN.has(canon(q.g));
 const EXAM_POOL=POOL.filter(isExamQ);
 /* One label, three call sites — the review row, the mistakes row and the
-   question modal all say the same thing in the same words. */
-const EXAM_CLAIM='Reported by test-takers as recently asked in real 2026 exams';
+   question modal all say the same thing in the same words.
+
+   No year. This read "real 2026 exams" while testprep.uk was the only source
+   of x:1, because that is testprep.uk's own claim. lifeintheuktestweb.co.uk
+   makes the same claim with no year attached — "a compilation of exam
+   questions reported by candidates" — and it now supplies 406 of the 663
+   flagged questions. Stamping 2026 on 400 questions whose source never dated
+   them would be this app inventing precision the data does not have. What is
+   true of both sources is "recently"; the per-source specifics live in
+   BANK_NOTE, where they can differ. */
+const EXAM_CLAIM='Reported by test-takers as recently asked in real exams';
 const examBadge=q=>isExamQ(q)?`<span class="xbadge" title="${EXAM_CLAIM}">⭐ Real exam</span>`:'';
 
 document.getElementById('brandSub').textContent=`${TESTS.length} Tests · ${UNIQUE_N} Questions`;
@@ -654,14 +664,19 @@ function testTile(t){
    knows. One flat grid of 49 tiles throws it away. */
 const KIND_LABEL={mock:'Mock Tests',exam:'Exam Tests'};
 const KIND_SUB={exam:EXAM_CLAIM+'.'};
-/* The source's own licence and disclaimer, mirrored rather than paraphrased.
-   testprep.uk's footer, verbatim in substance: independent study material built
-   on public sector information under the OGL, no affiliation with government.
+/* Each source's own licence and disclaimer, mirrored rather than paraphrased —
+   and the two do not say the same thing, which is the point of keeping them
+   per-bank. testprep.uk states an OGL v3.0 grant. lifeintheuktestweb.co.uk
+   states no licence at all: its footer claims copyright over the compilation
+   and it sells ads against the pages. Writing it an OGL note by symmetry would
+   be putting a grant in a publisher's mouth that the publisher never made, so
+   its note says what its footer actually says instead.
    Presentation, not data — the bank files are generated and nothing here is
    allowed to need a rebuild. */
 const OGL='https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/';
 const BANK_NOTE={
   testprep:`TestPrep.UK publishes these as independent study material based on public sector information licensed under the <a href="${OGL}" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>. Neither that site nor this one is affiliated with the Home Office, the DVSA or any UK Government body, and the UK Government does not accept responsibility for the accuracy of the material.`,
+  lituktestweb:`LifeInTheUKTestWeb.co.uk publishes these as “a compilation of exam questions reported by candidates”. That site publishes no licence of its own: its footer reads “© Copyright 2026 · Life in the UK Test Web · All Rights Reserved”, and it runs advertising against the pages. There is no Open Government Licence grant to point at here — only Crown copyright handbook material underneath a compilation the site claims as its own. Neither that site nor this one is affiliated with the Home Office, the DVSA or any UK Government body.`,
 };
 function testGroup(b,tests,label,sub){
   const done=tests.filter(t=>testStat(t.n).lastPass).length;
@@ -675,11 +690,19 @@ function testGroup(b,tests,label,sub){
 }
 function bankSection(b){
   /* First-seen order, so the section order follows the test numbers: mocks
-     (201-238) then exams (301-311). */
+     (201-238) then exams (301-311).
+
+     One section when the bank does not split, but the subtitle still comes from
+     the kind. lifeintheuktestweb.co.uk is 17 tests that are ALL exams, so it
+     has one kind and one section — and the earlier `,null)` here dropped the
+     one line explaining what an exam test is from the only bank where every
+     single test is one. mock and practice declare no kind at all, so `kinds` is
+     empty, `kinds[0]` is undefined and the subtitle stays null exactly as
+     before. */
   const kinds=[...new Set(b.tests.map(t=>t.kind))].filter(k=>KIND_LABEL[k]);
   const stem=b.label.replace(/\s*Tests$/,'');
   const body=kinds.length<2
-    ? testGroup(b,b.tests,b.label,null)
+    ? testGroup(b,b.tests,b.label,KIND_SUB[kinds[0]]??null)
     : kinds.map(k=>testGroup(b,b.tests.filter(t=>t.kind===k),`${stem} ${KIND_LABEL[k]}`,KIND_SUB[k])).join('');
   return body+(BANK_NOTE[b.id]?`<p class="banknote">${BANK_NOTE[b.id]}</p>`:'');
 }
@@ -1281,14 +1304,16 @@ function startTwist(n){
 }
 
 /* ============ REAL-EXAM QUESTIONS ============
-   263 of the 2,757 are reported by testprep.uk's test-takers as recently asked
-   in a real exam. That is 10% of the bank carrying the strongest yield signal
-   anything here has, and until now the only way to meet them was to happen to
-   sit one of the 11 exam papers — which serve them 24 at a time, mixed with
-   nothing, and say nothing about the 239 you have not seen.
+   663 of the 3,147 are reported by test-takers as recently asked in a real
+   exam — 263 from testprep.uk's 11 exam papers and 406 from
+   lifeintheuktestweb.co.uk's 17, which are 96% new material rather than a
+   second copy of the first. That is 21% of the bank carrying the strongest
+   yield signal anything here has, and the only other way to meet them is to
+   happen to sit one of the 28 exam papers — which serve them 24 at a time,
+   mixed with nothing, and say nothing about the rest.
 
    Ordered like the gauntlets, by what the question still owes you, so
-   successive sessions walk all 263 instead of re-serving the same batch. It is
+   successive sessions walk all 663 instead of re-serving the same batch. It is
    a filter over the same pool, not a new one: every card is a real question,
    answered against its own id, feeding the same spaced repetition. */
 function examStats(){
