@@ -296,6 +296,20 @@ h1{font-size:22px;letter-spacing:-.02em;margin:22px 0 4px}
 .ring .sc{font-size:12px;color:var(--muted);font-weight:700}
 .verdict-big{font-size:24px;font-weight:800}
 .verdict-big.good{color:var(--good)} .verdict-big.bad{color:var(--bad)}
+/* Where this test sits in its series, and the two either side of it. Rendered
+   twice on the page: the top copy is part of the decision you make while
+   looking at the score, and the bottom one is there because after 24
+   explanations the top of the page is a long scroll back. */
+.snav{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:14px 0}
+.snav .btn{display:flex;flex-direction:column;gap:1px;justify-self:start;align-items:flex-start;text-align:left}
+.snav .btn.nx{justify-self:end;align-items:flex-end;text-align:right}
+.snav .m{font-size:11px;font-weight:600;opacity:.72}
+.snav .pos{font-size:12px;font-weight:700;color:var(--muted);text-align:center}
+@media (max-width:560px){.snav .pos .nm{display:none}}
+@media (max-width:420px){
+  .snav{grid-template-columns:1fr 1fr}
+  .snav .pos{grid-column:1/-1;order:-1}
+}
 /* Review list */
 .rev{border:1px solid var(--line);border-radius:12px;margin-top:10px;overflow:hidden}
 .rev summary{padding:12px 14px;cursor:pointer;display:flex;gap:10px;align-items:center;font-weight:600;list-style:none}
@@ -2111,6 +2125,10 @@ function renderResults(score,total,passed){
      anything and is dropped rather than reported as "1440:00 taken". */
   const secs=Math.round((Date.now()-sess.startTs)/1000);
   const took=secs<6*3600?`<span class="chip" style="margin-left:6px">${fmt(secs)} taken</span>`:'';
+  /* Only a numbered test belongs to a series. A drill, a sweep or a random
+     exam has nothing either side of it, and `retrySame()` is already the right
+     next move for those. */
+  const nav=sess.testN?seriesNav(sess.testN):'';
   el.innerHTML=`
     <h1>${sess.title} — results</h1>
     <div class="card pad" style="margin-bottom:16px">
@@ -2146,6 +2164,7 @@ function renderResults(score,total,passed){
         </div>
       </div>
     </div>
+    ${nav}
     <b>Review all ${total} questions</b>
     <div style="margin-top:8px">
     ${sess.items.map((it,i)=>{const ci=correctIdx(it.q);
@@ -2159,7 +2178,8 @@ function renderResults(score,total,passed){
           <div class="lbl" style="margin-top:8px">Explanation</div><div>${esc(it.q.e||'—')}</div>
         </div>
       </details>`}).join('')}
-    </div>`;
+    </div>
+    ${nav}`;
 }
 /* What the session did to the only number that matters. A sweep of 50 unseen
    questions moves it a point or two whatever you score, because coverage is
@@ -2170,6 +2190,42 @@ function readinessMove(){
   const a=readiness().p,d=Math.round(a*100)-Math.round(b*100);
   return `<span class="chip" style="margin-left:6px;color:${d>0?'var(--good)':d<0?'var(--bad)':'var(--muted)'}" title="Chance of passing a random 24-question paper">${
     d>0?'▲':d<0?'▼':'='} pass ${Math.round(a*100)}%${d?` (${d>0?'+':''}${d})`:''}</span>`;
+}
+/* ============ TEST SERIES ============
+   "The next test" has to mean the tile that comes next on the dashboard, so
+   the series is the dashboard's own grouping and not the test-number line:
+   the numbers are one flat space shared by four banks, so Test 238 + 1 is a
+   different source's Test 301 and Test 45 + 1 does not exist at all. Grouping
+   the same way testGroup() does — bank, split by kind only where the bank
+   declares one — keeps Exam Conditions from spilling into The Proving Ground
+   and stops the walk dead at each bank's edge. */
+function testSeries(n){
+  const t=TESTS.find(x=>x.n===n);if(!t)return null;
+  const b=t._bank,ks=bankKinds(b);
+  /* Same key and same membership rule as grpKeys()/bankSection(), so the
+     section's name on the dashboard is the name used here. */
+  const key=ks.length<2?`${b.id}:all`:`${b.id}:${t.kind}`;
+  const list=ks.length<2?b.tests:b.tests.filter(x=>x.kind===t.kind);
+  const i=list.indexOf(t);if(i<0)return null;
+  return {list,i,name:(GRP_FACE[key]||{}).name||b.label,prev:list[i-1]||null,next:list[i+1]||null};
+}
+/* Whether the test you are about to walk into is new ground or a re-sit — the
+   same two facts the dashboard tile carries, in the space a button has. */
+function seriesMeta(t){
+  const st=testStat(t.n);
+  return st.best==null?'Not attempted':`Best ${st.best}/24${st.lastPass?' · passed':''}`;
+}
+function seriesNav(n){
+  const s=testSeries(n);if(!s)return '';
+  /* The empty side keeps its grid column, so the position line stays centred
+     at both ends of a series rather than sliding under the one live button. */
+  const side=(t,nx)=>t?`<button class="btn sm${nx?' nx':''}" onclick="startTest(${t.n})">
+      <span>${nx?`Test ${t.n} →`:`← Test ${t.n}`}</span><span class="m">${seriesMeta(t)}</span></button>`:'<span></span>';
+  return `<div class="snav">
+    ${side(s.prev,false)}
+    <div class="pos">Test ${s.i+1} of ${s.list.length}<span class="nm"> · ${esc(s.name)}</span></div>
+    ${side(s.next,true)}
+  </div>`;
 }
 function retrySame(){
   /* The training modes walk a queue, so "again" means the next batch off it,
