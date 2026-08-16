@@ -104,19 +104,41 @@ header.hd-away{transform:translateY(-100%)}
 h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-height:1.15}
 .sub{color:var(--muted);margin:0 0 18px;font-size:14px}
 .grid{display:grid;gap:12px}
-.stat-row{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+/* Two up on a phone, three on anything wider. auto-fit was the wrong tool: it
+   sized tracks off a 140px floor, so a 900px page took five columns and any tile
+   count that was not a multiple of five left a tile sitting alone beside a hole
+   most of the page wide. Fixed counts plus the two orphan rules below mean the
+   last row always closes itself, at 6 tiles or 5 here and 3 on the stats page. */
+.stat-row{grid-template-columns:repeat(2,1fr)}
+.stat-row > .stat:last-child:nth-child(odd){grid-column:1/-1}
+@media (min-width:700px){
+  .stat-row{grid-template-columns:repeat(3,1fr)}
+  .stat-row > .stat:last-child:nth-child(odd){grid-column:auto}
+  .stat-row > .stat:last-child:nth-child(3n+1){grid-column:1/-1}
+  .stat-row > .stat:last-child:nth-child(3n+2){grid-column:span 2}
+}
 .stat{padding:14px 16px}
 /* tabular-nums is the difference between a counter that sits still and one that
    jitters sideways every time a 1 becomes a 7. These numbers change constantly. */
 .stat .n{font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
 /* Seven identical tiles is seven things of equal importance, and they are not:
-   pass probability is the one number the whole app exists to move. It takes the
-   full row — two columns on a phone — and the type scale says so too. */
-.stat.hero{grid-column:1/-1;padding:18px 20px;
+   pass probability is the one number the whole app exists to move. So it sits
+   above the row entirely rather than as a member of it that spans every column —
+   that spanning member was what pushed "Days to exam" onto a line of its own,
+   stranded next to four columns of nothing. Out of the grid, it takes the full
+   width honestly, and the score it implies rides on the right so the card reads
+   as a statement instead of a wide empty slab. */
+.stat.hero{display:flex;align-items:center;gap:16px;margin:0 0 12px;padding:18px 20px;
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--panel)),color-mix(in srgb,var(--brand) 9%,var(--panel)) 58%,var(--panel));
   border-color:color-mix(in srgb,var(--brand) 26%,var(--line))}
+.stat.hero > div{min-width:0}
 .stat.hero .n{font-size:44px;letter-spacing:-.045em}
 .stat.hero .l{font-size:12.5px}
+.hero-side{flex:0 0 auto;margin-left:auto;text-align:right;padding-left:16px;border-left:1px solid var(--line)}
+.hero-side b{display:block;font-size:22px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-side b i{font-style:normal;font-size:14px;color:var(--muted)}
+.hero-side em{display:block;font-style:normal;margin-top:2px;
+  font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .stat .l{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 /* The figure the headline replaced, kept where it can still be read but not
    mistaken for the answer — lifetime accuracy under the rolling one. */
@@ -966,12 +988,16 @@ function renderDashboard(){
     ${backupNag()}
     ${resumeSection()}
     ${drillCard()}
+    <div class="card stat hero tap" onclick="explainReadiness()" title="How this is worked out">
+      <div>
+        <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}">${rp}%</div><div class="l">Pass probability</div>
+        <div class="s">${readyLabel(rd.p)} · pass at ${PASSMARK} · tap for the maths</div>
+      </div>
+      <div class="hero-side"><b>${rd.mean.toFixed(1)}<i>/24</i></b><em>expected score</em></div>
+    </div>
     <div class="grid stat-row">
       ${left==null?'':`<div class="card stat tap" onclick="openSettings()" title="${esc(S.examDate)} — tap to change">
         <div class="n ${left<=6?'bad':left<=14?'brand':''}">${Math.max(0,left)}</div><div class="l">Days to exam</div></div>`}
-      <div class="card stat hero tap" onclick="explainReadiness()" title="How this is worked out">
-        <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}">${rp}%</div><div class="l">Pass probability</div>
-        <div class="s">≈ ${rd.mean.toFixed(1)}/24 · ${readyLabel(rd.p)}</div></div>
       <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${cov}%</div><div class="l">Bank coverage</div></div>
       <div class="card stat"><div class="n ${unseen?'bad':'good'}">${unseen}</div><div class="l">Never seen</div></div>
       <div class="card stat"><div class="n ${!rec?'':rec.pct>=75?'good':'bad'}">${rec?rec.pct+'%':'—'}</div><div class="l">Recent accuracy</div>
