@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0D0F14">
-<meta name="description" content="The day-before revision sheet: every date, trap, monarch and number in Chapter 3 on one page.">
+<meta name="description" content="The day-before revision sheet: every date, name, trap, monarch and number in Chapter 3 on one page.">
 <title>Life in the UK · The Day Before</title>
 <!-- lituk:shared -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -42,6 +42,12 @@
      from the two tokens that already flip with the theme, so it needs no
      colours of its own. */
   :root { --trap-bg:var(--ink); --trap-ink:var(--page); }
+
+  /* The Cast groups by era, so it borrows the six era tokens the timeline
+     already uses — same colour, same meaning, both sections. The inventors are
+     the chapter's own seventh block and belong to no era, so they get a mix of
+     two tokens rather than a new hex. */
+  :root { --era7:color-mix(in srgb, var(--era4) 55%, var(--era3)); }
 
   html { scroll-behavior:smooth; }
   @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
@@ -136,7 +142,10 @@
   }
   .jump a.cur { background:var(--card-2); color:var(--ink); }
   .jump a:active { transform:scale(.97); }
-  @media (max-width:360px) { .jump a { font-size:.76rem; } }
+  /* Five links, not four — "Timeline" is the widest word and decides the step
+     downs. Below 400px the gaps go first, the type second. */
+  @media (max-width:400px) { .jump { gap:3px; padding:4px; } .jump a { font-size:.75rem; } }
+  @media (max-width:340px) { .jump a { font-size:.68rem; } }
 
   .tenmin { text-align:center; font-size:.86rem; color:var(--ink-3); margin:12px 0 0; }
   .tenmin a {
@@ -181,6 +190,9 @@
   .ev {
     position:relative; display:flex; gap:10px; padding:9px 0 9px 26px;
     transition:opacity .16s ease;
+    /* Filtering walks you to the first surviving row; without this it would
+       land under the sticky jump bar. Same figure the sections use. */
+    scroll-margin-top:calc(var(--lituk-sat) + 112px);
   }
   /* Each row carries its own slice of the rail, so the line itself changes
      colour where the era changes. */
@@ -211,7 +223,40 @@
     .ev-t { font-size:.94rem; }
   }
 
-  /* ---------- 2 · the traps ---------- */
+  /* ---------- 2 · the cast ----------
+     .people / .person / .p-name / .p-life / .p-note are the chapter page's own
+     classes, so a card reads identically here, on the Chapter 3 notes and on
+     the Chapter 4 sheet. */
+  .people { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-top:14px; }
+  .person { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
+  .p-name { font-family:var(--serif); font-size:1.12rem; margin:0; }
+  .p-life { font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
+  .p-note { font-size:.85rem; color:var(--ink-2); margin:0; }
+  .p-note b { color:var(--ink); }
+
+  .dgroup { transition:opacity .16s ease; }
+  .cast.filtered .dgroup { opacity:.14; }
+  .cast.filtered .dgroup.on { opacity:1; }
+  @media (prefers-reduced-motion:reduce) { .dgroup { transition:none; } }
+
+  .dom {
+    display:flex; align-items:center; gap:9px; margin:32px 0 0;
+    scroll-margin-top:calc(var(--lituk-sat) + 112px);
+  }
+  .dom .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
+  .dom b {
+    font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .dom .ct { font-size:.72rem; color:var(--ink-3); font-variant-numeric:tabular-nums; }
+  .dom::after {
+    content:""; flex:1; height:1px;
+    background:color-mix(in srgb, var(--era) 40%, var(--line));
+  }
+  .dom-note { font-size:.78rem; color:var(--ink-3); margin:10px 2px 0; line-height:1.45; }
+  .dom-note b { color:var(--ink-2); font-weight:650; }
+
+  /* ---------- 3 · the traps ---------- */
   .pair { margin:30px 0 0; }
   .pair-head { display:flex; align-items:center; gap:9px; margin:0 0 2px; }
   .pair-head .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
@@ -241,7 +286,7 @@
   .trap { background:var(--trap-bg); color:var(--trap-ink); box-shadow:var(--shadow); }
   .trap .lab { color:var(--trap-ink); opacity:.66; }
 
-  /* ---------- 3 · the ladder ---------- */
+  /* ---------- 4 · the ladder ---------- */
   .ladder { margin:14px 0 0; }
   .house { display:flex; align-items:center; gap:10px; margin:26px 0 6px; }
   .house b {
@@ -288,7 +333,7 @@
   .switch b { display:block; font-size:.74rem; letter-spacing:.13em; text-transform:uppercase; color:var(--gold); }
   .switch span { display:block; font-size:.84rem; color:var(--ink-2); margin-top:4px; line-height:1.45; }
 
-  /* ---------- 4 · the numbers ---------- */
+  /* ---------- 5 · the numbers ---------- */
   .nums { display:grid; grid-template-columns:repeat(auto-fit, minmax(152px, 1fr)); gap:9px; margin:18px 0 0; }
   .num {
     background:var(--card); border:1px solid var(--line);
@@ -329,11 +374,12 @@
   <header class="mast">
     <p class="eyebrow">Revision sheet · Chapter 3</p>
     <h1>The Day Before</h1>
-    <p class="sub">Every date, trap, monarch and number in Chapter 3 — collated onto one page. An hour to re-cover the lot; five minutes for the part that actually catches people.</p>
+    <p class="sub">Every date, name, trap, monarch and number in Chapter 3 — collated onto one page. An hour to re-cover the lot; five minutes for the part that actually catches people.</p>
   </header>
 
   <nav class="jump" id="jump" aria-label="Jump to a section">
     <a href="#timeline">Timeline</a>
+    <a href="#cast">Cast</a>
     <a href="#traps">Traps</a>
     <a href="#ladder">Ladder</a>
     <a href="#numbers">Numbers</a>
@@ -467,10 +513,182 @@
     </ol>
   </section>
 
-  <!-- ═══════════════ 2 · THE TRAPS ═══════════════ -->
-  <section id="traps" data-ch="3">
+  <!-- ═══════════════ 2 · THE CAST ═══════════════ -->
+  <section id="cast" data-ch="3">
     <div class="sec-head">
       <div class="n">Two</div>
+      <h2>The Cast</h2>
+      <p>Every person the chapter names, grouped by era — plus the inventors, who are the chapter's own seventh block and belong to no era. <b>Each name is welded to one fact.</b> Learn the weld, ignore the biography.</p>
+    </div>
+
+    <div class="chips" id="castChips" role="group" aria-label="Filter the cast by era">
+      <button class="chip" type="button" data-dom="" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-dom="1" style="--era:var(--era1)" aria-pressed="false"><span class="dot"></span>Early Britain</button>
+      <button class="chip" type="button" data-dom="2" style="--era:var(--era2)" aria-pressed="false"><span class="dot"></span>Middle Ages</button>
+      <button class="chip" type="button" data-dom="3" style="--era:var(--era3)" aria-pressed="false"><span class="dot"></span>Tudors &amp; Stuarts</button>
+      <button class="chip" type="button" data-dom="4" style="--era:var(--era4)" aria-pressed="false"><span class="dot"></span>Global Power</button>
+      <button class="chip" type="button" data-dom="5" style="--era:var(--era5)" aria-pressed="false"><span class="dot"></span>20th Century</button>
+      <button class="chip" type="button" data-dom="6" style="--era:var(--era6)" aria-pressed="false"><span class="dot"></span>Since 1945</button>
+      <button class="chip" type="button" data-dom="7" style="--era:var(--era7)" aria-pressed="false"><span class="dot"></span>Inventors</button>
+    </div>
+    <p class="railnote" id="castnote" aria-live="polite"></p>
+
+    <div class="cast" id="cast-list">
+
+      <!-- ---------- 1 · early britain ---------- -->
+      <div class="dgroup" data-dom="1" style="--era:var(--era1)">
+        <div class="dom" id="cast-1"><span class="dot"></span><b>Early Britain</b><span class="ct">· 11</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Julius Caesar</p><p class="p-life">55 BC · invasion</p><p class="p-note">Invaded and <b>failed</b>. Britain stayed outside the Empire for nearly <b>100 more years</b>.</p></div>
+          <div class="person"><p class="p-name">Emperor Claudius</p><p class="p-life">AD 43 · invasion</p><p class="p-note">Invaded and <b>succeeded</b>. The Romans then stayed <b>400 years</b>.</p></div>
+          <div class="person"><p class="p-name">Boudicca</p><p class="p-life">Roman Britain · rebellion</p><p class="p-note">Queen of the <b>Iceni</b> in eastern England; fought back against the Romans. Her statue stands on <b>Westminster Bridge</b>.</p></div>
+          <div class="person"><p class="p-name">St Patrick</p><p class="p-life">· missionary</p><p class="p-note"><b>Patron saint of Ireland</b>.</p></div>
+          <div class="person"><p class="p-name">St Columba</p><p class="p-life">· missionary</p><p class="p-note">Founded the monastery on <b>Iona</b>, Scotland.</p></div>
+          <div class="person"><p class="p-name">St Augustine</p><p class="p-life">· missionary</p><p class="p-note">Led missionaries in the <b>south of England</b>; the <b>first Archbishop of Canterbury</b>.</p></div>
+          <div class="person"><p class="p-name">King Alfred the Great</p><p class="p-life">Viking age · Wessex</p><p class="p-note"><b>United the Anglo-Saxon kingdoms</b> and <b>defeated the Vikings</b>.</p></div>
+          <div class="person"><p class="p-name">Cnut (Canute)</p><p class="p-life">Viking age · Denmark</p><p class="p-note">The <b>first Danish king of England</b>.</p></div>
+          <div class="person"><p class="p-name">Kenneth MacAlpin</p><p class="p-life">Viking age · Scotland</p><p class="p-note">The Viking threat pushed the north to unite under him — the name <b>Scotland</b> came into use.</p></div>
+          <div class="person"><p class="p-name">William the Conqueror</p><p class="p-life">1066 · Normandy</p><p class="p-note"><b>William, Duke of Normandy</b>; won at <b>Hastings</b> — the <b>last successful foreign invasion of England</b>. Ordered the <b>Domesday Book</b>, which still exists.</p></div>
+          <div class="person"><p class="p-name">King Harold</p><p class="p-life">1066 · England</p><p class="p-note"><b>Killed at the Battle of Hastings</b>. The battle is commemorated in the <b>Bayeux Tapestry</b>, still in France.</p></div>
+        </div>
+        <p class="dom-note">The three saints run <b>north to south</b> — Patrick to Ireland, Columba to Scotland, Augustine to England. Hadrian's Wall, Sutton Hoo and Stonehenge are places, not people; the chapter names no one else this far back.</p>
+      </div>
+
+      <!-- ---------- 2 · the middle ages ---------- -->
+      <div class="dgroup" data-dom="2" style="--era:var(--era2)">
+        <div class="dom" id="cast-2"><span class="dot"></span><b>The Middle Ages</b><span class="ct">· 9</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">King John</p><p class="p-life">1215 · England</p><p class="p-note">Noblemen forced him to agree to <b>Magna Carta</b> — <b>even the king is subject to the law</b>.</p></div>
+          <div class="person"><p class="p-name">King Edward I</p><p class="p-life">1284 · England</p><p class="p-note">The <b>Statute of Rhuddlan</b> annexed <b>Wales</b> to the English Crown; castles at <b>Conwy</b> and <b>Caernarvon</b>.</p></div>
+          <div class="person"><p class="p-name">Robert the Bruce</p><p class="p-life">1314 · Scotland</p><p class="p-note">Beat the English at <b>Bannockburn</b> — <b>Scotland remained unconquered</b>.</p></div>
+          <div class="person"><p class="p-name">King Henry V</p><p class="p-life">1415 · England</p><p class="p-note">His <b>vastly outnumbered</b> army beat the French at <b>Agincourt</b>.</p></div>
+          <div class="person"><p class="p-name">King Richard III</p><p class="p-life">1485 · House of York</p><p class="p-note"><b>Killed at Bosworth Field</b> — the battle that ended the Wars of the Roses.</p></div>
+          <div class="person"><p class="p-name">Henry Tudor</p><p class="p-life">1485 · House of Lancaster</p><p class="p-note">Won Bosworth and became <b>King Henry VII</b>. Married <b>Elizabeth of York</b>, Richard's niece — hence the Tudor <b>red rose with a white rose inside</b>.</p></div>
+          <div class="person"><p class="p-name">Geoffrey Chaucer</p><p class="p-life">· poetry</p><p class="p-note"><b><i>The Canterbury Tales</i></b> — among the first books printed in England.</p></div>
+          <div class="person"><p class="p-name">William Caxton</p><p class="p-life">· printing</p><p class="p-note">The <b>first person to print books in England</b>.</p></div>
+          <div class="person"><p class="p-name">John Barbour</p><p class="p-life">· Scots language</p><p class="p-note">Wrote <b><i>The Bruce</i></b>, about Bannockburn, as the <b>Scots</b> language developed.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- 3 · the tudors & the stuarts ---------- -->
+      <div class="dgroup" data-dom="3" style="--era:var(--era3)">
+        <div class="dom" id="cast-3"><span class="dot"></span><b>The Tudors &amp; the Stuarts</b><span class="ct">· 19</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Henry VIII</p><p class="p-life">1509 · House of Tudor</p><p class="p-note">The Pope refused his divorce, so he created the <b>Church of England</b> — the <b>king, not the Pope, appoints bishops</b>. Took the title <b>King of Ireland</b>. Six wives.</p></div>
+          <div class="person"><p class="p-name">The six wives, in order</p><p class="p-life">· divorced, beheaded, died…</p><p class="p-note"><b>Catherine of Aragon</b> (divorced) · <b>Anne Boleyn</b> (beheaded) · <b>Jane Seymour</b> (died) · <b>Anne of Cleves</b> (divorced) · <b>Catherine Howard</b> (beheaded) · <b>Catherine Parr</b> (survived). The two beheaded wives were <b>cousins</b>.</p></div>
+          <div class="person"><p class="p-name">Edward VI</p><p class="p-life">1547 · Protestant</p><p class="p-note">Strongly Protestant; the <b>Book of Common Prayer</b> was written in his reign; died aged <b>15</b>.</p></div>
+          <div class="person"><p class="p-name">Mary I</p><p class="p-life">1553 · Catholic</p><p class="p-note">Devout Catholic who <b>persecuted Protestants</b> — <b>“Bloody Mary”</b>; died after a short reign.</p></div>
+          <div class="person"><p class="p-name">Elizabeth I</p><p class="p-life">1558–1603 · Protestant</p><p class="p-note">Daughter of Henry VIII and <b>Anne Boleyn</b>; <b>re-established the Church of England</b> and balanced both sides; beat the <b>Armada in 1588</b>; died childless.</p></div>
+          <div class="person"><p class="p-name">Mary, Queen of Scots</p><p class="p-life">· Scotland</p><p class="p-note">Catholic queen of Scotland at <b>one week old</b>, raised in France; fled to England leaving her son <b>James VI</b>. Elizabeth <b>imprisoned her 20 years, then executed her</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Francis Drake</p><p class="p-life">Elizabethan · exploration</p><p class="p-note">His ship the <b>Golden Hind</b> was among the first to <b>sail right around the world</b>.</p></div>
+          <div class="person"><p class="p-name">William Shakespeare</p><p class="p-life">1564–1616 · playwright</p><p class="p-note">Born <b>Stratford-upon-Avon</b>. <i>Hamlet</i>, <i>Macbeth</i>, <i>Romeo &amp; Juliet</i>, <i>A Midsummer Night's Dream</i>. First to portray <b>ordinary Englishmen and women</b>; <b>invented many English words</b>. The <b>Globe</b> is a modern copy of his theatre.</p></div>
+          <div class="person"><p class="p-name">James VI &amp; I</p><p class="p-life">1603 · union of crowns</p><p class="p-note"><b>James VI of Scotland became James I of England</b> — one king, two crowns, and Scotland stayed a <b>separate country</b>. The <b>King James Bible</b>.</p></div>
+          <div class="person"><p class="p-name">Charles I</p><p class="p-life">to 1649 · executed</p><p class="p-note"><b>Divine Right of Kings</b>; ruled <b>11 years without Parliament</b>; marched in to arrest <b>five MPs</b> — <b>no monarch has entered the Commons since</b>. Executed 1649.</p></div>
+          <div class="person"><p class="p-name">Oliver Cromwell</p><p class="p-life">1653–58 · Lord Protector</p><p class="p-note">Parliamentary general; <b>Dunbar</b> and <b>Worcester</b> made him leader of the republic. <b>Lord Protector, not king</b>; <b>brutal in Ireland</b> and still controversial there.</p></div>
+          <div class="person"><p class="p-name">Richard Cromwell</p><p class="p-life">1658 · Lord Protector</p><p class="p-note">Succeeded his father and <b>could not hold it together</b>.</p></div>
+          <div class="person"><p class="p-name">Charles II</p><p class="p-life">1660 · Restoration</p><p class="p-note">Invited back <b>from the Netherlands</b>; had hidden <b>in an oak tree</b> after Worcester. Plague, Fire, <b>Habeas Corpus</b> and the <b>Royal Society</b> are all his reign.</p></div>
+          <div class="person"><p class="p-name">Sir Christopher Wren</p><p class="p-life">1666 · architecture</p><p class="p-note">Rebuilt <b>St Paul's Cathedral</b> after the Great Fire destroyed it.</p></div>
+          <div class="person"><p class="p-name">Samuel Pepys</p><p class="p-life">1665–66 · diarist</p><p class="p-note"><b>Diarised</b> the plague and the Great Fire of London.</p></div>
+          <div class="person"><p class="p-name">Isaac Newton</p><p class="p-life">1643–1727 · science</p><p class="p-note">Born in <b>Lincolnshire</b>. <b><i>Principia Mathematica</i></b> showed <b>gravity</b> applies to the whole universe; discovered that <b>white light is made of the colours of the rainbow</b>. Early Royal Society member.</p></div>
+          <div class="person"><p class="p-name">Edmund Halley</p><p class="p-life">· science</p><p class="p-note">An early member of the <b>Royal Society</b> — the <b>oldest surviving scientific society in the world</b>.</p></div>
+          <div class="person"><p class="p-name">James II</p><p class="p-life">1685 · Catholic king</p><p class="p-note"><b>VII of Scotland</b>; favoured Catholics and ignored Parliament; beaten at the <b>Boyne in 1690</b> and fled to France. His supporters were the <b>Jacobites</b>.</p></div>
+          <div class="person"><p class="p-name">William of Orange &amp; Mary</p><p class="p-life">1688 · Glorious Revolution</p><p class="p-note">Invited to invade by Protestants — <b>no resistance, no fighting in England</b>, hence “Glorious”. It <b>guaranteed the power of Parliament</b>.</p></div>
+        </div>
+        <p class="dom-note">Same man, two numbers: <b>James VI of Scotland = James I of England</b>, and <b>William III of England = William II of Scotland</b>.</p>
+      </div>
+
+      <!-- ---------- 4 · a global power ---------- -->
+      <div class="dgroup" data-dom="4" style="--era:var(--era4)">
+        <div class="dom" id="cast-4"><span class="dot"></span><b>A Global Power</b><span class="ct">· 21</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Queen Anne</p><p class="p-life">to 1714 · Stuart</p><p class="p-note">Had <b>no surviving children</b>. The <b>1707 Act (Treaty) of Union</b> created the <b>Kingdom of Great Britain</b>; Scotland kept its own <b>legal system, education system and Presbyterian Church</b>.</p></div>
+          <div class="person"><p class="p-name">George I</p><p class="p-life">1714 · House of Hanover</p><p class="p-note">German Protestant <b>chosen by Parliament</b>; his <b>poor English</b> made him lean on his ministers.</p></div>
+          <div class="person"><p class="p-name">Sir Robert Walpole</p><p class="p-life">1721–1742 · politics</p><p class="p-note">The <b>first Prime Minister</b>.</p></div>
+          <div class="person"><p class="p-name">Bonnie Prince Charlie</p><p class="p-life">1745–46 · Jacobite</p><p class="p-note"><b>Charles Edward Stuart</b>, James II's grandson; rose with the Highland clans and was <b>crushed at Culloden in 1746</b>. The <b>Highland Clearances</b> followed.</p></div>
+          <div class="person"><p class="p-name">Adam Smith</p><p class="p-life">18th c. · Enlightenment</p><p class="p-note"><b>Economics</b> — one of the many great Enlightenment thinkers who were <b>Scottish</b>.</p></div>
+          <div class="person"><p class="p-name">David Hume</p><p class="p-life">18th c. · Enlightenment</p><p class="p-note"><b>Human nature and philosophy</b>.</p></div>
+          <div class="person"><p class="p-name">James Watt</p><p class="p-life">18th c. · Enlightenment</p><p class="p-note"><b>Steam power</b> — the engine of the Industrial Revolution.</p></div>
+          <div class="person"><p class="p-name">Richard Arkwright</p><p class="p-life">1732–1792 · industry</p><p class="p-note">Barber turned industrialist; improved the <b>carding machine</b> and ran water- then steam-powered <b>spinning mills</b> — remembered for <b>efficient, profitable factories</b>.</p></div>
+          <div class="person"><p class="p-name">Captain James Cook</p><p class="p-life">· exploration</p><p class="p-note"><b>Mapped Australia</b> as the colonies grew.</p></div>
+          <div class="person"><p class="p-name">William Wilberforce</p><p class="p-life">1807 · abolition</p><p class="p-note">Evangelical Christian MP who <b>led the change in the law</b> against the slave trade; the <b>Quakers</b> had formed the first anti-slavery groups.</p></div>
+          <div class="person"><p class="p-name">Admiral Nelson</p><p class="p-life">1805 · Trafalgar</p><p class="p-note">Destroyed the French–Spanish fleet at <b>Trafalgar</b> and <b>died in the battle</b>. His ship <b>HMS Victory</b> is at Portsmouth; <b>Nelson's Column</b> stands in Trafalgar Square.</p></div>
+          <div class="person"><p class="p-name">The Duke of Wellington</p><p class="p-life">1815 · Waterloo</p><p class="p-note"><b>“The Iron Duke”</b>; beat <b>Napoleon at Waterloo</b>, and later became <b>Prime Minister</b>.</p></div>
+          <div class="person"><p class="p-name">Robert Burns</p><p class="p-life">1759–1796 · poetry</p><p class="p-note"><b>“The Bard”</b> — Scottish poet writing in Scots and English. <b><i>Auld Lang Syne</i></b>, sung at New Year (<b>Hogmanay</b> in Scotland).</p></div>
+          <div class="person"><p class="p-name">Sake Dean Mahomet</p><p class="p-life">1759–1851 · migration</p><p class="p-note">Born in <b>Bengal</b>; came to Britain in 1782. Opened the <b>Hindoostane Coffee House</b> in <b>1810</b> — <b>Britain's first curry house</b> — and introduced <b>“shampooing”</b>.</p></div>
+          <div class="person"><p class="p-name">Isambard Kingdom Brunel</p><p class="p-life">1806–1859 · engineering</p><p class="p-note">From <b>Portsmouth</b>; tunnels, bridges, ships and the <b>Great Western Railway</b>. Many of his bridges are <b>still in use</b>.</p></div>
+          <div class="person"><p class="p-name">George &amp; Robert Stephenson</p><p class="p-life">Victorian · railways</p><p class="p-note"><b>Pioneered the railways</b>, which then spread across the Empire.</p></div>
+          <div class="person"><p class="p-name">Queen Victoria</p><p class="p-life">1837–1901 · Hanover</p><p class="p-note">Queen at <b>18</b>; reigned almost <b>64 years</b>; the Empire reached its largest — over <b>400 million people</b>. Introduced the <b>Victoria Cross</b>.</p></div>
+          <div class="person"><p class="p-name">Florence Nightingale</p><p class="p-life">1820–1910 · nursing</p><p class="p-note">Born in <b>Italy</b> to English parents; nursed soldiers in the <b>Crimean War</b>; founded the <b>Nightingale Training School</b> in 1860 — the <b>founder of modern nursing</b>.</p></div>
+          <div class="person"><p class="p-name">Charles Stuart Parnell</p><p class="p-life">Victorian · Ireland</p><p class="p-note">Championed <b>Home Rule</b> — an Irish parliament within the UK. The <b>Fenians</b> wanted <b>complete independence</b>.</p></div>
+          <div class="person"><p class="p-name">Emmeline Pankhurst</p><p class="p-life">1858–1928 · suffrage</p><p class="p-note">Born in <b>Manchester</b>. <b>Women's Franchise League</b> (1889) and the <b>WSPU</b> (1903) — the first <b>suffragettes</b>. Died weeks before women got the vote at 21.</p></div>
+          <div class="person"><p class="p-name">Rudyard Kipling</p><p class="p-life">1865–1936 · writing</p><p class="p-note">Born in <b>India</b>; <b>Nobel Prize in Literature, 1907</b>. <i>The Jungle Book</i>, <i>Just So Stories</i> and the poem <b><i>“If”</i></b>.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- 5 · the 20th century ---------- -->
+      <div class="dgroup" data-dom="5" style="--era:var(--era5)">
+        <div class="dom" id="cast-5"><span class="dot"></span><b>The 20th Century</b><span class="ct">· 7</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Archduke Franz Ferdinand</p><p class="p-life">28 Jun 1914 · Austria</p><p class="p-note">His <b>assassination</b> triggered the First World War — the deeper causes being <b>nationalism, militarism and imperialism</b>.</p></div>
+          <div class="person"><p class="p-name">Adolf Hitler</p><p class="p-life">1933–1945 · Germany</p><p class="p-note">Took power in <b>1933</b>; his <b>invasion of Poland in 1939</b> brought Britain and France in; invading the <b>Soviet Union in 1941</b> was his pivotal failure.</p></div>
+          <div class="person"><p class="p-name">Winston Churchill</p><p class="p-life">1874–1965 · Prime Minister</p><p class="p-note">Soldier and journalist, then Conservative MP from 1900; <b>PM in May 1940</b>; refused to surrender; <b>lost the 1945 election</b>, PM again in <b>1951</b>. The three speeches: <b>“blood, toil, tears and sweat”</b> (first as PM) · <b>“we shall fight on the beaches”</b> (after Dunkirk) · <b>“never… was so much owed by so many to so few”</b> (Battle of Britain). Voted <b>greatest Briton, 2002</b>.</p></div>
+          <div class="person"><p class="p-name">Alexander Fleming</p><p class="p-life">1881–1955 · medicine</p><p class="p-note">Born in <b>Scotland</b>. Discovered <b>penicillin in 1928</b> while researching influenza; <b>Florey and Chain</b> turned it into a usable drug. <b>Nobel Prize in Medicine, 1945</b>.</p></div>
+          <div class="person"><p class="p-name">Ernest Rutherford</p><p class="p-life">· physics</p><p class="p-note">Led the British scientists who <b>first split the atom</b> — Manchester, then Cambridge — and worked on the <b>Manhattan Project</b>.</p></div>
+          <div class="person"><p class="p-name">John Maynard Keynes</p><p class="p-life">interwar · economics</p><p class="p-note">The <b>economist</b> of the between-the-wars cultural bloom.</p></div>
+          <div class="person"><p class="p-name">Graham Greene &amp; Evelyn Waugh</p><p class="p-life">interwar · writing</p><p class="p-note">The two <b>writers</b> the chapter names between the wars.</p></div>
+        </div>
+        <p class="dom-note">Chapter 4 names Greene and Waugh again, with their novels. Here they are only <b>evidence that the 1920s and 30s were a cultural bloom</b> — that is the fact this chapter tests.</p>
+      </div>
+
+      <!-- ---------- 6 · britain since 1945 ---------- -->
+      <div class="dgroup" data-dom="6" style="--era:var(--era6)">
+        <div class="dom" id="cast-6"><span class="dot"></span><b>Britain since 1945</b><span class="ct">· 14</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Clement Attlee</p><p class="p-life">1883–1967 · Prime Minister</p><p class="p-note">London-born barrister; <b>Churchill's Deputy PM</b> in the wartime coalition; <b>PM 1945–51</b>. Nationalised industry and built the <b>welfare state</b>.</p></div>
+          <div class="person"><p class="p-name">William Beveridge</p><p class="p-life">1879–1963 · the report</p><p class="p-note">Economist and briefly a <b>Liberal MP</b>. The <b>1942 Beveridge Report</b> named the five Giant Evils: <b>Want, Disease, Ignorance, Squalor, Idleness</b>.</p></div>
+          <div class="person"><p class="p-name">R. A. Butler</p><p class="p-life">1902–1982 · education</p><p class="p-note">Conservative MP. The <b>Education Act 1944</b> — the “Butler Act” — gave <b>free secondary education</b> in England and Wales.</p></div>
+          <div class="person"><p class="p-name">Aneurin (Nye) Bevan</p><p class="p-life">1948 · health</p><p class="p-note">Minister for Health; founded the <b>NHS</b> — a minimum standard of care for all, <b>free at the point of use</b>.</p></div>
+          <div class="person"><p class="p-name">Harold Macmillan</p><p class="p-life">· decolonisation</p><p class="p-note">Gave the <b>“wind of change”</b> speech as the colonies became the <b>Commonwealth</b>.</p></div>
+          <div class="person"><p class="p-name">The Beatles &amp; The Rolling Stones</p><p class="p-life">1960s · pop</p><p class="p-note">The <b>Swinging Sixties</b> — growth in British <b>fashion, cinema and pop</b>.</p></div>
+          <div class="person"><p class="p-name">Mary Peters</p><p class="p-life">b. 1939 · athletics</p><p class="p-note">Born Manchester, moved to Northern Ireland. <b>Olympic pentathlon gold in 1972</b>; later a promoter of NI sport; made a <b>Dame in 2000</b>.</p></div>
+          <div class="person"><p class="p-name">Dylan Thomas</p><p class="p-life">1914–1953 · poetry</p><p class="p-note">Welsh poet. <b><i>Under Milk Wood</i></b> (a radio play) and <b><i>Do Not Go Gentle into That Good Night</i></b>; memorials in <b>Swansea</b>.</p></div>
+          <div class="person"><p class="p-name">Roald Dahl</p><p class="p-life">1916–1990 · writing</p><p class="p-note">Born in <b>Wales to Norwegian parents</b>; flew in the <b>RAF</b> in WWII. <i>Charlie and the Chocolate Factory</i>, <i>George's Marvellous Medicine</i>.</p></div>
+          <div class="person"><p class="p-name">Margaret Thatcher</p><p class="p-life">1925–2013 · Prime Minister</p><p class="p-note"><b>Grocer's daughter from Grantham</b>; <b>first woman PM, 1979–90</b> and the <b>longest-serving of the 20th century</b>. Privatisation, curbs on union power, the <b>Falklands in 1982</b>. Worked closely with <b>US President Reagan</b>.</p></div>
+          <div class="person"><p class="p-name">John Major</p><p class="p-life">1990 · Prime Minister</p><p class="p-note">Succeeded Thatcher; helped begin the <b>Northern Ireland peace process</b>.</p></div>
+          <div class="person"><p class="p-name">Tony Blair</p><p class="p-life">1997 · Prime Minister</p><p class="p-note">Created the <b>Scottish Parliament</b> (substantial law-making powers) and the <b>Welsh Assembly</b> (fewer); the <b>Good Friday Agreement, 1998</b>.</p></div>
+          <div class="person"><p class="p-name">Gordon Brown</p><p class="p-life">2007 · Prime Minister</p><p class="p-note">Followed Blair.</p></div>
+          <div class="person"><p class="p-name">David Cameron</p><p class="p-life">May 2010 · Prime Minister</p><p class="p-note"><b>No overall majority</b> — the first since February 1974 — so a <b>Conservative–Liberal Democrat coalition</b>.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- 7 · inventors & scientists ---------- -->
+      <div class="dgroup" data-dom="7" style="--era:var(--era7)">
+        <div class="dom" id="cast-7"><span class="dot"></span><b>Inventors &amp; scientists</b><span class="ct">· 13</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">John Logie Baird</p><p class="p-life">1920s · television</p><p class="p-note">Scot; first television broadcast <b>London–Glasgow, 1932</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Frank Whittle</p><p class="p-life">1930s · jet engine</p><p class="p-note"><b>RAF officer</b> who invented the <b>jet engine</b>.</p></div>
+          <div class="person"><p class="p-name">Alan Turing</p><p class="p-life">1930s · computing</p><p class="p-note">The <b>Turing machine</b> — the <b>theoretical basis of the computer</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Robert Watson-Watt</p><p class="p-life">1935 · radar</p><p class="p-note">Scot; the <b>first successful radar test</b>.</p></div>
+          <div class="person"><p class="p-name">John MacLeod</p><p class="p-life">· insulin</p><p class="p-note">Scottish physician; <b>co-discovered insulin</b>, which treats diabetes.</p></div>
+          <div class="person"><p class="p-name">Sir Christopher Cockerell</p><p class="p-life">1950s · hovercraft</p><p class="p-note">Invented the <b>hovercraft</b>.</p></div>
+          <div class="person"><p class="p-name">Francis Crick</p><p class="p-life">1953 · DNA</p><p class="p-note">The <b>structure of DNA</b>, worked out in British universities; won the <b>Nobel Prize</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Bernard Lovell</p><p class="p-life">· radio telescope</p><p class="p-note">The <b>radio telescope at Jodrell Bank</b>, Cheshire — for years the <b>largest in the world</b>.</p></div>
+          <div class="person"><p class="p-name">James Goodfellow</p><p class="p-life">1967 · cash machine</p><p class="p-note">The <b>ATM</b> — first used at <b>Barclays in Enfield</b>.</p></div>
+          <div class="person"><p class="p-name">Edwards &amp; Steptoe</p><p class="p-life">1978 · IVF</p><p class="p-note">The world's <b>first test-tube baby</b>, born in <b>Oldham, Lancashire</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Tim Berners-Lee</p><p class="p-life">25 Dec 1990 · the web</p><p class="p-note">The <b>World Wide Web</b> — the first successful information transfer, on <b>Christmas Day 1990</b>.</p></div>
+          <div class="person"><p class="p-name">Wilmut &amp; Campbell</p><p class="p-life">1996 · cloning</p><p class="p-note"><b>Dolly the sheep</b> — the <b>first cloned mammal</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Peter Mansfield</p><p class="p-life">· MRI scanner</p><p class="p-note"><b>Co-inventor of the MRI scanner</b>.</p></div>
+        </div>
+        <p class="dom-note">Two entries on the chapter's invention list carry <b>no inventor's name</b>: <b>Concorde</b> (UK–France, first flight 1969) and the <b>Harrier jump jet</b>. The test asks for the invention there, not a person.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3 · THE TRAPS ═══════════════ -->
+  <section id="traps" data-ch="3">
+    <div class="sec-head">
+      <div class="n">Three</div>
       <h2>The Traps</h2>
       <p>The confusable pairs the test uses to catch people, each with the memory hook that defends it. <b>If you read nothing else, read this.</b></p>
     </div>
@@ -554,10 +772,10 @@
     </div>
   </section>
 
-  <!-- ═══════════════ 3 · THE LADDER ═══════════════ -->
+  <!-- ═══════════════ 4 · THE LADDER ═══════════════ -->
   <section id="ladder" data-ch="3">
     <div class="sec-head">
-      <div class="n">Three</div>
+      <div class="n">Four</div>
       <h2>The Ladder</h2>
       <p>Succession in order, from Bosworth on. The timeline can't show that Edward VI and Mary I were a religious about-face — this can. <b>Years are accession years where the chapter gives one.</b></p>
     </div>
@@ -682,10 +900,10 @@
     </div>
   </section>
 
-  <!-- ═══════════════ 4 · THE NUMBERS ═══════════════ -->
+  <!-- ═══════════════ 5 · THE NUMBERS ═══════════════ -->
   <section id="numbers" data-ch="3">
     <div class="sec-head">
-      <div class="n">Four</div>
+      <div class="n">Five</div>
       <h2>The Numbers</h2>
       <p>Every "how many" the chapter actually states. If a number isn't here, the chapter doesn't give it.</p>
     </div>
@@ -735,6 +953,22 @@
   document.addEventListener("lituk:theme", label);
   label();
 
+  /* ---- reveal ----
+     Both filters below dim rather than hide, so the page keeps its full height
+     and the rows you asked for can sit a hundred rows above or below the
+     window — dimming alone would leave you staring at a screen of grey. This
+     walks you to the first surviving row, but only when it isn't already
+     comfortably in view, so tapping through nearby chips doesn't yank the page
+     about. The sticky jump bar measures itself; nothing here hard-codes it. */
+  var jumpBar = document.getElementById("jump");
+  function reveal(el) {
+    if (!el || !el.scrollIntoView) return;
+    var top = el.getBoundingClientRect().top;
+    var floor = jumpBar ? jumpBar.getBoundingClientRect().bottom : 0;
+    if (top >= floor && top <= window.innerHeight - 60) return;
+    el.scrollIntoView({ block: "start" });
+  }
+
   /* ---- era filter: dims, never hides, so the year order survives ---- */
   var rail = document.getElementById("rail");
   var note = document.getElementById("railnote");
@@ -744,12 +978,12 @@
 
   function apply(era) {
     active = era;
-    var shown = 0;
+    var shown = 0, target = null;
     rail.classList.toggle("filtered", !!era);
     rows.forEach(function (r) {
       var on = !era || r.getAttribute("data-era") === era;
       r.classList.toggle("on", on);
-      if (on) shown++;
+      if (on) { shown++; if (era && !target) target = r; }
     });
     chips.forEach(function (c) {
       var sel = c.getAttribute("data-era") === era;
@@ -759,6 +993,7 @@
     note.textContent = era
       ? shown + " of " + rows.length + " events — tap the chip again for all of them"
       : rows.length + " events, oldest first. Tap an era to pull it out of the line.";
+    reveal(target);
   }
 
   chips.forEach(function (c) {
@@ -768,6 +1003,50 @@
     });
   });
   apply("");
+
+  /* ---- cast filter: same behaviour, whole groups instead of single rows ---- */
+  var cast = document.getElementById("cast-list");
+  var castNote = document.getElementById("castnote");
+  var castChips = [].slice.call(document.querySelectorAll("#castChips .chip"));
+  var groups = [].slice.call(cast.getElementsByClassName("dgroup"));
+  var castTotal = 0, castActive = "";
+
+  /* The counts are written into the HTML so they survive a dead script — this
+     just guarantees they match the cards actually on the page. */
+  groups.forEach(function (g) {
+    var n = g.getElementsByClassName("person").length;
+    var ct = g.querySelector(".ct");
+    if (ct) ct.textContent = "· " + n;
+    castTotal += n;
+  });
+
+  function applyCast(dom) {
+    castActive = dom;
+    var shown = 0, target = null;
+    cast.classList.toggle("filtered", !!dom);
+    groups.forEach(function (g) {
+      var on = !dom || g.getAttribute("data-dom") === dom;
+      g.classList.toggle("on", on);
+      if (on && dom) { shown += g.getElementsByClassName("person").length; target = g.querySelector(".dom"); }
+    });
+    castChips.forEach(function (c) {
+      var sel = c.getAttribute("data-dom") === dom;
+      c.classList.toggle("sel", sel);
+      c.setAttribute("aria-pressed", sel ? "true" : "false");
+    });
+    castNote.textContent = dom
+      ? shown + " of " + castTotal + " names — tap the chip again for all of them"
+      : castTotal + " names, in the chapter's own order. Tap an era to pull it out of the pile.";
+    reveal(target);
+  }
+
+  castChips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      var dom = c.getAttribute("data-dom");
+      applyCast(dom === castActive ? "" : dom);
+    });
+  });
+  applyCast("");
 
   /* ---- which section am I in ---- */
   var links = [].slice.call(document.querySelectorAll("#jump a"));

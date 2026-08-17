@@ -207,7 +207,12 @@
   .cast.filtered .dgroup.on { opacity:1; }
   @media (prefers-reduced-motion:reduce) { .dgroup { transition:none; } }
 
-  .dom { display:flex; align-items:center; gap:9px; margin:32px 0 0; }
+  /* Selecting a chip walks you to this header; without the margin it would
+     land under the sticky jump bar. Same figure the sections use. */
+  .dom {
+    display:flex; align-items:center; gap:9px; margin:32px 0 0;
+    scroll-margin-top:calc(var(--lituk-sat) + 112px);
+  }
   .dom .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
   .dom b {
     font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
