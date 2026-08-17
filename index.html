@@ -134,6 +134,30 @@
   .ref .n { font-family:var(--serif); color:var(--ink-3); flex:0 0 auto; width:1.3em; text-align:center; }
   .ref .t { flex:1; min-width:0; }
 
+  /* ---------- reading progress ----------
+     Drawn from the position app.js saves while you scroll a chapter. The bar
+     is a second flex line so the number and the title keep their baselines. */
+  #resume[hidden] { display:none; }
+  /* min-width:0 all the way down. The label is one nowrap line, and without it
+     that line becomes the card's min-content width and pushes the whole grid
+     wider than the phone. */
+  .chapters { grid-template-columns:minmax(0, 1fr); }
+  .ch { flex-wrap:wrap; min-width:0; }
+  .ch .read { flex:0 0 100%; min-width:0; display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .ch .read .bar { flex:1 1 auto; min-width:56px; height:3px; border-radius:2px; background:var(--line); overflow:hidden; }
+  .ch .read .bar i { display:block; height:100%; border-radius:2px; background:var(--accent, var(--gold)); }
+  .ch .read .lab {
+    flex:0 1 auto; min-width:0; font-size:.72rem; font-weight:650;
+    color:var(--ink-3); font-variant-numeric:tabular-nums;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .ch .read.done .bar i { opacity:.5; }
+  .ch .read.done .lab { color:var(--accent, var(--gold)); }
+  .ref .read {
+    flex:0 0 auto; font-size:.72rem; font-weight:700; color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
+
   /* ---------- progress ---------- */
   #progress[hidden] { display:none; }
   /* Six tiles, so they flow rather than sit on a fixed grid — three across on
@@ -239,6 +263,19 @@
   <div class="results" id="results" hidden></div>
 
   <div id="browse">
+
+  <section id="resume" hidden>
+    <h2 class="sec">Carry on reading</h2>
+    <a class="tile" id="resumeTile" style="--accent:var(--gold)">
+      <div class="ic">📖</div>
+      <div class="body">
+        <b id="resumeTitle"></b>
+        <span id="resumeSub"></span>
+      </div>
+      <div class="chev">›</div>
+    </a>
+  </section>
+
   <h2 class="sec">Start here</h2>
   <div class="tiles">
 
@@ -449,6 +486,78 @@ var TOPIC_NAMES = [
 
   function tile(n, label, cls) {
     return '<div class="st"><b class="' + (cls || "") + '">' + n + "</b><span>" + label + "</span></div>";
+  }
+})();
+
+/* ============================================================
+   Reading position — how far into each chapter you got. app.js
+   records it while you scroll; this only draws it.
+   ============================================================ */
+(function () {
+  "use strict";
+  var store;
+  try { store = JSON.parse(localStorage.getItem("lituk_reading_v1") || "null") || {}; }
+  catch (e) { store = {}; }
+
+  /* Whichever chapter was touched last — story or reference note — is the one
+     "Carry on reading" points at. */
+  var last = null;
+
+  Array.prototype.forEach.call(document.querySelectorAll(".ch, .ref"), function (a) {
+    var rec = store[a.getAttribute("href")];
+    if (!rec || !(rec.pct > 0.01)) return;
+    var pct = Math.min(100, Math.round(rec.pct * 100));
+    var done = rec.done || rec.pct >= 0.985;
+    /* A chapter read to the end has nothing left to resume, and neither does
+       one you have only just opened. */
+    var resumable = !done && rec.pct < 0.97;
+
+    if (a.classList.contains("ref")) {
+      var chip = document.createElement("span");
+      chip.className = "read";
+      chip.textContent = done ? "✓" : pct + "%";
+      chip.title = done ? "Read" : pct + "% read";
+      a.insertBefore(chip, a.querySelector(".chev"));
+    } else {
+      var row = document.createElement("div");
+      row.className = "read" + (done ? " done" : "");
+      var bar = document.createElement("span");
+      bar.className = "bar";
+      var fill = document.createElement("i");
+      fill.style.width = pct + "%";
+      bar.appendChild(fill);
+      var lab = document.createElement("span");
+      lab.className = "lab";
+      /* textContent, not innerHTML — the label is chapter prose. */
+      lab.textContent = done ? "Read ✓" : pct + "%" + where(rec, " · ");
+      row.appendChild(bar);
+      row.appendChild(lab);
+      a.appendChild(row);
+    }
+
+    if (resumable && (!last || (rec.at || 0) > (last.rec.at || 0))) {
+      last = { href: a.getAttribute("href"), rec: rec, el: a };
+    }
+  });
+
+  function where(rec, sep) {
+    var s = [rec.crumb, rec.label].filter(Boolean).join(" · ");
+    return s ? (sep || "") + s : "";
+  }
+
+  if (last) {
+    var title = last.el.querySelector(".t b") || last.el.querySelector(".t");
+    var tile = document.getElementById("resumeTile");
+    var accent = last.el.style.getPropertyValue("--accent");
+    if (accent) tile.style.setProperty("--accent", accent);
+    /* ?resume= because arriving from here is already the decision — the page
+       goes straight to the spot instead of asking a second time. */
+    tile.href = last.href + "?resume=1";
+    document.getElementById("resumeTitle").textContent =
+      title ? title.textContent.trim() : "Carry on where you left off";
+    document.getElementById("resumeSub").textContent =
+      Math.round(last.rec.pct * 100) + "% in" + where(last.rec, " · ");
+    document.getElementById("resume").hidden = false;
   }
 })();
 

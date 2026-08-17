@@ -200,7 +200,20 @@ function fixGutters(src, file) {
   return src;
 }
 
-/* ---------- 4. per-page odds and ends ---------- */
+/* ---------- 4. saved reading positions ----------
+   The ten chapter pages are the long ones, so they are the ones that remember
+   how far you got. app.js does the work; this only flips the switch. The hub,
+   the quiz and the tests apps are opted out — they are not read top to bottom,
+   and a resume prompt over a test in progress would be nonsense. */
+function markReadable(src, file) {
+  if (!STORY.includes(file) && !REF.includes(file)) return src;
+  if (/<html[^>]*\sdata-lituk-read\b/.test(src)) return src;
+  const m = src.match(/<html\b[^>]*/);
+  if (!m) throw new Error(`no <html> in ${file}`);
+  return src.slice(0, m.index + m[0].length) + " data-lituk-read" + src.slice(m.index + m[0].length);
+}
+
+/* ---------- 5. per-page odds and ends ---------- */
 function extras(src, file) {
   if (file === "lituk.html") {
     // Its own top bar already occupies the corner — put the hub link inside it.
@@ -261,6 +274,7 @@ for (const file of ALL) {
     src = normalizeViewport(src, file);
     src = applyThemeEdits(src, file);
     src = fixGutters(src, file);
+    src = markReadable(src, file);
     return extras(src, file);
   });
   if (did) { touched++; note(file, "patched"); } else note(file, "already up to date");
