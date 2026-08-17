@@ -14,7 +14,7 @@ const R = (f) => path.join(ROOT, f);
 
 const STORY = [1, 2, 3, 4, 5].map((n) => `life-in-uk-chapter${n}-story.html`);
 const REF = [1, 2, 3, 4, 5].map((n) => `life-in-uk-chapter${n}.html`);
-const ALL = ["index.html", ...STORY, ...REF, "life-in-uk-quiz.html", "life-in-uk-mock-tests.html", "lituk.html"];
+const ALL = ["index.html", ...STORY, ...REF, "life-in-uk-quiz.html", "life-in-uk-mock-tests.html", "lituk.html", "life-in-uk-day-before.html", "life-in-uk-day-before-ch4.html", "life-in-uk-day-before-ch5.html"];
 
 const OPEN = "<!-- lituk:shared -->";
 const CLOSE = "<!-- /lituk:shared -->";

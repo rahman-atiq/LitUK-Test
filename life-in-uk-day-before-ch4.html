@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0F14">
+<meta name="description" content="The day-before revision sheet for Chapter 4: every named figure, trap, festival and number in A Modern, Thriving Society on one page.">
+<title>Life in the UK · The Day Before · Chapter 4</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<meta name="robots" content="noindex">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Tokens are the hub's, verbatim. Nothing on this page invents a colour. */
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --pink:#FF4F9A;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --pink:#D62B72;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+  /* The trap box inverts the page, exactly as the chapter page does — derived
+     from the two tokens that already flip with the theme, so it needs no
+     colours of its own. */
+  :root { --trap-bg:var(--ink); --trap-ink:var(--page); }
+
+  /* One accent per Cast domain. Ten domains, eight accent tokens — the last two
+     are mixed from tokens rather than typed in as new hex, so both themes still
+     follow the same palette. */
+  :root {
+    --dom-sport:var(--era4);
+    --dom-classical:var(--era5);
+    --dom-pop:var(--pink);
+    --dom-theatre:var(--era3);
+    --dom-art:var(--era1);
+    --dom-arch:var(--era2);
+    --dom-fashion:var(--gold);
+    --dom-novel:var(--era6);
+    --dom-poet:color-mix(in srgb, var(--era4) 55%, var(--era3));
+    --dom-film:color-mix(in srgb, var(--era6) 55%, var(--era2));
+  }
+
+  html { scroll-behavior:smooth; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+    padding-bottom:40px;
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  a { color:inherit; text-decoration:none; }
+
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+
+  /* ---------- chapter switcher ----------
+     Sits above the masthead and below the two fixed corner pills, so it carries
+     the 54px of clearance the masthead used to own. */
+  .chapswitch {
+    display:flex; justify-content:center; gap:6px;
+    padding:54px 0 0; margin:0;
+  }
+  /* Child-scoped on purpose. As a descendant selector this also caught the
+     numeral span inside each pill, dressing the number in a second 44px pill
+     with 13px of side padding — which is what sat it off-centre. */
+  .chapswitch > a, .chapswitch > span {
+    display:inline-flex; align-items:center; gap:7px;
+    min-height:44px; padding:0 13px; border-radius:11px;
+    font-size:.79rem; font-weight:650; white-space:nowrap;
+    color:var(--ink-2); background:var(--card);
+    border:1px solid var(--line);
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  /* The numeral chip, now a square of its own: fixed box, centred both ways,
+     and it keeps the card-on-tint contrast the current pill relies on. */
+  .chapswitch .n {
+    flex:0 0 auto; display:grid; place-items:center;
+    width:28px; height:28px; border-radius:8px;
+    background:var(--card); border:1px solid var(--line);
+    font-family:var(--serif); font-size:1.02rem; color:var(--gold); line-height:1;
+  }
+  .chapswitch a:active { transform:scale(.97); }
+  .chapswitch .cur {
+    color:var(--ink); background:var(--card-2);
+    border-color:color-mix(in srgb, var(--gold) 50%, var(--line));
+    box-shadow:var(--shadow);
+  }
+  .chapswitch .soon { opacity:.42; }
+  .chapswitch .soon .n { color:var(--ink-3); }
+  .chapswitch + .mast { padding-top:22px; }
+  @media (max-width:380px) {
+    .chapswitch { gap:4px; }
+    .chapswitch > a, .chapswitch > span { padding:0 9px; font-size:.74rem; gap:5px; }
+    .chapswitch .n { width:25px; height:25px; font-size:.95rem; }
+  }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding:52px 0 4px; text-align:center; }
+  .mast .eyebrow {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700; margin:0;
+  }
+  .mast h1 {
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(2rem, 7.4vw, 2.9rem); line-height:1.08;
+    margin:.3em 0 .22em; letter-spacing:-.01em;
+  }
+  .mast .sub { color:var(--ink-2); font-size:.93rem; margin:0 auto; max-width:32em; }
+
+  /* ---------- sticky jump nav ----------
+     Sits below the two fixed corner pills (hub, theme) that app.js and this
+     page put at the top — hence the +52px, not 0. The inset keeps it clear of
+     the notch on an installed PWA. */
+  .jump {
+    position:sticky; top:calc(var(--lituk-sat) + 52px); z-index:30;
+    display:flex; gap:5px; margin:20px 0 0; padding:5px;
+    background:color-mix(in srgb, var(--card) 90%, transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    backdrop-filter:saturate(180%) blur(14px);
+    border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+  }
+  .jump a {
+    flex:1 1 0; min-width:0; min-height:44px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:10px; font-size:.82rem; font-weight:650; color:var(--ink-2);
+    transition:background .14s ease, color .14s ease;
+  }
+  .jump a.cur { background:var(--card-2); color:var(--ink); }
+  .jump a:active { transform:scale(.97); }
+  @media (max-width:360px) { .jump a { font-size:.76rem; } }
+
+  .tenmin { text-align:center; font-size:.86rem; color:var(--ink-3); margin:12px 0 0; }
+  .tenmin a {
+    color:var(--era3); font-weight:700;
+    border-bottom:1px solid color-mix(in srgb, var(--era3) 45%, transparent);
+  }
+
+  /* ---------- section furniture ---------- */
+  section { scroll-margin-top:calc(var(--lituk-sat) + 112px); }
+  .sec-head { margin:46px 0 0; }
+  .sec-head .n {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700;
+  }
+  .sec-head h2 {
+    font-family:var(--serif); font-weight:400; letter-spacing:-.01em;
+    font-size:clamp(1.6rem, 5.6vw, 2.1rem); line-height:1.15; margin:.12em 0 .18em;
+  }
+  .sec-head p { color:var(--ink-2); font-size:.89rem; margin:0; max-width:46em; }
+  .sec-head p b { color:var(--ink); font-weight:650; }
+
+  /* ---------- shared: filter chips ---------- */
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin:20px 0 0; }
+  .chip {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease, background .14s ease;
+  }
+  .chip .dot { width:9px; height:9px; border-radius:50%; background:var(--era, var(--ink-3)); flex:0 0 auto; }
+  .chip.sel {
+    color:var(--ink);
+    border-color:color-mix(in srgb, var(--era, var(--gold)) 60%, var(--line));
+    background:color-mix(in srgb, var(--era, var(--gold)) 13%, var(--card));
+  }
+  .chip:active { transform:scale(.97); }
+  .railnote { font-size:.76rem; color:var(--ink-3); margin:12px 2px 0; }
+
+  /* ---------- 1 · the cast ----------
+     .people / .person / .p-name / .p-life / .p-note are lifted from the chapter
+     page so the sixteen sport cards render identically here. */
+  .people { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-top:14px; }
+  .person { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
+  .p-name { font-family:var(--serif); font-size:1.12rem; margin:0; }
+  .p-life { font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
+  .p-note { font-size:.85rem; color:var(--ink-2); margin:0; }
+  .p-note b { color:var(--ink); }
+
+  .dgroup { transition:opacity .16s ease; }
+  .cast.filtered .dgroup { opacity:.14; }
+  .cast.filtered .dgroup.on { opacity:1; }
+  @media (prefers-reduced-motion:reduce) { .dgroup { transition:none; } }
+
+  .dom { display:flex; align-items:center; gap:9px; margin:32px 0 0; }
+  .dom .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
+  .dom b {
+    font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .dom .ct { font-size:.72rem; color:var(--ink-3); font-variant-numeric:tabular-nums; }
+  .dom::after {
+    content:""; flex:1; height:1px;
+    background:color-mix(in srgb, var(--era) 40%, var(--line));
+  }
+  .dom-note { font-size:.78rem; color:var(--ink-3); margin:10px 2px 0; line-height:1.45; }
+  .dom-note b { color:var(--ink-2); font-weight:650; }
+
+  /* ---------- 2 · the traps ---------- */
+  .pair { margin:30px 0 0; }
+  .pair-head { display:flex; align-items:center; gap:9px; margin:0 0 2px; }
+  .pair-head .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
+  .pair-head b {
+    font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .pair-head .yrs {
+    margin-left:auto; font-size:.72rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums; text-align:right;
+  }
+  .hook, .trap { border-radius:12px; padding:15px 17px; margin-top:10px; font-size:.91rem; line-height:1.55; }
+  .hook {
+    background:color-mix(in srgb, var(--era) 8%, var(--card));
+    border:1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { color:inherit; font-weight:700; }
+  .hook .lab, .trap .lab {
+    display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:700; margin-bottom:6px; color:var(--era);
+  }
+  .hook .big {
+    font-family:var(--serif); font-size:1.24rem; color:var(--ink);
+    display:block; margin:2px 0 6px; line-height:1.28;
+  }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); box-shadow:var(--shadow); }
+  .trap .lab { color:var(--trap-ink); opacity:.66; }
+
+  /* ---------- 3 · the calendar ---------- */
+  .legend { display:flex; flex-wrap:wrap; gap:14px; margin:18px 0 0; font-size:.76rem; color:var(--ink-3); }
+  .legend span { display:inline-flex; align-items:center; gap:7px; }
+  .legend i {
+    width:10px; height:10px; border-radius:50%; font-style:normal; flex:0 0 auto;
+    background:var(--era3); box-shadow:0 0 0 3px var(--page);
+  }
+  .legend i.hol { box-shadow:0 0 0 3px var(--page), 0 0 0 5px color-mix(in srgb, var(--era3) 70%, transparent); }
+
+  .rail { list-style:none; margin:16px 0 0; padding:0; }
+  .ev { position:relative; display:flex; gap:10px; padding:9px 0 9px 26px; }
+  /* Each row carries its own slice of the rail, so the line itself changes
+     colour where the source section changes. */
+  .ev::before {
+    content:""; position:absolute; left:5px; top:0; bottom:0; width:2px;
+    background:color-mix(in srgb, var(--era) 40%, transparent);
+  }
+  .ev:first-child::before { top:15px; }
+  .ev:last-child::before  { bottom:auto; height:15px; }
+  .ev::after {
+    content:""; position:absolute; left:1px; top:11px;
+    width:10px; height:10px; border-radius:50%;
+    background:var(--era); box-shadow:0 0 0 3px var(--page);
+  }
+  /* A bank holiday wears a halo. The pill says it in words as well — colour is
+     never the only carrier. */
+  .ev.hol::after { box-shadow:0 0 0 3px var(--page), 0 0 0 5px color-mix(in srgb, var(--era) 70%, transparent); }
+  .ev-y {
+    flex:0 0 88px; white-space:nowrap;
+    font-size:.76rem; font-weight:700; color:var(--era);
+    font-variant-numeric:tabular-nums; letter-spacing:-.01em; padding-top:.2em;
+  }
+  .ev-b { flex:1 1 auto; min-width:0; }
+  .ev-t { display:block; font-size:.93rem; font-weight:650; line-height:1.35; overflow-wrap:break-word; }
+  .ev-w { display:block; font-size:.8rem; color:var(--ink-2); line-height:1.4; margin-top:2px; }
+  .ev-w b { color:var(--ink); font-weight:650; }
+  .tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .tag {
+    font-size:.64rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    padding:3px 8px; border-radius:99px; background:var(--card-2); color:var(--ink-3);
+    border:1px solid var(--line);
+  }
+  .tag.hol {
+    background:color-mix(in srgb, var(--era) 16%, var(--card));
+    color:var(--era); border-color:color-mix(in srgb, var(--era) 50%, var(--line));
+  }
+  @media (min-width:540px) {
+    .ev-y { flex-basis:112px; font-size:.83rem; }
+  }
+
+  .band {
+    margin:26px 0 0; padding:15px 17px; border-radius:12px;
+    background:color-mix(in srgb, var(--era) 7%, var(--card));
+    border:1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+  }
+  .band-h {
+    display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:700; color:var(--era);
+  }
+  .band-s { font-size:.82rem; color:var(--ink-2); margin:5px 0 6px; line-height:1.45; }
+  .mv { padding:10px 0; border-top:1px dotted var(--line); }
+  .mv:first-of-type { border-top:0; }
+  .mv-t { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; }
+  .mv-n { font-size:.93rem; font-weight:650; flex:1 1 auto; }
+  .mv-w { font-size:.76rem; font-weight:700; color:var(--era); flex:0 0 auto; white-space:nowrap; }
+  .mv-k { font-size:.83rem; color:var(--ink-2); line-height:1.42; margin-top:3px; }
+  .mv-k b { color:var(--ink); font-weight:650; }
+
+  .note {
+    font-size:.8rem; color:var(--ink-2); line-height:1.45;
+    background:var(--card-2); border-radius:10px; padding:11px 13px; margin:18px 0 0;
+  }
+  .note b { color:var(--ink); font-weight:650; }
+
+  /* ---------- 4 · the numbers ----------
+     The chapter's cheat-sheet vocabulary, kept: .cs-group / .cs-row / .cs-year
+     / .cs-event, so the sub-groups survive the move. */
+  .cs-cols { margin:18px 0 0; }
+  .cs-group {
+    background:var(--card); border:1px solid var(--line);
+    border-left:3px solid var(--era, var(--gold));
+    border-radius:11px; padding:14px 16px; margin:0 0 10px; box-shadow:var(--shadow);
+    break-inside:avoid;
+  }
+  .cs-group h3 {
+    margin:0 0 8px; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .cs-row { display:flex; gap:12px; padding:6px 0; border-top:1px dotted var(--line); font-size:.85rem; }
+  .cs-row:first-of-type { border-top:0; padding-top:0; }
+  .cs-year {
+    flex:0 0 96px; font-weight:700; color:var(--era);
+    font-variant-numeric:tabular-nums; line-height:1.35;
+  }
+  .cs-event { flex:1 1 auto; min-width:0; color:var(--ink-2); line-height:1.4; }
+  @media (min-width:640px) { .cs-cols { columns:2 300px; column-gap:12px; } }
+  @media (max-width:400px) { .cs-year { flex-basis:82px; font-size:.82rem; } }
+
+  footer.foot {
+    margin:52px 0 0; padding-top:22px; border-top:1px solid var(--line);
+    color:var(--ink-3); font-size:.79rem; line-height:1.65;
+  }
+  footer.foot a { color:var(--ink-2); border-bottom:1px solid var(--line); }
+  footer.foot p { margin:0 0 10px; }
+
+  @media (max-width:420px) {
+    .wrap { padding:0 16px; }
+    .hook, .trap { padding:14px 15px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle light or dark theme">☀︎ Light</button>
+
+<div class="wrap">
+
+  <nav class="chapswitch" aria-label="Revision sheet by chapter">
+    <a href="life-in-uk-day-before.html"><span class="n">3</span>History</a>
+    <span class="cur" aria-current="page"><span class="n">4</span>Society</span>
+    <a href="life-in-uk-day-before-ch5.html"><span class="n">5</span>Government</a>
+  </nav>
+
+  <header class="mast">
+    <p class="eyebrow">Revision sheet · Chapter 4</p>
+    <h1>The Day Before</h1>
+    <p class="sub">Chapter 4 is not a story, it is a pile of names, dates and quantities — and it fails people through sheer volume. Everything in <i>A Modern, Thriving Society</i>, sorted so it can be scanned.</p>
+  </header>
+
+  <nav class="jump" id="jump" aria-label="Jump to a section">
+    <a href="#cast">Cast</a>
+    <a href="#traps">Traps</a>
+    <a href="#calendar">Calendar</a>
+    <a href="#numbers">Numbers</a>
+  </nav>
+  <p class="tenmin">Only got ten minutes? <a href="#traps">Read The Traps.</a></p>
+
+  <!-- ═══════════════ 1 · THE CAST ═══════════════ -->
+  <section id="cast" data-ch="4">
+    <div class="sec-head">
+      <div class="n">One</div>
+      <h2>The Cast</h2>
+      <p>Every named figure in the chapter, grouped by domain — the handbook's own grouping, because that is the structure the test uses. <b>Each name is welded to one fact.</b> Learn the weld, ignore the biography.</p>
+    </div>
+
+    <div class="chips" id="domChips" role="group" aria-label="Filter the cast by domain">
+      <button class="chip" type="button" data-dom="" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-dom="sport" style="--era:var(--dom-sport)" aria-pressed="false"><span class="dot"></span>Sport</button>
+      <button class="chip" type="button" data-dom="classical" style="--era:var(--dom-classical)" aria-pressed="false"><span class="dot"></span>Composers</button>
+      <button class="chip" type="button" data-dom="pop" style="--era:var(--dom-pop)" aria-pressed="false"><span class="dot"></span>Pop</button>
+      <button class="chip" type="button" data-dom="theatre" style="--era:var(--dom-theatre)" aria-pressed="false"><span class="dot"></span>Theatre</button>
+      <button class="chip" type="button" data-dom="art" style="--era:var(--dom-art)" aria-pressed="false"><span class="dot"></span>Art</button>
+      <button class="chip" type="button" data-dom="arch" style="--era:var(--dom-arch)" aria-pressed="false"><span class="dot"></span>Architecture</button>
+      <button class="chip" type="button" data-dom="fashion" style="--era:var(--dom-fashion)" aria-pressed="false"><span class="dot"></span>Fashion</button>
+      <button class="chip" type="button" data-dom="novel" style="--era:var(--dom-novel)" aria-pressed="false"><span class="dot"></span>Novelists</button>
+      <button class="chip" type="button" data-dom="poet" style="--era:var(--dom-poet)" aria-pressed="false"><span class="dot"></span>Poets</button>
+      <button class="chip" type="button" data-dom="film" style="--era:var(--dom-film)" aria-pressed="false"><span class="dot"></span>Film</button>
+    </div>
+    <p class="railnote" id="castnote" aria-live="polite"></p>
+
+    <div class="cast" id="cast-list">
+
+      <!-- ---------- sport ---------- -->
+      <div class="dgroup" data-dom="sport" style="--era:var(--dom-sport)">
+        <div class="dom" id="dom-sport"><span class="dot"></span><b>Sport</b><span class="ct">· 20</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Sir Roger Bannister</p><p class="p-life">1929– · athletics</p><p class="p-note"><b>First man to run a mile in under four minutes</b>, in <b>1954</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Jackie Stewart</p><p class="p-life">1939– · motor racing</p><p class="p-note">Scottish driver who won the <b>Formula 1 championship three times</b>.</p></div>
+          <div class="person"><p class="p-name">Bobby Moore</p><p class="p-life">1941–93 · football</p><p class="p-note"><b>Captained England to the 1966 World Cup</b>, hosted in the UK.</p></div>
+          <div class="person"><p class="p-name">Sir Ian Botham</p><p class="p-life">1955– · cricket</p><p class="p-note"><b>Captained the England cricket team</b> and set batting and bowling records.</p></div>
+          <div class="person"><p class="p-name">Torvill &amp; Dean</p><p class="p-life">1957– / 1958– · ice dance</p><p class="p-note">Jayne Torvill and Christopher Dean won <b>Olympic ice-dancing gold in 1984</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Steve Redgrave</p><p class="p-life">1962– · rowing</p><p class="p-note">Rowing gold at <b>five consecutive Olympic Games</b>.</p></div>
+          <div class="person"><p class="p-name">Baroness Tanni Grey-Thompson</p><p class="p-life">1969– · wheelchair athletics</p><p class="p-note"><b>16 Paralympic medals</b> and <b>six London Marathon wins</b>.</p></div>
+          <div class="person"><p class="p-name">Dame Kelly Holmes</p><p class="p-life">1970– · athletics</p><p class="p-note"><b>Two running golds at the 2004 Olympics</b>.</p></div>
+          <div class="person"><p class="p-name">Dame Ellen MacArthur</p><p class="p-life">1976– · sailing</p><p class="p-note"><b>Fastest person to sail around the world single-handed</b> (2004).</p></div>
+          <div class="person"><p class="p-name">Sir Chris Hoy</p><p class="p-life">1976– · cycling</p><p class="p-note">Scottish cyclist: <b>six Olympic golds and one silver</b>.</p></div>
+          <div class="person"><p class="p-name">David Weir</p><p class="p-life">1979– · wheelchair athletics</p><p class="p-note"><b>Six golds over two Paralympic Games</b> and <b>six London Marathon wins</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Bradley Wiggins</p><p class="p-life">1980– · cycling</p><p class="p-note"><b>First Briton to win the Tour de France</b> (2012).</p></div>
+          <div class="person"><p class="p-name">Sir Mo Farah</p><p class="p-life">1983– · athletics</p><p class="p-note">2012 Olympic gold in the <b>5,000 and 10,000 metres</b>.</p></div>
+          <div class="person"><p class="p-name">Dame Jessica Ennis</p><p class="p-life">1986– · athletics</p><p class="p-note"><b>2012 Olympic heptathlon gold</b> — seven events.</p></div>
+          <div class="person"><p class="p-name">Sir Andy Murray</p><p class="p-life">1987– · tennis</p><p class="p-note">Won the <b>2012 US Open</b> — <b>first British man to win a Grand Slam singles title since 1936</b>.</p></div>
+          <div class="person"><p class="p-name">Ellie Simmonds</p><p class="p-life">1994– · swimming</p><p class="p-note">Paralympic <b>swimming golds in 2008 and 2012</b>.</p></div>
+          <div class="person"><p class="p-name">Dr Sir Ludwig Guttmann</p><p class="p-life">· Paralympics</p><p class="p-note">A <b>German refugee</b> at <b>Stoke Mandeville hospital</b> whose work the <b>Paralympics grew from</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Francis Chichester</p><p class="p-life">1966/67 · sailing</p><p class="p-note">Sailed <b>single-handed around the world in 1966/67</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Robin Knox-Johnston</p><p class="p-life">· sailing</p><p class="p-note">Sailed single-handed around the world <b>without stopping</b>, two years after Chichester.</p></div>
+          <div class="person"><p class="p-name">Damon Hill · Lewis Hamilton · Jenson Button</p><p class="p-life">· motor racing</p><p class="p-note">The chapter's <b>British Formula 1 world champions</b>.</p></div>
+        </div>
+        <p class="dom-note">The sixteen champions are the handbook's own list. The four after them are named elsewhere in the sport section — <b>Guttmann</b>, the two sailors and the F1 trio — and get asked just the same.</p>
+      </div>
+
+      <!-- ---------- classical composers ---------- -->
+      <div class="dgroup" data-dom="classical" style="--era:var(--dom-classical)">
+        <div class="dom" id="dom-classical"><span class="dot"></span><b>Classical composers</b><span class="ct">· 7</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Henry Purcell</p><p class="p-life">1659–95 · composer</p><p class="p-note">Organist at <b>Westminster Abbey</b>; church music and operas; a distinctly British style.</p></div>
+          <div class="person"><p class="p-name">George Frederick Handel</p><p class="p-life">1695–1759 · composer</p><p class="p-note"><b>German-born, became a British citizen in 1727</b>; <b>Water Music</b> (George I), <b>Music for the Royal Fireworks</b> (George II), the oratorio <b>Messiah</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Edward Elgar</p><p class="p-life">1857–1934 · composer</p><p class="p-note">Born in Worcester; <b>Pomp and Circumstance March No. 1 (“Land of Hope and Glory”)</b>, a Last Night of the Proms fixture.</p></div>
+          <div class="person"><p class="p-name">Gustav Holst</p><p class="p-life">1874–1934 · composer</p><p class="p-note"><b>The Planets</b>; adapted <b>Jupiter</b> into the hymn <b>“I Vow to Thee, My Country”</b>.</p></div>
+          <div class="person"><p class="p-name">Ralph Vaughan Williams</p><p class="p-life">1872–1958 · composer</p><p class="p-note">Orchestral and choral music shaped by <b>English folk music</b>.</p></div>
+          <div class="person"><p class="p-name">Sir William Walton</p><p class="p-life">1902–83 · composer</p><p class="p-note"><b>Coronation marches</b> for George VI and Elizabeth II; <b>Façade</b>, <b>Belshazzar's Feast</b>.</p></div>
+          <div class="person"><p class="p-name">Benjamin Britten</p><p class="p-life">1913–76 · composer</p><p class="p-note">Operas <b>Peter Grimes</b> and <b>Billy Budd</b>; <b>A Young Person's Guide to the Orchestra</b> (on a Purcell theme); founded the <b>Aldeburgh festival, Suffolk</b>.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- pop & music ---------- -->
+      <div class="dgroup" data-dom="pop" style="--era:var(--dom-pop)">
+        <div class="dom" id="dom-pop"><span class="dot"></span><b>Pop &amp; music</b><span class="ct">· 1</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">The Beatles &amp; The Rolling Stones</p><p class="p-life">1960s · pop</p><p class="p-note">Led the British sound from the <b>1960s</b>; <b>punk</b> hit in the <b>late 1970s</b>; <b>boy and girl bands</b> in the <b>1990s</b>.</p></div>
+        </div>
+        <p class="dom-note">One card, because the chapter names no other pop musician. Everything else in that section is a <b>venue, festival or prize</b>, not a person — those are in The Numbers and the chapter notes.</p>
+      </div>
+
+      <!-- ---------- theatre ---------- -->
+      <div class="dgroup" data-dom="theatre" style="--era:var(--dom-theatre)">
+        <div class="dom" id="dom-theatre"><span class="dot"></span><b>Theatre</b><span class="ct">· 4</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Agatha Christie</p><p class="p-life">since 1952 · theatre</p><p class="p-note"><b>The Mousetrap</b> — running <b>since 1952</b>, the <b>longest initial run in history</b>.</p></div>
+          <div class="person"><p class="p-name">Gilbert and Sullivan</p><p class="p-life">· comic opera</p><p class="p-note">Comic operas: <b>HMS Pinafore, The Pirates of Penzance, The Mikado</b>.</p></div>
+          <div class="person"><p class="p-name">Andrew Lloyd Webber</p><p class="p-life">· musicals</p><p class="p-note"><b>Jesus Christ Superstar</b> and <b>Evita</b> (with <b>Tim Rice</b>), <b>Cats</b>, <b>The Phantom of the Opera</b>.</p></div>
+          <div class="person"><p class="p-name">Laurence Olivier</p><p class="p-life">· acting</p><p class="p-note">The <b>Laurence Olivier Awards</b> — London stage awards named after the great <b>Shakespearean actor</b>.</p></div>
+        </div>
+        <p class="dom-note">Agatha Christie appears twice on this page — here for <b>The Mousetrap</b>, and under Novelists for the detective stories. That is the chapter's doing, not a duplicate.</p>
+      </div>
+
+      <!-- ---------- art ---------- -->
+      <div class="dgroup" data-dom="art" style="--era:var(--dom-art)">
+        <div class="dom" id="dom-art"><span class="dot"></span><b>Art</b><span class="ct">· 12</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Holbein &amp; Van Dyck</p><p class="p-life">16th–17th c. · painting</p><p class="p-note"><b>Foreign</b> painters working in Britain — before them, medieval art here was <b>religious</b>.</p></div>
+          <div class="person"><p class="p-name">Thomas Gainsborough</p><p class="p-life">1727–88 · portraits</p><p class="p-note">Portraits, often in <b>country or garden settings</b>.</p></div>
+          <div class="person"><p class="p-name">David Allan</p><p class="p-life">1744–96 · portraits</p><p class="p-note">Scottish portraitist; <b>The Origin of Painting</b>.</p></div>
+          <div class="person"><p class="p-name">Joseph Turner</p><p class="p-life">1775–1851 · landscapes</p><p class="p-note">Modern-style <b>landscapes</b>; raised the whole genre's standing.</p></div>
+          <div class="person"><p class="p-name">John Constable</p><p class="p-life">1776–1837 · landscapes</p><p class="p-note">Landscapes of <b>Dedham Vale</b> on the Suffolk–Essex border.</p></div>
+          <div class="person"><p class="p-name">The Pre-Raphaelites</p><p class="p-life">late 19th c. · painting</p><p class="p-note">Detailed, brightly coloured religious and literary scenes — <b>Holman Hunt, Rossetti, Millais</b>.</p></div>
+          <div class="person"><p class="p-name">Sir John Lavery</p><p class="p-life">1856–1941 · portraits</p><p class="p-note">Northern Irish portraitist; painted <b>the Royal Family</b>.</p></div>
+          <div class="person"><p class="p-name">Henry Moore</p><p class="p-life">1898–1986 · sculpture</p><p class="p-note"><b>Large bronze abstract sculptures</b>.</p></div>
+          <div class="person"><p class="p-name">John Petts</p><p class="p-life">1914–91 · engraving</p><p class="p-note">Welsh; <b>engravings and stained glass</b>.</p></div>
+          <div class="person"><p class="p-name">Lucian Freud</p><p class="p-life">1922–2011 · portraits</p><p class="p-note">German-born; <b>portraits</b>.</p></div>
+          <div class="person"><p class="p-name">David Hockney</p><p class="p-life">1937– · pop art</p><p class="p-note"><b>1960s pop art</b>.</p></div>
+          <div class="person"><p class="p-name">Damien Hirst &amp; Richard Wright</p><p class="p-life">· contemporary art</p><p class="p-note"><b>Turner Prize</b> winners — the prize was founded <b>1984</b>, with <b>four shortlisted works at Tate Britain</b>.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- architecture & gardens ---------- -->
+      <div class="dgroup" data-dom="arch" style="--era:var(--dom-arch)">
+        <div class="dom" id="dom-arch"><span class="dot"></span><b>Architecture &amp; gardens</b><span class="ct">· 8</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">William the Conqueror</p><p class="p-life">1066 · architecture</p><p class="p-note">The <b>White Tower</b> at the Tower of London is a <b>Norman keep built for him</b>.</p></div>
+          <div class="person"><p class="p-name">Inigo Jones</p><p class="p-life">17th c. · architecture</p><p class="p-note"><b>Queen's House, Greenwich</b> and <b>Banqueting House, Whitehall</b>, from classical models.</p></div>
+          <div class="person"><p class="p-name">Sir Christopher Wren</p><p class="p-life">· architecture</p><p class="p-note">The new <b>St Paul's Cathedral</b>.</p></div>
+          <div class="person"><p class="p-name">Robert Adam</p><p class="p-life">18th c. · architecture</p><p class="p-note">Scottish; interiors and houses like <b>Dumfries House</b>; influenced <b>Bath's Royal Crescent</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Edwin Lutyens</p><p class="p-life">20th c. · architecture</p><p class="p-note">Designed <b>New Delhi</b> as India's seat of government and <b>the Cenotaph in Whitehall</b>.</p></div>
+          <div class="person"><p class="p-name">Lancelot “Capability” Brown</p><p class="p-life">· gardens</p><p class="p-note"><b>Natural-looking landscapes</b>.</p></div>
+          <div class="person"><p class="p-name">Gertrude Jekyll</p><p class="p-life">· gardens</p><p class="p-note"><b>Colourful gardens</b>, often working with Lutyens.</p></div>
+          <div class="person"><p class="p-name">Sir Norman Foster · Lord Richard Rogers · Dame Zaha Hadid</p><p class="p-life">· modern architecture</p><p class="p-note">The chapter's <b>modern</b> architects — named as a trio, with no separate building attached to each.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- fashion & design ---------- -->
+      <div class="dgroup" data-dom="fashion" style="--era:var(--dom-fashion)">
+        <div class="dom" id="dom-fashion"><span class="dot"></span><b>Fashion &amp; design</b><span class="ct">· 4</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Thomas Chippendale</p><p class="p-life">18th c. · furniture</p><p class="p-note">18th-century <b>furniture</b>.</p></div>
+          <div class="person"><p class="p-name">Clarice Cliff</p><p class="p-life">· ceramics</p><p class="p-note"><b>Art Deco ceramics</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Terence Conran</p><p class="p-life">20th c. · interiors</p><p class="p-note">20th-century <b>interior design</b>.</p></div>
+          <div class="person"><p class="p-name">Mary Quant · Alexander McQueen · Vivienne Westwood</p><p class="p-life">· fashion</p><p class="p-note">The chapter's three named <b>fashion</b> designers.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- novelists ---------- -->
+      <div class="dgroup" data-dom="novel" style="--era:var(--dom-novel)">
+        <div class="dom" id="dom-novel"><span class="dot"></span><b>Novelists</b><span class="ct">· 14</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Jane Austen</p><p class="p-life">1775–1817 · novels</p><p class="p-note"><b>Pride and Prejudice</b>, <b>Sense and Sensibility</b>; marriage and family.</p></div>
+          <div class="person"><p class="p-name">Charles Dickens</p><p class="p-life">1812–70 · novels</p><p class="p-note"><b>Oliver Twist</b>, <b>Great Expectations</b>; gave English <b>Scrooge</b> and <b>Mr Micawber</b>.</p></div>
+          <div class="person"><p class="p-name">Thomas Hardy</p><p class="p-life">1840–1928 · novels</p><p class="p-note"><b>Far from the Madding Crowd</b>, <b>Jude the Obscure</b>; rural settings.</p></div>
+          <div class="person"><p class="p-name">Robert Louis Stevenson</p><p class="p-life">1850–94 · novels</p><p class="p-note"><b>Treasure Island, Kidnapped, Dr Jekyll and Mr Hyde</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Arthur Conan Doyle</p><p class="p-life">1859–1930 · novels</p><p class="p-note">Scottish doctor who created <b>Sherlock Holmes</b>.</p></div>
+          <div class="person"><p class="p-name">Evelyn Waugh</p><p class="p-life">1903–66 · novels</p><p class="p-note">Satire: <b>Decline and Fall, Scoop, Brideshead Revisited</b>.</p></div>
+          <div class="person"><p class="p-name">Graham Greene</p><p class="p-life">1904–91 · novels</p><p class="p-note"><b>The Heart of the Matter, The Honorary Consul, Brighton Rock, Our Man in Havana</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Kingsley Amis</p><p class="p-life">1922–95 · novels</p><p class="p-note">20+ novels; <b>Lucky Jim</b>.</p></div>
+          <div class="person"><p class="p-name">J.K. Rowling</p><p class="p-life">1965– · novels</p><p class="p-note"><b>Harry Potter</b>; now also writes for adults.</p></div>
+          <div class="person"><p class="p-name">Agatha Christie</p><p class="p-life">· detective stories</p><p class="p-note">Detective stories <b>read worldwide</b>.</p></div>
+          <div class="person"><p class="p-name">Ian Fleming</p><p class="p-life">· novels</p><p class="p-note"><b>James Bond</b>.</p></div>
+          <div class="person"><p class="p-name">Tolkien</p><p class="p-life">2003 · novels</p><p class="p-note"><b>The Lord of the Rings</b> — voted the nation's <b>best-loved novel in 2003</b>.</p></div>
+          <div class="person"><p class="p-name">Sir William Golding · Seamus Heaney · Harold Pinter</p><p class="p-life">· Nobel laureates</p><p class="p-note">The chapter's <b>Nobel literature</b> laureates.</p></div>
+          <div class="person"><p class="p-name">Ian McEwan · Hilary Mantel · Julian Barnes</p><p class="p-life">since 1968 · Booker winners</p><p class="p-note"><b>Man Booker Prize</b> winners — the prize runs <b>since 1968</b>, for the best fiction from the <b>Commonwealth, Ireland or Zimbabwe</b>.</p></div>
+        </div>
+      </div>
+
+      <!-- ---------- poets ---------- -->
+      <div class="dgroup" data-dom="poet" style="--era:var(--dom-poet)">
+        <div class="dom" id="dom-poet"><span class="dot"></span><b>Poets</b><span class="ct">· 18</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Beowulf</p><p class="p-life">Anglo-Saxon · epic poem</p><p class="p-note">Anglo-Saxon epic, <b>still translated today</b> — a poem with no named author, and the chapter opens the roll call with it.</p></div>
+          <div class="person"><p class="p-name">Chaucer</p><p class="p-life">· poetry</p><p class="p-note"><b>The Canterbury Tales</b>; <b>Sir Gawain and the Green Knight</b> tells of <b>King Arthur's court</b>.</p></div>
+          <div class="person"><p class="p-name">John Milton</p><p class="p-life">· poetry</p><p class="p-note"><b>Paradise Lost</b>, born of <b>Protestant ideas</b>.</p></div>
+          <div class="person"><p class="p-name">Shakespeare</p><p class="p-life">· poetry</p><p class="p-note">Plays, long poems, and <b>sonnets (14 lines)</b>.</p></div>
+          <div class="person"><p class="p-name">William Wordsworth</p><p class="p-life">· nature poetry</p><p class="p-note">A <b>nature poet</b>; the quoted line is <b>“I wander'd lonely as a cloud”</b>.</p></div>
+          <div class="person"><p class="p-name">Sir Walter Scott</p><p class="p-life">· nature poetry</p><p class="p-note">Poems (and novels) inspired by <b>Scotland and border ballads</b>.</p></div>
+          <div class="person"><p class="p-name">Blake</p><p class="p-life">19th c. · poetry</p><p class="p-note">The quoted line is <b>“Tyger! Tyger! Burning bright”</b>.</p></div>
+          <div class="person"><p class="p-name">Byron</p><p class="p-life">19th c. · poetry</p><p class="p-note">The quoted line is <b>“She walks in beauty, like the night”</b>.</p></div>
+          <div class="person"><p class="p-name">Robert and Elizabeth Browning</p><p class="p-life">19th c. · poetry</p><p class="p-note">Browning's quoted line is <b>“Oh, to be in England / Now that April's there”</b> — the chapter does not say which Browning.</p></div>
+          <div class="person"><p class="p-name">Keats</p><p class="p-life">19th c. · poetry</p><p class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</p></div>
+          <div class="person"><p class="p-name">Shelley</p><p class="p-life">19th c. · poetry</p><p class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</p></div>
+          <div class="person"><p class="p-name">Tennyson</p><p class="p-life">19th c. · poetry</p><p class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</p></div>
+          <div class="person"><p class="p-name">Wilfred Owen</p><p class="p-life">WWI · poetry</p><p class="p-note">Wrote from the <b>trenches</b>; the quoted line is <b>“What passing-bells for these who die as cattle?”</b></p></div>
+          <div class="person"><p class="p-name">Siegfried Sassoon</p><p class="p-life">WWI · poetry</p><p class="p-note">The other <b>WWI poet</b>, writing from the <b>trenches</b> alongside Owen.</p></div>
+          <div class="person"><p class="p-name">Walter de la Mare</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
+          <div class="person"><p class="p-name">John Masefield</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
+          <div class="person"><p class="p-name">Sir John Betjeman</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
+          <div class="person"><p class="p-name">Ted Hughes</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
+        </div>
+        <p class="dom-note">Many of them rest in <b>Poets' Corner, Westminster Abbey</b>.</p>
+      </div>
+
+      <!-- ---------- film ---------- -->
+      <div class="dgroup" data-dom="film" style="--era:var(--dom-film)">
+        <div class="dom" id="dom-film"><span class="dot"></span><b>Film</b><span class="ct">· 13</span></div>
+        <div class="people">
+          <div class="person"><p class="p-name">Charlie Chaplin</p><p class="p-life">· silent film</p><p class="p-note">Famous for his <b>tramp</b> character in silent film.</p></div>
+          <div class="person"><p class="p-name">Alfred Hitchcock</p><p class="p-life">d. 1980 · directing</p><p class="p-note">Directed here before moving to Hollywood; <b>The 39 Steps</b>, <b>1935</b>.</p></div>
+          <div class="person"><p class="p-name">David Lean</p><p class="p-life">1945 · 1962 · directing</p><p class="p-note"><b>Brief Encounter</b> (1945) and <b>Lawrence of Arabia</b> (1962) — the only director the chapter names twice.</p></div>
+          <div class="person"><p class="p-name">Carol Reed</p><p class="p-life">1949 · directing</p><p class="p-note"><b>The Third Man</b>.</p></div>
+          <div class="person"><p class="p-name">Frank Launder</p><p class="p-life">1954 · directing</p><p class="p-note"><b>The Belles of St Trinian's</b>.</p></div>
+          <div class="person"><p class="p-name">Ken Russell</p><p class="p-life">1969 · directing</p><p class="p-note"><b>Women in Love</b>.</p></div>
+          <div class="person"><p class="p-name">Nicolas Roeg</p><p class="p-life">1973 · directing</p><p class="p-note"><b>Don't Look Now</b>.</p></div>
+          <div class="person"><p class="p-name">Hugh Hudson</p><p class="p-life">1981 · directing</p><p class="p-note"><b>Chariots of Fire</b>.</p></div>
+          <div class="person"><p class="p-name">Roland Joffé</p><p class="p-life">1984 · directing</p><p class="p-note"><b>The Killing Fields</b>.</p></div>
+          <div class="person"><p class="p-name">Mike Newell</p><p class="p-life">1994 · directing</p><p class="p-note"><b>Four Weddings and a Funeral</b>.</p></div>
+          <div class="person"><p class="p-name">Kevin MacDonald</p><p class="p-life">2003 · directing</p><p class="p-note"><b>Touching the Void</b>.</p></div>
+          <div class="person"><p class="p-name">Nick Park</p><p class="p-life">· animation</p><p class="p-note"><b>Four Oscars</b>, including three for <b>Wallace and Gromit</b>.</p></div>
+          <div class="person"><p class="p-name">Colin Firth · Sir Anthony Hopkins · Dame Judi Dench · Kate Winslet · Tilda Swinton</p><p class="p-life">· acting</p><p class="p-note">The chapter's recent <b>Oscar-winning</b> actors.</p></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════ 2 · THE TRAPS ═══════════════ -->
+  <section id="traps" data-ch="4">
+    <div class="sec-head">
+      <div class="n">Two</div>
+      <h2>The Traps</h2>
+      <p>All six of the chapter's confusable pairs, each with the memory hook that defends it, in chapter order. <b>If you read nothing else, read this.</b></p>
+    </div>
+
+    <div class="pair" style="--era:var(--era1)">
+      <div class="pair-head"><span class="dot"></span><b>The UK Today</b><span class="yrs">Cities · money · people</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">“84 – 8 – 5 – 3” and “8 → 20 → 40”</span>
+        Population share: chant <b>84-8-5-3</b> (England, Scotland, Wales, NI). Growth: <b>1801 = 8m, 1851 = 20m, 1901 = 40m</b> — the population <b>more than doubles twice</b> in one century.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        Scotland's capital is <b>Edinburgh</b> — Glasgow is its biggest listed city, not its capital. Wales beats Northern Ireland on population (<b>5% vs under 3%</b>), and the £ note ladder stops at <b>£50</b>.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era2)">
+      <div class="pair-head"><span class="dot"></span><b>Religion</b><span class="yrs">Churches &amp; saints</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">“David, Patrick, George… then a long wait for Andrew”</span>
+        Calendar order: <b>1 Mar → 17 Mar → 23 Apr → 30 Nov</b>. Two saints in March, one in April, one alone in November. Only the <b>Celtic-fringe pair with holidays</b> — Patrick (NI) and Andrew (Scotland) — get the day off.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        The <b>monarch is the head</b> of the Church of England; the <b>Archbishop of Canterbury is only its spiritual leader</b> — don't swap them. And “Episcopal Church” is the <b>Church of England's</b> name in Scotland — the <b>Church of Scotland</b> itself is <b>Presbyterian</b>.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era3)">
+      <div class="pair-head"><span class="dot"></span><b>Customs &amp; Traditions</b><span class="yrs">The festival calendar</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">Autumn's 1-2-3 punch: 31/10 · 5/11 · 11/11</span>
+        Halloween, Bonfire Night, Remembrance Day — three dates twelve days apart. And keep <b>Vaisakhi</b> as the only faith festival with a <b>fixed date (14 April)</b>; Easter, Diwali, Hannukah and both Eids all move.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        <b>Diwali is celebrated by Hindus AND Sikhs</b> — not Hindus alone. <b>Eid al-Fitr ends Ramadan</b>; <b>Eid ul Adha is about Ibrahim's sacrifice</b> — the test loves swapping them. Mothering Sunday floats with Easter; Father's Day is fixed to a weekday pattern (3rd Sunday of June).
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era4)">
+      <div class="pair-head"><span class="dot"></span><b>Sport</b><span class="yrs">Champions &amp; venues</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">2012 — the golden summer</span>
+        One year, five names: <b>Wiggins</b> (first British Tour de France), <b>Farah</b> (5k + 10k gold), <b>Ennis</b> (heptathlon gold), <b>Murray</b> (US Open), <b>Simmonds</b> (Paralympic pool). Add the venue — <b>Stratford, East London</b> — and Britain's <b>third-place</b> medal finish.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        Two different wheelchair racers won the London Marathon <b>six times each</b>: <b>Tanni Grey-Thompson</b> (also 16 Paralympic medals) and <b>David Weir</b> (six golds over two Games). <b>Redgrave = 5 consecutive Games</b>, <b>Hoy = 6 golds</b> — don't let the numbers migrate between names.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era5)">
+      <div class="pair-head"><span class="dot"></span><b>Arts &amp; Culture</b><span class="yrs">Music · art · books</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">Prize triangle: Turner paints · Mercury sings · Booker writes</span>
+        <b>Turner Prize</b> = contemporary <b>art</b> (1984, Tate Britain, Hirst &amp; Wright). <b>Mercury Prize</b> = best <b>album</b> (September, UK &amp; Ireland). <b>Man Booker</b> = <b>fiction</b> (since 1968, McEwan/Mantel/Barnes). Three prizes, three art forms — never let the test cross the wires.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        Two famous <b>German-born</b> Britons: composer <b>Handel</b> (citizen 1727) and painter <b>Lucian Freud</b>. <b>Holst wrote The Planets</b>, <b>Elgar wrote Land of Hope and Glory</b> — swapped constantly. And the WWI poets are <b>Owen and Sassoon</b>; Ted Hughes and Betjeman are later.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era6)">
+      <div class="pair-head"><span class="dot"></span><b>Leisure &amp; Places</b><span class="yrs">Food · film · landmarks</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">The age ladder: 16 → 18</span>
+        <b>16</b>: National Lottery, and wine/beer <b>with a meal</b> alongside an over-18. <b>18</b>: buy alcohol yourself, enter betting shops and gambling clubs. Everything self-service is 18; everything supervised is 16.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        <b>15 national parks — in England, Wales and Scotland</b> (the handbook doesn't count NI). <b>Loch Lomond</b> is the largest fresh water in <b>mainland Britain</b>; the <b>Lake District</b> is England's largest <b>park</b>. National Trust: <b>1895, three volunteers</b> — but <b>61,000+ volunteers today</b>.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3 · THE CALENDAR ═══════════════ -->
+  <section id="calendar" data-ch="4">
+    <div class="sec-head">
+      <div class="n">Three</div>
+      <h2>The Calendar</h2>
+      <p>One year, 1 January to 31 December. The rail holds everything with a date; the moving feasts sit in their own band underneath, because <b>the chapter gives them a season, not a day</b>. Saints' days are green — they come from the Religion section, not this one.</p>
+    </div>
+
+    <div class="legend">
+      <span><i class="hol"></i>Bank / public holiday</span>
+      <span><i></i>Celebrated, but a normal working day</span>
+    </div>
+
+    <ol class="rail">
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">1 January</span><span class="ev-b">
+        <span class="ev-t">New Year's Day</span>
+        <span class="ev-w">Public holiday. Celebrated the night of <b>31 December</b>; in Scotland that night is <b>Hogmanay</b>.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span></span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">2 January</span><span class="ev-b">
+        <span class="ev-t">The second of January</span>
+        <span class="ev-w"><b>Also a holiday in Scotland</b> — and only in Scotland.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span><span class="tag">Scotland</span></span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">14 February</span><span class="ev-b">
+        <span class="ev-t">Valentine's Day</span>
+        <span class="ev-w">Cards and gifts between lovers; sometimes <b>anonymous cards</b> to a secret admirer.</span>
+      </span></li>
+      <li class="ev" style="--era:var(--era2)"><span class="ev-y">1 March</span><span class="ev-b">
+        <span class="ev-t">St David's Day</span>
+        <span class="ev-w">Patron saint of <b>Wales</b>. <b>Works normally</b> — not a holiday. The <b>daffodil</b> is worn.</span>
+        <span class="tags"><span class="tag">Wales</span><span class="tag">Patron saint</span></span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era2)"><span class="ev-y">17 March</span><span class="ev-b">
+        <span class="ev-t">St Patrick's Day</span>
+        <span class="ev-w">Patron saint of <b>Northern Ireland</b>, and an <b>official holiday</b> there. The <b>shamrock</b> is worn.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span><span class="tag">N. Ireland</span><span class="tag">Patron saint</span></span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">1 April</span><span class="ev-b">
+        <span class="ev-t">April Fool's Day</span>
+        <span class="ev-w">People play jokes on each other — <b>only until midday</b>.</span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">14 April</span><span class="ev-b">
+        <span class="ev-t">Vaisakhi</span>
+        <span class="ev-w">Sikh festival of the founding of <b>the Khalsa</b>; parades, dancing, singing. The <b>only faith festival on a fixed date</b>.</span>
+      </span></li>
+      <li class="ev" style="--era:var(--era2)"><span class="ev-y">23 April</span><span class="ev-b">
+        <span class="ev-t">St George's Day</span>
+        <span class="ev-w">Patron saint of <b>England</b>. <b>Works normally</b> — not a holiday. The <b>rose</b> is worn.</span>
+        <span class="tags"><span class="tag">England</span><span class="tag">Patron saint</span></span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">early May</span><span class="ev-b">
+        <span class="ev-t">Bank holiday</span>
+        <span class="ev-w">A public holiday with <b>no religious meaning</b>.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span></span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">late May /<br>early June</span><span class="ev-b">
+        <span class="ev-t">Bank holiday</span>
+        <span class="ev-w">A public holiday with <b>no religious meaning</b>.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span></span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">3rd Sunday<br>in June</span><span class="ev-b">
+        <span class="ev-t">Father's Day</span>
+        <span class="ev-w">Fixed to a weekday pattern, not a date — unlike Mothering Sunday, which floats with Easter.</span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">July</span><span class="ev-b">
+        <span class="ev-t">Anniversary of the Battle of the Boyne</span>
+        <span class="ev-w">Marked in <b>Northern Ireland</b>, on top of the three secular bank holidays.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span><span class="tag">N. Ireland</span></span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">August</span><span class="ev-b">
+        <span class="ev-t">Bank holiday</span>
+        <span class="ev-w">A public holiday with <b>no religious meaning</b>.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span></span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">31 October</span><span class="ev-b">
+        <span class="ev-t">Halloween</span>
+        <span class="ev-w"><b>Ancient pagan roots</b>; costumes, <b>trick or treat</b>, pumpkin lanterns.</span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">5 November</span><span class="ev-b">
+        <span class="ev-t">Bonfire Night</span>
+        <span class="ev-w">Fireworks recall <b>1605</b>, when <b>Guy Fawkes</b> and a group plotted to <b>kill the Protestant king with a bomb in the Houses of Parliament</b>.</span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">11 November</span><span class="ev-b">
+        <span class="ev-t">Remembrance Day</span>
+        <span class="ev-w">Honours the war dead; began with <b>WWI, which ended in 1918</b>. <b>Poppies</b>, a <b>two-minute silence at 11 am</b>, wreaths at <b>the Cenotaph in Whitehall</b>.</span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era2)"><span class="ev-y">30 November</span><span class="ev-b">
+        <span class="ev-t">St Andrew's Day</span>
+        <span class="ev-w">Patron saint of <b>Scotland</b>, and an <b>official holiday</b> there. The <b>thistle</b> is worn.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span><span class="tag">Scotland</span><span class="tag">Patron saint</span></span>
+      </span></li>
+      <li class="ev" style="--era:var(--era3)"><span class="ev-y">24 December</span><span class="ev-b">
+        <span class="ev-t">Christmas Eve</span>
+        <span class="ev-w">Many Christians <b>attend church</b>.</span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">25 December</span><span class="ev-b">
+        <span class="ev-t">Christmas Day</span>
+        <span class="ev-w">Public holiday celebrating <b>the birth of Jesus Christ</b>. Roast <b>turkey, Christmas pudding, mince pies</b>; gifts, cards, decorated trees; children hang stockings for <b>Father Christmas (Santa Claus)</b>.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span></span>
+      </span></li>
+      <li class="ev hol" style="--era:var(--era3)"><span class="ev-y">26 December</span><span class="ev-b">
+        <span class="ev-t">Boxing Day</span>
+        <span class="ev-w">The day after Christmas, and <b>also a public holiday</b>.</span>
+        <span class="tags"><span class="tag hol">Bank holiday</span></span>
+      </span></li>
+    </ol>
+
+    <div class="band" style="--era:var(--era3)">
+      <span class="band-h">The moving feasts</span>
+      <p class="band-s">No fixed date, so no place on the rail. The chapter tells you <b>when they fall</b>, not what day they land on — learn the rule, not a number.</p>
+
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Shrove Tuesday (Pancake Day)</span><span class="mv-w">day before Lent</span></div>
+        <div class="mv-k">Pancakes are eaten the day before Lent begins.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Ash Wednesday</span><span class="mv-w">first day of Lent</span></div>
+        <div class="mv-k">Lent begins; churchgoers are <b>marked with an ash cross</b> on the forehead.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Lent</span><span class="mv-w">40 days before Easter</span></div>
+        <div class="mv-k">The <b>40 days</b> before Easter; people traditionally fast or <b>give something up</b>.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Mothering Sunday</span><span class="mv-w">3 weeks before Easter</span></div>
+        <div class="mv-k">The Sunday <b>three weeks before Easter</b> — it floats with Easter, unlike Father's Day.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Good Friday</span><span class="mv-w">March or April</span></div>
+        <div class="mv-k">Marks <b>Christ's death</b>. <b>A public holiday.</b></div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Easter Sunday</span><span class="mv-w">March or April</span></div>
+        <div class="mv-k">Marks <b>Christ rising</b>. <b>Easter eggs</b> symbolise <b>new life</b>.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Easter Monday</span><span class="mv-w">March or April</span></div>
+        <div class="mv-k"><b>A public holiday.</b></div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Diwali</span><span class="mv-w">Oct/Nov · 5 days</span></div>
+        <div class="mv-k"><b>“Festival of Lights”</b>, celebrated by <b>Hindus and Sikhs</b>; victory of <b>good over evil</b> and the gaining of knowledge. Famous celebrations in <b>Leicester</b>.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Hannukah</span><span class="mv-w">Nov/Dec · 8 days</span></div>
+        <div class="mv-k">Jewish struggle for <b>religious freedom</b>; a candle lit each day on the <b>menorah</b>.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Eid al-Fitr</span><span class="mv-w">end of Ramadan</span></div>
+        <div class="mv-k">Marks <b>the end of Ramadan</b>; Muslims thank Allah for the strength to fast.</div>
+      </div>
+      <div class="mv">
+        <div class="mv-t"><span class="mv-n">Eid ul Adha</span><span class="mv-w">moves</span></div>
+        <div class="mv-k">Remembers <b>Ibrahim's willingness to sacrifice his son</b>; in Britain animal sacrifice must happen <b>in a slaughterhouse</b>.</div>
+      </div>
+    </div>
+
+    <p class="note">The three secular bank holidays — <b>early May</b>, <b>late May or early June</b>, <b>August</b> — have <b>no religious meaning</b>. Northern Ireland adds <b>the Battle of the Boyne in July</b>. Everything else on the rail is celebrated but worked through.</p>
+  </section>
+
+  <!-- ═══════════════ 4 · THE NUMBERS ═══════════════ -->
+  <section id="numbers" data-ch="4">
+    <div class="sec-head">
+      <div class="n">Four</div>
+      <h2>The Numbers</h2>
+      <p>Every figure the chapter states, in the chapter's own groups. Cover a column, recite, check. <b>If a number isn't here, the chapter doesn't give it.</b></p>
+    </div>
+
+    <div class="cs-cols">
+      <div class="cs-group" style="--era:var(--era1)">
+        <h3>Percentages</h3>
+        <div class="cs-row"><div class="cs-year">84 / 8 / 5 / 3</div><div class="cs-event">population: England / Scotland / Wales / NI (&lt;3%)</div></div>
+        <div class="cs-row"><div class="cs-year">70%</div><div class="cs-event">Christian · 21% none · 4% Muslim · 2% Hindu · 1% Sikh</div></div>
+        <div class="cs-row"><div class="cs-year">~10%</div><div class="cs-event">have a parent/grandparent born outside the UK</div></div>
+      </div>
+      <div class="cs-group" style="--era:var(--era1)">
+        <h3>Population by year</h3>
+        <div class="cs-row"><div class="cs-year">1600</div><div class="cs-event">just over 4 million</div></div>
+        <div class="cs-row"><div class="cs-year">1700</div><div class="cs-event">5 million</div></div>
+        <div class="cs-row"><div class="cs-year">1801</div><div class="cs-event">8 million</div></div>
+        <div class="cs-row"><div class="cs-year">1851</div><div class="cs-event">20 million</div></div>
+        <div class="cs-row"><div class="cs-year">1901</div><div class="cs-event">40 million</div></div>
+        <div class="cs-row"><div class="cs-year">1951</div><div class="cs-event">50 million</div></div>
+        <div class="cs-row"><div class="cs-year">1998</div><div class="cs-event">57 million</div></div>
+        <div class="cs-row"><div class="cs-year">2005</div><div class="cs-event">just under 60 million</div></div>
+        <div class="cs-row"><div class="cs-year">2010</div><div class="cs-event">just over 62 million</div></div>
+      </div>
+      <div class="cs-group" style="--era:var(--era2)">
+        <h3>Days of the year</h3>
+        <div class="cs-row"><div class="cs-year">1 Mar</div><div class="cs-event">St David — Wales</div></div>
+        <div class="cs-row"><div class="cs-year">17 Mar</div><div class="cs-event">St Patrick — NI (holiday)</div></div>
+        <div class="cs-row"><div class="cs-year">23 Apr</div><div class="cs-event">St George — England</div></div>
+        <div class="cs-row"><div class="cs-year">30 Nov</div><div class="cs-event">St Andrew — Scotland (holiday)</div></div>
+        <div class="cs-row"><div class="cs-year">14 Feb</div><div class="cs-event">Valentine's Day</div></div>
+        <div class="cs-row"><div class="cs-year">1 Apr</div><div class="cs-event">April Fool — jokes until midday</div></div>
+        <div class="cs-row"><div class="cs-year">14 Apr</div><div class="cs-event">Vaisakhi — the Khalsa</div></div>
+        <div class="cs-row"><div class="cs-year">31 Oct</div><div class="cs-event">Halloween</div></div>
+        <div class="cs-row"><div class="cs-year">5 Nov</div><div class="cs-event">Bonfire Night — Guy Fawkes, 1605</div></div>
+        <div class="cs-row"><div class="cs-year">11 Nov</div><div class="cs-event">Remembrance Day — WWI ended 1918</div></div>
+        <div class="cs-row"><div class="cs-year">25–26 Dec</div><div class="cs-event">Christmas Day · Boxing Day</div></div>
+      </div>
+      <div class="cs-group" style="--era:var(--era4)">
+        <h3>Sport years</h3>
+        <div class="cs-row"><div class="cs-year">1872</div><div class="cs-event">first tennis club — Leamington Spa</div></div>
+        <div class="cs-row"><div class="cs-year">1902</div><div class="cs-event">first UK motor race</div></div>
+        <div class="cs-row"><div class="cs-year">1908 / 1948 / 2012</div><div class="cs-event">three London Olympics</div></div>
+        <div class="cs-row"><div class="cs-year">1954</div><div class="cs-event">Bannister runs a sub-4-minute mile</div></div>
+        <div class="cs-row"><div class="cs-year">1966</div><div class="cs-event">England wins the World Cup; Chichester sets sail</div></div>
+        <div class="cs-row"><div class="cs-year">1984</div><div class="cs-event">Torvill &amp; Dean ice-dance gold</div></div>
+        <div class="cs-row"><div class="cs-year">2004</div><div class="cs-event">Holmes' double gold; MacArthur's circumnavigation</div></div>
+        <div class="cs-row"><div class="cs-year">2012</div><div class="cs-event">Wiggins · Farah · Ennis · Murray · Simmonds</div></div>
+      </div>
+      <div class="cs-group" style="--era:var(--era5)">
+        <h3>Culture years</h3>
+        <div class="cs-row"><div class="cs-year">1727</div><div class="cs-event">Handel becomes a British citizen</div></div>
+        <div class="cs-row"><div class="cs-year">1840s</div><div class="cs-event">Punch magazine first published</div></div>
+        <div class="cs-row"><div class="cs-year">1896</div><div class="cs-event">first public film showings in the UK</div></div>
+        <div class="cs-row"><div class="cs-year">1927</div><div class="cs-event">BBC starts running the Proms</div></div>
+        <div class="cs-row"><div class="cs-year">1952</div><div class="cs-event">The Mousetrap opens</div></div>
+        <div class="cs-row"><div class="cs-year">1968</div><div class="cs-event">Man Booker Prize founded</div></div>
+        <div class="cs-row"><div class="cs-year">1969</div><div class="cs-event">Monty Python's Flying Circus</div></div>
+        <div class="cs-row"><div class="cs-year">1984</div><div class="cs-event">Turner Prize founded</div></div>
+        <div class="cs-row"><div class="cs-year">2003</div><div class="cs-event">Lord of the Rings voted best-loved novel</div></div>
+      </div>
+      <div class="cs-group" style="--era:var(--era6)">
+        <h3>Rules &amp; sizes</h3>
+        <div class="cs-row"><div class="cs-year">18</div><div class="cs-event">buy alcohol · betting shops · gambling clubs</div></div>
+        <div class="cs-row"><div class="cs-year">16</div><div class="cs-event">lottery · wine/beer with a meal (with an over-18)</div></div>
+        <div class="cs-row"><div class="cs-year">11 am</div><div class="cs-event">pubs open (noon on Sundays)</div></div>
+        <div class="cs-row"><div class="cs-year">£1,000</div><div class="cs-event">max fine for watching TV without a licence</div></div>
+        <div class="cs-row"><div class="cs-year">75+</div><div class="cs-event">free TV licence; blind people get 50% off</div></div>
+        <div class="cs-row"><div class="cs-year">15</div><div class="cs-event">national parks (England, Wales, Scotland)</div></div>
+        <div class="cs-row"><div class="cs-year">1895</div><div class="cs-event">National Trust — 3 founders, 61,000+ volunteers now</div></div>
+        <div class="cs-row"><div class="cs-year">443 ft</div><div class="cs-event">London Eye (135 m)</div></div>
+        <div class="cs-row"><div class="cs-year">838 / 885</div><div class="cs-event">sq miles: Snowdonia / Lake District</div></div>
+        <div class="cs-row"><div class="cs-year">50m yrs</div><div class="cs-event">age of the Giant's Causeway</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Chapter 4 only — the exam samples all five. Everything above is collated from <a href="life-in-uk-chapter4.html">the Chapter 4 notes</a>; nothing was rewritten and nothing was added.</p>
+    <p>Still got time? <a href="life-in-uk-chapter4-story.html">The chapter as a story</a> · <a href="life-in-uk-mock-tests.html#drill">Daily drill</a></p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  /* ---- theme, shared with every other page ---- */
+  var root = document.documentElement, btn = document.getElementById("themeToggle");
+  function label() { btn.textContent = root.dataset.theme === "light" ? "☾ Dark" : "☀︎ Light"; }
+  btn.addEventListener("click", function () { LitUK.toggleTheme(); label(); });
+  document.addEventListener("lituk:theme", label);
+  label();
+
+  /* ---- domain filter: dims, never hides, so the chapter's order survives.
+          Dimming a hundred cards would mean a long scroll to the one group you
+          asked for, so selecting a chip also walks you to its header. ---- */
+  var list = document.getElementById("cast-list");
+  var note = document.getElementById("castnote");
+  var chips = [].slice.call(document.querySelectorAll("#domChips .chip"));
+  var groups = [].slice.call(list.getElementsByClassName("dgroup"));
+  var total = 0, active = "";
+
+  /* The counts are written into the HTML so they survive a dead script — this
+     just guarantees they match the cards actually on the page. */
+  groups.forEach(function (g) {
+    var n = g.getElementsByClassName("person").length;
+    var ct = g.querySelector(".ct");
+    if (ct) ct.textContent = "· " + n;
+    total += n;
+  });
+
+  function apply(dom) {
+    active = dom;
+    var shown = 0, target = null;
+    list.classList.toggle("filtered", !!dom);
+    groups.forEach(function (g) {
+      var on = !dom || g.getAttribute("data-dom") === dom;
+      g.classList.toggle("on", on);
+      if (on && dom) { shown += g.getElementsByClassName("person").length; target = g; }
+    });
+    chips.forEach(function (c) {
+      var sel = c.getAttribute("data-dom") === dom;
+      c.classList.toggle("sel", sel);
+      c.setAttribute("aria-pressed", sel ? "true" : "false");
+    });
+    note.textContent = dom
+      ? shown + " of " + total + " names — tap the chip again for all of them"
+      : total + " names in ten domains. Tap a domain to pull it out of the pile.";
+    if (target) {
+      var head = target.querySelector(".dom");
+      if (head && head.scrollIntoView) head.scrollIntoView({ block: "start" });
+    }
+  }
+
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      var dom = c.getAttribute("data-dom");
+      apply(dom === active ? "" : dom);
+    });
+  });
+  apply("");
+
+  /* ---- which section am I in ---- */
+  var links = [].slice.call(document.querySelectorAll("#jump a"));
+  var seen = {};
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { seen[e.target.id] = e.isIntersecting; });
+      var cur = null;
+      links.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        if (!cur && seen[id]) cur = id;
+      });
+      links.forEach(function (a) { a.classList.toggle("cur", a.getAttribute("href") === "#" + cur); });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    links.forEach(function (a) {
+      var el = document.getElementById(a.getAttribute("href").slice(1));
+      if (el) io.observe(el);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

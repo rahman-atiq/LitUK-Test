@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0F14">
+<meta name="description" content="The day-before revision sheet: every date, trap, monarch and number in Chapter 3 on one page.">
+<title>Life in the UK · The Day Before</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<meta name="robots" content="noindex">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Tokens are the hub's, verbatim. Nothing on this page invents a colour. */
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --pink:#FF4F9A;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --pink:#D62B72;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+  /* The trap box inverts the page, exactly as the chapter page does — derived
+     from the two tokens that already flip with the theme, so it needs no
+     colours of its own. */
+  :root { --trap-bg:var(--ink); --trap-ink:var(--page); }
+
+  html { scroll-behavior:smooth; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+    padding-bottom:40px;
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  a { color:inherit; text-decoration:none; }
+
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+
+  /* ---------- chapter switcher ----------
+     Sits above the masthead and below the two fixed corner pills, so it carries
+     the 54px of clearance the masthead used to own. */
+  .chapswitch {
+    display:flex; justify-content:center; gap:6px;
+    padding:54px 0 0; margin:0;
+  }
+  /* Child-scoped on purpose. As a descendant selector this also caught the
+     numeral span inside each pill, dressing the number in a second 44px pill
+     with 13px of side padding — which is what sat it off-centre. */
+  .chapswitch > a, .chapswitch > span {
+    display:inline-flex; align-items:center; gap:7px;
+    min-height:44px; padding:0 13px; border-radius:11px;
+    font-size:.79rem; font-weight:650; white-space:nowrap;
+    color:var(--ink-2); background:var(--card);
+    border:1px solid var(--line);
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  /* The numeral chip, now a square of its own: fixed box, centred both ways,
+     and it keeps the card-on-tint contrast the current pill relies on. */
+  .chapswitch .n {
+    flex:0 0 auto; display:grid; place-items:center;
+    width:28px; height:28px; border-radius:8px;
+    background:var(--card); border:1px solid var(--line);
+    font-family:var(--serif); font-size:1.02rem; color:var(--gold); line-height:1;
+  }
+  .chapswitch a:active { transform:scale(.97); }
+  .chapswitch .cur {
+    color:var(--ink); background:var(--card-2);
+    border-color:color-mix(in srgb, var(--gold) 50%, var(--line));
+    box-shadow:var(--shadow);
+  }
+  .chapswitch .soon { opacity:.42; }
+  .chapswitch .soon .n { color:var(--ink-3); }
+  .chapswitch + .mast { padding-top:22px; }
+  @media (max-width:380px) {
+    .chapswitch { gap:4px; }
+    .chapswitch > a, .chapswitch > span { padding:0 9px; font-size:.74rem; gap:5px; }
+    .chapswitch .n { width:25px; height:25px; font-size:.95rem; }
+  }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding:52px 0 4px; text-align:center; }
+  .mast .eyebrow {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700; margin:0;
+  }
+  .mast h1 {
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(2rem, 7.4vw, 2.9rem); line-height:1.08;
+    margin:.3em 0 .22em; letter-spacing:-.01em;
+  }
+  .mast .sub { color:var(--ink-2); font-size:.93rem; margin:0 auto; max-width:32em; }
+
+  /* ---------- sticky jump nav ----------
+     Sits below the two fixed corner pills (hub, theme) that app.js and this
+     page put at the top — hence the +52px, not 0. The inset keeps it clear of
+     the notch on an installed PWA. */
+  .jump {
+    position:sticky; top:calc(var(--lituk-sat) + 52px); z-index:30;
+    display:flex; gap:5px; margin:20px 0 0; padding:5px;
+    background:color-mix(in srgb, var(--card) 90%, transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    backdrop-filter:saturate(180%) blur(14px);
+    border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+  }
+  .jump a {
+    flex:1 1 0; min-width:0; min-height:44px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:10px; font-size:.82rem; font-weight:650; color:var(--ink-2);
+    transition:background .14s ease, color .14s ease;
+  }
+  .jump a.cur { background:var(--card-2); color:var(--ink); }
+  .jump a:active { transform:scale(.97); }
+  @media (max-width:360px) { .jump a { font-size:.76rem; } }
+
+  .tenmin { text-align:center; font-size:.86rem; color:var(--ink-3); margin:12px 0 0; }
+  .tenmin a {
+    color:var(--era3); font-weight:700;
+    border-bottom:1px solid color-mix(in srgb, var(--era3) 45%, transparent);
+  }
+
+  /* ---------- section furniture ---------- */
+  section { scroll-margin-top:calc(var(--lituk-sat) + 112px); }
+  .sec-head { margin:46px 0 0; }
+  .sec-head .n {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700;
+  }
+  .sec-head h2 {
+    font-family:var(--serif); font-weight:400; letter-spacing:-.01em;
+    font-size:clamp(1.6rem, 5.6vw, 2.1rem); line-height:1.15; margin:.12em 0 .18em;
+  }
+  .sec-head p { color:var(--ink-2); font-size:.89rem; margin:0; max-width:46em; }
+  .sec-head p b { color:var(--ink); font-weight:650; }
+
+  /* ---------- 1 · the timeline ---------- */
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin:20px 0 0; }
+  .chip {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease, background .14s ease;
+  }
+  .chip .dot { width:9px; height:9px; border-radius:50%; background:var(--era, var(--ink-3)); flex:0 0 auto; }
+  .chip.sel {
+    color:var(--ink);
+    border-color:color-mix(in srgb, var(--era, var(--gold)) 60%, var(--line));
+    background:color-mix(in srgb, var(--era, var(--gold)) 13%, var(--card));
+  }
+  .chip:active { transform:scale(.97); }
+
+  .railnote { font-size:.76rem; color:var(--ink-3); margin:12px 2px 0; }
+
+  .rail { list-style:none; margin:8px 0 0; padding:0; }
+  .ev {
+    position:relative; display:flex; gap:10px; padding:9px 0 9px 26px;
+    transition:opacity .16s ease;
+  }
+  /* Each row carries its own slice of the rail, so the line itself changes
+     colour where the era changes. */
+  .ev::before {
+    content:""; position:absolute; left:5px; top:0; bottom:0; width:2px;
+    background:color-mix(in srgb, var(--era) 40%, transparent);
+  }
+  .ev:first-child::before { top:15px; }
+  .ev:last-child::before  { bottom:auto; height:15px; }
+  .ev::after {
+    content:""; position:absolute; left:1px; top:11px;
+    width:10px; height:10px; border-radius:50%;
+    background:var(--era); box-shadow:0 0 0 3px var(--page);
+  }
+  .ev-y {
+    flex:0 0 88px; white-space:nowrap;
+    font-size:.76rem; font-weight:700; color:var(--era);
+    font-variant-numeric:tabular-nums; letter-spacing:-.01em; padding-top:.2em;
+  }
+  .ev-b { flex:1 1 auto; min-width:0; }
+  .ev-t { display:block; font-size:.9rem; line-height:1.4; overflow-wrap:break-word; }
+  .ev-w { display:block; font-size:.76rem; color:var(--ink-3); line-height:1.35; margin-top:2px; }
+  .rail.filtered .ev { opacity:.14; }
+  .rail.filtered .ev.on { opacity:1; }
+  @media (prefers-reduced-motion:reduce) { .ev { transition:none; } }
+  @media (min-width:540px) {
+    .ev-y { flex-basis:104px; font-size:.83rem; }
+    .ev-t { font-size:.94rem; }
+  }
+
+  /* ---------- 2 · the traps ---------- */
+  .pair { margin:30px 0 0; }
+  .pair-head { display:flex; align-items:center; gap:9px; margin:0 0 2px; }
+  .pair-head .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
+  .pair-head b {
+    font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .pair-head .yrs {
+    margin-left:auto; font-size:.72rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
+  .hook, .trap { border-radius:12px; padding:15px 17px; margin-top:10px; font-size:.91rem; line-height:1.55; }
+  .hook {
+    background:color-mix(in srgb, var(--era) 8%, var(--card));
+    border:1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { color:inherit; font-weight:700; }
+  .hook .lab, .trap .lab {
+    display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:700; margin-bottom:6px; color:var(--era);
+  }
+  .hook .big {
+    font-family:var(--serif); font-size:1.24rem; color:var(--ink);
+    display:block; margin:2px 0 6px; line-height:1.28;
+  }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); box-shadow:var(--shadow); }
+  .trap .lab { color:var(--trap-ink); opacity:.66; }
+
+  /* ---------- 3 · the ladder ---------- */
+  .ladder { margin:14px 0 0; }
+  .house { display:flex; align-items:center; gap:10px; margin:26px 0 6px; }
+  .house b {
+    font-size:.7rem; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--era, var(--ink-3)); font-weight:700;
+  }
+  .house::after {
+    content:""; flex:1; height:1px;
+    background:color-mix(in srgb, var(--era, var(--line)) 40%, var(--line));
+  }
+  .house.gap b { color:var(--ink-3); }
+  .house.gap::after { background:none; border-top:1px dashed var(--line); }
+
+  .mon {
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px;
+    padding:8px 0; border-top:1px dotted var(--line);
+  }
+  .mon.first { border-top:0; }
+  .mon-n { flex:1 1 auto; font-size:.93rem; font-weight:650; }
+  .mon-y {
+    flex:0 0 auto; font-size:.78rem; font-weight:700; color:var(--era, var(--gold));
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .mon-k { flex:1 1 100%; font-size:.83rem; color:var(--ink-2); line-height:1.4; }
+  .mon.minor .mon-n { font-weight:500; color:var(--ink-2); font-size:.88rem; }
+  .note {
+    font-size:.8rem; color:var(--ink-2); line-height:1.45;
+    background:var(--card-2); border-radius:10px; padding:11px 13px; margin:10px 0 0;
+  }
+  .note b { color:var(--ink); font-weight:650; }
+  .whiplash {
+    display:flex; gap:9px; align-items:flex-start;
+    font-size:.8rem; color:var(--ink-2); line-height:1.4;
+    border:1px dashed color-mix(in srgb, var(--era3) 50%, var(--line));
+    background:color-mix(in srgb, var(--era3) 8%, var(--card));
+    border-radius:10px; padding:10px 12px; margin:8px 0;
+  }
+  .whiplash i { font-style:normal; color:var(--era3); font-weight:700; }
+  .switch {
+    margin:34px 0 0; padding:14px 16px; border-radius:12px;
+    background:var(--card); border:1px solid var(--line);
+    border-left:3px solid var(--gold); box-shadow:var(--shadow);
+  }
+  .switch b { display:block; font-size:.74rem; letter-spacing:.13em; text-transform:uppercase; color:var(--gold); }
+  .switch span { display:block; font-size:.84rem; color:var(--ink-2); margin-top:4px; line-height:1.45; }
+
+  /* ---------- 4 · the numbers ---------- */
+  .nums { display:grid; grid-template-columns:repeat(auto-fit, minmax(152px, 1fr)); gap:9px; margin:18px 0 0; }
+  .num {
+    background:var(--card); border:1px solid var(--line);
+    border-left:3px solid var(--era, var(--gold));
+    border-radius:11px; padding:12px 13px; box-shadow:var(--shadow);
+  }
+  .num b {
+    display:block; font-family:var(--serif); font-size:1.5rem; line-height:1.05;
+    color:var(--era, var(--gold)); font-variant-numeric:tabular-nums;
+  }
+  .num span { display:block; font-size:.78rem; color:var(--ink-2); line-height:1.35; margin-top:5px; }
+
+  footer.foot {
+    margin:52px 0 0; padding-top:22px; border-top:1px solid var(--line);
+    color:var(--ink-3); font-size:.79rem; line-height:1.65;
+  }
+  footer.foot a { color:var(--ink-2); border-bottom:1px solid var(--line); }
+  footer.foot p { margin:0 0 10px; }
+
+  @media (max-width:420px) {
+    .wrap { padding:0 16px; }
+    .hook, .trap { padding:14px 15px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle light or dark theme">☀︎ Light</button>
+
+<div class="wrap">
+
+  <nav class="chapswitch" aria-label="Revision sheet by chapter">
+    <span class="cur" aria-current="page"><span class="n">3</span>History</span>
+    <a href="life-in-uk-day-before-ch4.html"><span class="n">4</span>Society</a>
+    <a href="life-in-uk-day-before-ch5.html"><span class="n">5</span>Government</a>
+  </nav>
+
+  <header class="mast">
+    <p class="eyebrow">Revision sheet · Chapter 3</p>
+    <h1>The Day Before</h1>
+    <p class="sub">Every date, trap, monarch and number in Chapter 3 — collated onto one page. An hour to re-cover the lot; five minutes for the part that actually catches people.</p>
+  </header>
+
+  <nav class="jump" id="jump" aria-label="Jump to a section">
+    <a href="#timeline">Timeline</a>
+    <a href="#traps">Traps</a>
+    <a href="#ladder">Ladder</a>
+    <a href="#numbers">Numbers</a>
+  </nav>
+  <p class="tenmin">Only got ten minutes? <a href="#traps">Read The Traps.</a></p>
+
+  <!-- Every section is chapter-scoped via data-ch. Chapters 1/2/4/5 append
+       their own blocks inside these same sections; nothing here counts eras
+       or names a chapter in the scaffolding. -->
+
+  <!-- ═══════════════ 1 · THE TIMELINE ═══════════════ -->
+  <section id="timeline" data-ch="3">
+    <div class="sec-head">
+      <div class="n">One</div>
+      <h2>The Timeline</h2>
+      <p>Every dated event in the chapter, in strict year order — the eras overlap in real time, so the colours jump around. That is the point: <b>1656 sits inside the Stuarts</b>, and <b>1942 sits inside the war</b>.</p>
+    </div>
+
+    <div class="chips" id="eraChips" data-ch="3" role="group" aria-label="Filter the timeline by era">
+      <button class="chip" type="button" data-era="" aria-pressed="true">All eras</button>
+      <button class="chip" type="button" data-era="1" style="--era:var(--era1)" aria-pressed="false"><span class="dot"></span>Early Britain</button>
+      <button class="chip" type="button" data-era="2" style="--era:var(--era2)" aria-pressed="false"><span class="dot"></span>Middle Ages</button>
+      <button class="chip" type="button" data-era="3" style="--era:var(--era3)" aria-pressed="false"><span class="dot"></span>Tudors &amp; Stuarts</button>
+      <button class="chip" type="button" data-era="4" style="--era:var(--era4)" aria-pressed="false"><span class="dot"></span>Global Power</button>
+      <button class="chip" type="button" data-era="5" style="--era:var(--era5)" aria-pressed="false"><span class="dot"></span>20th Century</button>
+      <button class="chip" type="button" data-era="6" style="--era:var(--era6)" aria-pressed="false"><span class="dot"></span>Since 1945</button>
+    </div>
+    <p class="railnote" id="railnote" aria-live="polite"></p>
+
+    <ol class="rail" id="rail" data-ch="3">
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">10,000 ya</span><span class="ev-b"><span class="ev-t">Channel separates Britain from the continent</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">6,000 ya</span><span class="ev-b"><span class="ev-t">First farmers arrive (from SE Europe)</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">4,000 ya</span><span class="ev-b"><span class="ev-t">Bronze Age begins</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">55 BC</span><span class="ev-b"><span class="ev-t">Julius Caesar's failed invasion</span><span class="ev-w">Julius Caesar · invaded, failed</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">AD 43</span><span class="ev-b"><span class="ev-t">Claudius conquers Britain</span><span class="ev-w">Emperor Claudius · invaded, succeeded</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">3rd–4th c.</span><span class="ev-b"><span class="ev-t">First Christian communities</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">AD 410</span><span class="ev-b"><span class="ev-t">Roman army leaves Britain</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">AD 600</span><span class="ev-b"><span class="ev-t">Anglo-Saxon kingdoms established</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">AD 789</span><span class="ev-b"><span class="ev-t">First Viking raids</span></span></li>
+      <li class="ev" data-era="1" style="--era:var(--era1)"><span class="ev-y">1066</span><span class="ev-b"><span class="ev-t">Hastings — William the Conqueror</span><span class="ev-w">William the Conqueror · King Harold killed</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1200</span><span class="ev-b"><span class="ev-t">English rule "the Pale" around Dublin</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1215</span><span class="ev-b"><span class="ev-t">Magna Carta — King John</span><span class="ev-w">King John · forced to sign</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1284</span><span class="ev-b"><span class="ev-t">Statute of Rhuddlan — Edward I annexes Wales</span><span class="ev-w">King Edward I · Conwy, Caernarvon</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1314</span><span class="ev-b"><span class="ev-t">Bannockburn — Robert the Bruce</span><span class="ev-w">Robert the Bruce · Scotland stays free</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1348</span><span class="ev-b"><span class="ev-t">Black Death — kills ⅓ of England</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1400</span><span class="ev-b"><span class="ev-t">English becomes the official language</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1415</span><span class="ev-b"><span class="ev-t">Agincourt — Henry V</span><span class="ev-w">King Henry V · outnumbered, won</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1450s</span><span class="ev-b"><span class="ev-t">English leave France</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1455</span><span class="ev-b"><span class="ev-t">Wars of the Roses begin</span></span></li>
+      <li class="ev" data-era="2" style="--era:var(--era2)"><span class="ev-y">1485</span><span class="ev-b"><span class="ev-t">Bosworth Field — Henry VII, House of Tudor</span><span class="ev-w">Henry VII · Richard III killed</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1560</span><span class="ev-b"><span class="ev-t">Scotland abolishes the Pope's authority</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1588</span><span class="ev-b"><span class="ev-t">Spanish Armada defeated</span><span class="ev-w">Elizabeth I · Protestant, popular</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1603</span><span class="ev-b"><span class="ev-t">Elizabeth I dies — James VI/I unites the crowns</span><span class="ev-w">James VI &amp; I · one king, two crowns</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1640</span><span class="ev-b"><span class="ev-t">Charles I forced to recall Parliament</span><span class="ev-w">Charles I · 11 years without it</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1642</span><span class="ev-b"><span class="ev-t">Civil War — Cavaliers vs Roundheads</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1649</span><span class="ev-b"><span class="ev-t">Charles I executed; Commonwealth declared</span><span class="ev-w">Charles I · Divine Right, beheaded</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1656</span><span class="ev-b"><span class="ev-t">First Jews settle in London since Middle Ages</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1658</span><span class="ev-b"><span class="ev-t">Cromwell dies</span><span class="ev-w">Oliver Cromwell · Lord Protector</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1660</span><span class="ev-b"><span class="ev-t">Restoration — Charles II returns</span><span class="ev-w">Charles II · back from the Netherlands</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1665</span><span class="ev-b"><span class="ev-t">Great plague of London</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1666</span><span class="ev-b"><span class="ev-t">Great Fire of London — Wren rebuilds St Paul's</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1679</span><span class="ev-b"><span class="ev-t">Habeas Corpus Act</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1680–1720</span><span class="ev-b"><span class="ev-t">Huguenot refugees arrive from France</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1685</span><span class="ev-b"><span class="ev-t">Catholic James II becomes king</span><span class="ev-w">James II · VII of Scotland</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1688</span><span class="ev-b"><span class="ev-t">Glorious Revolution — William of Orange</span><span class="ev-w">William of Orange · invited, no fighting</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1689</span><span class="ev-b"><span class="ev-t">Bill of Rights</span></span></li>
+      <li class="ev" data-era="3" style="--era:var(--era3)"><span class="ev-y">1690</span><span class="ev-b"><span class="ev-t">Battle of the Boyne (Ireland)</span><span class="ev-w">William of Orange · James II beaten</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1695</span><span class="ev-b"><span class="ev-t">Free press — no licence needed</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1707</span><span class="ev-b"><span class="ev-t">Act of Union → Kingdom of Great Britain</span><span class="ev-w">Queen Anne · no surviving children</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1714</span><span class="ev-b"><span class="ev-t">George I chosen by Parliament</span><span class="ev-w">George I · German, poor English</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1721–42</span><span class="ev-b"><span class="ev-t">Walpole — first Prime Minister</span><span class="ev-w">Sir Robert Walpole · the first PM</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1745–46</span><span class="ev-b"><span class="ev-t">Bonnie Prince Charlie; defeat at Culloden</span><span class="ev-w">Bonnie Prince Charlie · Highland clans crushed</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1776</span><span class="ev-b"><span class="ev-t">American colonies declare independence</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1783</span><span class="ev-b"><span class="ev-t">Britain recognises US independence</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1789</span><span class="ev-b"><span class="ev-t">French Revolution</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1800/1801</span><span class="ev-b"><span class="ev-t">Union with Ireland → United Kingdom; Union Flag</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1805</span><span class="ev-b"><span class="ev-t">Trafalgar — Nelson dies victorious</span><span class="ev-w">Admiral Nelson · the sea battle</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1807</span><span class="ev-b"><span class="ev-t">Slave trade banned on British ships/ports</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1810</span><span class="ev-b"><span class="ev-t">First curry house — Hindoostane Coffee House</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1815</span><span class="ev-b"><span class="ev-t">Waterloo — Wellington beats Napoleon</span><span class="ev-w">Duke of Wellington · the land battle</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1832</span><span class="ev-b"><span class="ev-t">Reform Act — rotten boroughs abolished</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1833</span><span class="ev-b"><span class="ev-t">Emancipation Act — slavery abolished in Empire</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1837</span><span class="ev-b"><span class="ev-t">Victoria becomes queen at 18 (to 1901)</span><span class="ev-w">Queen Victoria · almost 64 years</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1846</span><span class="ev-b"><span class="ev-t">Corn Laws repealed — free trade</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1847</span><span class="ev-b"><span class="ev-t">10-hour limit for women &amp; children in factories</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1851</span><span class="ev-b"><span class="ev-t">Great Exhibition, Crystal Palace</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1853–56</span><span class="ev-b"><span class="ev-t">Crimean War — Victoria Cross introduced</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1867</span><span class="ev-b"><span class="ev-t">Second Reform Act</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1870/1882</span><span class="ev-b"><span class="ev-t">Married women keep earnings &amp; property</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1889</span><span class="ev-b"><span class="ev-t">Pankhurst's Women's Franchise League</span></span></li>
+      <li class="ev" data-era="4" style="--era:var(--era4)"><span class="ev-y">1899–1902</span><span class="ev-b"><span class="ev-t">Boer War in South Africa</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1903</span><span class="ev-b"><span class="ev-t">WSPU founded — the suffragettes</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">28 Jun 1914</span><span class="ev-b"><span class="ev-t">Franz Ferdinand assassinated — WWI begins</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1916</span><span class="ev-b"><span class="ev-t">The Somme (60,000 casualties day one); Easter Rising</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">11 Nov 1918</span><span class="ev-b"><span class="ev-t">WWI ends at 11am; women over 30 get the vote</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1921–22</span><span class="ev-b"><span class="ev-t">Treaty; Ireland partitioned — Free State + NI</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1922</span><span class="ev-b"><span class="ev-t">BBC radio begins</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1928</span><span class="ev-b"><span class="ev-t">Women vote at 21 — equal with men; penicillin discovered</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1929</span><span class="ev-b"><span class="ev-t">Great Depression begins</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1933</span><span class="ev-b"><span class="ev-t">Hitler comes to power</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1936</span><span class="ev-b"><span class="ev-t">BBC — world's first regular TV service</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1939</span><span class="ev-b"><span class="ev-t">Poland invaded — Britain declares war</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">1940</span><span class="ev-b"><span class="ev-t">Churchill PM; Dunkirk; Battle of Britain</span><span class="ev-w">Winston Churchill · PM in May 1940</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">Dec 1941</span><span class="ev-b"><span class="ev-t">Pearl Harbor — USA enters the war</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1942</span><span class="ev-b"><span class="ev-t">Beveridge Report — five Giant Evils</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">6 Jun 1944</span><span class="ev-b"><span class="ev-t">D-Day — Normandy landings</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1944</span><span class="ev-b"><span class="ev-t">Butler Act — free secondary education</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">May 1945</span><span class="ev-b"><span class="ev-t">Germany defeated</span></span></li>
+      <li class="ev" data-era="5" style="--era:var(--era5)"><span class="ev-y">Aug 1945</span><span class="ev-b"><span class="ev-t">Hiroshima &amp; Nagasaki — war ends</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1945</span><span class="ev-b"><span class="ev-t">Attlee defeats Churchill; welfare state begins</span><span class="ev-w">Clement Attlee · Labour landslide</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1947</span><span class="ev-b"><span class="ev-t">India, Pakistan &amp; Ceylon independent (9 countries)</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1948</span><span class="ev-b"><span class="ev-t">NHS founded — Nye Bevan; West Indies workers invited</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1949</span><span class="ev-b"><span class="ev-t">Irish Free State becomes a republic</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1957</span><span class="ev-b"><span class="ev-t">EEC formed — six founders, no UK</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1960s</span><span class="ev-b"><span class="ev-t">The Swinging Sixties — Beatles, Stones, equal pay laws</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1967</span><span class="ev-b"><span class="ev-t">First ATM — Barclays, Enfield</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1969</span><span class="ev-b"><span class="ev-t">Concorde's first flight; NI violence begins (~3,000 deaths)</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1972</span><span class="ev-b"><span class="ev-t">NI Parliament suspended; Mary Peters wins gold</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1973</span><span class="ev-b"><span class="ev-t">UK joins the EEC</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1978</span><span class="ev-b"><span class="ev-t">World's first test-tube baby — Oldham</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1979</span><span class="ev-b"><span class="ev-t">Thatcher — first woman PM (to 1990)</span><span class="ev-w">Margaret Thatcher · longest-serving of the century</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1982</span><span class="ev-b"><span class="ev-t">Falklands War</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">25 Dec 1990</span><span class="ev-b"><span class="ev-t">Berners-Lee — World Wide Web works</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1996</span><span class="ev-b"><span class="ev-t">Dolly the sheep cloned</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1997</span><span class="ev-b"><span class="ev-t">Blair elected; devolution follows</span><span class="ev-w">Tony Blair · Scottish Parliament, Welsh Assembly</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1998</span><span class="ev-b"><span class="ev-t">Good Friday Agreement</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">1999</span><span class="ev-b"><span class="ev-t">NI Assembly elected (suspended 2002, back 2007)</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">2002</span><span class="ev-b"><span class="ev-t">Churchill voted greatest Briton</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">2009</span><span class="ev-b"><span class="ev-t">British combat troops leave Iraq</span></span></li>
+      <li class="ev" data-era="6" style="--era:var(--era6)"><span class="ev-y">May 2010</span><span class="ev-b"><span class="ev-t">Coalition — Cameron PM</span><span class="ev-w">David Cameron · Con–LibDem coalition</span></span></li>
+    </ol>
+  </section>
+
+  <!-- ═══════════════ 2 · THE TRAPS ═══════════════ -->
+  <section id="traps" data-ch="3">
+    <div class="sec-head">
+      <div class="n">Two</div>
+      <h2>The Traps</h2>
+      <p>The confusable pairs the test uses to catch people, each with the memory hook that defends it. <b>If you read nothing else, read this.</b></p>
+    </div>
+
+    <div class="pair" style="--era:var(--era1)">
+      <div class="pair-head"><span class="dot"></span><b>Early Britain</b><span class="yrs">Stone Age – 1066</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">"Caesar failed, Claudius nailed."</span>
+        55 BC = failed visit. AD 43 = real conquest. And the three saints: <b>P</b>atrick → Ireland, <b>C</b>olumba → Scotland (Iona), <b>A</b>ugustine → south of England (Canterbury) — <b>P·C·A, north to south</b>.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        The <b>Iron Age coins</b> mark the start of British <i>history</i> — not the Romans. And Hadrian's Wall kept out the <b>Picts</b> (ancestors of the Scots), not the Vikings.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era2)">
+      <div class="pair-head"><span class="dot"></span><b>The Middle Ages</b><span class="yrs">1066 – 1485</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">1215 · 1314 · 1415 — the staircase of dates.</span>
+        Magna Carta <b>12-15</b>, Bannockburn <b>13-14</b>, Agincourt <b>14-15</b>. Rising pairs, one century apart. Then the roses: red beat white, and Henry VII put <b>white inside red</b>.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        <b>Bannockburn 1314 = Robert the Bruce beats the English</b> (Scotland stays free). <b>Agincourt 1415 = Henry V beats the French.</b> Different century, opposite result for England. Also: the Hundred Years War lasted <b>116</b> years.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era3)">
+      <div class="pair-head"><span class="dot"></span><b>The Tudors &amp; the Stuarts</b><span class="yrs">1485 – 1688</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">"Divorced, beheaded, died; divorced, beheaded, survived."</span>
+        Three Catherines bracket the list: Aragon starts it, Howard and Parr end it. The two beheaded wives are <b>cousins</b> (Boleyn &amp; Howard).
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        Same man, two numbers: <b>James VI of Scotland = James I of England</b>; <b>William III of England = William II of Scotland</b> (William of Orange). And keep the pair straight: <b>1665 plague → 1666 fire</b> — disease before flames.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era4)">
+      <div class="pair-head"><span class="dot"></span><b>A Global Power</b><span class="yrs">1689 – 1901</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">Two unions, two "-oh-" dates: 17<b>07</b> and 18<b>01</b>.</span>
+        1707 joins <b>Scotland</b> → "Great Britain". 1801 joins <b>Ireland</b> → "United Kingdom". And Napoleon's decade: <b>1805 sea (Nelson · Trafalgar) → 1815 land (Wellington · Waterloo)</b>.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        <b>1807 = slave <i>trade</i> banned</b> (British ships &amp; ports). <b>1833 = slavery itself abolished</b> (Emancipation Act, whole Empire). Also: <b>1918 = women over 30</b> vote; <b>1928 = women at 21</b>, equal with men.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era5)">
+      <div class="pair-head"><span class="dot"></span><b>The 20th Century</b><span class="yrs">1901 – 1945</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">WWI ends on elevens: 11am, 11th day, 11th month, 1918.</span>
+        And 1940 is Churchill's year of three: <b>becomes PM → Dunkirk → Battle of Britain</b>, in that order.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        TV dates: <b>1922 = BBC radio</b>, <b>1932 = Baird's first TV broadcast (London–Glasgow)</b>, <b>1936 = BBC's first regular TV service</b>. Three different milestones — the test loves swapping them.
+      </div>
+    </div>
+
+    <div class="pair" style="--era:var(--era6)">
+      <div class="pair-head"><span class="dot"></span><b>Britain since 1945</b><span class="yrs">1945 – today</span></div>
+      <div class="hook">
+        <span class="lab">Memory hook</span>
+        <span class="big">The 1940s trio: 1942 · 1944 · 1948.</span>
+        <b>Beveridge reports (1942) → Butler educates (1944) → Bevan heals (1948)</b>. Three Bs, in alphabetical-ish order, each two years-ish apart.
+      </div>
+      <div class="trap">
+        <span class="lab">Exam trap</span>
+        <b>Bevan ≠ Beveridge ≠ Butler.</b> Beveridge wrote the <i>report</i>, Butler passed the <i>Education Act</i>, Bevan built the <i>NHS</i>. And the EEC: <b>founded 1957 without the UK — Britain joined in 1973</b>.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3 · THE LADDER ═══════════════ -->
+  <section id="ladder" data-ch="3">
+    <div class="sec-head">
+      <div class="n">Three</div>
+      <h2>The Ladder</h2>
+      <p>Succession in order, from Bosworth on. The timeline can't show that Edward VI and Mary I were a religious about-face — this can. <b>Years are accession years where the chapter gives one.</b></p>
+    </div>
+
+    <div class="ladder">
+
+      <div class="house" style="--era:var(--era3)"><b>House of Tudor</b></div>
+      <div class="mon first" style="--era:var(--era3)">
+        <span class="mon-n">Henry VII</span><span class="mon-y">1485</span>
+        <span class="mon-k">Won Bosworth; married Elizabeth of York — white rose inside red</span>
+      </div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">Henry VIII</span><span class="mon-y">1509</span>
+        <span class="mon-k">Six wives; broke with Rome and made himself head of the Church of England</span>
+      </div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">Edward VI</span><span class="mon-y">1547</span>
+        <span class="mon-k">Strongly Protestant; the Book of Common Prayer; died at 15</span>
+      </div>
+      <div class="whiplash"><i>↕</i><span>Protestant, then Catholic, in one step. Two monarchs, two religions, six years apart — the chapter calls them the whiplash years, and the test knows it.</span></div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">Mary I</span><span class="mon-y">1553</span>
+        <span class="mon-k">Devout Catholic; persecuted Protestants — "Bloody Mary"; short reign</span>
+      </div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">Elizabeth I</span><span class="mon-y">1558</span>
+        <span class="mon-k">Re-established the Church of England; Armada 1588; died childless 1603</span>
+      </div>
+
+      <div class="house" style="--era:var(--era3)"><b>House of Stuart</b></div>
+      <div class="mon first" style="--era:var(--era3)">
+        <span class="mon-n">James VI &amp; I</span><span class="mon-y">1603</span>
+        <span class="mon-k">Union of the crowns — Scotland stays a separate country; King James Bible</span>
+      </div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">Charles I</span><span class="mon-y">to 1649</span>
+        <span class="mon-k">Divine Right of Kings; 11 years without Parliament; Civil War 1642; executed</span>
+      </div>
+
+      <div class="house gap" style="--era:var(--era3)"><b>The Commonwealth · 1649–1660 · no monarch</b></div>
+      <div class="mon first" style="--era:var(--era3)">
+        <span class="mon-n">Oliver Cromwell</span><span class="mon-y">1653</span>
+        <span class="mon-k">Lord Protector, not king; Dunbar and Worcester; brutal in Ireland; died 1658</span>
+      </div>
+      <div class="mon minor" style="--era:var(--era3)">
+        <span class="mon-n">Richard Cromwell</span><span class="mon-y">1658</span>
+        <span class="mon-k">Succeeded his father and could not hold it together</span>
+      </div>
+
+      <div class="house" style="--era:var(--era3)"><b>House of Stuart, restored</b></div>
+      <div class="mon first" style="--era:var(--era3)">
+        <span class="mon-n">Charles II</span><span class="mon-y">1660</span>
+        <span class="mon-k">Invited back from the Netherlands; plague, fire, Habeas Corpus, Royal Society</span>
+      </div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">James II</span><span class="mon-y">1685</span>
+        <span class="mon-k">VII of Scotland; Catholic; favoured Catholics and ignored Parliament</span>
+      </div>
+      <div class="mon" style="--era:var(--era3)">
+        <span class="mon-n">William of Orange &amp; Mary</span><span class="mon-y">1688</span>
+        <span class="mon-k">Glorious Revolution — invited in, no fighting in England; Boyne 1690</span>
+      </div>
+      <div class="mon" style="--era:var(--era4)">
+        <span class="mon-n">Anne</span><span class="mon-y">to 1714</span>
+        <span class="mon-k">Act of Union 1707 — the Kingdom of Great Britain; no surviving children</span>
+      </div>
+
+      <div class="house" style="--era:var(--era4)"><b>House of Hanover</b></div>
+      <div class="mon first" style="--era:var(--era4)">
+        <span class="mon-n">George I</span><span class="mon-y">1714</span>
+        <span class="mon-k">German Protestant, chosen by Parliament; poor English, so he leaned on ministers</span>
+      </div>
+      <div class="mon minor" style="--era:var(--era4)">
+        <span class="mon-n">The Georges in between</span><span class="mon-y">1714–1837</span>
+        <span class="mon-k">The chapter names no monarch between George I and Victoria — nothing to learn here</span>
+      </div>
+      <div class="mon" style="--era:var(--era4)">
+        <span class="mon-n">Victoria</span><span class="mon-y">1837</span>
+        <span class="mon-k">Queen at 18; reigned almost 64 years; the Empire at its largest</span>
+      </div>
+
+      <div class="switch">
+        <b>From here it is Prime Ministers, not monarchs</b>
+        <span>The clock resets — Walpole (1721) overlaps the Hanoverians above. After Victoria the chapter stops naming monarchs and starts naming the people running the country.</span>
+      </div>
+
+      <div class="house" style="--era:var(--era4)"><b>Prime Ministers the chapter wants</b></div>
+      <div class="mon first" style="--era:var(--era4)">
+        <span class="mon-n">Sir Robert Walpole</span><span class="mon-y">1721</span>
+        <span class="mon-k">The first Prime Minister, to 1742</span>
+      </div>
+      <div class="mon" style="--era:var(--era5)">
+        <span class="mon-n">Winston Churchill</span><span class="mon-y">1940</span>
+        <span class="mon-k">PM in May 1940; refused to surrender; lost the 1945 election; PM again 1951</span>
+      </div>
+      <div class="mon" style="--era:var(--era6)">
+        <span class="mon-n">Clement Attlee</span><span class="mon-y">1945</span>
+        <span class="mon-k">Beat Churchill; the welfare state, the NHS, nationalisation — to 1951</span>
+      </div>
+      <div class="mon" style="--era:var(--era6)">
+        <span class="mon-n">Margaret Thatcher</span><span class="mon-y">1979</span>
+        <span class="mon-k">First woman PM; privatisation; Falklands 1982; longest-serving of the 20th century</span>
+      </div>
+      <div class="mon minor" style="--era:var(--era6)">
+        <span class="mon-n">John Major</span><span class="mon-y">1990</span>
+        <span class="mon-k">Succeeded Thatcher; helped begin the Northern Ireland peace process</span>
+      </div>
+      <div class="mon" style="--era:var(--era6)">
+        <span class="mon-n">Tony Blair</span><span class="mon-y">1997</span>
+        <span class="mon-k">Scottish Parliament and Welsh Assembly; Good Friday Agreement 1998</span>
+      </div>
+      <div class="mon minor" style="--era:var(--era6)">
+        <span class="mon-n">Gordon Brown</span><span class="mon-y">2007</span>
+        <span class="mon-k">Followed Blair</span>
+      </div>
+      <div class="mon" style="--era:var(--era6)">
+        <span class="mon-n">David Cameron</span><span class="mon-y">2010</span>
+        <span class="mon-k">No overall majority — the first since February 1974; Conservative–Liberal Democrat coalition</span>
+      </div>
+
+      <p class="note">Two blanks are deliberate. <b>Charles I</b> and <b>Anne</b> show the year they left the throne because the chapter never gives the year they took it — and this page does not invent dates the chapter does not state.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 4 · THE NUMBERS ═══════════════ -->
+  <section id="numbers" data-ch="3">
+    <div class="sec-head">
+      <div class="n">Four</div>
+      <h2>The Numbers</h2>
+      <p>Every "how many" the chapter actually states. If a number isn't here, the chapter doesn't give it.</p>
+    </div>
+
+    <div class="nums">
+      <div class="num" style="--era:var(--era1)"><b>400</b><span>years the Romans stayed</span></div>
+      <div class="num" style="--era:var(--era2)"><b>⅓</b><span>of England killed by the Black Death, 1348</span></div>
+      <div class="num" style="--era:var(--era2)"><b>116</b><span>years the "Hundred Years" War really lasted</span></div>
+      <div class="num" style="--era:var(--era3)"><b>6</b><span>wives of Henry VIII — 2 divorced, 2 beheaded, 1 died, 1 survived</span></div>
+      <div class="num" style="--era:var(--era3)"><b>15</b><span>the age Edward VI died, after about six years as king</span></div>
+      <div class="num" style="--era:var(--era3)"><b>20</b><span>years Elizabeth I imprisoned Mary, Queen of Scots</span></div>
+      <div class="num" style="--era:var(--era3)"><b>11</b><span>years Charles I ruled without Parliament</span></div>
+      <div class="num" style="--era:var(--era3)"><b>5</b><span>MPs Charles I marched in to arrest — no monarch has entered the Commons since</span></div>
+      <div class="num" style="--era:var(--era4)"><b>13</b><span>American colonies that declared independence, 1776</span></div>
+      <div class="num" style="--era:var(--era4)"><b>18</b><span>Victoria's age when she became queen</span></div>
+      <div class="num" style="--era:var(--era4)"><b>64</b><span>years Victoria reigned, almost</span></div>
+      <div class="num" style="--era:var(--era4)"><b>400m</b><span>people in the Empire — the largest ever</span></div>
+      <div class="num" style="--era:var(--era4)"><b>10</b><span>hours: the 1847 limit on factory work for women and children</span></div>
+      <div class="num" style="--era:var(--era4)"><b>1m</b><span>died in the Irish famine; 1.5m emigrated</span></div>
+      <div class="num" style="--era:var(--era4)"><b>13m</b><span>Britons who emigrated, 1853–1913</span></div>
+      <div class="num" style="--era:var(--era5)"><b>60,000</b><span>British casualties on day one of the Somme</span></div>
+      <div class="num" style="--era:var(--era5)"><b>2m</b><span>British casualties in the whole of WWI</span></div>
+      <div class="num" style="--era:var(--era5)"><b>1m+</b><span>Indians who served in WWI — about 40,000 killed</span></div>
+      <div class="num" style="--era:var(--era5)"><b>300,000+</b><span>men rescued from Dunkirk, 1940</span></div>
+      <div class="num" style="--era:var(--era5)"><b>6</b><span>counties that stayed in the UK as Northern Ireland, 1922</span></div>
+      <div class="num" style="--era:var(--era6)"><b>9</b><span>countries independent in 1947 — India, Pakistan and Ceylon among them</span></div>
+      <div class="num" style="--era:var(--era6)"><b>5</b><span>Giant Evils: Want, Disease, Ignorance, Squalor, Idleness</span></div>
+      <div class="num" style="--era:var(--era6)"><b>6</b><span>EEC founders in 1957 — none of them the UK</span></div>
+      <div class="num" style="--era:var(--era6)"><b>3,000</b><span>roughly, killed in the Northern Ireland Troubles after 1969</span></div>
+      <div class="num" style="--era:var(--era6)"><b>28,000</b><span>people of Indian origin admitted from Uganda, early 1970s</span></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Chapter 3 only, for now — the exam samples all five. Everything above is collated from <a href="life-in-uk-chapter3.html">the Chapter 3 notes</a>; nothing was rewritten and nothing was added.</p>
+    <p>Still got time? <a href="life-in-uk-chapter3-story.html">The Island Story</a> · <a href="life-in-uk-mock-tests.html#drill">Daily drill</a></p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  /* ---- theme, shared with every other page ---- */
+  var root = document.documentElement, btn = document.getElementById("themeToggle");
+  function label() { btn.textContent = root.dataset.theme === "light" ? "☾ Dark" : "☀︎ Light"; }
+  btn.addEventListener("click", function () { LitUK.toggleTheme(); label(); });
+  document.addEventListener("lituk:theme", label);
+  label();
+
+  /* ---- era filter: dims, never hides, so the year order survives ---- */
+  var rail = document.getElementById("rail");
+  var note = document.getElementById("railnote");
+  var chips = [].slice.call(document.querySelectorAll("#eraChips .chip"));
+  var rows = [].slice.call(rail.getElementsByClassName("ev"));
+  var active = "";
+
+  function apply(era) {
+    active = era;
+    var shown = 0;
+    rail.classList.toggle("filtered", !!era);
+    rows.forEach(function (r) {
+      var on = !era || r.getAttribute("data-era") === era;
+      r.classList.toggle("on", on);
+      if (on) shown++;
+    });
+    chips.forEach(function (c) {
+      var sel = c.getAttribute("data-era") === era;
+      c.classList.toggle("sel", sel);
+      c.setAttribute("aria-pressed", sel ? "true" : "false");
+    });
+    note.textContent = era
+      ? shown + " of " + rows.length + " events — tap the chip again for all of them"
+      : rows.length + " events, oldest first. Tap an era to pull it out of the line.";
+  }
+
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      var era = c.getAttribute("data-era");
+      apply(era === active ? "" : era);
+    });
+  });
+  apply("");
+
+  /* ---- which section am I in ---- */
+  var links = [].slice.call(document.querySelectorAll("#jump a"));
+  var seen = {};
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { seen[e.target.id] = e.isIntersecting; });
+      var cur = null;
+      links.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        if (!cur && seen[id]) cur = id;
+      });
+      links.forEach(function (a) { a.classList.toggle("cur", a.getAttribute("href") === "#" + cur); });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    links.forEach(function (a) {
+      var el = document.getElementById(a.getAttribute("href").slice(1));
+      if (el) io.observe(el);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
