@@ -497,7 +497,14 @@
     if (!("serviceWorker" in navigator)) return;
     if (location.protocol === "file:") return;   // no SW without http(s)
     addEventListener("load", function () {
-      navigator.serviceWorker.register(new URL("sw.js", location.href)).catch(function () {});
+      navigator.serviceWorker.register(new URL("sw.js", location.href)).then(function (reg) {
+        /* A new build only reaches a returning reader when the browser re-checks
+           the worker, and it throttles that check hard — so a shipped change can
+           sit behind the old cached shell for a day. Asking outright lands it on
+           this visit instead. The worker already calls skipWaiting/clients.claim,
+           so the next page they open runs the new code. */
+        if (reg && reg.update) reg.update().catch(function () {});
+      }).catch(function () {});
     });
   }
 
