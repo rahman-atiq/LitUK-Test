@@ -226,18 +226,59 @@
   /* ---------- 2 · the cast ----------
      .people / .person / .p-name / .p-life / .p-note are the chapter page's own
      classes, so a card reads identically here, on the Chapter 3 notes and on
-     the Chapter 4 sheet. */
+     the Chapter 4 sheet. Here and on the Chapter 4 sheet each card is a
+     button, because the fact under the name waits until you ask for it. */
   .people { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-top:14px; }
-  .person { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
-  .p-name { font-family:var(--serif); font-size:1.12rem; margin:0; }
-  .p-life { font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
-  .p-note { font-size:.85rem; color:var(--ink-2); margin:0; }
+  .person {
+    display:block; width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; box-shadow:var(--shadow);
+    transition:border-color .14s ease, transform .1s ease;
+  }
+  .person:hover { border-color:color-mix(in srgb, var(--era) 55%, var(--line)); }
+  .person:active { transform:scale(.98); }
+  .person:focus-visible { outline:2px solid var(--era); outline-offset:2px; }
+  .p-name { display:block; font-family:var(--serif); font-size:1.12rem; margin:0; }
+  .p-life { display:block; font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
+  .p-note { display:block; font-size:.85rem; color:var(--ink-2); margin:0; }
   .p-note b { color:var(--ink); }
+
+  /* ---- hide / reveal ----
+     .quiz is added by the script, so a page whose JavaScript never arrives
+     shows every fact rather than none of them. The name is the whole prompt —
+     the life line hides too, because "AD 43 · invasion" hands you half the
+     answer before you have tried to remember it. A hidden card shrinks to a
+     name tile rather than holding the fact's space open; the min-height keeps
+     the tiles an even grid, the way the story page's date stones sit. */
+  .cast.quiz .person:not(.on) { min-height:92px; }
+  .cast.quiz .person:not(.on) .p-life,
+  .cast.quiz .person:not(.on) .p-note { display:none; }
+  .cast.quiz .person:not(.on)::after {
+    content:"tap to reveal"; display:block; margin-top:7px;
+    font-size:.68rem; letter-spacing:.06em; color:var(--ink-3);
+  }
+  .cast.quiz .person.on { border-color:color-mix(in srgb, var(--era) 45%, var(--line)); }
+
+  /* The two blunt instruments, and a tally of where you are. */
+  .casttools { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 0; }
+  .casttools button {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  .casttools button:hover { border-color:color-mix(in srgb, var(--gold) 50%, var(--line)); }
+  .casttools button:active { transform:scale(.97); }
+  .casttools .tally {
+    margin-left:auto; font-size:.76rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
 
   .dgroup { transition:opacity .16s ease; }
   .cast.filtered .dgroup { opacity:.14; }
   .cast.filtered .dgroup.on { opacity:1; }
-  @media (prefers-reduced-motion:reduce) { .dgroup { transition:none; } }
+  @media (prefers-reduced-motion:reduce) { .dgroup, .person { transition:none; } }
 
   .dom {
     display:flex; align-items:center; gap:9px; margin:32px 0 0;
@@ -518,7 +559,7 @@
     <div class="sec-head">
       <div class="n">Two</div>
       <h2>The Cast</h2>
-      <p>Every person the chapter names, grouped by era — plus the inventors, who are the chapter's own seventh block and belong to no era. <b>Each name is welded to one fact.</b> Learn the weld, ignore the biography.</p>
+      <p>Every person the chapter names, grouped by era — plus the inventors, who are the chapter's own seventh block and belong to no era. <b>Each name is welded to one fact</b>, and each card keeps that fact hidden: read the name, say the fact out loud, then tap to check. Learn the weld, ignore the biography.</p>
     </div>
 
     <div class="chips" id="castChips" role="group" aria-label="Filter the cast by era">
@@ -533,23 +574,29 @@
     </div>
     <p class="railnote" id="castnote" aria-live="polite"></p>
 
+    <div class="casttools" id="castTools" hidden>
+      <button id="castAll" type="button">Reveal all</button>
+      <button id="castNone" type="button">Hide all</button>
+      <span class="tally" id="castTally"></span>
+    </div>
+
     <div class="cast" id="cast-list">
 
       <!-- ---------- 1 · early britain ---------- -->
       <div class="dgroup" data-dom="1" style="--era:var(--era1)">
         <div class="dom" id="cast-1"><span class="dot"></span><b>Early Britain</b><span class="ct">· 11</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Julius Caesar</p><p class="p-life">55 BC · invasion</p><p class="p-note">Invaded and <b>failed</b>. Britain stayed outside the Empire for nearly <b>100 more years</b>.</p></div>
-          <div class="person"><p class="p-name">Emperor Claudius</p><p class="p-life">AD 43 · invasion</p><p class="p-note">Invaded and <b>succeeded</b>. The Romans then stayed <b>400 years</b>.</p></div>
-          <div class="person"><p class="p-name">Boudicca</p><p class="p-life">Roman Britain · rebellion</p><p class="p-note">Queen of the <b>Iceni</b> in eastern England; fought back against the Romans. Her statue stands on <b>Westminster Bridge</b>.</p></div>
-          <div class="person"><p class="p-name">St Patrick</p><p class="p-life">· missionary</p><p class="p-note"><b>Patron saint of Ireland</b>.</p></div>
-          <div class="person"><p class="p-name">St Columba</p><p class="p-life">· missionary</p><p class="p-note">Founded the monastery on <b>Iona</b>, Scotland.</p></div>
-          <div class="person"><p class="p-name">St Augustine</p><p class="p-life">· missionary</p><p class="p-note">Led missionaries in the <b>south of England</b>; the <b>first Archbishop of Canterbury</b>.</p></div>
-          <div class="person"><p class="p-name">King Alfred the Great</p><p class="p-life">Viking age · Wessex</p><p class="p-note"><b>United the Anglo-Saxon kingdoms</b> and <b>defeated the Vikings</b>.</p></div>
-          <div class="person"><p class="p-name">Cnut (Canute)</p><p class="p-life">Viking age · Denmark</p><p class="p-note">The <b>first Danish king of England</b>.</p></div>
-          <div class="person"><p class="p-name">Kenneth MacAlpin</p><p class="p-life">Viking age · Scotland</p><p class="p-note">The Viking threat pushed the north to unite under him — the name <b>Scotland</b> came into use.</p></div>
-          <div class="person"><p class="p-name">William the Conqueror</p><p class="p-life">1066 · Normandy</p><p class="p-note"><b>William, Duke of Normandy</b>; won at <b>Hastings</b> — the <b>last successful foreign invasion of England</b>. Ordered the <b>Domesday Book</b>, which still exists.</p></div>
-          <div class="person"><p class="p-name">King Harold</p><p class="p-life">1066 · England</p><p class="p-note"><b>Killed at the Battle of Hastings</b>. The battle is commemorated in the <b>Bayeux Tapestry</b>, still in France.</p></div>
+          <button class="person" type="button"><span class="p-name">Julius Caesar</span><span class="p-life">55 BC · invasion</span><span class="p-note">Invaded and <b>failed</b>. Britain stayed outside the Empire for nearly <b>100 more years</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Emperor Claudius</span><span class="p-life">AD 43 · invasion</span><span class="p-note">Invaded and <b>succeeded</b>. The Romans then stayed <b>400 years</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Boudicca</span><span class="p-life">Roman Britain · rebellion</span><span class="p-note">Queen of the <b>Iceni</b> in eastern England; fought back against the Romans. Her statue stands on <b>Westminster Bridge</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">St Patrick</span><span class="p-life">· missionary</span><span class="p-note"><b>Patron saint of Ireland</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">St Columba</span><span class="p-life">· missionary</span><span class="p-note">Founded the monastery on <b>Iona</b>, Scotland.</span></button>
+          <button class="person" type="button"><span class="p-name">St Augustine</span><span class="p-life">· missionary</span><span class="p-note">Led missionaries in the <b>south of England</b>; the <b>first Archbishop of Canterbury</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">King Alfred the Great</span><span class="p-life">Viking age · Wessex</span><span class="p-note"><b>United the Anglo-Saxon kingdoms</b> and <b>defeated the Vikings</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Cnut (Canute)</span><span class="p-life">Viking age · Denmark</span><span class="p-note">The <b>first Danish king of England</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Kenneth MacAlpin</span><span class="p-life">Viking age · Scotland</span><span class="p-note">The Viking threat pushed the north to unite under him — the name <b>Scotland</b> came into use.</span></button>
+          <button class="person" type="button"><span class="p-name">William the Conqueror</span><span class="p-life">1066 · Normandy</span><span class="p-note"><b>William, Duke of Normandy</b>; won at <b>Hastings</b> — the <b>last successful foreign invasion of England</b>. Ordered the <b>Domesday Book</b>, which still exists.</span></button>
+          <button class="person" type="button"><span class="p-name">King Harold</span><span class="p-life">1066 · England</span><span class="p-note"><b>Killed at the Battle of Hastings</b>. The battle is commemorated in the <b>Bayeux Tapestry</b>, still in France.</span></button>
         </div>
         <p class="dom-note">The three saints run <b>north to south</b> — Patrick to Ireland, Columba to Scotland, Augustine to England. Hadrian's Wall, Sutton Hoo and Stonehenge are places, not people; the chapter names no one else this far back.</p>
       </div>
@@ -558,15 +605,15 @@
       <div class="dgroup" data-dom="2" style="--era:var(--era2)">
         <div class="dom" id="cast-2"><span class="dot"></span><b>The Middle Ages</b><span class="ct">· 9</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">King John</p><p class="p-life">1215 · England</p><p class="p-note">Noblemen forced him to agree to <b>Magna Carta</b> — <b>even the king is subject to the law</b>.</p></div>
-          <div class="person"><p class="p-name">King Edward I</p><p class="p-life">1284 · England</p><p class="p-note">The <b>Statute of Rhuddlan</b> annexed <b>Wales</b> to the English Crown; castles at <b>Conwy</b> and <b>Caernarvon</b>.</p></div>
-          <div class="person"><p class="p-name">Robert the Bruce</p><p class="p-life">1314 · Scotland</p><p class="p-note">Beat the English at <b>Bannockburn</b> — <b>Scotland remained unconquered</b>.</p></div>
-          <div class="person"><p class="p-name">King Henry V</p><p class="p-life">1415 · England</p><p class="p-note">His <b>vastly outnumbered</b> army beat the French at <b>Agincourt</b>.</p></div>
-          <div class="person"><p class="p-name">King Richard III</p><p class="p-life">1485 · House of York</p><p class="p-note"><b>Killed at Bosworth Field</b> — the battle that ended the Wars of the Roses.</p></div>
-          <div class="person"><p class="p-name">Henry Tudor</p><p class="p-life">1485 · House of Lancaster</p><p class="p-note">Won Bosworth and became <b>King Henry VII</b>. Married <b>Elizabeth of York</b>, Richard's niece — hence the Tudor <b>red rose with a white rose inside</b>.</p></div>
-          <div class="person"><p class="p-name">Geoffrey Chaucer</p><p class="p-life">· poetry</p><p class="p-note"><b><i>The Canterbury Tales</i></b> — among the first books printed in England.</p></div>
-          <div class="person"><p class="p-name">William Caxton</p><p class="p-life">· printing</p><p class="p-note">The <b>first person to print books in England</b>.</p></div>
-          <div class="person"><p class="p-name">John Barbour</p><p class="p-life">· Scots language</p><p class="p-note">Wrote <b><i>The Bruce</i></b>, about Bannockburn, as the <b>Scots</b> language developed.</p></div>
+          <button class="person" type="button"><span class="p-name">King John</span><span class="p-life">1215 · England</span><span class="p-note">Noblemen forced him to agree to <b>Magna Carta</b> — <b>even the king is subject to the law</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">King Edward I</span><span class="p-life">1284 · England</span><span class="p-note">The <b>Statute of Rhuddlan</b> annexed <b>Wales</b> to the English Crown; castles at <b>Conwy</b> and <b>Caernarvon</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Robert the Bruce</span><span class="p-life">1314 · Scotland</span><span class="p-note">Beat the English at <b>Bannockburn</b> — <b>Scotland remained unconquered</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">King Henry V</span><span class="p-life">1415 · England</span><span class="p-note">His <b>vastly outnumbered</b> army beat the French at <b>Agincourt</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">King Richard III</span><span class="p-life">1485 · House of York</span><span class="p-note"><b>Killed at Bosworth Field</b> — the battle that ended the Wars of the Roses.</span></button>
+          <button class="person" type="button"><span class="p-name">Henry Tudor</span><span class="p-life">1485 · House of Lancaster</span><span class="p-note">Won Bosworth and became <b>King Henry VII</b>. Married <b>Elizabeth of York</b>, Richard's niece — hence the Tudor <b>red rose with a white rose inside</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Geoffrey Chaucer</span><span class="p-life">· poetry</span><span class="p-note"><b><i>The Canterbury Tales</i></b> — among the first books printed in England.</span></button>
+          <button class="person" type="button"><span class="p-name">William Caxton</span><span class="p-life">· printing</span><span class="p-note">The <b>first person to print books in England</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">John Barbour</span><span class="p-life">· Scots language</span><span class="p-note">Wrote <b><i>The Bruce</i></b>, about Bannockburn, as the <b>Scots</b> language developed.</span></button>
         </div>
       </div>
 
@@ -574,25 +621,25 @@
       <div class="dgroup" data-dom="3" style="--era:var(--era3)">
         <div class="dom" id="cast-3"><span class="dot"></span><b>The Tudors &amp; the Stuarts</b><span class="ct">· 19</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Henry VIII</p><p class="p-life">1509 · House of Tudor</p><p class="p-note">The Pope refused his divorce, so he created the <b>Church of England</b> — the <b>king, not the Pope, appoints bishops</b>. Took the title <b>King of Ireland</b>. Six wives.</p></div>
-          <div class="person"><p class="p-name">The six wives, in order</p><p class="p-life">· divorced, beheaded, died…</p><p class="p-note"><b>Catherine of Aragon</b> (divorced) · <b>Anne Boleyn</b> (beheaded) · <b>Jane Seymour</b> (died) · <b>Anne of Cleves</b> (divorced) · <b>Catherine Howard</b> (beheaded) · <b>Catherine Parr</b> (survived). The two beheaded wives were <b>cousins</b>.</p></div>
-          <div class="person"><p class="p-name">Edward VI</p><p class="p-life">1547 · Protestant</p><p class="p-note">Strongly Protestant; the <b>Book of Common Prayer</b> was written in his reign; died aged <b>15</b>.</p></div>
-          <div class="person"><p class="p-name">Mary I</p><p class="p-life">1553 · Catholic</p><p class="p-note">Devout Catholic who <b>persecuted Protestants</b> — <b>“Bloody Mary”</b>; died after a short reign.</p></div>
-          <div class="person"><p class="p-name">Elizabeth I</p><p class="p-life">1558–1603 · Protestant</p><p class="p-note">Daughter of Henry VIII and <b>Anne Boleyn</b>; <b>re-established the Church of England</b> and balanced both sides; beat the <b>Armada in 1588</b>; died childless.</p></div>
-          <div class="person"><p class="p-name">Mary, Queen of Scots</p><p class="p-life">· Scotland</p><p class="p-note">Catholic queen of Scotland at <b>one week old</b>, raised in France; fled to England leaving her son <b>James VI</b>. Elizabeth <b>imprisoned her 20 years, then executed her</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Francis Drake</p><p class="p-life">Elizabethan · exploration</p><p class="p-note">His ship the <b>Golden Hind</b> was among the first to <b>sail right around the world</b>.</p></div>
-          <div class="person"><p class="p-name">William Shakespeare</p><p class="p-life">1564–1616 · playwright</p><p class="p-note">Born <b>Stratford-upon-Avon</b>. <i>Hamlet</i>, <i>Macbeth</i>, <i>Romeo &amp; Juliet</i>, <i>A Midsummer Night's Dream</i>. First to portray <b>ordinary Englishmen and women</b>; <b>invented many English words</b>. The <b>Globe</b> is a modern copy of his theatre.</p></div>
-          <div class="person"><p class="p-name">James VI &amp; I</p><p class="p-life">1603 · union of crowns</p><p class="p-note"><b>James VI of Scotland became James I of England</b> — one king, two crowns, and Scotland stayed a <b>separate country</b>. The <b>King James Bible</b>.</p></div>
-          <div class="person"><p class="p-name">Charles I</p><p class="p-life">to 1649 · executed</p><p class="p-note"><b>Divine Right of Kings</b>; ruled <b>11 years without Parliament</b>; marched in to arrest <b>five MPs</b> — <b>no monarch has entered the Commons since</b>. Executed 1649.</p></div>
-          <div class="person"><p class="p-name">Oliver Cromwell</p><p class="p-life">1653–58 · Lord Protector</p><p class="p-note">Parliamentary general; <b>Dunbar</b> and <b>Worcester</b> made him leader of the republic. <b>Lord Protector, not king</b>; <b>brutal in Ireland</b> and still controversial there.</p></div>
-          <div class="person"><p class="p-name">Richard Cromwell</p><p class="p-life">1658 · Lord Protector</p><p class="p-note">Succeeded his father and <b>could not hold it together</b>.</p></div>
-          <div class="person"><p class="p-name">Charles II</p><p class="p-life">1660 · Restoration</p><p class="p-note">Invited back <b>from the Netherlands</b>; had hidden <b>in an oak tree</b> after Worcester. Plague, Fire, <b>Habeas Corpus</b> and the <b>Royal Society</b> are all his reign.</p></div>
-          <div class="person"><p class="p-name">Sir Christopher Wren</p><p class="p-life">1666 · architecture</p><p class="p-note">Rebuilt <b>St Paul's Cathedral</b> after the Great Fire destroyed it.</p></div>
-          <div class="person"><p class="p-name">Samuel Pepys</p><p class="p-life">1665–66 · diarist</p><p class="p-note"><b>Diarised</b> the plague and the Great Fire of London.</p></div>
-          <div class="person"><p class="p-name">Isaac Newton</p><p class="p-life">1643–1727 · science</p><p class="p-note">Born in <b>Lincolnshire</b>. <b><i>Principia Mathematica</i></b> showed <b>gravity</b> applies to the whole universe; discovered that <b>white light is made of the colours of the rainbow</b>. Early Royal Society member.</p></div>
-          <div class="person"><p class="p-name">Edmund Halley</p><p class="p-life">· science</p><p class="p-note">An early member of the <b>Royal Society</b> — the <b>oldest surviving scientific society in the world</b>.</p></div>
-          <div class="person"><p class="p-name">James II</p><p class="p-life">1685 · Catholic king</p><p class="p-note"><b>VII of Scotland</b>; favoured Catholics and ignored Parliament; beaten at the <b>Boyne in 1690</b> and fled to France. His supporters were the <b>Jacobites</b>.</p></div>
-          <div class="person"><p class="p-name">William of Orange &amp; Mary</p><p class="p-life">1688 · Glorious Revolution</p><p class="p-note">Invited to invade by Protestants — <b>no resistance, no fighting in England</b>, hence “Glorious”. It <b>guaranteed the power of Parliament</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Henry VIII</span><span class="p-life">1509 · House of Tudor</span><span class="p-note">The Pope refused his divorce, so he created the <b>Church of England</b> — the <b>king, not the Pope, appoints bishops</b>. Took the title <b>King of Ireland</b>. Six wives.</span></button>
+          <button class="person" type="button"><span class="p-name">The six wives, in order</span><span class="p-life">· divorced, beheaded, died…</span><span class="p-note"><b>Catherine of Aragon</b> (divorced) · <b>Anne Boleyn</b> (beheaded) · <b>Jane Seymour</b> (died) · <b>Anne of Cleves</b> (divorced) · <b>Catherine Howard</b> (beheaded) · <b>Catherine Parr</b> (survived). The two beheaded wives were <b>cousins</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Edward VI</span><span class="p-life">1547 · Protestant</span><span class="p-note">Strongly Protestant; the <b>Book of Common Prayer</b> was written in his reign; died aged <b>15</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Mary I</span><span class="p-life">1553 · Catholic</span><span class="p-note">Devout Catholic who <b>persecuted Protestants</b> — <b>“Bloody Mary”</b>; died after a short reign.</span></button>
+          <button class="person" type="button"><span class="p-name">Elizabeth I</span><span class="p-life">1558–1603 · Protestant</span><span class="p-note">Daughter of Henry VIII and <b>Anne Boleyn</b>; <b>re-established the Church of England</b> and balanced both sides; beat the <b>Armada in 1588</b>; died childless.</span></button>
+          <button class="person" type="button"><span class="p-name">Mary, Queen of Scots</span><span class="p-life">· Scotland</span><span class="p-note">Catholic queen of Scotland at <b>one week old</b>, raised in France; fled to England leaving her son <b>James VI</b>. Elizabeth <b>imprisoned her 20 years, then executed her</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Francis Drake</span><span class="p-life">Elizabethan · exploration</span><span class="p-note">His ship the <b>Golden Hind</b> was among the first to <b>sail right around the world</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">William Shakespeare</span><span class="p-life">1564–1616 · playwright</span><span class="p-note">Born <b>Stratford-upon-Avon</b>. <i>Hamlet</i>, <i>Macbeth</i>, <i>Romeo &amp; Juliet</i>, <i>A Midsummer Night's Dream</i>. First to portray <b>ordinary Englishmen and women</b>; <b>invented many English words</b>. The <b>Globe</b> is a modern copy of his theatre.</span></button>
+          <button class="person" type="button"><span class="p-name">James VI &amp; I</span><span class="p-life">1603 · union of crowns</span><span class="p-note"><b>James VI of Scotland became James I of England</b> — one king, two crowns, and Scotland stayed a <b>separate country</b>. The <b>King James Bible</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Charles I</span><span class="p-life">to 1649 · executed</span><span class="p-note"><b>Divine Right of Kings</b>; ruled <b>11 years without Parliament</b>; marched in to arrest <b>five MPs</b> — <b>no monarch has entered the Commons since</b>. Executed 1649.</span></button>
+          <button class="person" type="button"><span class="p-name">Oliver Cromwell</span><span class="p-life">1653–58 · Lord Protector</span><span class="p-note">Parliamentary general; <b>Dunbar</b> and <b>Worcester</b> made him leader of the republic. <b>Lord Protector, not king</b>; <b>brutal in Ireland</b> and still controversial there.</span></button>
+          <button class="person" type="button"><span class="p-name">Richard Cromwell</span><span class="p-life">1658 · Lord Protector</span><span class="p-note">Succeeded his father and <b>could not hold it together</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Charles II</span><span class="p-life">1660 · Restoration</span><span class="p-note">Invited back <b>from the Netherlands</b>; had hidden <b>in an oak tree</b> after Worcester. Plague, Fire, <b>Habeas Corpus</b> and the <b>Royal Society</b> are all his reign.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Christopher Wren</span><span class="p-life">1666 · architecture</span><span class="p-note">Rebuilt <b>St Paul's Cathedral</b> after the Great Fire destroyed it.</span></button>
+          <button class="person" type="button"><span class="p-name">Samuel Pepys</span><span class="p-life">1665–66 · diarist</span><span class="p-note"><b>Diarised</b> the plague and the Great Fire of London.</span></button>
+          <button class="person" type="button"><span class="p-name">Isaac Newton</span><span class="p-life">1643–1727 · science</span><span class="p-note">Born in <b>Lincolnshire</b>. <b><i>Principia Mathematica</i></b> showed <b>gravity</b> applies to the whole universe; discovered that <b>white light is made of the colours of the rainbow</b>. Early Royal Society member.</span></button>
+          <button class="person" type="button"><span class="p-name">Edmund Halley</span><span class="p-life">· science</span><span class="p-note">An early member of the <b>Royal Society</b> — the <b>oldest surviving scientific society in the world</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">James II</span><span class="p-life">1685 · Catholic king</span><span class="p-note"><b>VII of Scotland</b>; favoured Catholics and ignored Parliament; beaten at the <b>Boyne in 1690</b> and fled to France. His supporters were the <b>Jacobites</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">William of Orange &amp; Mary</span><span class="p-life">1688 · Glorious Revolution</span><span class="p-note">Invited to invade by Protestants — <b>no resistance, no fighting in England</b>, hence “Glorious”. It <b>guaranteed the power of Parliament</b>.</span></button>
         </div>
         <p class="dom-note">Same man, two numbers: <b>James VI of Scotland = James I of England</b>, and <b>William III of England = William II of Scotland</b>.</p>
       </div>
@@ -601,27 +648,27 @@
       <div class="dgroup" data-dom="4" style="--era:var(--era4)">
         <div class="dom" id="cast-4"><span class="dot"></span><b>A Global Power</b><span class="ct">· 21</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Queen Anne</p><p class="p-life">to 1714 · Stuart</p><p class="p-note">Had <b>no surviving children</b>. The <b>1707 Act (Treaty) of Union</b> created the <b>Kingdom of Great Britain</b>; Scotland kept its own <b>legal system, education system and Presbyterian Church</b>.</p></div>
-          <div class="person"><p class="p-name">George I</p><p class="p-life">1714 · House of Hanover</p><p class="p-note">German Protestant <b>chosen by Parliament</b>; his <b>poor English</b> made him lean on his ministers.</p></div>
-          <div class="person"><p class="p-name">Sir Robert Walpole</p><p class="p-life">1721–1742 · politics</p><p class="p-note">The <b>first Prime Minister</b>.</p></div>
-          <div class="person"><p class="p-name">Bonnie Prince Charlie</p><p class="p-life">1745–46 · Jacobite</p><p class="p-note"><b>Charles Edward Stuart</b>, James II's grandson; rose with the Highland clans and was <b>crushed at Culloden in 1746</b>. The <b>Highland Clearances</b> followed.</p></div>
-          <div class="person"><p class="p-name">Adam Smith</p><p class="p-life">18th c. · Enlightenment</p><p class="p-note"><b>Economics</b> — one of the many great Enlightenment thinkers who were <b>Scottish</b>.</p></div>
-          <div class="person"><p class="p-name">David Hume</p><p class="p-life">18th c. · Enlightenment</p><p class="p-note"><b>Human nature and philosophy</b>.</p></div>
-          <div class="person"><p class="p-name">James Watt</p><p class="p-life">18th c. · Enlightenment</p><p class="p-note"><b>Steam power</b> — the engine of the Industrial Revolution.</p></div>
-          <div class="person"><p class="p-name">Richard Arkwright</p><p class="p-life">1732–1792 · industry</p><p class="p-note">Barber turned industrialist; improved the <b>carding machine</b> and ran water- then steam-powered <b>spinning mills</b> — remembered for <b>efficient, profitable factories</b>.</p></div>
-          <div class="person"><p class="p-name">Captain James Cook</p><p class="p-life">· exploration</p><p class="p-note"><b>Mapped Australia</b> as the colonies grew.</p></div>
-          <div class="person"><p class="p-name">William Wilberforce</p><p class="p-life">1807 · abolition</p><p class="p-note">Evangelical Christian MP who <b>led the change in the law</b> against the slave trade; the <b>Quakers</b> had formed the first anti-slavery groups.</p></div>
-          <div class="person"><p class="p-name">Admiral Nelson</p><p class="p-life">1805 · Trafalgar</p><p class="p-note">Destroyed the French–Spanish fleet at <b>Trafalgar</b> and <b>died in the battle</b>. His ship <b>HMS Victory</b> is at Portsmouth; <b>Nelson's Column</b> stands in Trafalgar Square.</p></div>
-          <div class="person"><p class="p-name">The Duke of Wellington</p><p class="p-life">1815 · Waterloo</p><p class="p-note"><b>“The Iron Duke”</b>; beat <b>Napoleon at Waterloo</b>, and later became <b>Prime Minister</b>.</p></div>
-          <div class="person"><p class="p-name">Robert Burns</p><p class="p-life">1759–1796 · poetry</p><p class="p-note"><b>“The Bard”</b> — Scottish poet writing in Scots and English. <b><i>Auld Lang Syne</i></b>, sung at New Year (<b>Hogmanay</b> in Scotland).</p></div>
-          <div class="person"><p class="p-name">Sake Dean Mahomet</p><p class="p-life">1759–1851 · migration</p><p class="p-note">Born in <b>Bengal</b>; came to Britain in 1782. Opened the <b>Hindoostane Coffee House</b> in <b>1810</b> — <b>Britain's first curry house</b> — and introduced <b>“shampooing”</b>.</p></div>
-          <div class="person"><p class="p-name">Isambard Kingdom Brunel</p><p class="p-life">1806–1859 · engineering</p><p class="p-note">From <b>Portsmouth</b>; tunnels, bridges, ships and the <b>Great Western Railway</b>. Many of his bridges are <b>still in use</b>.</p></div>
-          <div class="person"><p class="p-name">George &amp; Robert Stephenson</p><p class="p-life">Victorian · railways</p><p class="p-note"><b>Pioneered the railways</b>, which then spread across the Empire.</p></div>
-          <div class="person"><p class="p-name">Queen Victoria</p><p class="p-life">1837–1901 · Hanover</p><p class="p-note">Queen at <b>18</b>; reigned almost <b>64 years</b>; the Empire reached its largest — over <b>400 million people</b>. Introduced the <b>Victoria Cross</b>.</p></div>
-          <div class="person"><p class="p-name">Florence Nightingale</p><p class="p-life">1820–1910 · nursing</p><p class="p-note">Born in <b>Italy</b> to English parents; nursed soldiers in the <b>Crimean War</b>; founded the <b>Nightingale Training School</b> in 1860 — the <b>founder of modern nursing</b>.</p></div>
-          <div class="person"><p class="p-name">Charles Stuart Parnell</p><p class="p-life">Victorian · Ireland</p><p class="p-note">Championed <b>Home Rule</b> — an Irish parliament within the UK. The <b>Fenians</b> wanted <b>complete independence</b>.</p></div>
-          <div class="person"><p class="p-name">Emmeline Pankhurst</p><p class="p-life">1858–1928 · suffrage</p><p class="p-note">Born in <b>Manchester</b>. <b>Women's Franchise League</b> (1889) and the <b>WSPU</b> (1903) — the first <b>suffragettes</b>. Died weeks before women got the vote at 21.</p></div>
-          <div class="person"><p class="p-name">Rudyard Kipling</p><p class="p-life">1865–1936 · writing</p><p class="p-note">Born in <b>India</b>; <b>Nobel Prize in Literature, 1907</b>. <i>The Jungle Book</i>, <i>Just So Stories</i> and the poem <b><i>“If”</i></b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Queen Anne</span><span class="p-life">to 1714 · Stuart</span><span class="p-note">Had <b>no surviving children</b>. The <b>1707 Act (Treaty) of Union</b> created the <b>Kingdom of Great Britain</b>; Scotland kept its own <b>legal system, education system and Presbyterian Church</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">George I</span><span class="p-life">1714 · House of Hanover</span><span class="p-note">German Protestant <b>chosen by Parliament</b>; his <b>poor English</b> made him lean on his ministers.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Robert Walpole</span><span class="p-life">1721–1742 · politics</span><span class="p-note">The <b>first Prime Minister</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Bonnie Prince Charlie</span><span class="p-life">1745–46 · Jacobite</span><span class="p-note"><b>Charles Edward Stuart</b>, James II's grandson; rose with the Highland clans and was <b>crushed at Culloden in 1746</b>. The <b>Highland Clearances</b> followed.</span></button>
+          <button class="person" type="button"><span class="p-name">Adam Smith</span><span class="p-life">18th c. · Enlightenment</span><span class="p-note"><b>Economics</b> — one of the many great Enlightenment thinkers who were <b>Scottish</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">David Hume</span><span class="p-life">18th c. · Enlightenment</span><span class="p-note"><b>Human nature and philosophy</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">James Watt</span><span class="p-life">18th c. · Enlightenment</span><span class="p-note"><b>Steam power</b> — the engine of the Industrial Revolution.</span></button>
+          <button class="person" type="button"><span class="p-name">Richard Arkwright</span><span class="p-life">1732–1792 · industry</span><span class="p-note">Barber turned industrialist; improved the <b>carding machine</b> and ran water- then steam-powered <b>spinning mills</b> — remembered for <b>efficient, profitable factories</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Captain James Cook</span><span class="p-life">· exploration</span><span class="p-note"><b>Mapped Australia</b> as the colonies grew.</span></button>
+          <button class="person" type="button"><span class="p-name">William Wilberforce</span><span class="p-life">1807 · abolition</span><span class="p-note">Evangelical Christian MP who <b>led the change in the law</b> against the slave trade; the <b>Quakers</b> had formed the first anti-slavery groups.</span></button>
+          <button class="person" type="button"><span class="p-name">Admiral Nelson</span><span class="p-life">1805 · Trafalgar</span><span class="p-note">Destroyed the French–Spanish fleet at <b>Trafalgar</b> and <b>died in the battle</b>. His ship <b>HMS Victory</b> is at Portsmouth; <b>Nelson's Column</b> stands in Trafalgar Square.</span></button>
+          <button class="person" type="button"><span class="p-name">The Duke of Wellington</span><span class="p-life">1815 · Waterloo</span><span class="p-note"><b>“The Iron Duke”</b>; beat <b>Napoleon at Waterloo</b>, and later became <b>Prime Minister</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Robert Burns</span><span class="p-life">1759–1796 · poetry</span><span class="p-note"><b>“The Bard”</b> — Scottish poet writing in Scots and English. <b><i>Auld Lang Syne</i></b>, sung at New Year (<b>Hogmanay</b> in Scotland).</span></button>
+          <button class="person" type="button"><span class="p-name">Sake Dean Mahomet</span><span class="p-life">1759–1851 · migration</span><span class="p-note">Born in <b>Bengal</b>; came to Britain in 1782. Opened the <b>Hindoostane Coffee House</b> in <b>1810</b> — <b>Britain's first curry house</b> — and introduced <b>“shampooing”</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Isambard Kingdom Brunel</span><span class="p-life">1806–1859 · engineering</span><span class="p-note">From <b>Portsmouth</b>; tunnels, bridges, ships and the <b>Great Western Railway</b>. Many of his bridges are <b>still in use</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">George &amp; Robert Stephenson</span><span class="p-life">Victorian · railways</span><span class="p-note"><b>Pioneered the railways</b>, which then spread across the Empire.</span></button>
+          <button class="person" type="button"><span class="p-name">Queen Victoria</span><span class="p-life">1837–1901 · Hanover</span><span class="p-note">Queen at <b>18</b>; reigned almost <b>64 years</b>; the Empire reached its largest — over <b>400 million people</b>. Introduced the <b>Victoria Cross</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Florence Nightingale</span><span class="p-life">1820–1910 · nursing</span><span class="p-note">Born in <b>Italy</b> to English parents; nursed soldiers in the <b>Crimean War</b>; founded the <b>Nightingale Training School</b> in 1860 — the <b>founder of modern nursing</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Charles Stuart Parnell</span><span class="p-life">Victorian · Ireland</span><span class="p-note">Championed <b>Home Rule</b> — an Irish parliament within the UK. The <b>Fenians</b> wanted <b>complete independence</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Emmeline Pankhurst</span><span class="p-life">1858–1928 · suffrage</span><span class="p-note">Born in <b>Manchester</b>. <b>Women's Franchise League</b> (1889) and the <b>WSPU</b> (1903) — the first <b>suffragettes</b>. Died weeks before women got the vote at 21.</span></button>
+          <button class="person" type="button"><span class="p-name">Rudyard Kipling</span><span class="p-life">1865–1936 · writing</span><span class="p-note">Born in <b>India</b>; <b>Nobel Prize in Literature, 1907</b>. <i>The Jungle Book</i>, <i>Just So Stories</i> and the poem <b><i>“If”</i></b>.</span></button>
         </div>
       </div>
 
@@ -629,13 +676,13 @@
       <div class="dgroup" data-dom="5" style="--era:var(--era5)">
         <div class="dom" id="cast-5"><span class="dot"></span><b>The 20th Century</b><span class="ct">· 7</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Archduke Franz Ferdinand</p><p class="p-life">28 Jun 1914 · Austria</p><p class="p-note">His <b>assassination</b> triggered the First World War — the deeper causes being <b>nationalism, militarism and imperialism</b>.</p></div>
-          <div class="person"><p class="p-name">Adolf Hitler</p><p class="p-life">1933–1945 · Germany</p><p class="p-note">Took power in <b>1933</b>; his <b>invasion of Poland in 1939</b> brought Britain and France in; invading the <b>Soviet Union in 1941</b> was his pivotal failure.</p></div>
-          <div class="person"><p class="p-name">Winston Churchill</p><p class="p-life">1874–1965 · Prime Minister</p><p class="p-note">Soldier and journalist, then Conservative MP from 1900; <b>PM in May 1940</b>; refused to surrender; <b>lost the 1945 election</b>, PM again in <b>1951</b>. The three speeches: <b>“blood, toil, tears and sweat”</b> (first as PM) · <b>“we shall fight on the beaches”</b> (after Dunkirk) · <b>“never… was so much owed by so many to so few”</b> (Battle of Britain). Voted <b>greatest Briton, 2002</b>.</p></div>
-          <div class="person"><p class="p-name">Alexander Fleming</p><p class="p-life">1881–1955 · medicine</p><p class="p-note">Born in <b>Scotland</b>. Discovered <b>penicillin in 1928</b> while researching influenza; <b>Florey and Chain</b> turned it into a usable drug. <b>Nobel Prize in Medicine, 1945</b>.</p></div>
-          <div class="person"><p class="p-name">Ernest Rutherford</p><p class="p-life">· physics</p><p class="p-note">Led the British scientists who <b>first split the atom</b> — Manchester, then Cambridge — and worked on the <b>Manhattan Project</b>.</p></div>
-          <div class="person"><p class="p-name">John Maynard Keynes</p><p class="p-life">interwar · economics</p><p class="p-note">The <b>economist</b> of the between-the-wars cultural bloom.</p></div>
-          <div class="person"><p class="p-name">Graham Greene &amp; Evelyn Waugh</p><p class="p-life">interwar · writing</p><p class="p-note">The two <b>writers</b> the chapter names between the wars.</p></div>
+          <button class="person" type="button"><span class="p-name">Archduke Franz Ferdinand</span><span class="p-life">28 Jun 1914 · Austria</span><span class="p-note">His <b>assassination</b> triggered the First World War — the deeper causes being <b>nationalism, militarism and imperialism</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Adolf Hitler</span><span class="p-life">1933–1945 · Germany</span><span class="p-note">Took power in <b>1933</b>; his <b>invasion of Poland in 1939</b> brought Britain and France in; invading the <b>Soviet Union in 1941</b> was his pivotal failure.</span></button>
+          <button class="person" type="button"><span class="p-name">Winston Churchill</span><span class="p-life">1874–1965 · Prime Minister</span><span class="p-note">Soldier and journalist, then Conservative MP from 1900; <b>PM in May 1940</b>; refused to surrender; <b>lost the 1945 election</b>, PM again in <b>1951</b>. The three speeches: <b>“blood, toil, tears and sweat”</b> (first as PM) · <b>“we shall fight on the beaches”</b> (after Dunkirk) · <b>“never… was so much owed by so many to so few”</b> (Battle of Britain). Voted <b>greatest Briton, 2002</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Alexander Fleming</span><span class="p-life">1881–1955 · medicine</span><span class="p-note">Born in <b>Scotland</b>. Discovered <b>penicillin in 1928</b> while researching influenza; <b>Florey and Chain</b> turned it into a usable drug. <b>Nobel Prize in Medicine, 1945</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Ernest Rutherford</span><span class="p-life">· physics</span><span class="p-note">Led the British scientists who <b>first split the atom</b> — Manchester, then Cambridge — and worked on the <b>Manhattan Project</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">John Maynard Keynes</span><span class="p-life">interwar · economics</span><span class="p-note">The <b>economist</b> of the between-the-wars cultural bloom.</span></button>
+          <button class="person" type="button"><span class="p-name">Graham Greene &amp; Evelyn Waugh</span><span class="p-life">interwar · writing</span><span class="p-note">The two <b>writers</b> the chapter names between the wars.</span></button>
         </div>
         <p class="dom-note">Chapter 4 names Greene and Waugh again, with their novels. Here they are only <b>evidence that the 1920s and 30s were a cultural bloom</b> — that is the fact this chapter tests.</p>
       </div>
@@ -644,20 +691,20 @@
       <div class="dgroup" data-dom="6" style="--era:var(--era6)">
         <div class="dom" id="cast-6"><span class="dot"></span><b>Britain since 1945</b><span class="ct">· 14</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Clement Attlee</p><p class="p-life">1883–1967 · Prime Minister</p><p class="p-note">London-born barrister; <b>Churchill's Deputy PM</b> in the wartime coalition; <b>PM 1945–51</b>. Nationalised industry and built the <b>welfare state</b>.</p></div>
-          <div class="person"><p class="p-name">William Beveridge</p><p class="p-life">1879–1963 · the report</p><p class="p-note">Economist and briefly a <b>Liberal MP</b>. The <b>1942 Beveridge Report</b> named the five Giant Evils: <b>Want, Disease, Ignorance, Squalor, Idleness</b>.</p></div>
-          <div class="person"><p class="p-name">R. A. Butler</p><p class="p-life">1902–1982 · education</p><p class="p-note">Conservative MP. The <b>Education Act 1944</b> — the “Butler Act” — gave <b>free secondary education</b> in England and Wales.</p></div>
-          <div class="person"><p class="p-name">Aneurin (Nye) Bevan</p><p class="p-life">1948 · health</p><p class="p-note">Minister for Health; founded the <b>NHS</b> — a minimum standard of care for all, <b>free at the point of use</b>.</p></div>
-          <div class="person"><p class="p-name">Harold Macmillan</p><p class="p-life">· decolonisation</p><p class="p-note">Gave the <b>“wind of change”</b> speech as the colonies became the <b>Commonwealth</b>.</p></div>
-          <div class="person"><p class="p-name">The Beatles &amp; The Rolling Stones</p><p class="p-life">1960s · pop</p><p class="p-note">The <b>Swinging Sixties</b> — growth in British <b>fashion, cinema and pop</b>.</p></div>
-          <div class="person"><p class="p-name">Mary Peters</p><p class="p-life">b. 1939 · athletics</p><p class="p-note">Born Manchester, moved to Northern Ireland. <b>Olympic pentathlon gold in 1972</b>; later a promoter of NI sport; made a <b>Dame in 2000</b>.</p></div>
-          <div class="person"><p class="p-name">Dylan Thomas</p><p class="p-life">1914–1953 · poetry</p><p class="p-note">Welsh poet. <b><i>Under Milk Wood</i></b> (a radio play) and <b><i>Do Not Go Gentle into That Good Night</i></b>; memorials in <b>Swansea</b>.</p></div>
-          <div class="person"><p class="p-name">Roald Dahl</p><p class="p-life">1916–1990 · writing</p><p class="p-note">Born in <b>Wales to Norwegian parents</b>; flew in the <b>RAF</b> in WWII. <i>Charlie and the Chocolate Factory</i>, <i>George's Marvellous Medicine</i>.</p></div>
-          <div class="person"><p class="p-name">Margaret Thatcher</p><p class="p-life">1925–2013 · Prime Minister</p><p class="p-note"><b>Grocer's daughter from Grantham</b>; <b>first woman PM, 1979–90</b> and the <b>longest-serving of the 20th century</b>. Privatisation, curbs on union power, the <b>Falklands in 1982</b>. Worked closely with <b>US President Reagan</b>.</p></div>
-          <div class="person"><p class="p-name">John Major</p><p class="p-life">1990 · Prime Minister</p><p class="p-note">Succeeded Thatcher; helped begin the <b>Northern Ireland peace process</b>.</p></div>
-          <div class="person"><p class="p-name">Tony Blair</p><p class="p-life">1997 · Prime Minister</p><p class="p-note">Created the <b>Scottish Parliament</b> (substantial law-making powers) and the <b>Welsh Assembly</b> (fewer); the <b>Good Friday Agreement, 1998</b>.</p></div>
-          <div class="person"><p class="p-name">Gordon Brown</p><p class="p-life">2007 · Prime Minister</p><p class="p-note">Followed Blair.</p></div>
-          <div class="person"><p class="p-name">David Cameron</p><p class="p-life">May 2010 · Prime Minister</p><p class="p-note"><b>No overall majority</b> — the first since February 1974 — so a <b>Conservative–Liberal Democrat coalition</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Clement Attlee</span><span class="p-life">1883–1967 · Prime Minister</span><span class="p-note">London-born barrister; <b>Churchill's Deputy PM</b> in the wartime coalition; <b>PM 1945–51</b>. Nationalised industry and built the <b>welfare state</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">William Beveridge</span><span class="p-life">1879–1963 · the report</span><span class="p-note">Economist and briefly a <b>Liberal MP</b>. The <b>1942 Beveridge Report</b> named the five Giant Evils: <b>Want, Disease, Ignorance, Squalor, Idleness</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">R. A. Butler</span><span class="p-life">1902–1982 · education</span><span class="p-note">Conservative MP. The <b>Education Act 1944</b> — the “Butler Act” — gave <b>free secondary education</b> in England and Wales.</span></button>
+          <button class="person" type="button"><span class="p-name">Aneurin (Nye) Bevan</span><span class="p-life">1948 · health</span><span class="p-note">Minister for Health; founded the <b>NHS</b> — a minimum standard of care for all, <b>free at the point of use</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Harold Macmillan</span><span class="p-life">· decolonisation</span><span class="p-note">Gave the <b>“wind of change”</b> speech as the colonies became the <b>Commonwealth</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">The Beatles &amp; The Rolling Stones</span><span class="p-life">1960s · pop</span><span class="p-note">The <b>Swinging Sixties</b> — growth in British <b>fashion, cinema and pop</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Mary Peters</span><span class="p-life">b. 1939 · athletics</span><span class="p-note">Born Manchester, moved to Northern Ireland. <b>Olympic pentathlon gold in 1972</b>; later a promoter of NI sport; made a <b>Dame in 2000</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Dylan Thomas</span><span class="p-life">1914–1953 · poetry</span><span class="p-note">Welsh poet. <b><i>Under Milk Wood</i></b> (a radio play) and <b><i>Do Not Go Gentle into That Good Night</i></b>; memorials in <b>Swansea</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Roald Dahl</span><span class="p-life">1916–1990 · writing</span><span class="p-note">Born in <b>Wales to Norwegian parents</b>; flew in the <b>RAF</b> in WWII. <i>Charlie and the Chocolate Factory</i>, <i>George's Marvellous Medicine</i>.</span></button>
+          <button class="person" type="button"><span class="p-name">Margaret Thatcher</span><span class="p-life">1925–2013 · Prime Minister</span><span class="p-note"><b>Grocer's daughter from Grantham</b>; <b>first woman PM, 1979–90</b> and the <b>longest-serving of the 20th century</b>. Privatisation, curbs on union power, the <b>Falklands in 1982</b>. Worked closely with <b>US President Reagan</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">John Major</span><span class="p-life">1990 · Prime Minister</span><span class="p-note">Succeeded Thatcher; helped begin the <b>Northern Ireland peace process</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Tony Blair</span><span class="p-life">1997 · Prime Minister</span><span class="p-note">Created the <b>Scottish Parliament</b> (substantial law-making powers) and the <b>Welsh Assembly</b> (fewer); the <b>Good Friday Agreement, 1998</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Gordon Brown</span><span class="p-life">2007 · Prime Minister</span><span class="p-note">Followed Blair.</span></button>
+          <button class="person" type="button"><span class="p-name">David Cameron</span><span class="p-life">May 2010 · Prime Minister</span><span class="p-note"><b>No overall majority</b> — the first since February 1974 — so a <b>Conservative–Liberal Democrat coalition</b>.</span></button>
         </div>
       </div>
 
@@ -665,19 +712,19 @@
       <div class="dgroup" data-dom="7" style="--era:var(--era7)">
         <div class="dom" id="cast-7"><span class="dot"></span><b>Inventors &amp; scientists</b><span class="ct">· 13</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">John Logie Baird</p><p class="p-life">1920s · television</p><p class="p-note">Scot; first television broadcast <b>London–Glasgow, 1932</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Frank Whittle</p><p class="p-life">1930s · jet engine</p><p class="p-note"><b>RAF officer</b> who invented the <b>jet engine</b>.</p></div>
-          <div class="person"><p class="p-name">Alan Turing</p><p class="p-life">1930s · computing</p><p class="p-note">The <b>Turing machine</b> — the <b>theoretical basis of the computer</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Robert Watson-Watt</p><p class="p-life">1935 · radar</p><p class="p-note">Scot; the <b>first successful radar test</b>.</p></div>
-          <div class="person"><p class="p-name">John MacLeod</p><p class="p-life">· insulin</p><p class="p-note">Scottish physician; <b>co-discovered insulin</b>, which treats diabetes.</p></div>
-          <div class="person"><p class="p-name">Sir Christopher Cockerell</p><p class="p-life">1950s · hovercraft</p><p class="p-note">Invented the <b>hovercraft</b>.</p></div>
-          <div class="person"><p class="p-name">Francis Crick</p><p class="p-life">1953 · DNA</p><p class="p-note">The <b>structure of DNA</b>, worked out in British universities; won the <b>Nobel Prize</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Bernard Lovell</p><p class="p-life">· radio telescope</p><p class="p-note">The <b>radio telescope at Jodrell Bank</b>, Cheshire — for years the <b>largest in the world</b>.</p></div>
-          <div class="person"><p class="p-name">James Goodfellow</p><p class="p-life">1967 · cash machine</p><p class="p-note">The <b>ATM</b> — first used at <b>Barclays in Enfield</b>.</p></div>
-          <div class="person"><p class="p-name">Edwards &amp; Steptoe</p><p class="p-life">1978 · IVF</p><p class="p-note">The world's <b>first test-tube baby</b>, born in <b>Oldham, Lancashire</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Tim Berners-Lee</p><p class="p-life">25 Dec 1990 · the web</p><p class="p-note">The <b>World Wide Web</b> — the first successful information transfer, on <b>Christmas Day 1990</b>.</p></div>
-          <div class="person"><p class="p-name">Wilmut &amp; Campbell</p><p class="p-life">1996 · cloning</p><p class="p-note"><b>Dolly the sheep</b> — the <b>first cloned mammal</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Peter Mansfield</p><p class="p-life">· MRI scanner</p><p class="p-note"><b>Co-inventor of the MRI scanner</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">John Logie Baird</span><span class="p-life">1920s · television</span><span class="p-note">Scot; first television broadcast <b>London–Glasgow, 1932</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Frank Whittle</span><span class="p-life">1930s · jet engine</span><span class="p-note"><b>RAF officer</b> who invented the <b>jet engine</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Alan Turing</span><span class="p-life">1930s · computing</span><span class="p-note">The <b>Turing machine</b> — the <b>theoretical basis of the computer</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Robert Watson-Watt</span><span class="p-life">1935 · radar</span><span class="p-note">Scot; the <b>first successful radar test</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">John MacLeod</span><span class="p-life">· insulin</span><span class="p-note">Scottish physician; <b>co-discovered insulin</b>, which treats diabetes.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Christopher Cockerell</span><span class="p-life">1950s · hovercraft</span><span class="p-note">Invented the <b>hovercraft</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Francis Crick</span><span class="p-life">1953 · DNA</span><span class="p-note">The <b>structure of DNA</b>, worked out in British universities; won the <b>Nobel Prize</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Bernard Lovell</span><span class="p-life">· radio telescope</span><span class="p-note">The <b>radio telescope at Jodrell Bank</b>, Cheshire — for years the <b>largest in the world</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">James Goodfellow</span><span class="p-life">1967 · cash machine</span><span class="p-note">The <b>ATM</b> — first used at <b>Barclays in Enfield</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Edwards &amp; Steptoe</span><span class="p-life">1978 · IVF</span><span class="p-note">The world's <b>first test-tube baby</b>, born in <b>Oldham, Lancashire</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Tim Berners-Lee</span><span class="p-life">25 Dec 1990 · the web</span><span class="p-note">The <b>World Wide Web</b> — the first successful information transfer, on <b>Christmas Day 1990</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Wilmut &amp; Campbell</span><span class="p-life">1996 · cloning</span><span class="p-note"><b>Dolly the sheep</b> — the <b>first cloned mammal</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Peter Mansfield</span><span class="p-life">· MRI scanner</span><span class="p-note"><b>Co-inventor of the MRI scanner</b>.</span></button>
         </div>
         <p class="dom-note">Two entries on the chapter's invention list carry <b>no inventor's name</b>: <b>Concorde</b> (UK–France, first flight 1969) and the <b>Harrier jump jet</b>. The test asks for the invention there, not a person.</p>
       </div>
@@ -1047,6 +1094,41 @@
     });
   });
   applyCast("");
+
+  /* ---- hide / reveal: every card holds its fact back until you ask ----
+          The class and the two buttons are switched on from here, so a page
+          whose script never runs still shows all of the facts. Each card is a
+          real button element, which is what makes it work from a keyboard and
+          announce itself as expandable. ---- */
+  var people = [].slice.call(cast.getElementsByClassName("person"));
+  var tools = document.getElementById("castTools");
+  var tally = document.getElementById("castTally");
+
+  function show(card, on) {
+    card.classList.toggle("on", on);
+    card.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  function count() {
+    var n = 0;
+    people.forEach(function (p) { if (p.classList.contains("on")) n++; });
+    tally.textContent = n + " of " + people.length + " revealed";
+  }
+  function all(on) {
+    people.forEach(function (p) { show(p, on); });
+    count();
+  }
+
+  cast.classList.add("quiz");
+  tools.hidden = false;
+  cast.addEventListener("click", function (e) {
+    var card = e.target.closest && e.target.closest(".person");
+    if (!card) return;
+    show(card, !card.classList.contains("on"));
+    count();
+  });
+  document.getElementById("castAll").addEventListener("click", function () { all(true); });
+  document.getElementById("castNone").addEventListener("click", function () { all(false); });
+  all(false);
 
   /* ---- which section am I in ---- */
   var links = [].slice.call(document.querySelectorAll("#jump a"));
