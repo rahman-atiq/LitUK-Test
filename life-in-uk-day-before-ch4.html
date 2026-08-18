@@ -193,19 +193,62 @@
   .railnote { font-size:.76rem; color:var(--ink-3); margin:12px 2px 0; }
 
   /* ---------- 1 · the cast ----------
-     .people / .person / .p-name / .p-life / .p-note are lifted from the chapter
-     page so the sixteen sport cards render identically here. */
+     .people / .person / .p-name / .p-life / .p-note started as the chapter
+     page's cards. Here each one is a button, because the fact underneath the
+     name waits until you ask for it — the date-stone idiom from the Chapter 3
+     story, applied to a hundred and one names. */
   .people { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-top:14px; }
-  .person { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
-  .p-name { font-family:var(--serif); font-size:1.12rem; margin:0; }
-  .p-life { font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
-  .p-note { font-size:.85rem; color:var(--ink-2); margin:0; }
+  .person {
+    display:block; width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; box-shadow:var(--shadow);
+    transition:border-color .14s ease, transform .1s ease;
+  }
+  .person:hover { border-color:color-mix(in srgb, var(--era) 55%, var(--line)); }
+  .person:active { transform:scale(.98); }
+  .person:focus-visible { outline:2px solid var(--era); outline-offset:2px; }
+  .p-name { display:block; font-family:var(--serif); font-size:1.12rem; margin:0; }
+  .p-life { display:block; font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
+  .p-note { display:block; font-size:.85rem; color:var(--ink-2); margin:0; }
   .p-note b { color:var(--ink); }
+
+  /* ---- hide / reveal ----
+     .quiz is added by the script, so a page whose JavaScript never arrives
+     shows every fact rather than none of them. The name is the whole prompt —
+     the life line hides too, because "1929– · athletics" hands you half the
+     answer before you have tried to remember it. A hidden card shrinks to a
+     name tile rather than holding the fact's space open: at a hundred and one
+     cards, reserved blank space is a very long scroll. The min-height keeps
+     the tiles an even grid, the way the story page's date stones sit. */
+  .cast.quiz .person:not(.on) { min-height:92px; }
+  .cast.quiz .person:not(.on) .p-life,
+  .cast.quiz .person:not(.on) .p-note { display:none; }
+  .cast.quiz .person:not(.on)::after {
+    content:"tap to reveal"; display:block; margin-top:7px;
+    font-size:.68rem; letter-spacing:.06em; color:var(--ink-3);
+  }
+  .cast.quiz .person.on { border-color:color-mix(in srgb, var(--era) 45%, var(--line)); }
+
+  /* The two blunt instruments, and a tally of where you are. */
+  .casttools { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 0; }
+  .casttools button {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  .casttools button:hover { border-color:color-mix(in srgb, var(--gold) 50%, var(--line)); }
+  .casttools button:active { transform:scale(.97); }
+  .casttools .tally {
+    margin-left:auto; font-size:.76rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
 
   .dgroup { transition:opacity .16s ease; }
   .cast.filtered .dgroup { opacity:.14; }
   .cast.filtered .dgroup.on { opacity:1; }
-  @media (prefers-reduced-motion:reduce) { .dgroup { transition:none; } }
+  @media (prefers-reduced-motion:reduce) { .dgroup, .person { transition:none; } }
 
   /* Selecting a chip walks you to this header; without the margin it would
      land under the sticky jump bar. Same figure the sections use. */
@@ -398,7 +441,7 @@
     <div class="sec-head">
       <div class="n">One</div>
       <h2>The Cast</h2>
-      <p>Every named figure in the chapter, grouped by domain — the handbook's own grouping, because that is the structure the test uses. <b>Each name is welded to one fact.</b> Learn the weld, ignore the biography.</p>
+      <p>Every named figure in the chapter, grouped by domain — the handbook's own grouping, because that is the structure the test uses. <b>Each name is welded to one fact</b>, and each card keeps that fact hidden: read the name, say the fact out loud, then tap to check. Learn the weld, ignore the biography.</p>
     </div>
 
     <div class="chips" id="domChips" role="group" aria-label="Filter the cast by domain">
@@ -416,32 +459,38 @@
     </div>
     <p class="railnote" id="castnote" aria-live="polite"></p>
 
+    <div class="casttools" id="castTools" hidden>
+      <button id="castAll" type="button">Reveal all</button>
+      <button id="castNone" type="button">Hide all</button>
+      <span class="tally" id="castTally"></span>
+    </div>
+
     <div class="cast" id="cast-list">
 
       <!-- ---------- sport ---------- -->
       <div class="dgroup" data-dom="sport" style="--era:var(--dom-sport)">
         <div class="dom" id="dom-sport"><span class="dot"></span><b>Sport</b><span class="ct">· 20</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Sir Roger Bannister</p><p class="p-life">1929– · athletics</p><p class="p-note"><b>First man to run a mile in under four minutes</b>, in <b>1954</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Jackie Stewart</p><p class="p-life">1939– · motor racing</p><p class="p-note">Scottish driver who won the <b>Formula 1 championship three times</b>.</p></div>
-          <div class="person"><p class="p-name">Bobby Moore</p><p class="p-life">1941–93 · football</p><p class="p-note"><b>Captained England to the 1966 World Cup</b>, hosted in the UK.</p></div>
-          <div class="person"><p class="p-name">Sir Ian Botham</p><p class="p-life">1955– · cricket</p><p class="p-note"><b>Captained the England cricket team</b> and set batting and bowling records.</p></div>
-          <div class="person"><p class="p-name">Torvill &amp; Dean</p><p class="p-life">1957– / 1958– · ice dance</p><p class="p-note">Jayne Torvill and Christopher Dean won <b>Olympic ice-dancing gold in 1984</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Steve Redgrave</p><p class="p-life">1962– · rowing</p><p class="p-note">Rowing gold at <b>five consecutive Olympic Games</b>.</p></div>
-          <div class="person"><p class="p-name">Baroness Tanni Grey-Thompson</p><p class="p-life">1969– · wheelchair athletics</p><p class="p-note"><b>16 Paralympic medals</b> and <b>six London Marathon wins</b>.</p></div>
-          <div class="person"><p class="p-name">Dame Kelly Holmes</p><p class="p-life">1970– · athletics</p><p class="p-note"><b>Two running golds at the 2004 Olympics</b>.</p></div>
-          <div class="person"><p class="p-name">Dame Ellen MacArthur</p><p class="p-life">1976– · sailing</p><p class="p-note"><b>Fastest person to sail around the world single-handed</b> (2004).</p></div>
-          <div class="person"><p class="p-name">Sir Chris Hoy</p><p class="p-life">1976– · cycling</p><p class="p-note">Scottish cyclist: <b>six Olympic golds and one silver</b>.</p></div>
-          <div class="person"><p class="p-name">David Weir</p><p class="p-life">1979– · wheelchair athletics</p><p class="p-note"><b>Six golds over two Paralympic Games</b> and <b>six London Marathon wins</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Bradley Wiggins</p><p class="p-life">1980– · cycling</p><p class="p-note"><b>First Briton to win the Tour de France</b> (2012).</p></div>
-          <div class="person"><p class="p-name">Sir Mo Farah</p><p class="p-life">1983– · athletics</p><p class="p-note">2012 Olympic gold in the <b>5,000 and 10,000 metres</b>.</p></div>
-          <div class="person"><p class="p-name">Dame Jessica Ennis</p><p class="p-life">1986– · athletics</p><p class="p-note"><b>2012 Olympic heptathlon gold</b> — seven events.</p></div>
-          <div class="person"><p class="p-name">Sir Andy Murray</p><p class="p-life">1987– · tennis</p><p class="p-note">Won the <b>2012 US Open</b> — <b>first British man to win a Grand Slam singles title since 1936</b>.</p></div>
-          <div class="person"><p class="p-name">Ellie Simmonds</p><p class="p-life">1994– · swimming</p><p class="p-note">Paralympic <b>swimming golds in 2008 and 2012</b>.</p></div>
-          <div class="person"><p class="p-name">Dr Sir Ludwig Guttmann</p><p class="p-life">· Paralympics</p><p class="p-note">A <b>German refugee</b> at <b>Stoke Mandeville hospital</b> whose work the <b>Paralympics grew from</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Francis Chichester</p><p class="p-life">1966/67 · sailing</p><p class="p-note">Sailed <b>single-handed around the world in 1966/67</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Robin Knox-Johnston</p><p class="p-life">· sailing</p><p class="p-note">Sailed single-handed around the world <b>without stopping</b>, two years after Chichester.</p></div>
-          <div class="person"><p class="p-name">Damon Hill · Lewis Hamilton · Jenson Button</p><p class="p-life">· motor racing</p><p class="p-note">The chapter's <b>British Formula 1 world champions</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Sir Roger Bannister</span><span class="p-life">1929– · athletics</span><span class="p-note"><b>First man to run a mile in under four minutes</b>, in <b>1954</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Jackie Stewart</span><span class="p-life">1939– · motor racing</span><span class="p-note">Scottish driver who won the <b>Formula 1 championship three times</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Bobby Moore</span><span class="p-life">1941–93 · football</span><span class="p-note"><b>Captained England to the 1966 World Cup</b>, hosted in the UK.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Ian Botham</span><span class="p-life">1955– · cricket</span><span class="p-note"><b>Captained the England cricket team</b> and set batting and bowling records.</span></button>
+          <button class="person" type="button"><span class="p-name">Torvill &amp; Dean</span><span class="p-life">1957– / 1958– · ice dance</span><span class="p-note">Jayne Torvill and Christopher Dean won <b>Olympic ice-dancing gold in 1984</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Steve Redgrave</span><span class="p-life">1962– · rowing</span><span class="p-note">Rowing gold at <b>five consecutive Olympic Games</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Baroness Tanni Grey-Thompson</span><span class="p-life">1969– · wheelchair athletics</span><span class="p-note"><b>16 Paralympic medals</b> and <b>six London Marathon wins</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Dame Kelly Holmes</span><span class="p-life">1970– · athletics</span><span class="p-note"><b>Two running golds at the 2004 Olympics</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Dame Ellen MacArthur</span><span class="p-life">1976– · sailing</span><span class="p-note"><b>Fastest person to sail around the world single-handed</b> (2004).</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Chris Hoy</span><span class="p-life">1976– · cycling</span><span class="p-note">Scottish cyclist: <b>six Olympic golds and one silver</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">David Weir</span><span class="p-life">1979– · wheelchair athletics</span><span class="p-note"><b>Six golds over two Paralympic Games</b> and <b>six London Marathon wins</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Bradley Wiggins</span><span class="p-life">1980– · cycling</span><span class="p-note"><b>First Briton to win the Tour de France</b> (2012).</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Mo Farah</span><span class="p-life">1983– · athletics</span><span class="p-note">2012 Olympic gold in the <b>5,000 and 10,000 metres</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Dame Jessica Ennis</span><span class="p-life">1986– · athletics</span><span class="p-note"><b>2012 Olympic heptathlon gold</b> — seven events.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Andy Murray</span><span class="p-life">1987– · tennis</span><span class="p-note">Won the <b>2012 US Open</b> — <b>first British man to win a Grand Slam singles title since 1936</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Ellie Simmonds</span><span class="p-life">1994– · swimming</span><span class="p-note">Paralympic <b>swimming golds in 2008 and 2012</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Dr Sir Ludwig Guttmann</span><span class="p-life">· Paralympics</span><span class="p-note">A <b>German refugee</b> at <b>Stoke Mandeville hospital</b> whose work the <b>Paralympics grew from</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Francis Chichester</span><span class="p-life">1966/67 · sailing</span><span class="p-note">Sailed <b>single-handed around the world in 1966/67</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Robin Knox-Johnston</span><span class="p-life">· sailing</span><span class="p-note">Sailed single-handed around the world <b>without stopping</b>, two years after Chichester.</span></button>
+          <button class="person" type="button"><span class="p-name">Damon Hill · Lewis Hamilton · Jenson Button</span><span class="p-life">· motor racing</span><span class="p-note">The chapter's <b>British Formula 1 world champions</b>.</span></button>
         </div>
         <p class="dom-note">The sixteen champions are the handbook's own list. The four after them are named elsewhere in the sport section — <b>Guttmann</b>, the two sailors and the F1 trio — and get asked just the same.</p>
       </div>
@@ -450,13 +499,13 @@
       <div class="dgroup" data-dom="classical" style="--era:var(--dom-classical)">
         <div class="dom" id="dom-classical"><span class="dot"></span><b>Classical composers</b><span class="ct">· 7</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Henry Purcell</p><p class="p-life">1659–95 · composer</p><p class="p-note">Organist at <b>Westminster Abbey</b>; church music and operas; a distinctly British style.</p></div>
-          <div class="person"><p class="p-name">George Frederick Handel</p><p class="p-life">1695–1759 · composer</p><p class="p-note"><b>German-born, became a British citizen in 1727</b>; <b>Water Music</b> (George I), <b>Music for the Royal Fireworks</b> (George II), the oratorio <b>Messiah</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Edward Elgar</p><p class="p-life">1857–1934 · composer</p><p class="p-note">Born in Worcester; <b>Pomp and Circumstance March No. 1 (“Land of Hope and Glory”)</b>, a Last Night of the Proms fixture.</p></div>
-          <div class="person"><p class="p-name">Gustav Holst</p><p class="p-life">1874–1934 · composer</p><p class="p-note"><b>The Planets</b>; adapted <b>Jupiter</b> into the hymn <b>“I Vow to Thee, My Country”</b>.</p></div>
-          <div class="person"><p class="p-name">Ralph Vaughan Williams</p><p class="p-life">1872–1958 · composer</p><p class="p-note">Orchestral and choral music shaped by <b>English folk music</b>.</p></div>
-          <div class="person"><p class="p-name">Sir William Walton</p><p class="p-life">1902–83 · composer</p><p class="p-note"><b>Coronation marches</b> for George VI and Elizabeth II; <b>Façade</b>, <b>Belshazzar's Feast</b>.</p></div>
-          <div class="person"><p class="p-name">Benjamin Britten</p><p class="p-life">1913–76 · composer</p><p class="p-note">Operas <b>Peter Grimes</b> and <b>Billy Budd</b>; <b>A Young Person's Guide to the Orchestra</b> (on a Purcell theme); founded the <b>Aldeburgh festival, Suffolk</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Henry Purcell</span><span class="p-life">1659–95 · composer</span><span class="p-note">Organist at <b>Westminster Abbey</b>; church music and operas; a distinctly British style.</span></button>
+          <button class="person" type="button"><span class="p-name">George Frederick Handel</span><span class="p-life">1695–1759 · composer</span><span class="p-note"><b>German-born, became a British citizen in 1727</b>; <b>Water Music</b> (George I), <b>Music for the Royal Fireworks</b> (George II), the oratorio <b>Messiah</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Edward Elgar</span><span class="p-life">1857–1934 · composer</span><span class="p-note">Born in Worcester; <b>Pomp and Circumstance March No. 1 (“Land of Hope and Glory”)</b>, a Last Night of the Proms fixture.</span></button>
+          <button class="person" type="button"><span class="p-name">Gustav Holst</span><span class="p-life">1874–1934 · composer</span><span class="p-note"><b>The Planets</b>; adapted <b>Jupiter</b> into the hymn <b>“I Vow to Thee, My Country”</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Ralph Vaughan Williams</span><span class="p-life">1872–1958 · composer</span><span class="p-note">Orchestral and choral music shaped by <b>English folk music</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir William Walton</span><span class="p-life">1902–83 · composer</span><span class="p-note"><b>Coronation marches</b> for George VI and Elizabeth II; <b>Façade</b>, <b>Belshazzar's Feast</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Benjamin Britten</span><span class="p-life">1913–76 · composer</span><span class="p-note">Operas <b>Peter Grimes</b> and <b>Billy Budd</b>; <b>A Young Person's Guide to the Orchestra</b> (on a Purcell theme); founded the <b>Aldeburgh festival, Suffolk</b>.</span></button>
         </div>
       </div>
 
@@ -464,7 +513,7 @@
       <div class="dgroup" data-dom="pop" style="--era:var(--dom-pop)">
         <div class="dom" id="dom-pop"><span class="dot"></span><b>Pop &amp; music</b><span class="ct">· 1</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">The Beatles &amp; The Rolling Stones</p><p class="p-life">1960s · pop</p><p class="p-note">Led the British sound from the <b>1960s</b>; <b>punk</b> hit in the <b>late 1970s</b>; <b>boy and girl bands</b> in the <b>1990s</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">The Beatles &amp; The Rolling Stones</span><span class="p-life">1960s · pop</span><span class="p-note">Led the British sound from the <b>1960s</b>; <b>punk</b> hit in the <b>late 1970s</b>; <b>boy and girl bands</b> in the <b>1990s</b>.</span></button>
         </div>
         <p class="dom-note">One card, because the chapter names no other pop musician. Everything else in that section is a <b>venue, festival or prize</b>, not a person — those are in The Numbers and the chapter notes.</p>
       </div>
@@ -473,10 +522,10 @@
       <div class="dgroup" data-dom="theatre" style="--era:var(--dom-theatre)">
         <div class="dom" id="dom-theatre"><span class="dot"></span><b>Theatre</b><span class="ct">· 4</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Agatha Christie</p><p class="p-life">since 1952 · theatre</p><p class="p-note"><b>The Mousetrap</b> — running <b>since 1952</b>, the <b>longest initial run in history</b>.</p></div>
-          <div class="person"><p class="p-name">Gilbert and Sullivan</p><p class="p-life">· comic opera</p><p class="p-note">Comic operas: <b>HMS Pinafore, The Pirates of Penzance, The Mikado</b>.</p></div>
-          <div class="person"><p class="p-name">Andrew Lloyd Webber</p><p class="p-life">· musicals</p><p class="p-note"><b>Jesus Christ Superstar</b> and <b>Evita</b> (with <b>Tim Rice</b>), <b>Cats</b>, <b>The Phantom of the Opera</b>.</p></div>
-          <div class="person"><p class="p-name">Laurence Olivier</p><p class="p-life">· acting</p><p class="p-note">The <b>Laurence Olivier Awards</b> — London stage awards named after the great <b>Shakespearean actor</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Agatha Christie</span><span class="p-life">since 1952 · theatre</span><span class="p-note"><b>The Mousetrap</b> — running <b>since 1952</b>, the <b>longest initial run in history</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Gilbert and Sullivan</span><span class="p-life">· comic opera</span><span class="p-note">Comic operas: <b>HMS Pinafore, The Pirates of Penzance, The Mikado</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Andrew Lloyd Webber</span><span class="p-life">· musicals</span><span class="p-note"><b>Jesus Christ Superstar</b> and <b>Evita</b> (with <b>Tim Rice</b>), <b>Cats</b>, <b>The Phantom of the Opera</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Laurence Olivier</span><span class="p-life">· acting</span><span class="p-note">The <b>Laurence Olivier Awards</b> — London stage awards named after the great <b>Shakespearean actor</b>.</span></button>
         </div>
         <p class="dom-note">Agatha Christie appears twice on this page — here for <b>The Mousetrap</b>, and under Novelists for the detective stories. That is the chapter's doing, not a duplicate.</p>
       </div>
@@ -485,18 +534,18 @@
       <div class="dgroup" data-dom="art" style="--era:var(--dom-art)">
         <div class="dom" id="dom-art"><span class="dot"></span><b>Art</b><span class="ct">· 12</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Holbein &amp; Van Dyck</p><p class="p-life">16th–17th c. · painting</p><p class="p-note"><b>Foreign</b> painters working in Britain — before them, medieval art here was <b>religious</b>.</p></div>
-          <div class="person"><p class="p-name">Thomas Gainsborough</p><p class="p-life">1727–88 · portraits</p><p class="p-note">Portraits, often in <b>country or garden settings</b>.</p></div>
-          <div class="person"><p class="p-name">David Allan</p><p class="p-life">1744–96 · portraits</p><p class="p-note">Scottish portraitist; <b>The Origin of Painting</b>.</p></div>
-          <div class="person"><p class="p-name">Joseph Turner</p><p class="p-life">1775–1851 · landscapes</p><p class="p-note">Modern-style <b>landscapes</b>; raised the whole genre's standing.</p></div>
-          <div class="person"><p class="p-name">John Constable</p><p class="p-life">1776–1837 · landscapes</p><p class="p-note">Landscapes of <b>Dedham Vale</b> on the Suffolk–Essex border.</p></div>
-          <div class="person"><p class="p-name">The Pre-Raphaelites</p><p class="p-life">late 19th c. · painting</p><p class="p-note">Detailed, brightly coloured religious and literary scenes — <b>Holman Hunt, Rossetti, Millais</b>.</p></div>
-          <div class="person"><p class="p-name">Sir John Lavery</p><p class="p-life">1856–1941 · portraits</p><p class="p-note">Northern Irish portraitist; painted <b>the Royal Family</b>.</p></div>
-          <div class="person"><p class="p-name">Henry Moore</p><p class="p-life">1898–1986 · sculpture</p><p class="p-note"><b>Large bronze abstract sculptures</b>.</p></div>
-          <div class="person"><p class="p-name">John Petts</p><p class="p-life">1914–91 · engraving</p><p class="p-note">Welsh; <b>engravings and stained glass</b>.</p></div>
-          <div class="person"><p class="p-name">Lucian Freud</p><p class="p-life">1922–2011 · portraits</p><p class="p-note">German-born; <b>portraits</b>.</p></div>
-          <div class="person"><p class="p-name">David Hockney</p><p class="p-life">1937– · pop art</p><p class="p-note"><b>1960s pop art</b>.</p></div>
-          <div class="person"><p class="p-name">Damien Hirst &amp; Richard Wright</p><p class="p-life">· contemporary art</p><p class="p-note"><b>Turner Prize</b> winners — the prize was founded <b>1984</b>, with <b>four shortlisted works at Tate Britain</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Holbein &amp; Van Dyck</span><span class="p-life">16th–17th c. · painting</span><span class="p-note"><b>Foreign</b> painters working in Britain — before them, medieval art here was <b>religious</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Thomas Gainsborough</span><span class="p-life">1727–88 · portraits</span><span class="p-note">Portraits, often in <b>country or garden settings</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">David Allan</span><span class="p-life">1744–96 · portraits</span><span class="p-note">Scottish portraitist; <b>The Origin of Painting</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Joseph Turner</span><span class="p-life">1775–1851 · landscapes</span><span class="p-note">Modern-style <b>landscapes</b>; raised the whole genre's standing.</span></button>
+          <button class="person" type="button"><span class="p-name">John Constable</span><span class="p-life">1776–1837 · landscapes</span><span class="p-note">Landscapes of <b>Dedham Vale</b> on the Suffolk–Essex border.</span></button>
+          <button class="person" type="button"><span class="p-name">The Pre-Raphaelites</span><span class="p-life">late 19th c. · painting</span><span class="p-note">Detailed, brightly coloured religious and literary scenes — <b>Holman Hunt, Rossetti, Millais</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir John Lavery</span><span class="p-life">1856–1941 · portraits</span><span class="p-note">Northern Irish portraitist; painted <b>the Royal Family</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Henry Moore</span><span class="p-life">1898–1986 · sculpture</span><span class="p-note"><b>Large bronze abstract sculptures</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">John Petts</span><span class="p-life">1914–91 · engraving</span><span class="p-note">Welsh; <b>engravings and stained glass</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Lucian Freud</span><span class="p-life">1922–2011 · portraits</span><span class="p-note">German-born; <b>portraits</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">David Hockney</span><span class="p-life">1937– · pop art</span><span class="p-note"><b>1960s pop art</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Damien Hirst &amp; Richard Wright</span><span class="p-life">· contemporary art</span><span class="p-note"><b>Turner Prize</b> winners — the prize was founded <b>1984</b>, with <b>four shortlisted works at Tate Britain</b>.</span></button>
         </div>
       </div>
 
@@ -504,14 +553,14 @@
       <div class="dgroup" data-dom="arch" style="--era:var(--dom-arch)">
         <div class="dom" id="dom-arch"><span class="dot"></span><b>Architecture &amp; gardens</b><span class="ct">· 8</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">William the Conqueror</p><p class="p-life">1066 · architecture</p><p class="p-note">The <b>White Tower</b> at the Tower of London is a <b>Norman keep built for him</b>.</p></div>
-          <div class="person"><p class="p-name">Inigo Jones</p><p class="p-life">17th c. · architecture</p><p class="p-note"><b>Queen's House, Greenwich</b> and <b>Banqueting House, Whitehall</b>, from classical models.</p></div>
-          <div class="person"><p class="p-name">Sir Christopher Wren</p><p class="p-life">· architecture</p><p class="p-note">The new <b>St Paul's Cathedral</b>.</p></div>
-          <div class="person"><p class="p-name">Robert Adam</p><p class="p-life">18th c. · architecture</p><p class="p-note">Scottish; interiors and houses like <b>Dumfries House</b>; influenced <b>Bath's Royal Crescent</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Edwin Lutyens</p><p class="p-life">20th c. · architecture</p><p class="p-note">Designed <b>New Delhi</b> as India's seat of government and <b>the Cenotaph in Whitehall</b>.</p></div>
-          <div class="person"><p class="p-name">Lancelot “Capability” Brown</p><p class="p-life">· gardens</p><p class="p-note"><b>Natural-looking landscapes</b>.</p></div>
-          <div class="person"><p class="p-name">Gertrude Jekyll</p><p class="p-life">· gardens</p><p class="p-note"><b>Colourful gardens</b>, often working with Lutyens.</p></div>
-          <div class="person"><p class="p-name">Sir Norman Foster · Lord Richard Rogers · Dame Zaha Hadid</p><p class="p-life">· modern architecture</p><p class="p-note">The chapter's <b>modern</b> architects — named as a trio, with no separate building attached to each.</p></div>
+          <button class="person" type="button"><span class="p-name">William the Conqueror</span><span class="p-life">1066 · architecture</span><span class="p-note">The <b>White Tower</b> at the Tower of London is a <b>Norman keep built for him</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Inigo Jones</span><span class="p-life">17th c. · architecture</span><span class="p-note"><b>Queen's House, Greenwich</b> and <b>Banqueting House, Whitehall</b>, from classical models.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Christopher Wren</span><span class="p-life">· architecture</span><span class="p-note">The new <b>St Paul's Cathedral</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Robert Adam</span><span class="p-life">18th c. · architecture</span><span class="p-note">Scottish; interiors and houses like <b>Dumfries House</b>; influenced <b>Bath's Royal Crescent</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Edwin Lutyens</span><span class="p-life">20th c. · architecture</span><span class="p-note">Designed <b>New Delhi</b> as India's seat of government and <b>the Cenotaph in Whitehall</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Lancelot “Capability” Brown</span><span class="p-life">· gardens</span><span class="p-note"><b>Natural-looking landscapes</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Gertrude Jekyll</span><span class="p-life">· gardens</span><span class="p-note"><b>Colourful gardens</b>, often working with Lutyens.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Norman Foster · Lord Richard Rogers · Dame Zaha Hadid</span><span class="p-life">· modern architecture</span><span class="p-note">The chapter's <b>modern</b> architects — named as a trio, with no separate building attached to each.</span></button>
         </div>
       </div>
 
@@ -519,10 +568,10 @@
       <div class="dgroup" data-dom="fashion" style="--era:var(--dom-fashion)">
         <div class="dom" id="dom-fashion"><span class="dot"></span><b>Fashion &amp; design</b><span class="ct">· 4</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Thomas Chippendale</p><p class="p-life">18th c. · furniture</p><p class="p-note">18th-century <b>furniture</b>.</p></div>
-          <div class="person"><p class="p-name">Clarice Cliff</p><p class="p-life">· ceramics</p><p class="p-note"><b>Art Deco ceramics</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Terence Conran</p><p class="p-life">20th c. · interiors</p><p class="p-note">20th-century <b>interior design</b>.</p></div>
-          <div class="person"><p class="p-name">Mary Quant · Alexander McQueen · Vivienne Westwood</p><p class="p-life">· fashion</p><p class="p-note">The chapter's three named <b>fashion</b> designers.</p></div>
+          <button class="person" type="button"><span class="p-name">Thomas Chippendale</span><span class="p-life">18th c. · furniture</span><span class="p-note">18th-century <b>furniture</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Clarice Cliff</span><span class="p-life">· ceramics</span><span class="p-note"><b>Art Deco ceramics</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Terence Conran</span><span class="p-life">20th c. · interiors</span><span class="p-note">20th-century <b>interior design</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Mary Quant · Alexander McQueen · Vivienne Westwood</span><span class="p-life">· fashion</span><span class="p-note">The chapter's three named <b>fashion</b> designers.</span></button>
         </div>
       </div>
 
@@ -530,20 +579,20 @@
       <div class="dgroup" data-dom="novel" style="--era:var(--dom-novel)">
         <div class="dom" id="dom-novel"><span class="dot"></span><b>Novelists</b><span class="ct">· 14</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Jane Austen</p><p class="p-life">1775–1817 · novels</p><p class="p-note"><b>Pride and Prejudice</b>, <b>Sense and Sensibility</b>; marriage and family.</p></div>
-          <div class="person"><p class="p-name">Charles Dickens</p><p class="p-life">1812–70 · novels</p><p class="p-note"><b>Oliver Twist</b>, <b>Great Expectations</b>; gave English <b>Scrooge</b> and <b>Mr Micawber</b>.</p></div>
-          <div class="person"><p class="p-name">Thomas Hardy</p><p class="p-life">1840–1928 · novels</p><p class="p-note"><b>Far from the Madding Crowd</b>, <b>Jude the Obscure</b>; rural settings.</p></div>
-          <div class="person"><p class="p-name">Robert Louis Stevenson</p><p class="p-life">1850–94 · novels</p><p class="p-note"><b>Treasure Island, Kidnapped, Dr Jekyll and Mr Hyde</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Arthur Conan Doyle</p><p class="p-life">1859–1930 · novels</p><p class="p-note">Scottish doctor who created <b>Sherlock Holmes</b>.</p></div>
-          <div class="person"><p class="p-name">Evelyn Waugh</p><p class="p-life">1903–66 · novels</p><p class="p-note">Satire: <b>Decline and Fall, Scoop, Brideshead Revisited</b>.</p></div>
-          <div class="person"><p class="p-name">Graham Greene</p><p class="p-life">1904–91 · novels</p><p class="p-note"><b>The Heart of the Matter, The Honorary Consul, Brighton Rock, Our Man in Havana</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Kingsley Amis</p><p class="p-life">1922–95 · novels</p><p class="p-note">20+ novels; <b>Lucky Jim</b>.</p></div>
-          <div class="person"><p class="p-name">J.K. Rowling</p><p class="p-life">1965– · novels</p><p class="p-note"><b>Harry Potter</b>; now also writes for adults.</p></div>
-          <div class="person"><p class="p-name">Agatha Christie</p><p class="p-life">· detective stories</p><p class="p-note">Detective stories <b>read worldwide</b>.</p></div>
-          <div class="person"><p class="p-name">Ian Fleming</p><p class="p-life">· novels</p><p class="p-note"><b>James Bond</b>.</p></div>
-          <div class="person"><p class="p-name">Tolkien</p><p class="p-life">2003 · novels</p><p class="p-note"><b>The Lord of the Rings</b> — voted the nation's <b>best-loved novel in 2003</b>.</p></div>
-          <div class="person"><p class="p-name">Sir William Golding · Seamus Heaney · Harold Pinter</p><p class="p-life">· Nobel laureates</p><p class="p-note">The chapter's <b>Nobel literature</b> laureates.</p></div>
-          <div class="person"><p class="p-name">Ian McEwan · Hilary Mantel · Julian Barnes</p><p class="p-life">since 1968 · Booker winners</p><p class="p-note"><b>Man Booker Prize</b> winners — the prize runs <b>since 1968</b>, for the best fiction from the <b>Commonwealth, Ireland or Zimbabwe</b>.</p></div>
+          <button class="person" type="button"><span class="p-name">Jane Austen</span><span class="p-life">1775–1817 · novels</span><span class="p-note"><b>Pride and Prejudice</b>, <b>Sense and Sensibility</b>; marriage and family.</span></button>
+          <button class="person" type="button"><span class="p-name">Charles Dickens</span><span class="p-life">1812–70 · novels</span><span class="p-note"><b>Oliver Twist</b>, <b>Great Expectations</b>; gave English <b>Scrooge</b> and <b>Mr Micawber</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Thomas Hardy</span><span class="p-life">1840–1928 · novels</span><span class="p-note"><b>Far from the Madding Crowd</b>, <b>Jude the Obscure</b>; rural settings.</span></button>
+          <button class="person" type="button"><span class="p-name">Robert Louis Stevenson</span><span class="p-life">1850–94 · novels</span><span class="p-note"><b>Treasure Island, Kidnapped, Dr Jekyll and Mr Hyde</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Arthur Conan Doyle</span><span class="p-life">1859–1930 · novels</span><span class="p-note">Scottish doctor who created <b>Sherlock Holmes</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Evelyn Waugh</span><span class="p-life">1903–66 · novels</span><span class="p-note">Satire: <b>Decline and Fall, Scoop, Brideshead Revisited</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Graham Greene</span><span class="p-life">1904–91 · novels</span><span class="p-note"><b>The Heart of the Matter, The Honorary Consul, Brighton Rock, Our Man in Havana</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Kingsley Amis</span><span class="p-life">1922–95 · novels</span><span class="p-note">20+ novels; <b>Lucky Jim</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">J.K. Rowling</span><span class="p-life">1965– · novels</span><span class="p-note"><b>Harry Potter</b>; now also writes for adults.</span></button>
+          <button class="person" type="button"><span class="p-name">Agatha Christie</span><span class="p-life">· detective stories</span><span class="p-note">Detective stories <b>read worldwide</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Ian Fleming</span><span class="p-life">· novels</span><span class="p-note"><b>James Bond</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Tolkien</span><span class="p-life">2003 · novels</span><span class="p-note"><b>The Lord of the Rings</b> — voted the nation's <b>best-loved novel in 2003</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir William Golding · Seamus Heaney · Harold Pinter</span><span class="p-life">· Nobel laureates</span><span class="p-note">The chapter's <b>Nobel literature</b> laureates.</span></button>
+          <button class="person" type="button"><span class="p-name">Ian McEwan · Hilary Mantel · Julian Barnes</span><span class="p-life">since 1968 · Booker winners</span><span class="p-note"><b>Man Booker Prize</b> winners — the prize runs <b>since 1968</b>, for the best fiction from the <b>Commonwealth, Ireland or Zimbabwe</b>.</span></button>
         </div>
       </div>
 
@@ -551,24 +600,24 @@
       <div class="dgroup" data-dom="poet" style="--era:var(--dom-poet)">
         <div class="dom" id="dom-poet"><span class="dot"></span><b>Poets</b><span class="ct">· 18</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Beowulf</p><p class="p-life">Anglo-Saxon · epic poem</p><p class="p-note">Anglo-Saxon epic, <b>still translated today</b> — a poem with no named author, and the chapter opens the roll call with it.</p></div>
-          <div class="person"><p class="p-name">Chaucer</p><p class="p-life">· poetry</p><p class="p-note"><b>The Canterbury Tales</b>; <b>Sir Gawain and the Green Knight</b> tells of <b>King Arthur's court</b>.</p></div>
-          <div class="person"><p class="p-name">John Milton</p><p class="p-life">· poetry</p><p class="p-note"><b>Paradise Lost</b>, born of <b>Protestant ideas</b>.</p></div>
-          <div class="person"><p class="p-name">Shakespeare</p><p class="p-life">· poetry</p><p class="p-note">Plays, long poems, and <b>sonnets (14 lines)</b>.</p></div>
-          <div class="person"><p class="p-name">William Wordsworth</p><p class="p-life">· nature poetry</p><p class="p-note">A <b>nature poet</b>; the quoted line is <b>“I wander'd lonely as a cloud”</b>.</p></div>
-          <div class="person"><p class="p-name">Sir Walter Scott</p><p class="p-life">· nature poetry</p><p class="p-note">Poems (and novels) inspired by <b>Scotland and border ballads</b>.</p></div>
-          <div class="person"><p class="p-name">Blake</p><p class="p-life">19th c. · poetry</p><p class="p-note">The quoted line is <b>“Tyger! Tyger! Burning bright”</b>.</p></div>
-          <div class="person"><p class="p-name">Byron</p><p class="p-life">19th c. · poetry</p><p class="p-note">The quoted line is <b>“She walks in beauty, like the night”</b>.</p></div>
-          <div class="person"><p class="p-name">Robert and Elizabeth Browning</p><p class="p-life">19th c. · poetry</p><p class="p-note">Browning's quoted line is <b>“Oh, to be in England / Now that April's there”</b> — the chapter does not say which Browning.</p></div>
-          <div class="person"><p class="p-name">Keats</p><p class="p-life">19th c. · poetry</p><p class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</p></div>
-          <div class="person"><p class="p-name">Shelley</p><p class="p-life">19th c. · poetry</p><p class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</p></div>
-          <div class="person"><p class="p-name">Tennyson</p><p class="p-life">19th c. · poetry</p><p class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</p></div>
-          <div class="person"><p class="p-name">Wilfred Owen</p><p class="p-life">WWI · poetry</p><p class="p-note">Wrote from the <b>trenches</b>; the quoted line is <b>“What passing-bells for these who die as cattle?”</b></p></div>
-          <div class="person"><p class="p-name">Siegfried Sassoon</p><p class="p-life">WWI · poetry</p><p class="p-note">The other <b>WWI poet</b>, writing from the <b>trenches</b> alongside Owen.</p></div>
-          <div class="person"><p class="p-name">Walter de la Mare</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
-          <div class="person"><p class="p-name">John Masefield</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
-          <div class="person"><p class="p-name">Sir John Betjeman</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
-          <div class="person"><p class="p-name">Ted Hughes</p><p class="p-life">modern · poetry</p><p class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</p></div>
+          <button class="person" type="button"><span class="p-name">Beowulf</span><span class="p-life">Anglo-Saxon · epic poem</span><span class="p-note">Anglo-Saxon epic, <b>still translated today</b> — a poem with no named author, and the chapter opens the roll call with it.</span></button>
+          <button class="person" type="button"><span class="p-name">Chaucer</span><span class="p-life">· poetry</span><span class="p-note"><b>The Canterbury Tales</b>; <b>Sir Gawain and the Green Knight</b> tells of <b>King Arthur's court</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">John Milton</span><span class="p-life">· poetry</span><span class="p-note"><b>Paradise Lost</b>, born of <b>Protestant ideas</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Shakespeare</span><span class="p-life">· poetry</span><span class="p-note">Plays, long poems, and <b>sonnets (14 lines)</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">William Wordsworth</span><span class="p-life">· nature poetry</span><span class="p-note">A <b>nature poet</b>; the quoted line is <b>“I wander'd lonely as a cloud”</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir Walter Scott</span><span class="p-life">· nature poetry</span><span class="p-note">Poems (and novels) inspired by <b>Scotland and border ballads</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Blake</span><span class="p-life">19th c. · poetry</span><span class="p-note">The quoted line is <b>“Tyger! Tyger! Burning bright”</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Byron</span><span class="p-life">19th c. · poetry</span><span class="p-note">The quoted line is <b>“She walks in beauty, like the night”</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Robert and Elizabeth Browning</span><span class="p-life">19th c. · poetry</span><span class="p-note">Browning's quoted line is <b>“Oh, to be in England / Now that April's there”</b> — the chapter does not say which Browning.</span></button>
+          <button class="person" type="button"><span class="p-name">Keats</span><span class="p-life">19th c. · poetry</span><span class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</span></button>
+          <button class="person" type="button"><span class="p-name">Shelley</span><span class="p-life">19th c. · poetry</span><span class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</span></button>
+          <button class="person" type="button"><span class="p-name">Tennyson</span><span class="p-life">19th c. · poetry</span><span class="p-note">In the chapter's <b>19th-century</b> roll call; no work or line attached.</span></button>
+          <button class="person" type="button"><span class="p-name">Wilfred Owen</span><span class="p-life">WWI · poetry</span><span class="p-note">Wrote from the <b>trenches</b>; the quoted line is <b>“What passing-bells for these who die as cattle?”</b></span></button>
+          <button class="person" type="button"><span class="p-name">Siegfried Sassoon</span><span class="p-life">WWI · poetry</span><span class="p-note">The other <b>WWI poet</b>, writing from the <b>trenches</b> alongside Owen.</span></button>
+          <button class="person" type="button"><span class="p-name">Walter de la Mare</span><span class="p-life">modern · poetry</span><span class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</span></button>
+          <button class="person" type="button"><span class="p-name">John Masefield</span><span class="p-life">modern · poetry</span><span class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</span></button>
+          <button class="person" type="button"><span class="p-name">Sir John Betjeman</span><span class="p-life">modern · poetry</span><span class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</span></button>
+          <button class="person" type="button"><span class="p-name">Ted Hughes</span><span class="p-life">modern · poetry</span><span class="p-note">One of the chapter's <b>modern</b> poets — later than the WWI pair.</span></button>
         </div>
         <p class="dom-note">Many of them rest in <b>Poets' Corner, Westminster Abbey</b>.</p>
       </div>
@@ -577,19 +626,19 @@
       <div class="dgroup" data-dom="film" style="--era:var(--dom-film)">
         <div class="dom" id="dom-film"><span class="dot"></span><b>Film</b><span class="ct">· 13</span></div>
         <div class="people">
-          <div class="person"><p class="p-name">Charlie Chaplin</p><p class="p-life">· silent film</p><p class="p-note">Famous for his <b>tramp</b> character in silent film.</p></div>
-          <div class="person"><p class="p-name">Alfred Hitchcock</p><p class="p-life">d. 1980 · directing</p><p class="p-note">Directed here before moving to Hollywood; <b>The 39 Steps</b>, <b>1935</b>.</p></div>
-          <div class="person"><p class="p-name">David Lean</p><p class="p-life">1945 · 1962 · directing</p><p class="p-note"><b>Brief Encounter</b> (1945) and <b>Lawrence of Arabia</b> (1962) — the only director the chapter names twice.</p></div>
-          <div class="person"><p class="p-name">Carol Reed</p><p class="p-life">1949 · directing</p><p class="p-note"><b>The Third Man</b>.</p></div>
-          <div class="person"><p class="p-name">Frank Launder</p><p class="p-life">1954 · directing</p><p class="p-note"><b>The Belles of St Trinian's</b>.</p></div>
-          <div class="person"><p class="p-name">Ken Russell</p><p class="p-life">1969 · directing</p><p class="p-note"><b>Women in Love</b>.</p></div>
-          <div class="person"><p class="p-name">Nicolas Roeg</p><p class="p-life">1973 · directing</p><p class="p-note"><b>Don't Look Now</b>.</p></div>
-          <div class="person"><p class="p-name">Hugh Hudson</p><p class="p-life">1981 · directing</p><p class="p-note"><b>Chariots of Fire</b>.</p></div>
-          <div class="person"><p class="p-name">Roland Joffé</p><p class="p-life">1984 · directing</p><p class="p-note"><b>The Killing Fields</b>.</p></div>
-          <div class="person"><p class="p-name">Mike Newell</p><p class="p-life">1994 · directing</p><p class="p-note"><b>Four Weddings and a Funeral</b>.</p></div>
-          <div class="person"><p class="p-name">Kevin MacDonald</p><p class="p-life">2003 · directing</p><p class="p-note"><b>Touching the Void</b>.</p></div>
-          <div class="person"><p class="p-name">Nick Park</p><p class="p-life">· animation</p><p class="p-note"><b>Four Oscars</b>, including three for <b>Wallace and Gromit</b>.</p></div>
-          <div class="person"><p class="p-name">Colin Firth · Sir Anthony Hopkins · Dame Judi Dench · Kate Winslet · Tilda Swinton</p><p class="p-life">· acting</p><p class="p-note">The chapter's recent <b>Oscar-winning</b> actors.</p></div>
+          <button class="person" type="button"><span class="p-name">Charlie Chaplin</span><span class="p-life">· silent film</span><span class="p-note">Famous for his <b>tramp</b> character in silent film.</span></button>
+          <button class="person" type="button"><span class="p-name">Alfred Hitchcock</span><span class="p-life">d. 1980 · directing</span><span class="p-note">Directed here before moving to Hollywood; <b>The 39 Steps</b>, <b>1935</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">David Lean</span><span class="p-life">1945 · 1962 · directing</span><span class="p-note"><b>Brief Encounter</b> (1945) and <b>Lawrence of Arabia</b> (1962) — the only director the chapter names twice.</span></button>
+          <button class="person" type="button"><span class="p-name">Carol Reed</span><span class="p-life">1949 · directing</span><span class="p-note"><b>The Third Man</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Frank Launder</span><span class="p-life">1954 · directing</span><span class="p-note"><b>The Belles of St Trinian's</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Ken Russell</span><span class="p-life">1969 · directing</span><span class="p-note"><b>Women in Love</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Nicolas Roeg</span><span class="p-life">1973 · directing</span><span class="p-note"><b>Don't Look Now</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Hugh Hudson</span><span class="p-life">1981 · directing</span><span class="p-note"><b>Chariots of Fire</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Roland Joffé</span><span class="p-life">1984 · directing</span><span class="p-note"><b>The Killing Fields</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Mike Newell</span><span class="p-life">1994 · directing</span><span class="p-note"><b>Four Weddings and a Funeral</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Kevin MacDonald</span><span class="p-life">2003 · directing</span><span class="p-note"><b>Touching the Void</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Nick Park</span><span class="p-life">· animation</span><span class="p-note"><b>Four Oscars</b>, including three for <b>Wallace and Gromit</b>.</span></button>
+          <button class="person" type="button"><span class="p-name">Colin Firth · Sir Anthony Hopkins · Dame Judi Dench · Kate Winslet · Tilda Swinton</span><span class="p-life">· acting</span><span class="p-note">The chapter's recent <b>Oscar-winning</b> actors.</span></button>
         </div>
       </div>
 
@@ -988,6 +1037,41 @@
     });
   });
   apply("");
+
+  /* ---- hide / reveal: every card holds its fact back until you ask ----
+          The class and the two buttons are switched on from here, so a page
+          whose script never runs still shows all hundred and one facts. Each
+          card is a real button element, which is what makes it work from a
+          keyboard and announce itself as expandable. ---- */
+  var people = [].slice.call(list.getElementsByClassName("person"));
+  var tools = document.getElementById("castTools");
+  var tally = document.getElementById("castTally");
+
+  function show(card, on) {
+    card.classList.toggle("on", on);
+    card.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  function count() {
+    var n = 0;
+    people.forEach(function (p) { if (p.classList.contains("on")) n++; });
+    tally.textContent = n + " of " + people.length + " revealed";
+  }
+  function all(on) {
+    people.forEach(function (p) { show(p, on); });
+    count();
+  }
+
+  list.classList.add("quiz");
+  tools.hidden = false;
+  list.addEventListener("click", function (e) {
+    var card = e.target.closest && e.target.closest(".person");
+    if (!card) return;
+    show(card, !card.classList.contains("on"));
+    count();
+  });
+  document.getElementById("castAll").addEventListener("click", function () { all(true); });
+  document.getElementById("castNone").addEventListener("click", function () { all(false); });
+  all(false);
 
   /* ---- which section am I in ---- */
   var links = [].slice.call(document.querySelectorAll("#jump a"));
