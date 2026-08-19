@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0F14">
+<meta name="description" content="Drill the 195 named figures of the Life in the UK handbook — who they were, what they did, which field, and when.">
+<title>Life in the UK · The Cast</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<meta name="robots" content="noindex">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Tokens are the hub's, verbatim — and the Day Before sheets' domain accents
+     with them, because cast-data.js stores the token name each group is drawn
+     in. A group that is blue on the sheet has to be blue here or the meters
+     stop meaning anything. */
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --era7:#9B8ADF;
+    --pink:#FF4F9A;
+    --good:#4AA968; --bad:#E0555F;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --era7:#6A56C4;
+    --pink:#D62B72;
+    --good:#23703A; --bad:#C0323C;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+  :root {
+    --dom-sport:var(--era4);
+    --dom-classical:var(--era5);
+    --dom-pop:var(--pink);
+    --dom-theatre:var(--era3);
+    --dom-art:var(--era1);
+    --dom-arch:var(--era2);
+    --dom-fashion:var(--gold);
+    --dom-novel:var(--era6);
+    --dom-poet:color-mix(in srgb, var(--era4) 55%, var(--era3));
+    --dom-film:color-mix(in srgb, var(--era6) 55%, var(--era2));
+  }
+
+  html { scroll-behavior:smooth; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+    padding-bottom:40px;
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  a { color:inherit; text-decoration:none; }
+
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+
+  /* ---------- chapter switcher ---------- */
+  .chapswitch { display:flex; justify-content:center; gap:6px; padding:54px 0 0; margin:0; flex-wrap:wrap; }
+  .chapswitch > a, .chapswitch > span {
+    display:inline-flex; align-items:center; gap:7px;
+    min-height:44px; padding:0 13px; border-radius:11px;
+    font-size:.79rem; font-weight:650; white-space:nowrap;
+    color:var(--ink-2); background:var(--card);
+    border:1px solid var(--line);
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  .chapswitch .n {
+    flex:0 0 auto; display:grid; place-items:center;
+    width:28px; height:28px; border-radius:8px;
+    background:var(--card); border:1px solid var(--line);
+    font-family:var(--serif); font-size:1.02rem; color:var(--gold); line-height:1;
+  }
+  .chapswitch a:active { transform:scale(.97); }
+  .chapswitch .cur {
+    color:var(--ink); background:var(--card-2);
+    border-color:color-mix(in srgb, var(--gold) 50%, var(--line));
+    box-shadow:var(--shadow);
+  }
+  .chapswitch + .mast { padding-top:22px; }
+  @media (max-width:380px) {
+    .chapswitch { gap:4px; }
+    .chapswitch > a, .chapswitch > span { padding:0 9px; font-size:.74rem; gap:5px; }
+    .chapswitch .n { width:25px; height:25px; font-size:.95rem; }
+  }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding:52px 0 4px; text-align:center; }
+  .mast .eyebrow {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700; margin:0;
+  }
+  .mast h1 {
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(2rem, 7.4vw, 2.9rem); line-height:1.08;
+    margin:.3em 0 .22em; letter-spacing:-.01em;
+  }
+  .mast .sub { color:var(--ink-2); font-size:.93rem; margin:0 auto; max-width:32em; }
+
+  /* ---------- section furniture ---------- */
+  section { scroll-margin-top:calc(var(--lituk-sat) + 60px); }
+  .sec-head { margin:46px 0 0; }
+  .sec-head .n {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700;
+  }
+  .sec-head h2 {
+    font-family:var(--serif); font-weight:400; letter-spacing:-.01em;
+    font-size:clamp(1.6rem, 5.6vw, 2.1rem); line-height:1.15; margin:.12em 0 .18em;
+  }
+  .sec-head p { color:var(--ink-2); font-size:.89rem; margin:0; max-width:46em; }
+  .sec-head p b { color:var(--ink); font-weight:650; }
+
+  /* ---------- roll call ---------- */
+  .roll {
+    margin:22px 0 0; padding:18px 20px; border-radius:14px;
+    background:linear-gradient(160deg, color-mix(in srgb, var(--gold) 14%, var(--card)), var(--card));
+    border:1px solid color-mix(in srgb, var(--gold) 34%, var(--line));
+    box-shadow:var(--shadow);
+  }
+  .roll .lab {
+    font-size:.68rem; letter-spacing:.15em; text-transform:uppercase;
+    font-weight:700; color:var(--gold); margin:0 0 5px;
+  }
+  .roll .big { font-family:var(--serif); font-size:1.5rem; line-height:1.2; margin:0 0 4px; }
+  .roll .sub { font-size:.85rem; color:var(--ink-2); margin:0; }
+  .roll .row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:14px; }
+  .flames { font-size:.8rem; color:var(--ink-2); font-variant-numeric:tabular-nums; margin-left:auto; }
+  .flames b { color:var(--ink); }
+
+  .btn {
+    font-family:inherit; font-size:.84rem; font-weight:700; cursor:pointer;
+    min-height:46px; padding:0 20px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--gold); color:var(--page);
+    border:1px solid transparent; border-radius:12px;
+    transition:transform .1s ease, filter .14s ease;
+  }
+  .btn:active { transform:scale(.97); }
+  .btn:hover { filter:brightness(1.06); }
+  .btn.ghost { background:var(--card); color:var(--ink-2); border-color:var(--line); }
+  .btn.ghost:hover { border-color:color-mix(in srgb, var(--gold) 50%, var(--line)); }
+  .btn[disabled] { opacity:.45; cursor:default; }
+
+  /* ---------- mode tiles ---------- */
+  .modes { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:12px; margin-top:18px; }
+  .mode {
+    display:flex; gap:13px; align-items:flex-start; text-align:left; width:100%;
+    font:inherit; color:inherit; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:13px;
+    padding:15px 16px; box-shadow:var(--shadow);
+    transition:border-color .14s ease, transform .1s ease;
+  }
+  .mode:hover { border-color:color-mix(in srgb, var(--era, var(--gold)) 55%, var(--line)); }
+  .mode:active { transform:scale(.985); }
+  .mode:focus-visible { outline:2px solid var(--era, var(--gold)); outline-offset:2px; }
+  .mode .ic { font-size:1.5rem; line-height:1; flex:0 0 auto; }
+  .mode b { display:block; font-size:.96rem; margin-bottom:3px; }
+  .mode span { display:block; font-size:.81rem; color:var(--ink-2); line-height:1.45; }
+  .mode .ct { display:block; font-size:.72rem; color:var(--ink-3); margin-top:6px; font-variant-numeric:tabular-nums; }
+
+  /* ---------- the stage ---------- */
+  .stage { display:none; }
+  .stage.on { display:block; }
+  body.playing .home, body.playing .mast, body.playing .chapswitch { display:none; }
+  /* With the masthead gone the first row would land under the two fixed corner
+     pills, so the stage carries their clearance itself. */
+  body.playing .stage { padding-top:calc(var(--lituk-sat) + 58px); }
+
+  .qbar { display:flex; align-items:center; gap:12px; margin:26px 0 0; }
+  .qbar .close {
+    font:inherit; font-size:1.1rem; line-height:1; cursor:pointer;
+    width:44px; height:44px; flex:0 0 auto; display:grid; place-items:center;
+    background:var(--card); color:var(--ink-2); border:1px solid var(--line); border-radius:11px;
+  }
+  .qbar .close:active { transform:scale(.95); }
+  .meter { flex:1 1 auto; height:8px; border-radius:99px; background:var(--card-2); overflow:hidden; }
+  .meter i { display:block; height:100%; background:var(--gold); transition:width .3s ease; }
+  .qbar .cnt { font-size:.78rem; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  .combo {
+    display:flex; align-items:center; gap:8px; margin:12px 0 0;
+    font-size:.76rem; color:var(--ink-3); font-variant-numeric:tabular-nums;
+  }
+  .combo .fire { color:var(--gold); font-weight:700; }
+
+  .qcard {
+    margin:16px 0 0; padding:22px 20px; border-radius:16px;
+    background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);
+  }
+  .qkind {
+    font-size:.66rem; letter-spacing:.15em; text-transform:uppercase; font-weight:700;
+    color:var(--era, var(--gold)); margin:0 0 10px;
+  }
+  .qtext { font-family:var(--serif); font-size:1.32rem; line-height:1.34; margin:0; }
+  .qtext b { font-weight:400; color:var(--gold); }
+  .qsub { font-size:.8rem; color:var(--ink-3); margin:10px 0 0; }
+  .blank {
+    display:inline-block; min-width:4.5em; padding:0 .35em; margin:0 .1em;
+    border-bottom:2px solid var(--gold); color:var(--gold); text-align:center;
+    font-family:var(--sans); font-weight:700;
+  }
+
+  .opts { display:grid; gap:9px; margin:18px 0 0; }
+  .opt {
+    display:flex; gap:11px; align-items:flex-start; text-align:left; width:100%;
+    font:inherit; color:inherit; cursor:pointer;
+    background:var(--card-2); border:1px solid var(--line); border-radius:12px;
+    padding:13px 15px; line-height:1.45; font-size:.9rem;
+    transition:border-color .14s ease, background .14s ease, transform .1s ease;
+  }
+  .opt:hover:not([disabled]) { border-color:color-mix(in srgb, var(--gold) 50%, var(--line)); }
+  .opt:active:not([disabled]) { transform:scale(.99); }
+  .opt:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  .opt .key {
+    flex:0 0 auto; width:23px; height:23px; border-radius:7px; display:grid; place-items:center;
+    background:var(--card); border:1px solid var(--line);
+    font-size:.72rem; font-weight:700; color:var(--ink-3); margin-top:1px;
+  }
+  .opt .txt { flex:1 1 auto; min-width:0; }
+  .opt b { color:var(--ink); font-weight:700; }
+  .opt.right { border-color:var(--good); background:color-mix(in srgb, var(--good) 15%, var(--card-2)); }
+  .opt.right .key { border-color:var(--good); color:var(--good); }
+  .opt.wrong { border-color:var(--bad); background:color-mix(in srgb, var(--bad) 14%, var(--card-2)); }
+  .opt.wrong .key { border-color:var(--bad); color:var(--bad); }
+  .opt[disabled] { cursor:default; }
+  .opt[disabled]:not(.right):not(.wrong) { opacity:.5; }
+
+  .verdict { margin:16px 0 0; padding:15px 17px; border-radius:13px; font-size:.88rem; line-height:1.55; }
+  .verdict.ok { background:color-mix(in srgb, var(--good) 13%, var(--card)); border:1px solid color-mix(in srgb, var(--good) 45%, var(--line)); }
+  .verdict.no { background:color-mix(in srgb, var(--bad) 12%, var(--card)); border:1px solid color-mix(in srgb, var(--bad) 45%, var(--line)); }
+  .verdict .lab { display:block; font-size:.67rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; margin-bottom:6px; }
+  .verdict.ok .lab { color:var(--good); }
+  .verdict.no .lab { color:var(--bad); }
+  .verdict .nm { font-family:var(--serif); font-size:1.1rem; display:block; margin-bottom:2px; }
+  .verdict .lf { display:block; font-size:.73rem; color:var(--era, var(--gold)); font-weight:700; letter-spacing:.04em; margin-bottom:6px; }
+  .verdict .wd { display:block; }
+  .verdict .src { display:table; margin-top:11px; font-size:.75rem; color:var(--ink-3); border-bottom:1px solid var(--line); }
+  .nextrow { display:flex; gap:10px; margin:16px 0 0; }
+  .nextrow .btn { flex:1 1 auto; }
+
+  /* ---------- results ---------- */
+  .result { margin:26px 0 0; padding:26px 22px; border-radius:16px; background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); text-align:center; }
+  .result .score { font-family:var(--serif); font-size:3rem; line-height:1; margin:0; }
+  .result .of { color:var(--ink-3); font-size:1.1rem; }
+  .result .msg { color:var(--ink-2); font-size:.9rem; margin:10px auto 0; max-width:28em; }
+  .rstats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:20px 0 0; }
+  .rstat { background:var(--card-2); border:1px solid var(--line); border-radius:11px; padding:11px 8px; }
+  .rstat b { display:block; font-size:1.2rem; font-variant-numeric:tabular-nums; }
+  .rstat span { display:block; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); margin-top:2px; }
+  .missed { margin:20px 0 0; text-align:left; }
+  .missed .lab { font-size:.67rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--bad); margin:0 0 8px; }
+  .missed li { font-size:.84rem; color:var(--ink-2); margin-bottom:5px; }
+  .missed b { color:var(--ink); }
+
+  /* ---------- progress meters ---------- */
+  .gmeters { display:grid; gap:9px; margin:18px 0 0; }
+  .gm { display:flex; align-items:center; gap:11px; font-size:.83rem; }
+  .gm .nm { flex:0 0 auto; width:11.5em; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gm .bar { flex:1 1 auto; height:9px; border-radius:99px; background:var(--card-2); overflow:hidden; }
+  .gm .bar i { display:block; height:100%; background:var(--era, var(--gold)); transition:width .4s ease; }
+  .gm .ct { flex:0 0 auto; font-size:.74rem; color:var(--ink-3); font-variant-numeric:tabular-nums; width:3.6em; text-align:right; }
+  @media (max-width:430px) { .gm .nm { width:8em; font-size:.78rem; } }
+
+  .overall { display:flex; align-items:baseline; gap:10px; margin:20px 0 0; }
+  .overall .pc { font-family:var(--serif); font-size:2.4rem; line-height:1; }
+  .overall .cap { font-size:.83rem; color:var(--ink-2); }
+
+  /* ---------- the cast list ---------- */
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin:20px 0 0; }
+  .chip {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease, background .14s ease;
+  }
+  .chip .dot { width:9px; height:9px; border-radius:50%; background:var(--era, var(--ink-3)); flex:0 0 auto; }
+  .chip.sel {
+    color:var(--ink);
+    border-color:color-mix(in srgb, var(--era, var(--gold)) 60%, var(--line));
+    background:color-mix(in srgb, var(--era, var(--gold)) 13%, var(--card));
+  }
+  .chip:active { transform:scale(.97); }
+
+  .people { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-top:16px; }
+  .person {
+    display:block; width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; box-shadow:var(--shadow); position:relative;
+    transition:border-color .14s ease, transform .1s ease;
+  }
+  .person:hover { border-color:color-mix(in srgb, var(--era) 55%, var(--line)); }
+  .person:active { transform:scale(.98); }
+  .person:focus-visible { outline:2px solid var(--era); outline-offset:2px; }
+  .p-name { display:block; font-family:var(--serif); font-size:1.12rem; margin:0; padding-right:20px; }
+  .p-life { display:block; font-size:.74rem; color:var(--era); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.04em; margin:2px 0 8px; }
+  .p-note { display:block; font-size:.85rem; color:var(--ink-2); margin:0; }
+  .p-note b { color:var(--ink); }
+  .person:not(.on) .p-life, .person:not(.on) .p-note { display:none; }
+  .person:not(.on) { min-height:92px; }
+  .person:not(.on)::after {
+    content:"tap to reveal"; display:block; margin-top:7px;
+    font-size:.68rem; letter-spacing:.06em; color:var(--ink-3);
+  }
+  /* Mastery, as a corner pip. Three states is all the resolution this needs:
+     never asked, in the ladder, welded. */
+  .pip { position:absolute; top:14px; right:14px; width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .pip.learning { background:var(--gold); }
+  .pip.welded { background:var(--good); box-shadow:0 0 0 3px color-mix(in srgb, var(--good) 22%, transparent); }
+
+  .dgroup { margin-top:30px; }
+  .dom { display:flex; align-items:center; gap:9px; margin:0; }
+  .dom .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
+  .dom b { font-size:.72rem; letter-spacing:.13em; text-transform:uppercase; color:var(--era); font-weight:700; }
+  .dom .ct { font-size:.72rem; color:var(--ink-3); font-variant-numeric:tabular-nums; }
+  .dom::after { content:""; flex:1; height:1px; background:color-mix(in srgb, var(--era) 40%, var(--line)); }
+
+  .foot { margin:56px 0 0; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--ink-3); }
+  .foot a { color:var(--ink-2); border-bottom:1px solid var(--line); }
+  .foot button { font:inherit; font-size:.78rem; color:var(--ink-3); background:none; border:0; padding:0; cursor:pointer; border-bottom:1px solid var(--line); }
+
+  .toast {
+    position:fixed; left:50%; bottom:calc(20px + var(--lituk-sab)); transform:translateX(-50%) translateY(16px);
+    background:var(--ink); color:var(--page); padding:11px 18px; border-radius:12px;
+    font-weight:700; font-size:.82rem; opacity:0; transition:.25s; z-index:70; pointer-events:none;
+    box-shadow:var(--shadow); max-width:88vw; text-align:center;
+  }
+  .toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion:reduce) {
+    .meter i, .gm .bar i, .opt, .person, .mode, .toast { transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle light or dark theme">☀︎ Light</button>
+
+<div class="wrap">
+
+  <nav class="chapswitch" aria-label="Revision sheet by chapter">
+    <a href="life-in-uk-day-before.html"><span class="n">3</span>History</a>
+    <a href="life-in-uk-day-before-ch4.html"><span class="n">4</span>Society</a>
+    <a href="life-in-uk-day-before-ch5.html"><span class="n">5</span>Government</a>
+    <span class="cur" aria-current="page"><span class="n">★</span>The Cast</span>
+  </nav>
+
+  <header class="mast">
+    <p class="eyebrow">Drill · 195 figures</p>
+    <h1>The Cast</h1>
+    <p class="sub">Every named figure on the Day&nbsp;Before sheets, drilled four ways: <b>who</b> they were, <b>what</b> they did, <b>which field</b>, and <b>when</b>. A name is not learned until all four hold.</p>
+  </header>
+
+  <noscript>
+    <div class="roll" style="margin-top:26px">
+      <p class="lab">JavaScript is off</p>
+      <p class="big">The cards themselves are static</p>
+      <p class="sub">This page is a drill built from the revision sheets, so it needs scripting. The figures and their facts are plain HTML on
+        <a href="life-in-uk-day-before.html" style="border-bottom:1px solid currentColor">Chapter&nbsp;3</a> and
+        <a href="life-in-uk-day-before-ch4.html" style="border-bottom:1px solid currentColor">Chapter&nbsp;4</a> — readable with scripting off.</p>
+    </div>
+  </noscript>
+
+  <!-- ================= the stage ================= -->
+  <div class="stage" id="stage" aria-live="polite"></div>
+
+  <!-- ================= home ================= -->
+  <div class="home" id="home" hidden>
+
+    <section id="rollcall">
+      <div class="roll">
+        <p class="lab">Roll call</p>
+        <p class="big" id="rollBig">—</p>
+        <p class="sub" id="rollSub"></p>
+        <div class="row">
+          <button class="btn" id="rollGo" type="button">Start roll call</button>
+          <span class="flames" id="rollStreak"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="drill">
+      <div class="sec-head">
+        <div class="n">One</div>
+        <h2>Drills</h2>
+        <p>Each name is welded to one fact. These four ask about that weld from four different directions — and the direction you are worst at is the one the test will use.</p>
+      </div>
+      <div class="modes" id="modes"></div>
+      <div class="chips" id="groupChips" role="group" aria-label="Limit drills to one group"></div>
+      <p class="sub" id="chipNote" style="font-size:.76rem;color:var(--ink-3);margin:12px 2px 0"></p>
+    </section>
+
+    <section id="progress">
+      <div class="sec-head">
+        <div class="n">Two</div>
+        <h2>Where You Are</h2>
+        <p>A figure counts as <b>welded</b> once every question type it has can be answered correctly on <b>two separate days</b>. One good evening is recall; two days apart is memory.</p>
+      </div>
+      <div class="overall"><span class="pc" id="pcAll">0%</span><span class="cap" id="capAll"></span></div>
+      <div class="gmeters" id="gmeters"></div>
+    </section>
+
+    <section id="cast">
+      <div class="sec-head">
+        <div class="n">Three</div>
+        <h2>The Cast</h2>
+        <p>All 195, in the sheets' own groups, with the same reveal card — plus a pip for where each one sits: grey untouched, gold in the ladder, green welded.</p>
+      </div>
+      <div class="chips" id="castChips" role="group" aria-label="Filter the cast by group"></div>
+      <div id="castList"></div>
+    </section>
+
+    <div class="foot">
+      Built from the Day Before sheets — <a href="life-in-uk-day-before.html">Chapter 3</a> and <a href="life-in-uk-day-before-ch4.html">Chapter 4</a> — which stay the source of truth for every fact here.
+      Progress is saved on this device only, under its own key, and never touches your practice-test progress.
+      <br><button id="reset" type="button">Reset cast progress</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="cast-data.js"></script>
+<script>
+/* ============================================================
+   The Cast — a drill over the 195 figures of the Day Before sheets.
+
+   Nothing here authors content. Every question is assembled from
+   cast-data.js, which is itself a verbatim extraction of those pages
+   (INV-C1); this file only decides which slice to show and what to
+   accept as an answer.
+   ============================================================ */
+(function () {
+"use strict";
+
+var D = window.LITUK_CAST;
+if (!D) return;
+var P = D.people, G = D.groups;
+
+var home = document.getElementById("home");
+home.hidden = false;
+
+/* ---------------- small helpers ---------------- */
+
+var $ = function (id) { return document.getElementById(id); };
+var delead = function (t) { return String(t).replace(/^[·\s]+/, ""); };
+var strip = function (h) { var d = document.createElement("div"); d.innerHTML = h; return d.textContent || ""; };
+var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+function shuffle(a) {
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+var pick = function (a) { return a[Math.floor(Math.random() * a.length)]; };
+
+var _tt;
+function toast(msg) {
+  var t = $("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(_tt); _tt = setTimeout(function () { t.classList.remove("on"); }, 1900);
+}
+
+/* ---------------- state ----------------
+   Its own key (INV-C4). The practice-test app's readiness model is built from
+   its own question bank and must not be moved by a different kind of drill —
+   so nothing here ever writes lituk_v1. */
+
+var LS = "lituk_cast_v1";
+var DAY = 864e5;
+var AXES = ["f", "n", "g", "z"];
+var AXIS_NAME = { f: "the fact", n: "the name", g: "the group", z: "the detail" };
+
+function blank() { return { v: 1, w: {}, roll: { last: 0, streak: 0, best: 0 }, n: { ans: 0, ok: 0, duel: 0, duelOk: 0 }, best: 0 }; }
+var S = (function () {
+  try {
+    var r = JSON.parse(localStorage.getItem(LS));
+    if (!r || r.v !== 1) return blank();
+    var d = blank();
+    for (var k in r) if (Object.prototype.hasOwnProperty.call(r, k)) d[k] = r[k];
+    return d;
+  } catch (e) { return blank(); }
+})();
+var _broken = false;
+function save() {
+  try { localStorage.setItem(LS, JSON.stringify(S)); }
+  catch (e) {
+    if (_broken) return;
+    _broken = true;
+    toast("Storage is full — progress is no longer being saved");
+  }
+}
+
+/* The local day, as an integer. "Two separate days" has to mean two dates a
+   human would name, not two timestamps 24h apart. */
+function today() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 6e4) / DAY); }
+
+function rec(p) {
+  var r = S.w[p.k];
+  if (!r) { r = S.w[p.k] = { b: 0, d: 0, s: 0, l: 0, a: {} }; }
+  if (!r.a) r.a = {};
+  return r;
+}
+
+/* ---------------- spaced repetition ----------------
+   Copied deliberately, not imported: the engine in life-in-uk-mock-tests.html
+   is inline in that page and keyed to its question bank, so there is no module
+   to share (PLAN-cast-quiz.md, F-8). The constants and the two functions below
+   are the same ones, so both ladders behave identically for the same exam date
+   — see life-in-uk-mock-tests.html, "SPACED REPETITION". */
+
+var SR_BASE = [0, 1, 3, 7, 16, 35];
+var EXAM_GAP = 2;
+
+/* Read-only, from the practice app's store (INV-C5). This page owns no date. */
+function examTs() {
+  try {
+    var r = JSON.parse(localStorage.getItem("lituk_v1"));
+    if (!r || !r.examDate) return null;
+    var t = new Date(r.examDate + "T00:00:00").getTime();
+    return isNaN(t) ? null : t;
+  } catch (e) { return null; }
+}
+function lastReviewTs() { var e = examTs(); return e == null ? null : e - EXAM_GAP * DAY; }
+function clampDue(t) { var c = lastReviewTs(); return c == null ? t : Math.min(t, c); }
+function srDays() {
+  var c = lastReviewTs(); if (c == null) return SR_BASE;
+  var top = SR_BASE[SR_BASE.length - 1];
+  var win = Math.max(0, Math.floor((c - Date.now()) / DAY));
+  if (win >= top) return SR_BASE;
+  var k = win / top, prev = -1;
+  return SR_BASE.map(function (d) { var v = Math.min(win, Math.max(Math.round(d * k), prev + 1)); prev = v; return v; });
+}
+function srUpdate(p, correct) {
+  var now = Date.now(), days = srDays(), r = rec(p);
+  r.s = (r.s || 0) + 1; r.l = now;
+  r.b = correct ? Math.min((r.b || 0) + 1, days.length - 1) : 0;
+  r.d = clampDue(r.b ? now + days[r.b] * DAY : now + 10 * 6e4);
+}
+
+/* ---------------- which questions a figure owes ---------------- */
+
+/* A figure the sheet attaches no fact to can only be asked which group it is
+   in — "whose fact is this?" has no answer when Keats, Shelley and Tennyson
+   share one sentence word for word. `nd` is set for those seven in the data. */
+function axesOf(p) {
+  var a = p.nd ? ["g"] : ["f", "n", "g"];
+  if (p.cz && p.cz.length) a = a.concat(["z"]);
+  return a;
+}
+
+/* An axis is held once it has been answered correctly on two separate days.
+   A wrong answer takes it back to zero — a fact you just missed is not a fact
+   you knew yesterday. */
+function axisCount(p, ax) { var a = rec(p).a[ax]; return a ? a[0] : 0; }
+function axisDone(p, ax) { return axisCount(p, ax) >= 2; }
+function welded(p) { return axesOf(p).every(function (ax) { return axisDone(p, ax); }); }
+function touched(p) { var r = S.w[p.k]; return !!(r && r.s); }
+
+function markAxis(p, ax, correct) {
+  var r = rec(p), t = today();
+  var a = r.a[ax] || (r.a[ax] = [0, 0]);
+  if (!correct) { a[0] = 0; a[1] = t; return; }
+  if (a[1] !== t) { a[0] = a[0] + 1; a[1] = t; }
+}
+
+/* The axis this figure most needs: the least-held one, ties broken at random,
+   so a session does not walk the same axis for every card. */
+function neededAxis(p) {
+  var ax = axesOf(p), low = 99, best = [];
+  ax.forEach(function (a) {
+    var c = axisCount(p, a);
+    if (c < low) { low = c; best = [a]; } else if (c === low) best.push(a);
+  });
+  return pick(best);
+}
+
+/* ---------------- distractors (INV-C7) ----------------
+   `col` is the list of figures whose own fact would also answer this one's
+   question — Grey-Thompson and Weir both won six London Marathons — and `sm`
+   is the other card of a twice-carded figure. Neither may be offered as a
+   wrong answer, because both would be defensibly right. */
+
+function eligible(p) {
+  var bad = {};
+  bad[p.i] = 1;
+  (p.col || []).forEach(function (i) { bad[i] = 1; });
+  (p.sm || []).forEach(function (i) { bad[i] = 1; });
+  return function (o) { return !bad[o.i]; };
+}
+
+/* Same group first — a distractor from another field is a giveaway — then the
+   same axis, then anywhere. Widening is what keeps a one-person group like Pop
+   answerable at all. */
+function distractors(p, n, valueOf) {
+  var ok = eligible(p), axis = G[p.g].ax;
+  var tiers = [
+    P.filter(function (o) { return o.g === p.g && ok(o); }),
+    P.filter(function (o) { return G[o.g].ax === axis && o.g !== p.g && ok(o); }),
+    P.filter(function (o) { return G[o.g].ax !== axis && ok(o); })
+  ];
+  var seen = {}, out = [];
+  seen[strip(valueOf(p)).toLowerCase()] = 1;
+  for (var t = 0; t < tiers.length && out.length < n; t++) {
+    var tier = shuffle(tiers[t].slice());
+    for (var i = 0; i < tier.length && out.length < n; i++) {
+      var v = valueOf(tier[i]), k = strip(v).toLowerCase();
+      if (seen[k]) continue;
+      seen[k] = 1; out.push(v);
+    }
+  }
+  return out;
+}
+
+/* ---------------- cloze ----------------
+   The blank is one of the note's own <b> spans. The author already bolded
+   exactly the words worth remembering, so the blanks need no judgement of
+   ours — only a choice of which one. */
+
+function boldsOf(p) {
+  var out = [], re = /<b>([\s\S]*?)<\/b>/g, m;
+  while ((m = re.exec(p.w))) out.push(strip(m[1]).trim());
+  return out;
+}
+function clozeHTML(p, n) {
+  var i = 0;
+  return p.w.replace(/<b>([\s\S]*?)<\/b>/g, function (m) {
+    return i++ === n ? '<span class="blank">?</span>' : m;
+  });
+}
+/* A pool of same-shaped spans: a year blank gets other years, a count gets
+   other counts. Offering "Westminster Abbey" against "1954" is not a question. */
+var CZ_POOL = { y: [], n: [], t: [] };
+P.forEach(function (p) {
+  var b = boldsOf(p);
+  (p.cz || []).forEach(function (c) {
+    var t = b[c[0]];
+    if (t) CZ_POOL[c[1]].push({ t: t, i: p.i });
+  });
+});
+
+/* ---------------- question construction ---------------- */
+
+function groupLabel(p) { return G[p.g].l; }
+function groupTok(p) { return G[p.g].t; }
+function axisWord(p) { return G[p.g].ax === "era" ? "era" : "field"; }
+
+function sheetLink(p) {
+  var g = G[p.g];
+  return g.f + "?find=" + encodeURIComponent(strip(p.n)) + "#" + g.a;
+}
+
+function buildQ(p, ax) {
+  var q = { p: p, ax: ax, tok: groupTok(p) };
+  if (ax === "f") {
+    q.kind = "What they did";
+    q.text = "What is <b>" + p.n + "</b> known for?";
+    q.sub = groupLabel(p) + " · " + delead(p.l);
+    q.right = p.w;
+    q.opts = distractors(p, 3, function (o) { return o.w; }).concat([p.w]);
+  } else if (ax === "n") {
+    q.kind = "Whose fact is this?";
+    q.text = p.w;
+    q.serif = false;
+    q.right = p.n;
+    q.opts = distractors(p, 3, function (o) { return o.n; }).concat([p.n]);
+  } else if (ax === "g") {
+    var axis = G[p.g].ax;
+    q.kind = "Which " + axisWord(p) + "?";
+    q.text = "Where does <b>" + p.n + "</b> belong?";
+    q.sub = delead(p.l);
+    q.right = groupLabel(p);
+    var others = shuffle(G.filter(function (g) { return g.ax === axis && g.i !== p.g; }).map(function (g) { return g.l; }));
+    q.opts = others.slice(0, 3).concat([q.right]);
+  } else {
+    var b = boldsOf(p), c = pick(p.cz), ans = b[c[0]];
+    q.kind = c[1] === "y" ? "Which year?" : c[1] === "n" ? "Which number?" : "Fill the blank";
+    q.text = clozeHTML(p, c[0]);
+    q.sub = strip(p.n) + " · " + delead(p.l);
+    q.serif = false;
+    q.right = ans;
+    var seen = {}, opts = [];
+    seen[ans.toLowerCase()] = 1;
+    var bad = eligible(p);
+    shuffle(CZ_POOL[c[1]].slice()).forEach(function (o) {
+      if (opts.length >= 3) return;
+      if (!bad(P[o.i])) return;
+      var k = o.t.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = 1; opts.push(o.t);
+    });
+    /* A kind too thin to furnish three wrong answers falls back to any span.
+       Rare, but a question with two options is worse than a mixed-shape one. */
+    if (opts.length < 3) {
+      shuffle(CZ_POOL.t.concat(CZ_POOL.n, CZ_POOL.y)).forEach(function (o) {
+        if (opts.length >= 3) return;
+        var k = o.t.toLowerCase();
+        if (seen[k]) return;
+        seen[k] = 1; opts.push(o.t);
+      });
+    }
+    q.opts = opts.concat([ans]);
+  }
+  shuffle(q.opts);
+  q.ansIdx = q.opts.indexOf(q.right);
+  return q;
+}
+
+/* The duel: two names, one fact, and the two are confusable by construction —
+   `col` is exactly the set the distractor rules refuse, put to work. */
+function buildDuel(p) {
+  var rival = P[pick(p.col)];
+  var q = { p: p, ax: "d", tok: groupTok(p), duel: true };
+  q.kind = "Trap · whose fact?";
+  q.text = p.w;
+  q.serif = false;
+  q.right = p.n;
+  q.opts = shuffle([p.n, rival.n]);
+  q.ansIdx = q.opts.indexOf(q.right);
+  q.rival = rival;
+  return q;
+}
+
+/* ---------------- selecting what to ask ---------------- */
+
+var DUELISTS = P.filter(function (p) { return p.col && p.col.length && !p.nd; });
+var CLOZERS = P.filter(function (p) { return p.cz && p.cz.length; });
+
+function dueList(now) {
+  now = now || Date.now();
+  return P.filter(function (p) {
+    var r = S.w[p.k];
+    return r && r.s && !welded(p) && (r.d || 0) <= now;
+  }).sort(function (a, b) { return (S.w[a.k].d || 0) - (S.w[b.k].d || 0); });
+}
+
+/* Roll call: everything overdue first, then names never asked, then whatever is
+   least held. Always full-length, so the number on the button is the truth. */
+function rollItems(n) {
+  var out = dueList().slice(0, n);
+  if (out.length < n) {
+    var fresh = shuffle(P.filter(function (p) { return !touched(p); }));
+    out = out.concat(fresh.slice(0, n - out.length));
+  }
+  if (out.length < n) {
+    var rest = P.filter(function (p) { return !welded(p) && out.indexOf(p) < 0; })
+      .sort(function (a, b) { return (S.w[a.k] ? S.w[a.k].b : 0) - (S.w[b.k] ? S.w[b.k].b : 0); });
+    out = out.concat(rest.slice(0, n - out.length));
+  }
+  /* Everything welded and nothing due — keep it playable with a random review. */
+  if (!out.length) out = shuffle(P.slice()).slice(0, n);
+  return out.map(function (p) { return buildQ(p, neededAxis(p)); });
+}
+
+function scopeOf() {
+  if (scope === "") return P;
+  return P.filter(function (p) { return String(p.g) === scope; });
+}
+
+function modeItems(mode, n) {
+  var list = scopeOf(), items = [], i;
+  if (mode === "duel") {
+    var d = list.filter(function (p) { return p.col && p.col.length && !p.nd; });
+    if (d.length < 4) d = DUELISTS;
+    d = shuffle(d.slice());
+    for (i = 0; i < n; i++) items.push(buildDuel(d[i % d.length]));
+    return items;
+  }
+  if (mode === "cloze") {
+    var c = list.filter(function (p) { return p.cz && p.cz.length; });
+    if (c.length < 4) c = CLOZERS;
+    c = shuffle(c.slice());
+    for (i = 0; i < n; i++) items.push(buildQ(c[i % c.length], "z"));
+    return items;
+  }
+  /* weld: the four axes, weakest first, over the scope */
+  var pool = shuffle(list.slice()).sort(function (a, b) {
+    return (welded(a) ? 1 : 0) - (welded(b) ? 1 : 0);
+  });
+  for (i = 0; i < n; i++) {
+    var p = pool[i % pool.length];
+    items.push(buildQ(p, neededAxis(p)));
+  }
+  return items;
+}
+
+/* ---------------- the round ---------------- */
+
+var R = null, scope = "";
+var ROUND = 12;
+
+function startRound(mode, items, title) {
+  R = { mode: mode, items: items, i: 0, ok: 0, streak: 0, best: 0, missed: [], title: title, weldedBefore: countWelded() };
+  document.body.classList.add("playing");
+  $("stage").classList.add("on");
+  renderQ();
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function endRound() {
+  R = null;
+  document.body.classList.remove("playing");
+  $("stage").classList.remove("on");
+  $("stage").innerHTML = "";
+  paintHome();
+}
+
+function countWelded() { return P.filter(welded).length; }
+
+function renderQ() {
+  var q = R.items[R.i], n = R.items.length;
+  var pct = Math.round((R.i / n) * 100);
+  var h = "";
+  h += '<div class="qbar">';
+  h += '<button class="close" id="qClose" type="button" aria-label="Leave this round">✕</button>';
+  h += '<div class="meter"><i style="width:' + pct + '%"></i></div>';
+  h += '<span class="cnt">' + (R.i + 1) + " / " + n + "</span>";
+  h += "</div>";
+  h += '<div class="combo"><span>' + esc(R.title) + "</span>";
+  if (R.streak > 1) h += '<span class="fire">· ' + R.streak + " in a row</span>";
+  h += "</div>";
+
+  h += '<div class="qcard" style="--era:var(' + q.tok + ')">';
+  h += '<p class="qkind">' + esc(q.kind) + "</p>";
+  h += '<p class="qtext"' + (q.serif === false ? ' style="font-family:var(--sans);font-size:1.05rem;line-height:1.55"' : "") + ">" + q.text + "</p>";
+  if (q.sub) h += '<p class="qsub">' + esc(q.sub) + "</p>";
+  h += '<div class="opts" id="opts">';
+  q.opts.forEach(function (o, i) {
+    h += '<button class="opt" type="button" data-i="' + i + '">' +
+      '<span class="key">' + (i + 1) + "</span>" +
+      '<span class="txt">' + o + "</span></button>";
+  });
+  h += "</div>";
+  h += '<div id="after"></div>';
+  h += "</div>";
+
+  $("stage").innerHTML = h;
+  $("qClose").addEventListener("click", confirmLeave);
+  Array.prototype.forEach.call(document.querySelectorAll("#opts .opt"), function (b) {
+    b.addEventListener("click", function () { answer(+b.dataset.i); });
+  });
+}
+
+var _adv = null;
+function answer(i) {
+  var q = R.items[R.i];
+  if (q.done) return;
+  q.done = true;
+  var correct = i === q.ansIdx;
+
+  /* Duels train the traps and feed the ladder, but they do not weld: two
+     options is a coin flip, and mastery should not be reachable by guessing. */
+  if (q.duel) {
+    S.n.duel++; if (correct) S.n.duelOk++;
+  } else {
+    markAxis(q.p, q.ax, correct);
+  }
+  srUpdate(q.p, correct);
+  S.n.ans++; if (correct) S.n.ok++;
+  if (correct) { R.ok++; R.streak++; if (R.streak > R.best) R.best = R.streak; if (R.streak > S.best) S.best = R.streak; }
+  else { R.streak = 0; R.missed.push(q); }
+  save();
+
+  var opts = document.querySelectorAll("#opts .opt");
+  Array.prototype.forEach.call(opts, function (b, n) {
+    b.disabled = true;
+    if (n === q.ansIdx) b.classList.add("right");
+    else if (n === i && !correct) b.classList.add("wrong");
+  });
+
+  var p = q.p;
+  var v = '<div class="verdict ' + (correct ? "ok" : "no") + '" style="--era:var(' + q.tok + ')">';
+  v += '<span class="lab">' + (correct ? "Right" : "The weld") + "</span>";
+  v += '<span class="nm">' + p.n + "</span>";
+  v += '<span class="lf">' + esc(delead(p.l)) + " · " + esc(groupLabel(p)) + "</span>";
+  v += '<span class="wd">' + p.w + "</span>";
+  v += '<a class="src" href="' + esc(sheetLink(p)) + '">See this card on the sheet ›</a>';
+  v += "</div>";
+  v += '<div class="nextrow"><button class="btn" id="next" type="button">' +
+    (R.i + 1 >= R.items.length ? "See the score" : "Next") + "</button></div>";
+  $("after").innerHTML = v;
+  $("next").addEventListener("click", next);
+
+  /* Right answers move on by themselves — the card is still readable on the
+     way past. A miss waits: that is the one you came here to read. */
+  if (correct) { clearTimeout(_adv); _adv = setTimeout(next, 900); }
+  else $("next").focus();
+}
+
+function next() {
+  clearTimeout(_adv);
+  if (!R) return;
+  R.i++;
+  if (R.i >= R.items.length) renderResult();
+  else renderQ();
+}
+
+function renderResult() {
+  var n = R.items.length, gained = countWelded() - R.weldedBefore;
+  var pct = Math.round((R.ok / n) * 100);
+  var msg = pct === 100 ? "Clean sweep. Every one of those is a name the test cannot surprise you with."
+    : pct >= 75 ? "Solid. The misses below are the ones to reread before you close this."
+    : pct >= 50 ? "Half there. Read the misses, then run the same drill again — the second pass is where it sticks."
+    : "Rough round, which is the point of doing it now rather than on the day. Read the misses and go again.";
+
+  /* Roll call is the only mode that moves the daily streak: it is the one with
+     a fixed daily meaning. */
+  if (R.mode === "roll") {
+    var t = today();
+    if (S.roll.last !== t) {
+      S.roll.streak = S.roll.last === t - 1 ? S.roll.streak + 1 : 1;
+      S.roll.last = t;
+      if (S.roll.streak > S.roll.best) S.roll.best = S.roll.streak;
+    }
+    save();
+  }
+
+  var h = '<div class="qbar"><button class="close" id="qClose" type="button" aria-label="Back">✕</button>' +
+    '<div class="meter"><i style="width:100%"></i></div><span class="cnt">' + n + " / " + n + "</span></div>";
+  h += '<div class="result">';
+  h += '<p class="score">' + R.ok + '<span class="of"> / ' + n + "</span></p>";
+  h += '<p class="msg">' + esc(msg) + "</p>";
+  h += '<div class="rstats">';
+  h += '<div class="rstat"><b>' + pct + '%</b><span>Score</span></div>';
+  h += '<div class="rstat"><b>' + R.best + '</b><span>Best run</span></div>';
+  h += '<div class="rstat"><b>' + (gained > 0 ? "+" + gained : gained) + '</b><span>Welded</span></div>';
+  h += "</div>";
+  if (R.missed.length) {
+    h += '<div class="missed"><p class="lab">Reread these ' + R.missed.length + "</p><ul>";
+    R.missed.forEach(function (q) {
+      h += "<li><b>" + q.p.n + "</b> — " + q.p.w + "</li>";
+    });
+    h += "</ul></div>";
+  }
+  h += '<div class="nextrow"><button class="btn" id="again" type="button">Again</button>' +
+    '<button class="btn ghost" id="done" type="button">Done</button></div>';
+  h += "</div>";
+  $("stage").innerHTML = h;
+
+  var mode = R.mode;
+  $("qClose").addEventListener("click", endRound);
+  $("done").addEventListener("click", endRound);
+  $("again").addEventListener("click", function () { endRound(); launch(mode); });
+}
+
+function confirmLeave() {
+  if (R && R.i > 0 && !confirm("Leave this round? Answers already given are saved.")) return;
+  endRound();
+}
+
+/* ---------------- launching ---------------- */
+
+var MODES = [
+  { k: "roll", ic: "📋", t: "Roll Call", d: "Today's due names, mixed across all four question types." },
+  { k: "weld", ic: "🔗", t: "Weld Drill", d: "All four directions, weakest first. The main event." },
+  { k: "duel", ic: "⚔️", t: "Confusion Duel", d: "Two names, one fact. Built from the pairs that genuinely collide." },
+  { k: "cloze", ic: "🕳️", t: "Fill the Blank", d: "A bolded date, number or name removed from its own sentence." }
+];
+
+function launch(mode) {
+  if (mode === "roll") { startRound("roll", rollItems(ROUND), "Roll call"); return; }
+  var m = MODES.filter(function (x) { return x.k === mode; })[0];
+  var label = m.t + (scope === "" ? "" : " · " + G[+scope].l);
+  startRound(mode, modeItems(mode, ROUND), label);
+}
+
+/* ---------------- home rendering ---------------- */
+
+function paintRoll() {
+  var due = dueList().length;
+  var fresh = P.filter(function (p) { return !touched(p); }).length;
+  var w = countWelded();
+  $("rollBig").textContent = due > 0 ? due + (due === 1 ? " name is due" : " names are due")
+    : fresh > 0 ? "Nothing due — " + fresh + " still unseen"
+    : w === P.length ? "All 195 welded" : "Nothing due right now";
+  $("rollSub").textContent = due > 0
+    ? "The ladder has these back today. " + ROUND + " questions, about ninety seconds."
+    : fresh > 0 ? "Start on the names you have never been asked about."
+    : "Come back tomorrow, or run a drill below to stay sharp.";
+  var st = S.roll.streak, t = today();
+  if (st && S.roll.last < t - 1) st = 0;
+  $("rollStreak").innerHTML = st > 0
+    ? "🔥 <b>" + st + "</b>-day streak" + (S.roll.best > st ? " · best <b>" + S.roll.best + "</b>" : "")
+    : (S.roll.best ? "best <b>" + S.roll.best + "</b> days" : "");
+}
+
+function paintModes() {
+  var due = dueList().length;
+  var h = "";
+  MODES.forEach(function (m) {
+    var ct = m.k === "roll" ? due + " due now"
+      : m.k === "duel" ? DUELISTS.length + " figures in a colliding pair"
+      : m.k === "cloze" ? CLOZERS.length + " with a blank worth asking"
+      : P.filter(function (p) { return !welded(p); }).length + " not yet welded";
+    h += '<button class="mode" type="button" data-m="' + m.k + '">' +
+      '<span class="ic">' + m.ic + "</span>" +
+      "<span><b>" + esc(m.t) + "</b><span>" + esc(m.d) + '</span><span class="ct">' + esc(ct) + "</span></span></button>";
+  });
+  $("modes").innerHTML = h;
+  Array.prototype.forEach.call(document.querySelectorAll("#modes .mode"), function (b) {
+    b.addEventListener("click", function () { launch(b.dataset.m); });
+  });
+}
+
+function paintChips() {
+  var h = '<button class="chip' + (scope === "" ? " sel" : "") + '" type="button" data-g="">All 195</button>';
+  G.forEach(function (g) {
+    h += '<button class="chip' + (String(g.i) === scope ? " sel" : "") + '" type="button" data-g="' + g.i +
+      '" style="--era:var(' + g.t + ')"><span class="dot"></span>' + esc(g.l) + "</button>";
+  });
+  $("groupChips").innerHTML = h;
+  Array.prototype.forEach.call(document.querySelectorAll("#groupChips .chip"), function (b) {
+    b.addEventListener("click", function () { scope = b.dataset.g; paintChips(); paintChipNote(); });
+  });
+}
+function paintChipNote() {
+  $("chipNote").textContent = scope === ""
+    ? "Drills run over all seventeen groups. Pick one to narrow them."
+    : "Drills are limited to " + G[+scope].l + " — " + G[+scope].n + " figures. Roll Call always covers everything.";
+}
+
+function paintMeters() {
+  var w = countWelded();
+  $("pcAll").textContent = Math.round((w / P.length) * 100) + "%";
+  $("capAll").innerHTML = "<b>" + w + "</b> of " + P.length + " welded · " +
+    S.n.ans.toLocaleString() + " answered" + (S.best > 2 ? " · best run " + S.best : "");
+  var h = "";
+  G.forEach(function (g) {
+    var members = P.filter(function (p) { return p.g === g.i; });
+    var got = members.filter(welded).length;
+    h += '<div class="gm" style="--era:var(' + g.t + ')">' +
+      '<span class="nm">' + esc(g.l) + "</span>" +
+      '<span class="bar"><i style="width:' + Math.round((got / members.length) * 100) + '%"></i></span>' +
+      '<span class="ct">' + got + "/" + members.length + "</span></div>";
+  });
+  $("gmeters").innerHTML = h;
+}
+
+var castScope = "";
+function paintCastChips() {
+  var h = '<button class="chip' + (castScope === "" ? " sel" : "") + '" type="button" data-g="">All</button>';
+  G.forEach(function (g) {
+    h += '<button class="chip' + (String(g.i) === castScope ? " sel" : "") + '" type="button" data-g="' + g.i +
+      '" style="--era:var(' + g.t + ')"><span class="dot"></span>' + esc(g.l) + "</button>";
+  });
+  $("castChips").innerHTML = h;
+  Array.prototype.forEach.call(document.querySelectorAll("#castChips .chip"), function (b) {
+    b.addEventListener("click", function () { castScope = b.dataset.g; paintCastChips(); paintCast(); });
+  });
+}
+
+function paintCast() {
+  var h = "";
+  G.forEach(function (g) {
+    if (castScope !== "" && String(g.i) !== castScope) return;
+    var members = P.filter(function (p) { return p.g === g.i; });
+    var got = members.filter(welded).length;
+    h += '<div class="dgroup" style="--era:var(' + g.t + ')">';
+    h += '<div class="dom"><span class="dot"></span><b>' + esc(g.l) + '</b><span class="ct">· ' + got + "/" + members.length + "</span></div>";
+    h += '<div class="people">';
+    members.forEach(function (p) {
+      var cls = welded(p) ? "welded" : touched(p) ? "learning" : "";
+      h += '<button class="person" type="button" data-i="' + p.i + '">' +
+        '<span class="pip ' + cls + '" title="' + (cls || "not yet asked") + '"></span>' +
+        '<span class="p-name">' + p.n + "</span>" +
+        '<span class="p-life">' + esc(p.l) + "</span>" +
+        '<span class="p-note">' + p.w + "</span></button>";
+    });
+    h += "</div></div>";
+  });
+  $("castList").innerHTML = h;
+  Array.prototype.forEach.call(document.querySelectorAll("#castList .person"), function (b) {
+    b.addEventListener("click", function () { b.classList.toggle("on"); });
+  });
+}
+
+function paintHome() { paintRoll(); paintModes(); paintMeters(); paintCast(); }
+
+/* ---------------- keyboard ---------------- */
+
+document.addEventListener("keydown", function (e) {
+  if (!R) return;
+  if (e.key === "Escape") { confirmLeave(); return; }
+  var q = R.items[R.i];
+  if (!q) return;
+  if ((e.key === "Enter" || e.key === " ") && q.done) { e.preventDefault(); next(); return; }
+  var n = parseInt(e.key, 10);
+  if (n >= 1 && n <= (q.opts ? q.opts.length : 0) && !q.done) { e.preventDefault(); answer(n - 1); }
+});
+
+/* ---------------- boot ---------------- */
+
+$("rollGo").addEventListener("click", function () { launch("roll"); });
+$("reset").addEventListener("click", function () {
+  if (!confirm("Forget every box, streak and weld on this page? Your practice-test progress is stored separately and is not touched.")) return;
+  S = blank(); save(); paintHome(); toast("Cast progress cleared");
+});
+
+paintChips();
+paintChipNote();
+paintCastChips();
+paintHome();
+
+/* The theme pill is this page's own, matching the Day Before sheets; app.js
+   owns the key and the toggle. */
+(function () {
+  var b = $("themeToggle");
+  function label() {
+    var dark = document.documentElement.getAttribute("data-theme") !== "light";
+    b.textContent = dark ? "☀︎ Light" : "☾ Dark";
+  }
+  b.addEventListener("click", function () {
+    if (window.LitUK && window.LitUK.toggleTheme) window.LitUK.toggleTheme();
+    else {
+      var dark = document.documentElement.getAttribute("data-theme") !== "light";
+      document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+      try { localStorage.setItem("lituk_theme", dark ? "light" : "dark"); } catch (e) {}
+    }
+    label();
+  });
+  label();
+  addEventListener("storage", function (e) { if (e.key === "lituk_theme") label(); });
+})();
+
+})();
+</script>
+</body>
+</html>
