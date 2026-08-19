@@ -204,6 +204,8 @@
     font-size:.76rem; color:var(--ink-3); font-variant-numeric:tabular-nums;
   }
   .combo .fire { color:var(--gold); font-weight:700; }
+  .combo .swipehint { margin-left:auto; opacity:.75; }
+  @media (hover:hover) and (pointer:fine) { .combo .swipehint { display:none; } }
 
   .qcard {
     margin:16px 0 0; padding:22px 20px; border-radius:16px;
@@ -259,6 +261,10 @@
   .verdict .src { display:table; margin-top:11px; font-size:.75rem; color:var(--ink-3); border-bottom:1px solid var(--line); }
   .nextrow { display:flex; gap:10px; margin:16px 0 0; }
   .nextrow .btn { flex:1 1 auto; }
+  /* Prev is the smaller move, and sizing it that way keeps the forward button
+     where the thumb already expects it from one question to the next. */
+  .nextrow .prev { flex:0 0 auto; padding:0 15px; }
+  .nextrow .prev[disabled] { opacity:.3; }
 
   /* ---------- results ---------- */
   .result { margin:26px 0 0; padding:26px 22px; border-radius:16px; background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); text-align:center; }
@@ -839,6 +845,7 @@ function renderQ() {
   h += "</div>";
   h += '<div class="combo"><span>' + esc(R.title) + "</span>";
   if (R.streak > 1) h += '<span class="fire">· ' + R.streak + " in a row</span>";
+  h += '<span class="swipehint">swipe or tap to move</span>';
   h += "</div>";
 
   h += '<div class="qcard" style="--era:var(' + q.tok + ')">';
@@ -860,13 +867,61 @@ function renderQ() {
   Array.prototype.forEach.call(document.querySelectorAll("#opts .opt"), function (b) {
     b.addEventListener("click", function () { answer(+b.dataset.i); });
   });
+
+  /* Coming back to a question you have already answered has to show what you
+     answered — the mark, the weld, the lot. So the answered state is painted
+     from the item, not left behind in the DOM by the click that made it. */
+  if (q.done) paintAnswered(q); else paintNav();
 }
 
-var _adv = null;
+/* The row that moves you: always a way back, and a way forward whose label
+   says what forward means here. */
+function navHTML(fwdLabel, fwdGhost) {
+  var last = R.i + 1 >= R.items.length;
+  return '<div class="nextrow">' +
+    '<button class="btn ghost prev" id="prev" type="button"' + (R.i === 0 ? " disabled" : "") + '>← Prev</button>' +
+    '<button class="btn' + (fwdGhost ? " ghost" : "") + '" id="next" type="button"' +
+    (last && fwdGhost ? " disabled" : "") + ">" +
+    (last ? (fwdGhost ? "Last one" : "See the score") : fwdLabel) + "</button></div>";
+}
+function wireNav() {
+  var pv = $("prev"), nx = $("next");
+  if (pv) pv.addEventListener("click", prev);
+  if (nx) nx.addEventListener("click", next);
+}
+
+/* Before an answer the forward move is a skip, and it says so. A silent
+   gesture with no visible counterpart reads as broken (PLAN-quiz-ux.md,
+   Phase 3), so the swipe always has a button that means the same thing. */
+function paintNav() {
+  $("after").innerHTML = navHTML("Skip →", true);
+  wireNav();
+}
+
+function paintAnswered(q) {
+  var correct = q.picked === q.ansIdx, p = q.p;
+  Array.prototype.forEach.call(document.querySelectorAll("#opts .opt"), function (b, n) {
+    b.disabled = true;
+    if (n === q.ansIdx) b.classList.add("right");
+    else if (n === q.picked) b.classList.add("wrong");
+  });
+
+  var v = '<div class="verdict ' + (correct ? "ok" : "no") + '" style="--era:var(' + q.tok + ')">';
+  v += '<span class="lab">' + (correct ? "Right" : "The weld") + "</span>";
+  v += '<span class="nm">' + p.n + "</span>";
+  v += '<span class="lf">' + esc(delead(p.l)) + " · " + esc(groupLabel(p)) + "</span>";
+  v += '<span class="wd">' + p.w + "</span>";
+  v += '<a class="src" href="' + esc(sheetLink(p)) + '">See this card on the sheet ›</a>';
+  v += "</div>";
+  $("after").innerHTML = v + navHTML("Next →", false);
+  wireNav();
+}
+
 function answer(i) {
   var q = R.items[R.i];
   if (q.done) return;
   q.done = true;
+  q.picked = i;
   var correct = i === q.ansIdx;
 
   /* Duels train the traps and feed the ladder, but they do not weld: two
@@ -882,38 +937,65 @@ function answer(i) {
   else { R.streak = 0; R.missed.push(q); }
   save();
 
-  var opts = document.querySelectorAll("#opts .opt");
-  Array.prototype.forEach.call(opts, function (b, n) {
-    b.disabled = true;
-    if (n === q.ansIdx) b.classList.add("right");
-    else if (n === i && !correct) b.classList.add("wrong");
-  });
-
-  var p = q.p;
-  var v = '<div class="verdict ' + (correct ? "ok" : "no") + '" style="--era:var(' + q.tok + ')">';
-  v += '<span class="lab">' + (correct ? "Right" : "The weld") + "</span>";
-  v += '<span class="nm">' + p.n + "</span>";
-  v += '<span class="lf">' + esc(delead(p.l)) + " · " + esc(groupLabel(p)) + "</span>";
-  v += '<span class="wd">' + p.w + "</span>";
-  v += '<a class="src" href="' + esc(sheetLink(p)) + '">See this card on the sheet ›</a>';
-  v += "</div>";
-  v += '<div class="nextrow"><button class="btn" id="next" type="button">' +
-    (R.i + 1 >= R.items.length ? "See the score" : "Next") + "</button></div>";
-  $("after").innerHTML = v;
-  $("next").addEventListener("click", next);
-
-  /* Right answers move on by themselves — the card is still readable on the
-     way past. A miss waits: that is the one you came here to read. */
-  if (correct) { clearTimeout(_adv); _adv = setTimeout(next, 900); }
-  else $("next").focus();
+  /* The card stays until you leave it. A right answer that scrolls away by
+     itself takes the weld with it — and the weld is the thing you came for. */
+  paintAnswered(q);
 }
 
 function next() {
-  clearTimeout(_adv);
   if (!R) return;
   R.i++;
   if (R.i >= R.items.length) renderResult();
-  else renderQ();
+  else { renderQ(); toTop(); }
+}
+function prev() {
+  if (!R || R.i === 0) return;
+  R.i--;
+  renderQ();
+  toTop();
+}
+function toTop() {
+  var st = $("stage");
+  if (!st) return;
+  var y = st.getBoundingClientRect().top + window.scrollY - 8;
+  window.scrollTo(0, Math.max(0, y));
+}
+
+/* ---------------- swipe ----------------
+   The same gesture the practice-test page uses, to the same numbers: 60px of
+   travel, and more than twice the vertical movement, so scrolling a long weld
+   never turns into a question change and a tap on an option is never a swipe.
+   Listeners are passive and never preventDefault, so scrolling is untouched
+   by construction. See life-in-uk-mock-tests.html, "SWIPE". */
+var SWIPE_MIN = 60, SWIPE_EDGE = 24;
+var _swx = 0, _swy = 0, _swLive = false;
+(function () {
+  var st = $("stage");
+  st.addEventListener("touchstart", function (e) {
+    var t = e.touches[0];
+    /* iOS Safari owns the first 24px of either edge for back/forward. In a
+       browser tab, hijacking that is worse than not having the feature; in a
+       standalone PWA there is no such gesture, so it costs nothing where this
+       matters most. */
+    _swLive = e.touches.length === 1 && t.clientX > SWIPE_EDGE && t.clientX < innerWidth - SWIPE_EDGE;
+    _swx = t.clientX; _swy = t.clientY;
+  }, { passive: true });
+  st.addEventListener("touchend", function (e) {
+    if (!_swLive || !R || !$("opts")) return;
+    _swLive = false;
+    var t = e.changedTouches[0], dx = t.clientX - _swx, dy = t.clientY - _swy;
+    if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) <= Math.abs(dy) * 2) return;
+    if (dx < 0) swipeForward(); else prev();
+  }, { passive: true });
+  st.addEventListener("touchcancel", function () { _swLive = false; }, { passive: true });
+})();
+
+/* Forward on an unanswered question skips it, which is legitimate — the round
+   is fixed-length and you can swipe back. Forward on the last question does
+   nothing: finishing stays an aimed tap on a button that names the score. */
+function swipeForward() {
+  if (R.i + 1 >= R.items.length) return;
+  next();
 }
 
 function renderResult() {
@@ -1102,8 +1184,11 @@ function paintHome() { paintRoll(); paintModes(); paintMeters(); paintCast(); }
 document.addEventListener("keydown", function (e) {
   if (!R) return;
   if (e.key === "Escape") { confirmLeave(); return; }
+  if (["INPUT", "TEXTAREA"].indexOf(e.target.tagName) >= 0) return;
   var q = R.items[R.i];
-  if (!q) return;
+  if (!q || !$("opts")) return;
+  if (e.key === "ArrowLeft") { e.preventDefault(); prev(); return; }
+  if (e.key === "ArrowRight") { e.preventDefault(); swipeForward(); return; }
   if ((e.key === "Enter" || e.key === " ") && q.done) { e.preventDefault(); next(); return; }
   var n = parseInt(e.key, 10);
   if (n >= 1 && n <= (q.opts ? q.opts.length : 0) && !q.done) { e.preventDefault(); answer(n - 1); }

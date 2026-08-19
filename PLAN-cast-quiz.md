@@ -76,9 +76,11 @@ not assert.
 | --- | --- |
 | Where does the data come from? | A build script, not runtime DOM scraping. Runtime scraping only works on the page being scraped, and breaks silently on markup drift. |
 | Which of the five modes ship in Tier 2? | Weld Drill (4 axes), Confusion Duel, Cloze. Timeline Drop and the Gauntlet are Tier 3. |
+| How do you move between questions? | Prev / Next buttons, left-right swipe, and arrow keys — the practice-test page's gesture to its own numbers (`SWIPE_MIN=60`, `SWIPE_EDGE=24`, horizontal delta over twice the vertical), so the two screens feel like one app. Its rules carry over too: the 24px edge belongs to iOS back/forward, and the last question's forward swipe does nothing because finishing stays an aimed tap. |
 | One SR engine or two? | Two, unavoidably (F-8) — but the cast page re-implements `SR_BASE` / `srDays` / `clampDue` **verbatim** so the two ladders behave identically, and reads the same exam date (INV-C5). |
 | Does the "when" axis ask for a year? | **Revised in Phase 1.** The plan's century-band idea was dropped: for ch3 the group *is* the era, so a band question would have duplicated the group axis, and for ch4 "20th century" is true of almost everyone. The dates the handbook actually tests — 1954, 1966, 1727 — are bolded *inside the notes*, not in the life lines. So "when" is asked as a cloze over a dated `<b>` span, which also keeps it verbatim. 36 dated blanks across 27 figures. |
 | What counts as "welded"? | Correct on every axis the person *has*, on two separate days. Same principle as the mock page's retirement rule: a fact re-answered ten minutes later is recall, not knowledge. |
+| Does a right answer move on by itself? | **No — revised 2026-08-19 after use.** It did, after 900ms, on the reasoning that a card you knew needs no reading. That was wrong: the verdict carries the weld, the life line and the link to the sheet, and taking it away is taking away the thing the drill exists to teach. Every question now waits for a deliberate move, and there is a way back to the one before. |
 
 ---
 
@@ -179,3 +181,36 @@ distractors, but the duel is *made* of colliding pairs, so it is exempt from tha
 rule and held to a different one: decidable from the whole note shown. Ten pairs
 failed that bar on the first run — all of them F-13 figures, which is how F-13
 was found.
+
+---
+
+## 8. Revision — navigation, 2026-08-19
+
+Shipped with a 900ms auto-advance on correct answers. Wrong call, corrected the
+same day after the page was actually used.
+
+The verdict is not a "you got it" confirmation — it is the weld, the life line,
+the group and a link to the card on the sheet. A right answer is exactly the
+case where you have a spare second to read it, and advancing past it spent the
+one moment the drill had your attention. There was also no way back: a card
+glimpsed and gone stayed gone.
+
+So:
+
+- **Nothing advances on its own.** Every question waits for Next, a left swipe,
+  or → .
+- **Prev exists**, as a button, a right swipe and ← . Revisiting an answered
+  question re-paints it in full — your pick, the mark, the verdict — which is
+  why the answered state is now rendered *from the item* rather than left in the
+  DOM by the click that made it. Re-tapping an option there banks nothing: the
+  round already has your answer.
+- **Skip** is the forward move on an unanswered question, and it is a visible
+  ghost button rather than a gesture-only behaviour. A swipe that silently does
+  nothing reads as broken (PLAN-quiz-ux.md, Phase 3, point 4), so every gesture
+  has a button that means the same thing.
+
+The test grew three groups for this: that a correct answer still shows its
+verdict after 1.1s (sampled over 12 correct answers, since dwelling on all 288
+would add five minutes to the run for no more information), that Prev restores
+the answered state without double-banking, and that the swipe thresholds hold —
+a 30px drag and a steep one both leave the question alone.

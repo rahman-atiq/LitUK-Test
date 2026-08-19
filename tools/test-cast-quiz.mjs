@@ -169,7 +169,8 @@ ok(await page.locator("#groupChips .chip").count() === 18, "eighteen scope chips
 
 const MODES = ["roll", "weld", "duel", "cloze"];
 const ROUNDS = 6;                      // 4 modes x 6 rounds x 12 questions = 288 live questions
-let asked = 0, dupOpt = 0, emptyOpt = 0, tagLeak = 0, collide = 0, noRight = 0;
+let asked = 0, dupOpt = 0, emptyOpt = 0, tagLeak = 0, collide = 0, noRight = 0, autoAdvanced = 0, dwells = 0;
+const DWELL_N = 12;
 const kinds = new Map();
 
 for (const mode of MODES) {
@@ -225,17 +226,29 @@ for (const mode of MODES) {
         return n;
       });
 
-      /* A right answer advances itself after 900ms; a wrong one waits for the
-         button. Poll for whichever happens, nudging Next until it does — the
-         card is taller than the viewport, so a real click is not reliable. */
+      /* Nothing advances on its own any more: the verdict stays until Next is
+         pressed. The auto-advance this replaces fired only on a *correct*
+         answer and only after 900ms, so the check has to dwell on correct
+         answers specifically — a sample of them, since waiting on all 288
+         would add five minutes to the run for no more information. */
+      const wasRight = await page.evaluate(() => {
+        const n = [...document.querySelectorAll("#opts .opt")];
+        return n.some((b) => b.classList.contains("right")) && !n.some((b) => b.classList.contains("wrong"));
+      });
+      if (wasRight && dwells < DWELL_N) {
+        dwells++;
+        await page.waitForTimeout(1100);
+        if (await page.locator(".verdict").count() !== 1) autoAdvanced++;
+        if (await page.evaluate(() => document.querySelector(".qbar .cnt").textContent) !== shot.count) autoAdvanced++;
+      }
+
+      /* The card is taller than the viewport, so click through the DOM. */
+      await page.evaluate(() => document.getElementById("next").click());
       await page.waitForFunction((prev) => {
         if (document.querySelector(".result")) return true;
         const c = document.querySelector(".qbar .cnt");
-        if (c && c.textContent !== prev) return true;
-        const n = document.getElementById("next");
-        if (n) n.click();
-        return false;
-      }, shot.count, { polling: 120, timeout: 15000 });
+        return !!c && c.textContent !== prev;
+      }, shot.count, { polling: 100, timeout: 15000 });
     }
     await page.locator(".result .score").waitFor();
     await page.locator("#done").click();
@@ -248,8 +261,69 @@ ok(dupOpt === 0, `${dupOpt} question(s) rendered the same option twice`);
 ok(emptyOpt === 0, `${emptyOpt} question(s) rendered an empty prompt or option`);
 ok(tagLeak === 0, `${tagLeak} question(s) leaked markup or an undefined into an option`);
 ok(noRight === 0, `${noRight} answered question(s) did not mark exactly one right option`);
+ok(autoAdvanced === 0, `${autoAdvanced} question(s) moved on by themselves instead of waiting for Next`);
+ok(dwells >= 8, `only ${dwells} correct answers were dwelled on — the no-auto-advance check is close to vacuous`);
 ok(collide === 0, `${collide} option set(s) offered a figure whose own fact would also be right (INV-C7)`);
 ok(kinds.size >= 6, `expected every question type to appear, saw ${kinds.size}: ${[...kinds.keys()].join(", ")}`);
+
+/* ---------------- navigation ----------------
+   Going back has to show what you answered, not a blank question, and it must
+   not bank the answer twice. */
+await page.locator('#modes .mode[data-m="weld"]').click();
+await page.locator("#opts .opt").first().waitFor();
+
+const answeredBefore = await page.evaluate(() => JSON.parse(localStorage.getItem("lituk_cast_v1")).n.ans);
+const first = await page.evaluate(() => document.querySelector(".qtext").innerHTML);
+await page.locator("#opts .opt").first().click();
+await page.locator(".verdict").waitFor();
+const firstVerdict = await page.evaluate(() => document.querySelector(".verdict .nm").textContent);
+
+ok(await page.locator("#prev[disabled]").count() === 1, "Prev is disabled on the first question");
+await page.evaluate(() => document.getElementById("next").click());
+await page.locator("#opts .opt").first().waitFor();
+ok(await page.evaluate(() => document.querySelector(".qbar .cnt").textContent) === "2 / 12", "Next advances to question 2");
+ok(await page.locator(".verdict").count() === 0, "an unanswered question shows no verdict");
+ok(await page.locator("#next").count() === 1, "an unanswered question still offers a forward move");
+
+await page.evaluate(() => document.getElementById("prev").click());
+await page.locator("#opts .opt").first().waitFor();
+ok(await page.evaluate(() => document.querySelector(".qtext").innerHTML) === first, "Prev returns to the same question");
+ok(await page.locator(".verdict").count() === 1, "a revisited answered question shows its verdict again");
+ok(await page.evaluate(() => document.querySelector(".verdict .nm").textContent) === firstVerdict, "the revisited verdict names the same figure");
+ok(await page.locator("#opts .opt.right").count() === 1, "a revisited question still marks the right option");
+ok(await page.locator("#opts .opt:not([disabled])").count() === 0, "a revisited question cannot be re-answered");
+
+/* Re-answering a revisited question must not bank a second answer. */
+await page.evaluate(() => document.querySelector("#opts .opt").click());
+ok(await page.evaluate(() => JSON.parse(localStorage.getItem("lituk_cast_v1")).n.ans) === answeredBefore + 1,
+  "revisiting a question banked the answer twice");
+
+/* Swipe: left is forward, right is back, and the thresholds are the practice
+   page's. A short or steep drag must not move anything. */
+async function swipe(dx, dy) {
+  const box = await page.locator(".qcard").boundingBox();
+  const x = box.x + box.width / 2, y = box.y + 40;
+  await page.evaluate(({ x, y, dx, dy }) => {
+    const st = document.getElementById("stage");
+    const t = (cx, cy) => [new Touch({ identifier: 1, target: st, clientX: cx, clientY: cy })];
+    st.dispatchEvent(new TouchEvent("touchstart", { touches: t(x, y), changedTouches: t(x, y), bubbles: true }));
+    st.dispatchEvent(new TouchEvent("touchend", { touches: [], changedTouches: t(x + dx, y + dy), bubbles: true }));
+  }, { x, y, dx, dy });
+}
+const at = () => page.evaluate(() => document.querySelector(".qbar .cnt").textContent);
+ok(await at() === "1 / 12", "swipe pass starts on question 1");
+await swipe(-120, 5);
+ok(await at() === "2 / 12", "a left swipe moves forward");
+await swipe(120, 5);
+ok(await at() === "1 / 12", "a right swipe moves back");
+await swipe(-30, 0);
+ok(await at() === "1 / 12", "a swipe under 60px does not move");
+await swipe(-120, 100);
+ok(await at() === "1 / 12", "a steep drag scrolls rather than moving");
+
+await page.locator("#qClose").click();
+page.once("dialog", (d) => d.accept());
+await page.locator("#modes .mode").first().waitFor();
 
 /* Progress has to survive a reload — it is the only copy. */
 const before = await page.evaluate(() => JSON.parse(localStorage.getItem("lituk_cast_v1")).n.ans);
