@@ -4,7 +4,7 @@
    as you visit it, or all at once via the hub's "Save for offline".
    Bump VERSION whenever the content changes.
    ============================================================ */
-const VERSION = "2026-08-21c";
+const VERSION = "2026-08-21d";
 const CORE_CACHE = "lituk-core-" + VERSION;
 const RUNTIME_CACHE = "lituk-runtime-" + VERSION;
 
@@ -70,7 +70,73 @@ self.addEventListener("activate", (e) => {
   );
 });
 
-/* Stale-while-revalidate: instant from cache, refreshed in the background. */
+/* Two strategies, because a page and a 400 KB data file do not want the same one.
+
+   Stale-while-revalidate is right for assets and wrong for documents, and that
+   is what stranded the Practice Tests page on an old build after VERSION went
+   to ...c. A bump only actively refreshes CORE, which is index.html, app.js and
+   the icons. Every other page falls through to this handler, and here SWR did
+   two things that compound: it answers from cache and refreshes behind you, so
+   a changed page always shows up one visit late — and its refresh went out as a
+   bare fetch(), which the browser is free to answer out of its OWN HTTP cache.
+   Pages serves HTML with max-age=600, so that fetch could hand back the very
+   bytes the bump meant to replace, and the worker then stored them as current.
+   The shell updated, the page did not, and nothing about it self-corrected.
+
+   So: documents are network-first now. A page you navigate to has to be the
+   page that is deployed. Assets stay stale-while-revalidate — instant, which is
+   the whole point — but revalidate conditionally, so a stale HTTP-cache entry
+   can never be promoted into the worker's cache again. */
+
+/* Long enough that a slow phone still gets the live page, short enough that a
+   dead connection does not hold a blank screen. Past it we fall back to cache,
+   which is one build behind at worst — better than nothing on screen. */
+const DOC_TIMEOUT = 4000;
+
+function isDoc(req) {
+  return req.mode === "navigate" ||
+    req.destination === "document" ||
+    (req.headers.get("accept") || "").includes("text/html");
+}
+
+function withTimeout(p, ms) {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("timeout")), ms);
+    p.then((v) => { clearTimeout(t); resolve(v); },
+           (err) => { clearTimeout(t); reject(err); });
+  });
+}
+
+function store(req, res) {
+  if (res && res.ok && res.type === "basic") {
+    const copy = res.clone();
+    caches.open(RUNTIME_CACHE).then((c) => c.put(req, copy));
+  }
+  return res;
+}
+
+/* Network-first, cache as the offline floor. "no-cache" is the load-bearing
+   part: it revalidates against the server (ETag, so a 304 when nothing moved)
+   instead of letting the browser answer from its own cache. */
+function docFirst(req) {
+  const net = fetch(req, { cache: "no-cache" }).then((res) => store(req, res));
+  return withTimeout(net, DOC_TIMEOUT).catch(() =>
+    caches.match(req, { ignoreSearch: true })
+      .then((hit) => hit || net.catch(() => caches.match("./index.html")))
+  );
+}
+
+/* Instant from cache, revalidated behind you — but conditionally, and the
+   request is in the background, so the extra round trip costs nothing you see. */
+function swr(req) {
+  return caches.match(req, { ignoreSearch: true }).then((hit) => {
+    const net = fetch(req, { cache: "no-cache" })
+      .then((res) => store(req, res))
+      .catch(() => hit || caches.match("./index.html"));
+    return hit || net;
+  });
+}
+
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
@@ -78,20 +144,7 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
 
-  e.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((hit) => {
-      const net = fetch(req)
-        .then((res) => {
-          if (res && res.ok && res.type === "basic") {
-            const copy = res.clone();
-            caches.open(RUNTIME_CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => hit || caches.match("./index.html"));
-      return hit || net;
-    })
-  );
+  e.respondWith(isDoc(req) ? docFirst(req) : swr(req));
 });
 
 /* The hub can ask for the whole library up front. */
