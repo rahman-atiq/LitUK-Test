@@ -197,6 +197,8 @@
     border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
     display:grid; place-items:center; font-size:1.65rem; user-select:none;
   }
+  /* An image, not the emoji — Windows renders 🇬🇧 as the letters "GB". */
+  .scene .glyph img { display:block; width:30px; height:auto; border-radius:2px; }
   .story { color:var(--ink-2); margin:10px 0 0; }
   .story b { color:var(--ink); }
   .story .d {
@@ -242,6 +244,7 @@
     .because { padding-left:52px; }
     .because::before { left:13px; }
     .scene .glyph { width:46px; height:46px; font-size:1.3rem; }
+    .scene .glyph img { width:24px; }
   }
 
   /* ---------- reveal animation ---------- */
@@ -1109,7 +1112,7 @@
 
     <article class="scene reveal" data-year="1801" data-era="4">
       <span class="scene-dot"></span>
-      <div class="glyph">🇬🇧</div>
+      <div class="glyph"><img src="icons/flag-gb.svg" alt="" width="60" height="30"></div>
       <h3><span class="yr">1801</span>The United Kingdom and the Union Flag</h3>
       <p class="story">
         The <b>Act of Union with Ireland</b> (passed 1800, effective <span class="d">1801</span>) creates

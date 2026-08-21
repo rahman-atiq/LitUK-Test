@@ -92,6 +92,13 @@
     box-shadow:inset 0 1px 0 var(--sheen), 0 10px 30px rgba(0,0,0,.22);
     animation:drift 7s ease-in-out infinite;
   }
+  /* Drawn, not typed. The flag emoji is a pair of regional indicators that the
+     font is meant to ligate into a flag; Windows ships the letters but not the
+     ligature, so the seal read "GB" there. An image renders everywhere. */
+  .mast .flag img {
+    display:block; width:40px; height:auto; border-radius:2px;
+    box-shadow:0 1px 4px rgba(0,0,0,.35);
+  }
   .mast .flag::before {
     content:""; position:absolute; inset:-7px; border-radius:50%;
     border:1px solid color-mix(in srgb, var(--gold) 16%, transparent);
@@ -383,6 +390,7 @@
     .tile { padding:15px 15px; gap:13px; }
     .tile .ic { width:44px; height:44px; font-size:21px; border-radius:12px; }
     .mast .flag { width:72px; height:72px; font-size:32px; }
+    .mast .flag img { width:35px; }
   }
 
   /* Everything decorative that moves, switched off in one place. */
@@ -403,7 +411,7 @@
 <div class="wrap">
 
   <header class="mast">
-    <div class="flag" id="flagSeal" aria-hidden="true">🇬🇧</div>
+    <div class="flag" id="flagSeal" aria-hidden="true"><img src="icons/flag-gb.svg" alt="" width="60" height="30"></div>
     <h1>Life in the UK</h1>
     <p class="sub">Everything for the test in one place — the story of Britain, the reference notes, and enough practice questions to make the real thing feel boring.</p>
     <div class="rule"></div>

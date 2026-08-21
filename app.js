@@ -524,10 +524,32 @@
       line: "Three crosses, one flag, and a very respectable flutter." }
   ];
 
+  /* The Union Flag has to be drawn, not typed. The emoji is a pair of regional
+     indicators (U+1F1EC U+1F1E7) that a font is meant to ligate into a flag;
+     Windows ships the letter glyphs but not the ligature, so it came out as
+     "GB". So anywhere an icon might be the flag, append a node instead of
+     setting text — every other egg icon is an emoji that renders fine. */
+  var FLAG = "\uD83C\uDDEC\uD83C\uDDE7";
+
+  function flagImg() {
+    var img = document.createElement("img");
+    img.src = "icons/flag-gb.svg";
+    img.alt = "";
+    img.className = "uj";
+    return img;
+  }
+
+  function iconNode(icon) {
+    return icon === FLAG ? flagImg() : document.createTextNode(icon);
+  }
+
   var EGG_CSS =
     ".egg-stage{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden;" +
     "transition:opacity .8s ease}" +
     ".egg-stage.out{opacity:0}" +
+
+    /* the flag, an image wherever it appears, sized to the text beside it */
+    ".uj{display:inline-block;width:1.3em;height:auto;vertical-align:-.15em}" +
 
     /* confetti */
     ".egg-bit{position:absolute;top:-16px;width:9px;height:14px;display:block;opacity:.95;" +
@@ -750,7 +772,7 @@
       for (var i = 0; i < 14; i++) {
         var f = document.createElement("i");
         f.className = "egg-mini";
-        f.textContent = "🇬🇧";
+        f.appendChild(flagImg());
         f.style.left = rand(4, 94).toFixed(2) + "vw";
         f.style.animationDelay = rand(0, 1.4).toFixed(2) + "s";
         f.style.animationDuration = rand(3, 4.4).toFixed(2) + "s";
@@ -771,7 +793,8 @@
     t.setAttribute("role", "status");
 
     var h = document.createElement("b");
-    h.textContent = icon + "  " + name;
+    h.appendChild(iconNode(icon));
+    h.appendChild(document.createTextNode("  " + name));
     var p = document.createElement("span");
     p.textContent = line;
     t.appendChild(h);
@@ -903,7 +926,8 @@
       item.className = "curio-item" + (got ? " got" : "");
       var x = document.createElement("span");
       x.className = "cx";
-      x.textContent = got ? egg.icon : "?";
+      if (got) x.appendChild(iconNode(egg.icon));
+      else x.textContent = "?";
       var body = document.createElement("div");
       var b = document.createElement("b");
       b.textContent = got ? egg.name : "Still hidden";

@@ -100,7 +100,9 @@ header.hd-away{transform:translateY(-100%)}
 @media(prefers-reduced-motion:reduce){header{transition:none}}
 .hd{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;font-weight:800;letter-spacing:-.02em;cursor:pointer}
-.brand .flag{flex:none;font-size:22px}
+.brand .flag{flex:none;font-size:22px;line-height:0}
+/* An image, not the emoji — Windows renders 🇬🇧 as the letters "GB". */
+.brand .flag img{display:block;width:24px;height:auto;border-radius:2px}
 /* The title stays on one line and ellipsises — it must never wrap to "Life / in / the / UK". */
 .brand .name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand small{display:block;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:0;overflow:hidden;text-overflow:ellipsis}
@@ -616,6 +618,7 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
   .nav button{flex:1 1 0;padding:7px 6px;font-size:12.5px}
   .hubLink,.icon-btn{width:32px;height:32px;font-size:15px}
   .brand .flag{font-size:20px}
+  .brand .flag img{width:22px}
 }
 @media(max-width:560px){
   h1{font-size:20px}
@@ -666,7 +669,7 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
   <div class="hd">
     <a class="hubLink" href="index.html" title="Back to the study hub" aria-label="Back to the study hub">←</a>
     <div class="brand" onclick="go('dashboard')">
-      <span class="flag">🇬🇧</span>
+      <span class="flag"><img src="icons/flag-gb.svg" alt="" width="60" height="30"></span>
       <div class="name">Life in the UK<small id="brandSub">Practice Tests</small></div>
     </div>
     <div class="spacer"></div>
