@@ -114,6 +114,9 @@ header.hd-away{transform:translateY(-100%)}
 .nav{display:flex;flex:none;gap:4px}
 .nav button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:8px 12px;border-radius:9px;cursor:pointer;font-size:14px;white-space:nowrap}
 .nav button:hover{background:var(--chip);color:var(--ink)}
+/* iOS has no hover and the tap highlight is off above, so every target has to say
+   "pressed" itself or the page feels dead under a thumb. */
+.icon-btn:active,.hubLink:active,.nav button:active{background:var(--chip)}
 .nav button.on{background:var(--brand);color:var(--brand-ink)}
 /* Cards */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -121,38 +124,49 @@ header.hd-away{transform:translateY(-100%)}
 h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015em;margin:22px 0 5px;line-height:1.12}
 .sub{color:var(--muted);margin:0 0 18px;font-size:14px}
 /* ---- Page hero band ----
-   The dashboard used to open on "Your dashboard" in the body face above a grey
-   sentence of specs — the typographic equivalent of a filing-cabinet label. The
-   band gives the page a face instead: the name set in the display serif, one
-   line of where you actually stand, and the whole 150-paper journey as a single
-   rail underneath. The rail is the one number this page exists to move, and it
-   was previously buried as small print inside the sixth stat box. */
-.phero{position:relative;margin:18px 0 16px;padding:20px 22px;animation:heroIn .32s ease both;
+   Name, rail, two figures — and nothing else. It also carried an eyebrow reading
+   "Life in the UK" and a three-clause sentence of specs, but the header an inch
+   above already says "Life in the UK / Practice Tests", the pass mark is a
+   constant you learn once, and a rail states "how far through" better than any
+   sentence can. What is left is the number this page exists to move and the
+   clock it is running against. */
+.phero{position:relative;margin:16px 0 14px;padding:15px 18px;animation:heroIn .32s ease both;
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 16%,var(--panel)),color-mix(in srgb,var(--brand) 12%,var(--panel)) 58%,var(--panel));
   border-color:color-mix(in srgb,var(--brand) 24%,var(--line))}
-.phero .k{margin:0;font-size:10.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
-.phero h1{margin:3px 0 7px}
-.phero .line{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
-.phero .line b{color:var(--ink);font-weight:700}
+.phero h1{margin:0 0 11px;font-size:26px}
 @keyframes heroIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.rail{height:9px;border-radius:9px;margin-top:15px;overflow:hidden;
+.rail{height:9px;border-radius:9px;overflow:hidden;
   background:color-mix(in srgb,var(--ink) 9%,transparent)}
 .rail > i{display:block;height:100%;border-radius:9px;
   background:linear-gradient(90deg,var(--accent),var(--brand));
   transition:width .7s cubic-bezier(.2,.7,.2,1)}
 .rail-l{display:flex;justify-content:space-between;gap:10px;margin-top:7px;
   font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-@media (max-width:560px){.phero{padding:16px 16px}.phero h1{font-size:24px}}
+/* Neither figure is decoration: left is the progress, right is the clock. The
+   clock borrows the thresholds the Days-to-exam stat box already uses, so when
+   the page starts going red it does it in one voice. */
+.rail-l b{color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
+.rail-l .brand{color:var(--brand)} .rail-l .bad{color:var(--bad)}
+@media (max-width:560px){.phero{padding:14px 15px}.phero h1{font-size:22px}}
 /* ---- Start here ----
    150 identical doors, and no reason to open one rather than another, is most of
    why this page felt like wallpaper. This is the open one: the next paper you
    have never sat, or — once they are all sat — the weakest one you have not yet
    passed. It wears the colour of the section it belongs to, so it also says
-   where you are about to land. */
-.nextup{display:flex;gap:14px;align-items:center;padding:15px 17px;margin:0 0 12px;
+   where you are about to land. It sits directly under the band, because a
+   recommendation you only meet after 1,500px of dashboard is not one.
+
+   It and the drill share a row (.duo). Stacked full-width they were 300px of the
+   first screen spent saying "here are two buttons"; side by side they are a
+   choice you make in one look. The pair is deliberately unequal — this one keeps
+   its section wash and the primary button, the drill goes flat. One of them is
+   the answer to "what now", the other is the habit. */
+.duo{grid-template-columns:repeat(2,minmax(0,1fr));margin:0 0 14px}  /* gap comes from .grid, declared below */
+.duo > .card{margin:0;min-width:0}
+.nextup{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px;margin:0;
   cursor:pointer;transition:transform .14s,border-color .14s,box-shadow .14s;
   border-color:color-mix(in srgb,var(--tone) 38%,var(--line));
-  background:linear-gradient(110deg,color-mix(in srgb,var(--tone) 13%,var(--panel)),var(--panel) 66%)}
+  background:linear-gradient(145deg,color-mix(in srgb,var(--tone) 15%,var(--panel)),var(--panel) 72%)}
 .nextup:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--tone) 62%,var(--line));
   box-shadow:0 3px 6px rgba(42,35,51,.05),0 12px 26px color-mix(in srgb,var(--tone) 17%,transparent)}
 .nextup:active{transform:scale(.99)}
@@ -161,16 +175,14 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
   border:1px solid color-mix(in srgb,var(--tone) 32%,var(--line))}
 .nextup .body{flex:1;min-width:0}
 .nextup .k{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
-  color:color-mix(in srgb,var(--tone) 72%,var(--ink))}
+  color:color-mix(in srgb,var(--tone) 72%,var(--ink));
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nextup .t{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.15;
-  margin-top:1px;font-variant-numeric:lining-nums}
+  margin-top:1px;font-variant-numeric:lining-nums;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nextup .d{color:var(--muted);font-size:12.5px;margin-top:2px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nextup .go{flex:0 0 auto}
-@media (max-width:520px){
-  .nextup{flex-wrap:wrap;gap:12px}
-  .nextup .go{width:100%}
-}
 /* ---- The tests header and its filters ----
    Four chips over 150 tiles. Nothing is added to the page that was not already
    on it — the chips only decide which tiles are drawn — but a section of 45
@@ -227,7 +239,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    mistaken for the answer — lifetime accuracy under the rolling one. */
 .stat .s{color:var(--muted);font-size:11px;font-weight:600;margin-top:3px}
 .stat .n.good{color:var(--good)} .stat .n.bad{color:var(--bad)} .stat .n.brand{color:var(--brand)}
-.stat.tap{cursor:pointer} .stat.tap:hover{border-color:var(--brand)}
+.stat.tap{cursor:pointer;transition:transform .12s} .stat.tap:hover{border-color:var(--brand)}
 /* Buttons */
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);font-weight:700;padding:11px 16px;border-radius:11px;cursor:pointer;font-size:14px;transition:.12s}
 .btn:hover{border-color:var(--brand)}
@@ -236,28 +248,47 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .btn.ghost{background:transparent}
 .btn.sm{padding:7px 11px;font-size:13px;border-radius:9px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
+/* The press, again: .act and .tcard had one, everything else on the page did not. */
+.btn:active,.fchip:active,.stat.tap:active{transform:scale(.985)}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
 /* Actions */
 .actions{grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:9px;margin:16px 0}
-/* Daily drill hero */
-.drill{display:flex;gap:16px;align-items:center;padding:18px;margin:18px 0;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 15%,var(--panel)),color-mix(in srgb,var(--brand) 11%,var(--panel)) 62%,var(--panel));
-  border:1px solid color-mix(in srgb,var(--brand) 32%,var(--line))}
-.drill .emo{font-size:32px;flex:0 0 auto;line-height:1}
+/* Daily drill — .nextup's twin, structurally identical (icon, k/t/d, button) so
+   the two sit in one row without arguing about hierarchy. It drops its own wash
+   for flat --panel: two gradient cards shoulder to shoulder is the "everything
+   is equally important" problem in miniature, and the fire and the streak carry
+   its identity perfectly well without one. The streak is absolute, which keeps
+   the drill's children a one-for-one match with .nextup's. */
+.drill{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px;
+  padding:14px;margin:0;background:var(--panel);border:1px solid var(--line)}
+.drill .emo{flex:0 0 auto;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  font-size:22px;line-height:1;background:color-mix(in srgb,var(--brand) 12%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--brand) 26%,var(--line))}
 .drill .body{flex:1;min-width:0}
-.drill .t{font-weight:800;font-size:16px;letter-spacing:-.01em}
-.drill .d{color:var(--muted);font-size:12.5px;margin-top:2px}
-.drill .streak{flex:0 0 auto;text-align:center;padding-left:14px;border-left:1px solid var(--line)}
-.drill .streak b{display:block;font-size:22px;font-weight:800;line-height:1.1}
-.drill .streak span{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-@media (max-width:520px){
-  .drill{flex-wrap:wrap;gap:12px}
-  .drill .streak{padding-left:0;border-left:0;text-align:left}
-  .drill .go{width:100%}
+.drill .k{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drill .t{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.15;
+  margin-top:1px;font-variant-numeric:lining-nums;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drill .d{color:var(--muted);font-size:12.5px;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drill .streak{position:absolute;top:14px;right:14px;text-align:right}
+.drill .streak b{display:block;font-size:19px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.drill .streak span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.drill .go{flex:0 0 auto}
+.duo .go{padding-left:10px;padding-right:10px}
+@media (max-width:560px){.nextup .t,.drill .t{font-size:20px}}
+/* Wide enough for the old side-by-side reading, so desktop keeps it: at 428px a
+   column of content under a 44px icon is a lot of white space to cross. */
+@media (min-width:760px){
+  .nextup,.drill{flex-direction:row;align-items:center;gap:15px;padding:15px 17px}
+  .duo .go{padding-left:16px;padding-right:16px}
+  .drill .streak{position:static;padding-left:14px;border-left:1px solid var(--line);text-align:center}
 }
 /* Resume list — sessions you walked away from and can walk back into.
    Capped at 3 rows on the dashboard with an expander, so an unbounded pile of
    abandoned drills can never push the drill card below the fold (§3.1). */
+.rescard{margin:14px 0}
 .rsm{display:flex;gap:8px;align-items:center;padding:11px 14px;border-top:1px solid var(--line)}
 .rsm .body{flex:1;min-width:0}
 .rsm .t{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -300,6 +331,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .bankhd::-webkit-details-marker{display:none}
 .bankhd:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));
   box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 16%,transparent)}
+.bankhd:active{background:linear-gradient(100deg,color-mix(in srgb,var(--acc) 22%,var(--panel)),var(--panel) 62%)}
 .bankgrp[open] > .bankhd{border-radius:var(--radius) var(--radius) 0 0}
 .bankhd .ico{flex:0 0 auto;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;line-height:1;
   background:color-mix(in srgb,var(--acc) 18%,var(--panel));border:1px solid color-mix(in srgb,var(--acc) 34%,var(--line))}
@@ -382,8 +414,13 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
       topic at 40% or more of the paper, so no two strips look alike and the
       difference between them means something. */
 .tests{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+/* No shadow, for the same reason .act has none: .card's four-layer lift is for a
+   handful of objects, not 150 of them on a --panel-2 field. The border, the 3px
+   top edge and the state tint already separate a tile from its neighbour, and the
+   page has 150 fewer composited layers to repaint on the way down. The hover
+   shadow below is untouched — it is one tile at a time, on a device with a mouse. */
 .tcard{--tone:var(--acc,var(--brand));position:relative;overflow:hidden;cursor:pointer;
-  padding:12px 12px 11px;display:flex;flex-direction:column;transition:.13s}
+  padding:12px 12px 11px;display:flex;flex-direction:column;box-shadow:none;transition:.13s}
 .tcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tone);opacity:.5}
 .tcard:hover{border-color:var(--tone);transform:translateY(-2px);
   box-shadow:0 2px 4px rgba(42,35,51,.05),0 10px 22px color-mix(in srgb,var(--tone) 16%,transparent)}
@@ -393,6 +430,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 @media(prefers-reduced-motion:reduce){
   .act,.tcard{transition:none}
   .act:hover,.act:active,.tcard:hover,.tcard:active{transform:none}
+  .btn:active,.fchip:active,.stat.tap:active,.nextup:active{transform:none}
 }
 /* The word above the number is the section's own: the reported-exam papers stop
    calling themselves "Test" when their own section calls them papers. */
@@ -999,13 +1037,14 @@ function drillCard(){
     n('stale')?`${n('stale')} gone cold`:''].filter(Boolean);
   const mode=drillMode();
   return `<div class="card drill">
-    <div class="emo">${done?'✅':'🔥'}</div>
+    <span class="emo">${done?'✅':'🔥'}</span>
     <div class="body">
-      <div class="t">Daily drill${done?' — done today':''}</div>
-      <div class="d">${plan.length} questions · ${bits.join(' · ')||'a fresh mix'}${mode!=='coverage'?` · ${mode}`:''}</div>
+      <div class="k">${done?'Drill done today':'Daily drill'}</div>
+      <div class="t">${plan.length} question${plan.length===1?'':'s'}</div>
+      <div class="d">${bits.join(' · ')||'a fresh mix'}${mode!=='coverage'?` · ${mode}`:''}</div>
     </div>
     ${streak?`<div class="streak"><b>${streak}</b><span>day${streak===1?'':'s'}</span></div>`:''}
-    <button class="btn primary go" onclick="startDrill()">${done?'Go again':'Start drill'} →</button>
+    <button class="btn go" onclick="startDrill()">${done?'Go again':'Start drill'} →</button>
   </div>`;
 }
 /* `face` is the section's, so the tile can say "Paper 401" where its section
@@ -1280,22 +1319,22 @@ function renderDashboard(){
      a data file that failed to load) can push it past TESTS.length. The stat
      box has always shown that raw figure; the rail must not, or it draws itself
      at 333% and says "-350 to go". */
-  const railDone=Math.min(passed,TESTS.length),railLeft=TESTS.length-railDone;
+  const railDone=Math.min(passed,TESTS.length);
   const railPct=Math.round(railDone/TESTS.length*100);
   el.innerHTML=`
     <div class="card phero">
-      <p class="k">Life in the UK</p>
       <h1>Practice Tests</h1>
-      <p class="line">${railDone
-        ? `<b>${railDone} of ${TESTS.length} papers passed</b>${railLeft?` — ${railLeft} to go.`:' — all of them.'}`
-        : `<b>${TESTS.length} papers</b> waiting, 24 questions each.`
-      } Pass mark ${PASSMARK}/24.${left!=null&&left>=0?` <b>${left} day${left===1?'':'s'}</b> until your exam.`:''}</p>
       <div class="rail" role="img" aria-label="${railDone} of ${TESTS.length} papers passed"><i style="width:${railPct}%"></i></div>
-      <div class="rail-l"><span><span data-count="${railPct}" data-suf="%">${railPct}%</span> complete</span><span>${railDone}/${TESTS.length}</span></div>
+      <div class="rail-l">
+        <span><b data-count="${railDone}">${railDone}</b>/${TESTS.length} passed</span>
+        ${left!=null&&left>=0
+          ? `<span class="${left<=6?'bad':left<=14?'brand':''}">${left} day${left===1?'':'s'} left</span>`
+          : `<span>Pass mark ${PASSMARK}/24</span>`}
+      </div>
     </div>
+    <div class="grid duo">${nextUpCard()}${drillCard()}</div>
     ${backupNag()}
     ${resumeSection()}
-    ${drillCard()}
     <div class="card stat hero tap" onclick="explainReadiness()" title="How this is worked out">
       <div>
         <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}" data-count="${rp}" data-suf="%">${rp}%</div><div class="l">Pass probability</div>
@@ -1329,7 +1368,6 @@ function renderDashboard(){
       <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="toggleAllGroups()">${grpAnyOpen()?'▴ Collapse all':'▾ Expand all'}</button>
       <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="openSettings()">⚙️ Drill ${drillSize()} · ${prefs.feedback==='instant'?'Instant feedback':'Answers at end'} · ${prefs.shufQ?'Shuffled':'In order'}</button>
     </div>
-    ${nextUpCard()}
     ${filterChips()}
     ${BANKS.map(bankSection).join('')}`;
   /* Rendered, so the pulse has been spent. Synchronous: innerHTML above is the
@@ -1502,7 +1540,7 @@ function resumeSection(){
   const all=sessList();
   if(!all.length)return '';
   const shown=sessOpen?all:all.slice(0,3),hidden=all.length-shown.length;
-  return `<div class="card" style="margin-top:18px">
+  return `<div class="card rescard">
     <div class="rsmhd">▶ Carry on<span class="tag" style="margin-left:auto">${all.length} unfinished</span></div>
     ${shown.map(s=>`<div class="rsm">
       <div class="body">
