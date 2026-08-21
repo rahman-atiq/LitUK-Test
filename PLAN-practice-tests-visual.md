@@ -297,3 +297,83 @@ Both reviews independently said leave these alone:
   `overflow-x:hidden`, `header.hd-away`.
 - `.stat-row`'s orphan rules ([:196-201](life-in-uk-mock-tests.html#L196-L201)) — keep
   them even after Phase 5 shrinks the row.
+
+---
+
+## 7. Execution log
+
+**Phase 1** — commit `5900d88..e206df3`, 21 Aug 2026. Shipped as written, plus two
+layout changes made on top of it (the band lost its eyebrow and spec line; `nextUp`
+and the drill were put in a `.duo` row).
+
+**Phases 2, 3, 5, 6, 7, 8** — 21 Aug 2026, one working tree. Shipped as written except
+where noted below.
+
+**Phase 4 — declined as written, replaced.** Atiq's call, §3.1: nothing goes behind a
+`<details>`, every door stays on the page. But once 2/3/5/6 had shrunk everything around
+them, ~615px of eight stacked two-line rows was comfortably the largest block left, so
+the block was re-laid out rather than collapsed:
+
+- **Eight became seven.** `Practice mistakes` called `go('mistakes')` — the **Mistakes**
+  button pinned in the nav on every screen — and after Phase 5 its count is one of the
+  three stat boxes 100px above it. The door and the number were both already on the page.
+- **Two-line rows became one line**: emoji, name, count, with the count pinned right so
+  the figures form a column to read down. Every count used to be buried mid-sentence
+  (`20 you've never seen · 412 left`), starting at a different x-position in all eight
+  rows, so none of them scanned. `.bankhd`'s right-hand cluster is fixed-width for
+  precisely this reason ([:343](life-in-uk-mock-tests.html#L343)) — same problem, same
+  answer. The sentences survive as `title`.
+- **`.actions` is 2 columns on a phone, 4 above 700px**, with `.stat-row`'s orphan rules
+  so the last row always closes itself. `auto-fit` on a 196px floor needed 401px to reach
+  two tracks, which is F-1.
+- Names shortened to fit ~115px: `Twist gauntlet`→`Twists`, `Date gauntlet`→`Dates`,
+  `Real-exam questions`→`Reported`, `Practice by topic`→`By topic`.
+
+**~583px → ~224px.** Contrast checked: `.act .n` is `--muted` on `--panel-2`, 5.38:1
+light and 6.13:1 dark; the all-seen `✓` is `--good`, 4.90:1 and 8.47:1. INV-V2 holds.
+
+### Deviations, and why
+
+- **Phase 3 could not work as written.** `.tcard .tw{display:none}` takes `.tm` down with
+  it — the mark is a *child* of the word row, and `display:none` removes the whole
+  subtree, so the paired `.tm{position:absolute}` rule would never have had anything to
+  position. Fixed in the markup: `testTile` now renders `<span class="tw">word</span>`
+  and the mark as its **sibling**, and `.tm` is absolutely positioned at every width —
+  `top:12px;right:12px` on desktop, which is pixel-for-pixel where the flex row put it,
+  and `top:8px;right:8px` below 560px.
+
+- **Phase 6 keeps "Collapse all" in `.tests-head`.** The two Phase 6 bullets are in
+  tension: the fchips row lands at ~358px against 361px *with four chips and nothing
+  else*, so moving a ~100px text button into it guarantees the second row the phase
+  exists to remove. Every stated goal of the phase is met where it is — the settings
+  chip is deleted, both inline `style=` attributes are gone (F-9), the expander is now a
+  plain right-aligned `.ftog` rather than a bordered chip pretending to be a filter, and
+  `.fchips` is left with exactly the four chips the ~358px was computed for.
+
+- **Phase 8 leaves `.nextup` as a `<div>`.** It already holds a real, keyboard-reachable,
+  correctly-labelled `<button>` firing the same `startTest()`, so it is not unreachable —
+  and `role="button"` on the wrapper would nest interactive content inside a button role
+  and add a second tab stop to one action. `.drill` is the same shape and left alone for
+  the same reason. `.stat.hero` genuinely had no control inside it, so it took
+  `role="button" tabindex="0"` plus a delegated Enter/Space handler. `.tcard` became a
+  real `<button>` — 150 of them — which needs `text-align:left` and `align-items:stretch`
+  to survive, because a button centres its text and does not stretch its flex children
+  (without the second one the `.mix` strip would shrink to its content width).
+
+- **`.dot` is 36px, not 44px** — 36 on an 8px gap is a 44px pitch, the compromise the
+  plan allowed. 44px squares would put 8 per row instead of 10.
+
+- **Two changes outside the dashboard, both deliberate.** The `@media (max-width:560px)`
+  `.stat` rules are unscoped, so the three boxes on the stats page shrink too — this file
+  has no id selectors anywhere in its CSS and adding `#view-dashboard` to buy scope was
+  the worse trade. And `seriesMeta()` on the results page now says `Not sat` rather than
+  `Not attempted`, so renaming the filter did not leave the app calling one state two
+  different things.
+
+### Still open
+
+- **§3.2, the gradient question.** Untouched, as instructed. Phases 1–6 are on the page
+  now; re-judge `.phero` / `.stat.hero` / `.drill` on the device. Note that Phase 1
+  already took the wash off `.drill`, so it is two gradients within 400px, not three.
+- **All of §4 — device verification.** None of it has been done. Nothing here was checked
+  in a browser; it was checked by parsing and by arithmetic.

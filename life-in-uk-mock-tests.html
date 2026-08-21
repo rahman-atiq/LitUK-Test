@@ -81,9 +81,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-
    which is black, and its own 13.33px face. Every button class here sets its
    own colour except the three built on .card (.act, .drill, .tcard), and those
    rendered black titles on the dark theme's dark panels. The font half of the
-   same gap is why .act .t (no size of its own) sat at 13.33px above a .d that
-   is explicitly 12.5px — a title 0.8px larger than its description was never
-   the intent. Anything with its own colour or size still wins on specificity. */
+   same gap is why .act .t (no size of its own) once sat at 13.33px above a .d
+   that was explicitly smaller — a title 0.8px larger than its description was
+   never the intent. Anything with its own colour or size still wins on specificity. */
 button{font:inherit;color:inherit}
 button,.opt,.dot,summary,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:var(--brand);text-decoration:none}
@@ -130,10 +130,16 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    constant you learn once, and a rail states "how far through" better than any
    sentence can. What is left is the number this page exists to move and the
    clock it is running against. */
-.phero{position:relative;margin:16px 0 14px;padding:15px 18px;animation:heroIn .32s ease both;
+.phero{position:relative;margin:16px 0 14px;padding:15px 18px;
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 16%,var(--panel)),color-mix(in srgb,var(--brand) 12%,var(--panel)) 58%,var(--panel));
   border-color:color-mix(in srgb,var(--brand) 24%,var(--line))}
 .phero h1{margin:0 0 11px;font-size:26px}
+/* The band stages itself once, on the first paint, and never again.
+   renderDashboard() rebuilds innerHTML on every filter tap, every section
+   toggle, every close of the settings panel and every backup note — and a band
+   that re-flies-in each time makes tapping a chip feel like a page load. The
+   class is set by the first render and by nothing after it. */
+.phero.in{animation:heroIn .32s ease both}
 @keyframes heroIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .rail{height:9px;border-radius:9px;overflow:hidden;
   background:color-mix(in srgb,var(--ink) 9%,transparent)}
@@ -190,9 +196,21 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    and a wall. */
 .tests-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:24px 0 11px}
 .tests-head h2{flex:1 0 auto;margin:0;font-family:var(--serif);font-size:21px;font-weight:700;letter-spacing:-.012em}
-.fchips{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 13px}
+/* The expander is a control, not a filter — and a bordered chip an inch above
+   four real ones said it was one. Plain text, right-aligned, out of the way.
+   The settings summary that used to sit beside it is gone entirely: the gear in
+   the header opens the same panel, and the summary was a 280px nowrap chip that
+   forced this row to two lines on its own. */
+.tests-head .ftog{flex:none;border:0;background:transparent;color:var(--muted);
+  font-weight:700;font-size:12.5px;padding:6px 2px;cursor:pointer}
+.tests-head .ftog:hover,.tests-head .ftog:active{color:var(--brand)}
+/* Four chips measured ~411px against the 361px a phone gives them, so the row
+   was always two. Six pixels of gap and one off each side of every chip lands
+   it near 358px — three pixels of margin, which is the one number on this page
+   that has to be looked at on the device rather than trusted. */
+.fchips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 13px}
 .fchip{border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
-  font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:20px;transition:.12s}
+  font-weight:700;font-size:12.5px;padding:6px 11px;border-radius:20px;transition:.12s}
 .fchip:hover{border-color:var(--brand);color:var(--ink)}
 .fchip.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .fchip .c{margin-left:5px;font-weight:600;opacity:.7;font-variant-numeric:tabular-nums}
@@ -203,7 +221,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    sized tracks off a 140px floor, so a 900px page took five columns and any tile
    count that was not a multiple of five left a tile sitting alone beside a hole
    most of the page wide. Fixed counts plus the two orphan rules below mean the
-   last row always closes itself, at 6 tiles or 5 here and 3 on the stats page. */
+   last row always closes itself, at 3 tiles here and 3 on the stats page. */
 .stat-row{grid-template-columns:repeat(2,1fr)}
 .stat-row > .stat:last-child:nth-child(odd){grid-column:1/-1}
 @media (min-width:700px){
@@ -218,11 +236,17 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .stat .n{font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
 /* Seven identical tiles is seven things of equal importance, and they are not:
    pass probability is the one number the whole app exists to move. So it sits
-   above the row entirely rather than as a member of it that spans every column —
-   that spanning member was what pushed "Days to exam" onto a line of its own,
-   stranded next to four columns of nothing. Out of the grid, it takes the full
-   width honestly, and the score it implies rides on the right so the card reads
-   as a statement instead of a wide empty slab. */
+   above the row entirely rather than as a member of it that spans every column,
+   which is what used to strand the box beside it next to four columns of
+   nothing. Out of the grid it takes the full width honestly, and the score it
+   implies rides on the right so the card reads as a statement instead of a wide
+   empty slab.
+
+   The row under it is three boxes, not six. Days to exam and Tests passed were
+   both stated word for word by the band and its rail 350px above — the page was
+   arguing with itself — and Bank coverage and Never seen were one fact counted
+   from each end (seen/UNIQUE_N against UNIQUE_N-seen), so they are one box that
+   says seen out of total. What is left is three things the band does not say. */
 .stat.hero{display:flex;align-items:center;gap:16px;margin:0 0 12px;padding:18px 20px;
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--panel)),color-mix(in srgb,var(--brand) 9%,var(--panel)) 58%,var(--panel));
   border-color:color-mix(in srgb,var(--brand) 26%,var(--line))}
@@ -240,6 +264,16 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .stat .s{color:var(--muted);font-size:11px;font-weight:600;margin-top:3px}
 .stat .n.good{color:var(--good)} .stat .n.bad{color:var(--bad)} .stat .n.brand{color:var(--brand)}
 .stat.tap{cursor:pointer;transition:transform .12s} .stat.tap:hover{border-color:var(--brand)}
+/* Six read-only boxes under a hero that already states the headline was 458px of
+   a 750px screen with nothing on it to tap. Three boxes now, and smaller: at
+   26px a figure like "1412/1858" runs edge to edge in a 150px box. The hero
+   keeps its size, because it is the one number the whole app exists to move —
+   it just does not need 44px of it on a 393px screen. */
+@media (max-width:560px){
+  .stat{padding:11px 12px}
+  .stat .n{font-size:20px}
+  .stat.hero .n{font-size:38px}
+}
 /* Buttons */
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);font-weight:700;padding:11px 16px;border-radius:11px;cursor:pointer;font-size:14px;transition:.12s}
 .btn:hover{border-color:var(--brand)}
@@ -250,9 +284,37 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .btn:disabled{opacity:.5;cursor:not-allowed}
 /* The press, again: .act and .tcard had one, everything else on the page did not. */
 .btn:active,.fchip:active,.stat.tap:active{transform:scale(.985)}
+/* Nothing on this page ever drew a focus ring, so a keyboard landed on the two
+   tappable cards in silence. The tiles are real buttons now and the hero is a
+   button by role; both get one ring rather than two different UA defaults.
+   :focus-visible, so a thumb never sees it. */
+.tcard:focus-visible,.stat.hero:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
 /* Actions */
-.actions{grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:9px;margin:16px 0}
+/* Two up on a phone, four on a desktop, and the last row always closes itself —
+   the same fixed-counts-plus-orphan-rules answer .stat-row already uses, and for
+   the same reason: auto-fit sized these off a 196px floor, which needed 401px to
+   reach two tracks and so never gave a phone anything but one column of eight.
+   The count is 7 or 6 depending on whether any real-exam questions have been
+   reported, so an odd tail is the normal case here, not the edge one.
+
+   Seven, because "Practice mistakes" is gone. It called go('mistakes'), which is
+   the Mistakes button pinned in the nav on every screen, and its count is one of
+   the three stat boxes 100px above — the door and the number were both already
+   there, so the row was 65px of echo.
+   The order runs by how much is waiting: the four that count something, then the
+   two that do not, then the picker. The picker is last because the last tile is
+   the one the orphan rule stretches across both columns, and of the seven it is
+   the one with least to say. */
+.actions{grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}
+.actions > .act:last-child:nth-child(odd){grid-column:1/-1}
+@media (min-width:700px){
+  .actions{grid-template-columns:repeat(4,1fr)}
+  .actions > .act:last-child:nth-child(odd){grid-column:auto}
+  .actions > .act:last-child:nth-child(4n+1){grid-column:1/-1}
+  .actions > .act:last-child:nth-child(4n+2){grid-column:span 3}
+  .actions > .act:last-child:nth-child(4n+3){grid-column:span 2}
+}
 /* Daily drill — .nextup's twin, structurally identical (icon, k/t/d, button) so
    the two sit in one row without arguing about hierarchy. It drops its own wash
    for flat --panel: two gradient cards shoulder to shoulder is the "everything
@@ -293,17 +355,30 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .rsm .body{flex:1;min-width:0}
 .rsm .t{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rsm .d{color:var(--muted);font-size:12px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rsm .btn{flex:none}
-.rsm .x{padding:7px 10px}
+/* 44px, the iOS floor. The ✕ is destructive and sits directly beside a primary
+   button, both of them around 30px with the tap highlight off page-wide — a row
+   that makes you aim. It is guarded by confirmDiscard, so a mis-tap costs a
+   dialog rather than a session, but that is a safety net, not a design. Resume
+   takes the same floor so the row stays level. */
+.rsm .btn{flex:none;min-height:44px}
+.rsm .x{min-width:44px;padding:7px 10px;display:grid;place-items:center}
 .rsmhd{display:flex;align-items:center;gap:8px;padding:13px 14px 11px;font-weight:800;font-size:13.5px}
-.act{display:flex;gap:11px;align-items:center;text-align:left;padding:12px 13px;border-radius:12px;
+/* Emoji, name, count — one line, and the count pinned right so the figures sit
+   in a column you can read down instead of landing wherever each name happened
+   to end. That is not a new idea on this page: .bankhd's right-hand cluster is
+   fixed-width for exactly this reason. What it replaces is eight two-line rows
+   that each buried their one live number mid-sentence ("20 you've never seen ·
+   412 left"), where no two of them started in the same place and so none of them
+   scanned. The sentence is not lost, it is the title. */
+.act{display:flex;gap:9px;align-items:center;text-align:left;padding:10px 11px;border-radius:12px;
   background:var(--panel-2);box-shadow:none;
   transition:transform .14s,border-color .14s,box-shadow .14s,background .14s}
-/* The emoji gets a tinted tile of its own rather than floating naked against the
-   card. It is the same shape and treatment as .bankhd .ico, which is the point:
-   two grids of eight-and-five otherwise unrelated boxes end up speaking one
-   visual language, and the row gains a left-hand rhythm to scan down. */
-.act .emo{flex:0 0 auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;line-height:1;
+/* The emoji keeps a tinted tile of its own rather than floating naked against
+   the card — the same treatment .bankhd .ico gets, so the two grids speak one
+   visual language and each row has a left-hand mark to scan down. 28px rather
+   than the old 34: it now sets the height of a 48px row, and a 34px tile above a
+   13px name is a row wearing a hat. */
+.act .emo{flex:0 0 auto;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:15px;line-height:1;
   background:color-mix(in srgb,var(--brand) 10%,var(--panel-2));
   border:1px solid color-mix(in srgb,var(--brand) 20%,var(--line));transition:background .14s}
 .act:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line));transform:translateY(-2px);
@@ -311,8 +386,11 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .act:hover .emo{background:color-mix(in srgb,var(--brand) 18%,var(--panel-2))}
 /* iOS has no hover, so the press is the only feedback a tap ever gets. */
 .act:active{transform:scale(.985)}
-.act .t{font-weight:700;font-size:14px}
-.act .d{color:var(--muted);font-size:12px;margin-top:1px}
+/* The name shrinks and the count never does: at 176px a row has ~117px after the
+   emoji, and of the two the number is the half that changes. */
+.act .t{flex:1;min-width:0;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act .n{flex:0 0 auto;font-weight:800;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.act .n.done{color:var(--good)}
 /* Test grid */
 /* Five grids of tiles below the fold, and everything under them pushed off the
    screen. Each group collapses to its header row, so the tail of the dashboard
@@ -374,7 +452,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 @media(prefers-reduced-motion:reduce){
   .bankgrp[open] > .bankbody .tcard,
   .bankgrp[open] > .bankbody .tcard.just{animation:none}
-  .phero{animation:none}
+  .phero.in{animation:none}
   .bankhd .chev,.bankhd .ring-sm,.rail > i{transition:none}}
 @media (max-width:560px){
   .bankhd{gap:10px;padding:12px 13px}
@@ -398,9 +476,9 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    your eye landed anywhere in particular. Four things fix that, and none of them
    change what a tile does when you tap it:
 
-   1. The number is the tile. Set in the display serif at 31px, it is a focal
-      point rather than the second word of a label, which is also what lets the
-      tiles get narrower without getting harder to scan.
+   1. The number is the tile. Set in the display serif — 31px, 27px on a phone
+      — it is a focal point rather than the second word of a label, which is
+      also what lets the tiles get narrower without getting harder to scan.
    2. It wears its section's colour (--tone, inherited from the --acc set on the
       section's <details>) on the number and the top edge. Open "The Reading
       Room" and everything on screen agrees you are in it — the old tiles went
@@ -413,13 +491,26 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
       heavy — and that mix is drawn along the bottom. 95 of the 150 have one
       topic at 40% or more of the paper, so no two strips look alike and the
       difference between them means something. */
-.tests{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+/* Three across a phone, not two. The floor is what decides it: 3x104+16 = 328
+   against the 337px inside .bankbody at 393px, where 3x128+20 = 404 never had a
+   chance. It also makes the mix strips do the job this file claims for them —
+   at two up they are a list of bars, at three up they are a field the eye reads
+   as a pattern. auto-fill still fans out to seven columns on a 900px .wrap, so
+   nothing above 560px changes. */
+.tests{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
 /* No shadow, for the same reason .act has none: .card's four-layer lift is for a
    handful of objects, not 150 of them on a --panel-2 field. The border, the 3px
    top edge and the state tint already separate a tile from its neighbour, and the
    page has 150 fewer composited layers to repaint on the way down. The hover
    shadow below is untouched — it is one tile at a time, on a device with a mouse. */
+/* A real <button>, the same call .act already made. 150 of these were <div
+   onclick>: no keyboard could reach one, no screen reader announced one, and
+   this file chose <details> for the sections specifically because the keyboard
+   behaviour came for free. The two extra declarations are the price of the
+   element — a button centres its text and does not stretch its flex children,
+   and a tile needs a left-aligned number over a full-width mix strip. */
 .tcard{--tone:var(--acc,var(--brand));position:relative;overflow:hidden;cursor:pointer;
+  text-align:left;align-items:stretch;
   padding:12px 12px 11px;display:flex;flex-direction:column;box-shadow:none;transition:.13s}
 .tcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tone);opacity:.5}
 .tcard:hover{border-color:var(--tone);transform:translateY(-2px);
@@ -434,9 +525,14 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 }
 /* The word above the number is the section's own: the reported-exam papers stop
    calling themselves "Test" when their own section calls them papers. */
-.tcard .tw{display:flex;align-items:center;gap:6px;min-height:17px;
+.tcard .tw{display:block;min-height:17px;
   font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
-.tcard .tm{flex:none;margin-left:auto;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+/* The state mark is the word's sibling, not its child, and pinned rather than
+   pushed. The phone hides .tw outright below, and display:none takes the whole
+   subtree with it — so the one thing in that row that is not a repeat of the
+   section header would have gone with the repeat. Pinned to exactly where the
+   flex row put it, so no desktop pixel moves. */
+.tcard .tm{position:absolute;top:12px;right:12px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
   font-size:9.5px;font-weight:800;color:var(--on-solid)}
 /* lining-nums is load-bearing with a Baskerville/Palatino/Georgia stack: those
    faces set old-style figures by default, so 101 and 234 would sit at different
@@ -457,6 +553,21 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .tcard.retry .tnum{color:var(--bad)}
 .tcard.retry .tm{background:var(--bad)}
 .tcard.retry:hover{border-color:var(--bad);box-shadow:0 2px 4px rgba(42,35,51,.05),0 10px 22px color-mix(in srgb,var(--bad) 18%,transparent)}
+/* ---- The tile on a phone ----
+   The word above the number is the word the section header said two inches up,
+   reprinted 45 times underneath it — and it reserved 17px on every one of the
+   150 to do it. Gone below 560px, and the tile drops 111px to about 90px with
+   the mark it carried pinned into the corner instead of deleted.
+   27px for the number, not 31: at 107px wide the tile has 81px of content to
+   spend and a three-digit figure at 31px asks for about 52px of it. 27px is
+   also comfortably above the 18.66px floor a 700-weight face needs to clear AA
+   as large text, which is the rule the palest section accent (#5e93d0, 3.20:1
+   on white) is living under. Do not take this below 18.66px. */
+@media (max-width:560px){
+  .tcard .tw{display:none}
+  .tcard .tm{top:8px;right:8px}
+  .tcard .tnum{font-size:27px;margin-top:0}
+}
 /* Only ever drawn once there is a score to draw. 150 grey bars at zero was 150
    lines of the page saying nothing. */
 .bar{height:5px;border-radius:5px;background:var(--chip);overflow:hidden;margin-top:8px}
@@ -557,8 +668,12 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .jtog{display:block;border:0;background:transparent;color:var(--muted);font-weight:700;
   font-size:12.5px;padding:5px 0;margin-top:10px;cursor:pointer}
 .jtog:hover{color:var(--brand)}
-.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.dot{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:700;cursor:pointer;color:var(--muted)}
+/* 36px on an 8px gap — a 44px pitch, which is the honest compromise when 24 of
+   them have to sit on a 361px row. 30px with the tap highlight off and no press
+   state of its own was a mis-tap generator, and the mis-tap here throws you to a
+   different question in the middle of a timed test. */
+.dots{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.dot{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:700;cursor:pointer;color:var(--muted)}
 .dot.cur{border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 2px var(--ring)}
 .dot.ans{background:var(--chip);color:var(--ink)}
 .dot.ok{background:var(--good-bg);color:var(--good);border-color:var(--good)}
@@ -1062,13 +1177,17 @@ function testTile(t,face,i){
   const c=testMix(t),top=c.indexOf(Math.max(...c));
   const tip=`${word} ${t.n} — mostly ${TOPICS[top]} (${c[top]} of ${t.q.length})`
     +(shown?'. Best score was set with instant feedback on.':'');
-  return `<div class="card tcard${state?' '+state:''}${t.n===justPassed?' just':''}" style="--i:${Math.min(i,18)}" onclick="startTest(${t.n})" title="${esc(tip)}">
-    <span class="tw">${esc(word)}${mark}</span>
+  /* The mark is the word's sibling: the phone hides the word and would take the
+     mark down with it. `Best 18/24` needs about 88px against the 81px a tile has
+     to give, so it ellipsised into `Best 18/2…` — and of those two words the
+     score is the one carrying the information. */
+  return `<button class="card tcard${state?' '+state:''}${t.n===justPassed?' just':''}" style="--i:${Math.min(i,18)}" onclick="startTest(${t.n})" title="${esc(tip)}">
+    <span class="tw">${esc(word)}</span>${mark}
     <span class="tnum">${t.n}</span>
-    <span class="meta">${st.best!=null?`Best ${st.best}/24`:'Not sat'}${st.attempts?` · ${st.attempts}×`:''}${shown}</span>
+    <span class="meta">${st.best!=null?`${st.best}/24`:'Not sat'}${st.attempts?` · ${st.attempts}×`:''}${shown}</span>
     ${st.best==null?'':`<span class="bar ${st.lastPass?'good':'bad'}"><i style="width:${pct}%"></i></span>`}
     ${mixStrip(t)}
-  </div>`;
+  </button>`;
 }
 /* One labelled section per bank, each carrying where its questions came from —
    except that a bank whose tests declare a `kind` gets one section per kind.
@@ -1097,9 +1216,12 @@ const BANK_NOTE={
    otherwise shut every section you just opened. */
 /* Which tiles to draw. Presentation only: nothing is computed, stored or graded
    differently, the filter just decides what is on screen. A section that has
-   nothing matching is not drawn at all, so "Not attempted" turns the library
-   into the papers you still owe. */
-const FILTERS=[['all','All'],['new','Not attempted'],['passed','Passed'],['retry','Retry']];
+   nothing matching is not drawn at all, so "Not sat" turns the library into the
+   papers you still owe.
+   `Not sat` and not `Not attempted`, for two reasons: it is the word the tiles
+   underneath have always used, and the four chips have to land inside 361px on
+   one row. */
+const FILTERS=[['all','All'],['new','Not sat'],['passed','Passed'],['retry','Retry']];
 let testFilter='all';
 function filterCounts(){
   const n={all:TESTS.length,new:0,passed:0,retry:0};
@@ -1300,9 +1422,14 @@ function bankSection(b,bi){
     ? testGroup(b,b.tests,b.label,KIND_SUB[kinds[0]]??null,`${b.id}:all`,bi===0,note,bi)
     : kinds.map((k,i)=>testGroup(b,b.tests.filter(t=>t.kind===k),`${stem} ${KIND_LABEL[k]}`,KIND_SUB[k],`${b.id}:${k}`,bi===0&&i===0,i===kinds.length-1?note:'',bi+i)).join('');
 }
+/* The band's entrance and the counters roll once, on the first paint of the
+   session. renderDashboard() runs again on every filter tap, every section
+   toggle, every close of the settings panel and every backup note — and the
+   worst of them is Retry, which forces all five sections open and restaged the
+   entire page. Nothing above the chip you touched should move. */
+let heroFirst=true;
 function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
-  const acc=S.answered?Math.round(S.correct/S.answered*100):0;
   const rec=recentAcc();
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
@@ -1322,7 +1449,7 @@ function renderDashboard(){
   const railDone=Math.min(passed,TESTS.length);
   const railPct=Math.round(railDone/TESTS.length*100);
   el.innerHTML=`
-    <div class="card phero">
+    <div class="card phero${heroFirst?' in':''}">
       <h1>Practice Tests</h1>
       <div class="rail" role="img" aria-label="${railDone} of ${TESTS.length} papers passed"><i style="width:${railPct}%"></i></div>
       <div class="rail-l">
@@ -1335,46 +1462,50 @@ function renderDashboard(){
     <div class="grid duo">${nextUpCard()}${drillCard()}</div>
     ${backupNag()}
     ${resumeSection()}
-    <div class="card stat hero tap" onclick="explainReadiness()" title="How this is worked out">
+    <div class="card stat hero tap" role="button" tabindex="0" onclick="explainReadiness()" title="How this is worked out">
       <div>
         <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}" data-count="${rp}" data-suf="%">${rp}%</div><div class="l">Pass probability</div>
-        <div class="s">${readyLabel(rd.p)} · pass at ${PASSMARK} · tap for the maths</div>
+        <div class="s">Tap for the maths</div>
       </div>
       <div class="hero-side"><b>${rd.mean.toFixed(1)}<i>/24</i></b><em>expected score</em></div>
     </div>
     <div class="grid stat-row">
-      ${left==null?'':`<div class="card stat tap" onclick="openSettings()" title="${esc(S.examDate)} — tap to change">
-        <div class="n ${left<=6?'bad':left<=14?'brand':''}">${Math.max(0,left)}</div><div class="l">Days to exam</div></div>`}
-      <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${cov}%</div><div class="l">Bank coverage</div></div>
-      <div class="card stat"><div class="n ${unseen?'bad':'good'}">${unseen}</div><div class="l">Never seen</div></div>
-      <div class="card stat"><div class="n ${!rec?'':rec.pct>=75?'good':'bad'}">${rec?rec.pct+'%':'—'}</div><div class="l">Recent accuracy</div>
-        <div class="s">${rec?`last ${rec.n} · ${acc}% all time`:'no answers yet'}</div></div>
+      <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${seen}/${UNIQUE_N}</div><div class="l">Questions seen</div></div>
+      <div class="card stat"><div class="n ${!rec?'':rec.pct>=75?'good':'bad'}">${rec?rec.pct+'%':'—'}</div><div class="l">Recent accuracy</div></div>
       <div class="card stat"><div class="n ${openMistakes?'bad':'good'}">${openMistakes}</div><div class="l">Mistakes to review</div></div>
-      <div class="card stat"><div class="n brand">${passed}<span style="font-size:16px;color:var(--muted)">/${TESTS.length}</span></div><div class="l">Tests passed</div>
-        <div class="s">${S.attempts} attempt${S.attempts===1?'':'s'}</div></div>
     </div>
     <div class="grid actions">
-      <button class="card act" onclick="startSweep()"><span class="emo">🧭</span><div><div class="t">Sweep</div><div class="d">${unseen?`${Math.min(SWEEP_N,unseen)} you've never seen · ${unseen} left`:'Whole bank seen 🎉'}</div></div></button>
-      <button class="card act" onclick="startTwist()"><span class="emo">🌀</span><div><div class="t">Twist gauntlet</div><div class="d">${tw.total} two-option traps, in clusters${tw.fresh?` · ${tw.fresh} new`:tw.weak?` · ${tw.weak} still open`:''}</div></div></button>
-      <button class="card act" onclick="startDates()"><span class="emo">📅</span><div><div class="t">Date gauntlet</div><div class="d">${YEAR_Q.length} years, both directions</div></div></button>
-      ${ex.total?`<button class="card act" onclick="startExamQs()"><span class="emo">⭐</span><div><div class="t">Real-exam questions</div><div class="d">${ex.total} reported as recently asked${ex.fresh?` · ${ex.fresh} new`:ex.weak?` · ${ex.weak} still open`:''}</div></div></button>`:''}
-      <button class="card act" onclick="startExam()"><span class="emo">🎲</span><div><div class="t">Random exam</div><div class="d">24 mixed questions, timed</div></div></button>
-      <button class="card act" onclick="go('mistakes')"><span class="emo">🎯</span><div><div class="t">Practice mistakes</div><div class="d">${openMistakes} question${openMistakes===1?'':'s'} to fix</div></div></button>
-      <button class="card act" onclick="topicPicker()"><span class="emo">📚</span><div><div class="t">Practice by topic</div><div class="d">Target a weak area</div></div></button>
-      <button class="card act" onclick="go('cram')"><span class="emo">📄</span><div><div class="t">Cram sheet</div><div class="d">${cramCount()} to revise, printable</div></div></button>
+      <button class="card act" onclick="startSweep()" title="${unseen?`${Math.min(SWEEP_N,unseen)} you have never seen, ${unseen} left in the bank`:'Whole bank seen'}"><span class="emo">🧭</span><span class="t">Sweep</span><span class="n${unseen?'':' done'}">${unseen||'✓'}</span></button>
+      <button class="card act" onclick="startTwist()" title="${tw.total} two-option traps, in clusters${tw.fresh?` · ${tw.fresh} new`:tw.weak?` · ${tw.weak} still open`:''}"><span class="emo">🌀</span><span class="t">Twists</span><span class="n">${tw.total}</span></button>
+      ${ex.total?`<button class="card act" onclick="startExamQs()" title="${ex.total} reported as recently asked${ex.fresh?` · ${ex.fresh} new`:ex.weak?` · ${ex.weak} still open`:''}"><span class="emo">⭐</span><span class="t">Reported</span><span class="n">${ex.total}</span></button>`:''}
+      <button class="card act" onclick="startDates()" title="${YEAR_Q.length} years, both directions"><span class="emo">📅</span><span class="t">Dates</span><span class="n">${YEAR_Q.length}</span></button>
+      <button class="card act" onclick="startExam()" title="24 mixed questions, timed"><span class="emo">🎲</span><span class="t">Random exam</span></button>
+      <button class="card act" onclick="go('cram')" title="${cramCount()} to revise, printable"><span class="emo">📄</span><span class="t">Cram sheet</span><span class="n">${cramCount()}</span></button>
+      <button class="card act" onclick="topicPicker()" title="Target a weak area"><span class="emo">📚</span><span class="t">By topic</span></button>
     </div>
     <div class="tests-head">
       <h2>All tests</h2>
-      <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="toggleAllGroups()">${grpAnyOpen()?'▴ Collapse all':'▾ Expand all'}</button>
-      <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="openSettings()">⚙️ Drill ${drillSize()} · ${prefs.feedback==='instant'?'Instant feedback':'Answers at end'} · ${prefs.shufQ?'Shuffled':'In order'}</button>
+      <button class="ftog" onclick="toggleAllGroups()">${grpAnyOpen()?'▴ Collapse all':'▾ Expand all'}</button>
     </div>
     ${filterChips()}
     ${BANKS.map(bankSection).join('')}`;
   /* Rendered, so the pulse has been spent. Synchronous: innerHTML above is the
      one and only place it is read. */
   justPassed=null;
-  countUp(el);
+  if(heroFirst){countUp(el);heroFirst=false}
 }
+/* Enter and Space for the one card on the page that is a button by role only.
+   The tiles are real <button>s and never reach here; .nextup and .drill are left
+   as plain cards because each already holds a real button that fires the same
+   call, and wrapping a second tab stop around an interactive child is a worse
+   answer than the one they already have. */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  const t=e.target instanceof Element&&e.target.closest('[role="button"][tabindex]');
+  if(!t)return;
+  e.preventDefault();
+  t.click();
+});
 
 /* ============ PREFS ============
    dailyTarget is the drill size. 60 by default: 1,858 questions and a
@@ -2667,7 +2798,7 @@ function testSeries(n){
    same two facts the dashboard tile carries, in the space a button has. */
 function seriesMeta(t){
   const st=testStat(t.n);
-  return st.best==null?'Not attempted':`Best ${st.best}/24${st.lastPass?' · passed':''}`;
+  return st.best==null?'Not sat':`Best ${st.best}/24${st.lastPass?' · passed':''}`;
 }
 function seriesNav(n){
   const s=testSeries(n);if(!s)return '';
