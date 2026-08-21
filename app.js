@@ -957,6 +957,20 @@
   function registerSW() {
     if (!("serviceWorker" in navigator)) return;
     if (location.protocol === "file:") return;   // no SW without http(s)
+
+    /* A page that already has a controller is a returning reader, so a worker
+       taking over underneath it means a new build just landed. A first install
+       has no controller and nothing worth announcing. */
+    var returning = !!navigator.serviceWorker.controller;
+    var told = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (told || !returning || !document.body) return;
+      told = true;
+      /* Offered, not forced — they could be halfway through a question. */
+      var t = eggNote("\u2728", "New version ready", "Tap to load the latest build.");
+      if (t) t.addEventListener("click", function () { location.reload(); });
+    });
+
     addEventListener("load", function () {
       navigator.serviceWorker.register(new URL("sw.js", location.href)).then(function (reg) {
         /* A new build only reaches a returning reader when the browser re-checks
