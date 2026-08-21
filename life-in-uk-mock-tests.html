@@ -48,6 +48,21 @@
   --bad:#c3374c; --bad-bg:#fceaee; --warn:#a06c0a; --chip:#f2eaf2;
   --shadow:0 1px 1px rgba(42,35,51,.04),0 2px 4px rgba(42,35,51,.04),0 6px 12px rgba(42,35,51,.05),0 12px 24px rgba(42,35,51,.04);
   --ring:#5468c433; --radius:16px;
+  /* Two faces, borrowed wholesale from the hub (index.html) so the two halves of
+     the app finally sound like one voice. --sans carries everything you read at
+     length; --serif is spent only on headings, section names and the test
+     numbers, which is the whole reason the page stopped reading as a utility.
+     Both are system stacks: this app is installable and precached, and a webfont
+     that 404s offline is a worse heading than a plain one. */
+  --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+  /* One colour per syllabus topic, for the fingerprint stripe on every tile.
+     Mid-toned for the same reason GRP_ACC is: these are 4px blocks that sit on
+     --panel in BOTH themes, so a single set has to clear 3:1 on white and on
+     near-black at once. They deliberately span more hue than the rose-to-
+     periwinkle ramp — the ramp's job is to keep five sections related, this
+     one's job is to keep five topics apart at four pixels tall. */
+  --t0:#2f9e8f; --t1:#c2882c; --t2:#6b7fd7; --t3:#c2628f; --t4:#4f9d5b;
 }
 html[data-theme="dark"]{
   --bg:#15111d; --panel:#1f1929; --panel-2:#272031; --ink:#ece5f2; --muted:#a79eb4;
@@ -58,7 +73,7 @@ html[data-theme="dark"]{
   --ring:#93a3ec44;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased;
   /* Nothing here is meant to scroll sideways — without this a single wide child
      drags the whole page off-centre every time you tap. */
   overflow-x:hidden}
@@ -101,8 +116,74 @@ header.hd-away{transform:translateY(-100%)}
 /* Cards */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .pad{padding:18px}
-h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-height:1.15}
+h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015em;margin:22px 0 5px;line-height:1.12}
 .sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+/* ---- Page hero band ----
+   The dashboard used to open on "Your dashboard" in the body face above a grey
+   sentence of specs — the typographic equivalent of a filing-cabinet label. The
+   band gives the page a face instead: the name set in the display serif, one
+   line of where you actually stand, and the whole 150-paper journey as a single
+   rail underneath. The rail is the one number this page exists to move, and it
+   was previously buried as small print inside the sixth stat box. */
+.phero{position:relative;margin:18px 0 16px;padding:20px 22px;animation:heroIn .32s ease both;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 16%,var(--panel)),color-mix(in srgb,var(--brand) 12%,var(--panel)) 58%,var(--panel));
+  border-color:color-mix(in srgb,var(--brand) 24%,var(--line))}
+.phero .k{margin:0;font-size:10.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.phero h1{margin:3px 0 7px}
+.phero .line{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
+.phero .line b{color:var(--ink);font-weight:700}
+@keyframes heroIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.rail{height:9px;border-radius:9px;margin-top:15px;overflow:hidden;
+  background:color-mix(in srgb,var(--ink) 9%,transparent)}
+.rail > i{display:block;height:100%;border-radius:9px;
+  background:linear-gradient(90deg,var(--accent),var(--brand));
+  transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.rail-l{display:flex;justify-content:space-between;gap:10px;margin-top:7px;
+  font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:560px){.phero{padding:16px 16px}.phero h1{font-size:24px}}
+/* ---- Start here ----
+   150 identical doors, and no reason to open one rather than another, is most of
+   why this page felt like wallpaper. This is the open one: the next paper you
+   have never sat, or — once they are all sat — the weakest one you have not yet
+   passed. It wears the colour of the section it belongs to, so it also says
+   where you are about to land. */
+.nextup{display:flex;gap:14px;align-items:center;padding:15px 17px;margin:0 0 12px;
+  cursor:pointer;transition:transform .14s,border-color .14s,box-shadow .14s;
+  border-color:color-mix(in srgb,var(--tone) 38%,var(--line));
+  background:linear-gradient(110deg,color-mix(in srgb,var(--tone) 13%,var(--panel)),var(--panel) 66%)}
+.nextup:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--tone) 62%,var(--line));
+  box-shadow:0 3px 6px rgba(42,35,51,.05),0 12px 26px color-mix(in srgb,var(--tone) 17%,transparent)}
+.nextup:active{transform:scale(.99)}
+.nextup .ico{flex:0 0 auto;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  font-size:22px;line-height:1;background:color-mix(in srgb,var(--tone) 17%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--tone) 32%,var(--line))}
+.nextup .body{flex:1;min-width:0}
+.nextup .k{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  color:color-mix(in srgb,var(--tone) 72%,var(--ink))}
+.nextup .t{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.15;
+  margin-top:1px;font-variant-numeric:lining-nums}
+.nextup .d{color:var(--muted);font-size:12.5px;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nextup .go{flex:0 0 auto}
+@media (max-width:520px){
+  .nextup{flex-wrap:wrap;gap:12px}
+  .nextup .go{width:100%}
+}
+/* ---- The tests header and its filters ----
+   Four chips over 150 tiles. Nothing is added to the page that was not already
+   on it — the chips only decide which tiles are drawn — but a section of 45
+   shrinks to the six you still owe, which is the difference between a library
+   and a wall. */
+.tests-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:24px 0 11px}
+.tests-head h2{flex:1 0 auto;margin:0;font-family:var(--serif);font-size:21px;font-weight:700;letter-spacing:-.012em}
+.fchips{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 13px}
+.fchip{border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+  font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:20px;transition:.12s}
+.fchip:hover{border-color:var(--brand);color:var(--ink)}
+.fchip.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.fchip .c{margin-left:5px;font-weight:600;opacity:.7;font-variant-numeric:tabular-nums}
+.fchip:disabled{opacity:.45;cursor:not-allowed}
+.fchip:disabled:hover{border-color:var(--line);color:var(--muted)}
 .grid{display:grid;gap:12px}
 /* Two up on a phone, three on anything wider. auto-fit was the wrong tool: it
    sized tracks off a 140px floor, so a 900px page took five columns and any tile
@@ -155,7 +236,7 @@ h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
 /* Actions */
-.actions{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:16px 0}
+.actions{grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:9px;margin:16px 0}
 /* Daily drill hero */
 .drill{display:flex;gap:16px;align-items:center;padding:18px;margin:18px 0;
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 15%,var(--panel)),color-mix(in srgb,var(--brand) 11%,var(--panel)) 62%,var(--panel));
@@ -182,12 +263,14 @@ h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-
 .rsm .btn{flex:none}
 .rsm .x{padding:7px 10px}
 .rsmhd{display:flex;align-items:center;gap:8px;padding:13px 14px 11px;font-weight:800;font-size:13.5px}
-.act{display:flex;gap:12px;align-items:center;text-align:left;padding:16px;transition:transform .14s,border-color .14s,box-shadow .14s}
+.act{display:flex;gap:11px;align-items:center;text-align:left;padding:12px 13px;border-radius:12px;
+  background:var(--panel-2);box-shadow:none;
+  transition:transform .14s,border-color .14s,box-shadow .14s,background .14s}
 /* The emoji gets a tinted tile of its own rather than floating naked against the
    card. It is the same shape and treatment as .bankhd .ico, which is the point:
    two grids of eight-and-five otherwise unrelated boxes end up speaking one
    visual language, and the row gains a left-hand rhythm to scan down. */
-.act .emo{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;line-height:1;
+.act .emo{flex:0 0 auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;line-height:1;
   background:color-mix(in srgb,var(--brand) 10%,var(--panel-2));
   border:1px solid color-mix(in srgb,var(--brand) 20%,var(--line));transition:background .14s}
 .act:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line));transform:translateY(-2px);
@@ -195,8 +278,8 @@ h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-
 .act:hover .emo{background:color-mix(in srgb,var(--brand) 18%,var(--panel-2))}
 /* iOS has no hover, so the press is the only feedback a tap ever gets. */
 .act:active{transform:scale(.985)}
-.act .t{font-weight:700}
-.act .d{color:var(--muted);font-size:12.5px}
+.act .t{font-weight:700;font-size:14px}
+.act .d{color:var(--muted);font-size:12px;margin-top:1px}
 /* Test grid */
 /* Five grids of tiles below the fold, and everything under them pushed off the
    screen. Each group collapses to its header row, so the tail of the dashboard
@@ -209,50 +292,99 @@ h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-
    so the section is visibly one object. */
 .bankgrp{margin:10px 0 0}
 .bankgrp:first-of-type{margin-top:0}
-.bankhd{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;list-style:none;transition:.14s;
+.bankhd{display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer;list-style:none;transition:.14s;
   border:1px solid var(--line);border-radius:var(--radius);
   background:linear-gradient(100deg,color-mix(in srgb,var(--acc) 14%,var(--panel)),var(--panel) 62%)}
 .bankhd::-webkit-details-marker{display:none}
 .bankhd:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));
   box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 16%,transparent)}
 .bankgrp[open] > .bankhd{border-radius:var(--radius) var(--radius) 0 0}
-.bankhd .ico{flex:0 0 auto;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;line-height:1;
+.bankhd .ico{flex:0 0 auto;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;line-height:1;
   background:color-mix(in srgb,var(--acc) 18%,var(--panel));border:1px solid color-mix(in srgb,var(--acc) 34%,var(--line))}
 .bankhd .nm{flex:1;min-width:0}
-.bankhd b{display:block;font-size:16px;font-weight:800;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bankhd b{display:block;font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:-.012em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bankhd .src{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bankhd .src a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
 .bankhd .src a:hover{color:var(--brand)}
 /* The right-hand cluster is the same shape in every section — fixed bar, fixed
    badge, fixed caret — so the counts sit in a column down the page instead of
    landing wherever each title happened to end. */
-.bankhd .prog{flex:0 0 auto;width:76px;height:6px;border-radius:6px;background:var(--chip);overflow:hidden}
-.bankhd .prog > i{display:block;height:100%;border-radius:6px;background:var(--acc);transition:width .3s}
+/* A ring rather than the old 76px hairline. Same information in a quarter of
+   the width, and it reads as a dial you are filling instead of a rule you are
+   dragging — which is what five of them stacked down the page needed to be. */
+.bankhd .ring-sm{flex:0 0 auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--acc) calc(var(--p,0)*1%),var(--chip) 0);transition:background .4s}
+.bankhd .ring-sm::after{content:"";width:23px;height:23px;border-radius:50%;background:var(--panel)}
 .bankhd .tag{flex:0 0 auto;margin-left:0;width:96px;text-align:center;font-size:11.5px;padding:4px 0}
 .bankhd .tag.done{background:var(--good-bg);color:var(--good)}
 .bankhd .chev{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);font-size:12px;transition:transform .16s}
 .bankgrp[open] > .bankhd .chev{transform:rotate(90deg);color:var(--acc)}
-.bankbody{border:1px solid var(--line);border-top:0;border-radius:0 0 var(--radius) var(--radius);padding:14px;background:var(--panel-2)}
-@keyframes grpIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
-.bankgrp[open] > .bankbody{animation:grpIn .18s ease}
-@media(prefers-reduced-motion:reduce){.bankgrp[open] > .bankbody{animation:none}.bankhd .chev,.bankhd .prog > i{transition:none}}
+/* The spine is an inset shadow rather than a fat left border on purpose: a 3px
+   border here against the header's 1px would throw the two edges out of line by
+   two pixels down the whole section. This keeps the geometry identical and still
+   carries the colour from the header into everything under it. */
+.bankbody{border:1px solid var(--line);border-top:0;border-radius:0 0 var(--radius) var(--radius);
+  padding:14px 14px 14px 16px;background:var(--panel-2);
+  box-shadow:inset 3px 0 0 color-mix(in srgb,var(--acc) 50%,transparent)}
+/* The whole body used to fade in as one slab. Staggering the tiles instead
+   makes the section assemble itself, which is most of what "feels alive" is.
+   --i is the tile's index, capped in testTile so the tail of a 45-tile section
+   is not still arriving half a second after the head. */
+@keyframes tileIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.bankgrp[open] > .bankbody .tcard{animation:tileIn .28s ease both;animation-delay:calc(var(--i,0) * 14ms)}
+/* A tile you have just passed, seen the moment you land back on the dashboard. */
+@keyframes justPop{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 60%,transparent)}
+  100%{box-shadow:0 0 0 13px transparent}}
+.bankgrp[open] > .bankbody .tcard.just{animation:tileIn .28s ease both,justPop 1.15s ease-out .25s 2}
+@media(prefers-reduced-motion:reduce){
+  .bankgrp[open] > .bankbody .tcard,
+  .bankgrp[open] > .bankbody .tcard.just{animation:none}
+  .phero{animation:none}
+  .bankhd .chev,.bankhd .ring-sm,.rail > i{transition:none}}
 @media (max-width:560px){
-  .bankhd{gap:10px;padding:11px 12px}
-  .bankhd .prog{display:none}
-  .bankbody{padding:12px 10px}
+  .bankhd{gap:10px;padding:12px 13px}
+  .bankhd .ico{width:36px;height:36px;border-radius:11px;font-size:18px}
+  .bankhd b{font-size:17px}
+  .bankbody{padding:12px 10px 12px 12px}
 }
 /* Under ~400px the fixed badge column is eating the title. Let it shrink to its
    text — the badges are flex-end anchored, so their right edges stay in line. */
-@media (max-width:420px){.bankhd .tag{width:auto;padding:4px 9px}}
+@media (max-width:420px){.bankhd .tag{width:auto;padding:4px 9px}.bankhd .ring-sm{display:none}}
 /* A bank whose tests declare a kind gets one section per kind, and the exam
    section needs to say what makes it an exam section before you tap a tile. */
 .banksub{color:var(--muted);font-size:12.5px;margin:0 0 10px}
 /* The source's own licence and disclaimer, once per bank, under its last grid. */
 .banknote{color:var(--muted);font-size:11.5px;line-height:1.55;margin:12px 0 0}
 .banknote a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
-.tests{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-.tcard{padding:14px;cursor:pointer;position:relative;transition:.12s;display:flex;flex-direction:column;gap:8px}
-.tcard:hover{border-color:var(--brand);transform:translateY(-2px)}
+/* ---- Test tiles ----
+   Every one of the 150 used to be the same white box reading "Test 101 / Not
+   attempted / an empty grey bar". The number was the only thing that differed
+   between any two of them, so the wall read as wallpaper and there was no reason
+   your eye landed anywhere in particular. Four things fix that, and none of them
+   change what a tile does when you tap it:
+
+   1. The number is the tile. Set in the display serif at 31px, it is a focal
+      point rather than the second word of a label, which is also what lets the
+      tiles get narrower without getting harder to scan.
+   2. It wears its section's colour (--tone, inherited from the --acc set on the
+      section's <details>) on the number and the top edge. Open "The Reading
+      Room" and everything on screen agrees you are in it — the old tiles went
+      neutral the moment the coloured header scrolled away.
+   3. State is the tile, not a pill in the corner. Passed tiles are tinted green
+      with a solid top edge and a tick; retry tiles are tinted red. Scrolling a
+      section now shows you how you are doing without reading a single word.
+   4. The mix strip is a fingerprint. Every test is 24 questions drawn from the
+      five syllabus topics in a different proportion — history-heavy, government-
+      heavy — and that mix is drawn along the bottom. 95 of the 150 have one
+      topic at 40% or more of the paper, so no two strips look alike and the
+      difference between them means something. */
+.tests{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+.tcard{--tone:var(--acc,var(--brand));position:relative;overflow:hidden;cursor:pointer;
+  padding:12px 12px 11px;display:flex;flex-direction:column;transition:.13s}
+.tcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tone);opacity:.5}
+.tcard:hover{border-color:var(--tone);transform:translateY(-2px);
+  box-shadow:0 2px 4px rgba(42,35,51,.05),0 10px 22px color-mix(in srgb,var(--tone) 16%,transparent)}
 .tcard:active{transform:scale(.985)}
 /* The lift and the press are decoration; the colour change carries the same
    information without moving anything. */
@@ -260,15 +392,42 @@ h1{font-size:27px;font-weight:800;letter-spacing:-.032em;margin:22px 0 5px;line-
   .act,.tcard{transition:none}
   .act:hover,.act:active,.tcard:hover,.tcard:active{transform:none}
 }
-.tcard .tt{font-weight:800;font-size:15px}
-.tcard .meta{color:var(--muted);font-size:12px}
-.badge{position:absolute;top:10px;right:10px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:20px}
-.badge.pass{background:var(--good-bg);color:var(--good)}
-.badge.fail{background:var(--bad-bg);color:var(--bad)}
-.badge.none{background:var(--chip);color:var(--muted)}
-.bar{height:6px;border-radius:6px;background:var(--chip);overflow:hidden}
-.bar > i{display:block;height:100%;background:var(--brand);border-radius:6px}
+/* The word above the number is the section's own: the reported-exam papers stop
+   calling themselves "Test" when their own section calls them papers. */
+.tcard .tw{display:flex;align-items:center;gap:6px;min-height:17px;
+  font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.tcard .tm{flex:none;margin-left:auto;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+  font-size:9.5px;font-weight:800;color:var(--on-solid)}
+/* lining-nums is load-bearing with a Baskerville/Palatino/Georgia stack: those
+   faces set old-style figures by default, so 101 and 234 would sit at different
+   heights on adjacent tiles. Lining figures put every number on one baseline. */
+.tcard .tnum{font-family:var(--serif);font-size:31px;font-weight:700;line-height:1;letter-spacing:-.025em;
+  color:var(--tone);margin-top:4px;font-variant-numeric:lining-nums tabular-nums}
+.tcard .meta{color:var(--muted);font-size:11.5px;margin-top:5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard.pass{background:color-mix(in srgb,var(--good) 9%,var(--panel));
+  border-color:color-mix(in srgb,var(--good) 30%,var(--line))}
+.tcard.pass::before{background:var(--good);opacity:.9}
+.tcard.pass .tnum{color:var(--good)}
+.tcard.pass .tm{background:var(--good)}
+.tcard.pass:hover{border-color:var(--good);box-shadow:0 2px 4px rgba(42,35,51,.05),0 10px 22px color-mix(in srgb,var(--good) 18%,transparent)}
+.tcard.retry{background:color-mix(in srgb,var(--bad) 8%,var(--panel));
+  border-color:color-mix(in srgb,var(--bad) 26%,var(--line))}
+.tcard.retry::before{background:var(--bad);opacity:.85}
+.tcard.retry .tnum{color:var(--bad)}
+.tcard.retry .tm{background:var(--bad)}
+.tcard.retry:hover{border-color:var(--bad);box-shadow:0 2px 4px rgba(42,35,51,.05),0 10px 22px color-mix(in srgb,var(--bad) 18%,transparent)}
+/* Only ever drawn once there is a score to draw. 150 grey bars at zero was 150
+   lines of the page saying nothing. */
+.bar{height:5px;border-radius:5px;background:var(--chip);overflow:hidden;margin-top:8px}
+.bar > i{display:block;height:100%;background:var(--brand);border-radius:5px}
 .bar.good > i{background:var(--good)} .bar.bad > i{background:var(--bad)}
+/* content-box, not the sheet-wide border-box: the 8px of clear air above the
+   strip is padding so that margin-top:auto can still push it to the bottom of
+   the tile, and under border-box that padding ate the whole 4px of strip. */
+.mix{display:flex;gap:1.5px;height:4px;margin-top:8px}
+.mix > i{display:block;height:100%;border-radius:2px;min-width:2px}
+.tcard .mix{box-sizing:content-box;margin-top:auto;padding-top:9px}
 /* Quiz */
 /* One meta row, never two. Title · counter · timer · flag on a single line with
    a hairline progress bar under it — the wrapping version cost ~40px of screen
@@ -846,17 +1005,27 @@ function drillCard(){
     <button class="btn primary go" onclick="startDrill()">${done?'Go again':'Start drill'} →</button>
   </div>`;
 }
-function testTile(t){
+/* `face` is the section's, so the tile can say "Paper 401" where its section
+   says reported papers and inherit that section's colour. `i` is its position in
+   the grid, which drives the arrival stagger — capped, because the last of 45
+   tiles should not still be landing half a second after the first. */
+function testTile(t,face,i){
   const st=testStat(t.n),pct=st.best!=null?Math.round(st.best/24*100):0;
-  const badge=st.best==null?'<span class="badge none">New</span>':st.lastPass?'<span class="badge pass">Passed</span>':'<span class="badge fail">Retry</span>';
+  const state=st.best==null?'':st.lastPass?'pass':'retry';
+  const mark=state==='pass'?'<span class="tm">✓</span>':state==='retry'?'<span class="tm">↻</span>':'';
+  const word=face.word||'Test';
   /* Whether the best was set with the explanations on screen. Not a judgement,
      just provenance — it is the difference between a score and a walkthrough. */
-  const shown=st.best!=null&&st.revealed?' · answers shown':'';
-  return `<div class="card tcard" onclick="startTest(${t.n})"${shown?' title="Best score was set with instant feedback on"':''}>
-    ${badge}
-    <div class="tt">Test ${t.n}</div>
-    <div class="meta">${st.best!=null?`Best ${st.best}/24`:'Not attempted'}${st.attempts?` · ${st.attempts}×`:''}${shown}</div>
-    <div class="bar ${st.best==null?'':st.lastPass?'good':'bad'}"><i style="width:${pct}%"></i></div>
+  const shown=st.best!=null&&st.revealed?' · shown':'';
+  const c=testMix(t),top=c.indexOf(Math.max(...c));
+  const tip=`${word} ${t.n} — mostly ${TOPICS[top]} (${c[top]} of ${t.q.length})`
+    +(shown?'. Best score was set with instant feedback on.':'');
+  return `<div class="card tcard${state?' '+state:''}${t.n===justPassed?' just':''}" style="--i:${Math.min(i,18)}" onclick="startTest(${t.n})" title="${esc(tip)}">
+    <span class="tw">${esc(word)}${mark}</span>
+    <span class="tnum">${t.n}</span>
+    <span class="meta">${st.best!=null?`Best ${st.best}/24`:'Not sat'}${st.attempts?` · ${st.attempts}×`:''}${shown}</span>
+    ${st.best==null?'':`<span class="bar ${st.lastPass?'good':'bad'}"><i style="width:${pct}%"></i></span>`}
+    ${mixStrip(t)}
   </div>`;
 }
 /* One labelled section per bank, each carrying where its questions came from —
@@ -884,6 +1053,51 @@ const BANK_NOTE={
    key rather than in the save — and it has to live somewhere outside the DOM at
    all, because renderDashboard() rebuilds innerHTML on every answer and would
    otherwise shut every section you just opened. */
+/* Which tiles to draw. Presentation only: nothing is computed, stored or graded
+   differently, the filter just decides what is on screen. A section that has
+   nothing matching is not drawn at all, so "Not attempted" turns the library
+   into the papers you still owe. */
+const FILTERS=[['all','All'],['new','Not attempted'],['passed','Passed'],['retry','Retry']];
+let testFilter='all';
+function filterCounts(){
+  const n={all:TESTS.length,new:0,passed:0,retry:0};
+  TESTS.forEach(t=>{const st=testStat(t.n);
+    if(st.best==null)n.new++;else if(st.lastPass)n.passed++;else n.retry++});
+  return n;
+}
+function testMatch(t){
+  if(testFilter==='all')return true;
+  const st=testStat(t.n);
+  if(testFilter==='new')return st.best==null;
+  if(testFilter==='passed')return !!st.lastPass;
+  if(testFilter==='retry')return st.best!=null&&!st.lastPass;
+  return true;
+}
+function setTestFilter(f){testFilter=f;renderDashboard()}
+/* The tile you passed on the way here, so the dashboard can point at it once.
+   Cleared the moment it has been rendered — a pulse that replays on every later
+   visit is a notification, not a reward. */
+let justPassed=null;
+/* The five-topic mix of a paper, cached per test: it never changes, and it is
+   read once per tile on every dashboard render. */
+const TMIX=new Map();
+function testMix(t){
+  let c=TMIX.get(t.n);
+  if(!c){c=[0,0,0,0,0];t.q.forEach(q=>{if(c[q.p]!=null)c[q.p]++});TMIX.set(t.n,c)}
+  return c;
+}
+function mixStrip(t){
+  return `<span class="mix" aria-hidden="true">${testMix(t).map((v,i)=>
+    v?`<i style="flex:${v};background:var(--t${i})"></i>`:'').join('')}</span>`;
+}
+/* The section a test belongs to, resolved the same way testGroup resolves it —
+   bank id plus kind, and `:all` for a bank that does not split. Used by tiles
+   and by the start-here card, both of which need a section's face without
+   being inside its render. */
+function faceFor(t){
+  const b=t._bank,ks=bankKinds(b);
+  return GRP_FACE[ks.length<2?`${b.id}:all`:`${b.id}:${t.kind}`]||{ico:'📄',acc:GRP_ACC[0]};
+}
 const GRP_LS='lituk_groups';
 let grpOpen=(()=>{try{return JSON.parse(localStorage.getItem(GRP_LS))||{}}catch(e){return{}}})();
 function grpSave(){try{localStorage.setItem(GRP_LS,JSON.stringify(grpOpen))}catch(e){}}
@@ -917,40 +1131,111 @@ const GRP_ACC=['#c2628f','#b06aa8','#9575c4','#7b82d6','#5e93d0'];
 const GRP_FACE={
   /* Every London cabbie's word for learning a whole city by heart — and this is
      the biggest bank of the five. */
-  'mock:all':{ico:'🧠',acc:'#c2628f',name:'The Knowledge',unit:'mock tests'},
-  'practice:all':{ico:'📘',acc:'#b06aa8',name:'The Reading Room',unit:'practice tests'},
-  'testprep:mock':{ico:'🧪',acc:'#9575c4',name:'The Proving Ground',unit:'mock tests'},
-  'testprep:exam':{ico:'⭐',acc:'#7b82d6',name:'Exam Conditions',unit:'exam papers'},
+  'mock:all':{ico:'🧠',acc:'#c2628f',name:'The Knowledge',unit:'mock tests',word:'Test'},
+  'practice:all':{ico:'📘',acc:'#b06aa8',name:'The Reading Room',unit:'practice tests',word:'Test'},
+  'testprep:mock':{ico:'🧪',acc:'#9575c4',name:'The Proving Ground',unit:'mock tests',word:'Mock'},
+  'testprep:exam':{ico:'⭐',acc:'#7b82d6',name:'Exam Conditions',unit:'exam papers',word:'Exam'},
   /* Not a paper anyone sat here — it is what came back out of the test centre. */
-  'lituktestweb:all':{ico:'🔥',acc:'#5e93d0',name:'Word from the Room',unit:'reported papers'},
+  'lituktestweb:all':{ico:'🔥',acc:'#5e93d0',name:'Word from the Room',unit:'reported papers',word:'Paper'},
 };
 /* `key` is bank id + kind, the same pair the section is built from, so it is
    stable across renders and across a bank gaining tests. `dflt` opens the first
    group on a first visit: a page of nothing but shut headers doesn't show what
    a test tile is. */
 function testGroup(b,tests,label,sub,key,dflt,note,seq){
+  /* `tests` is the section as it really is; `shown` is what the filter lets
+     through. The header keeps counting the real thing — a section that says
+     "6/45 passed" while a filter hides the other 39 is still telling the truth,
+     and the line under the name says how many of them you are looking at. */
+  const shown=tests.filter(testMatch);
+  if(!shown.length)return '';
   const done=tests.filter(t=>testStat(t.n).lastPass).length;
   const face=GRP_FACE[key]||{ico:'📄',acc:GRP_ACC[seq%GRP_ACC.length]};
   const pct=Math.round(done/tests.length*100);
+  const unit=esc(face.unit||'tests');
+  /* Forced open while a filter is on — a filter that reveals nothing but shut
+     headers has not filtered anything — and for the section holding the tile you
+     have just passed, so the pulse lands somewhere you can see it. Neither
+     writes to grpOpen: `toggle` does not fire for a <details> parsed open, so
+     only a real tap on the header persists a state. */
+  const open=testFilter!=='all'||(justPassed!=null&&shown.some(t=>t.n===justPassed))||(grpOpen[key]??dflt);
   /* `nm`, not `lbl`: .lbl is the app's small-caps caption class, and borrowing it
      here uppercased both the section name and the source under it. */
-  return `<details class="bankgrp" style="--acc:${face.acc}"${(grpOpen[key]??dflt)?' open':''} ontoggle="grpToggle('${key}',this.open)">
+  return `<details class="bankgrp" style="--acc:${face.acc}"${open?' open':''} ontoggle="grpToggle('${key}',this.open)">
     <summary class="bankhd" title="${esc(label)}">
       <span class="ico" aria-hidden="true">${face.ico}</span>
       <span class="nm">
         <b>${esc(face.name||label)}</b>
-        <span class="src">${tests.length} ${esc(face.unit||'tests')} · <a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(b.source)}</a></span>
+        <span class="src">${shown.length===tests.length?`${tests.length} ${unit}`:`${shown.length} of ${tests.length} ${unit}`} · <a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(b.source)}</a></span>
       </span>
-      <span class="prog" aria-hidden="true"><i style="width:${pct}%"></i></span>
+      <span class="ring-sm" style="--p:${pct}" aria-hidden="true"></span>
       <span class="tag${done===tests.length?' done':''}">${done}/${tests.length} passed</span>
       <span class="chev" aria-hidden="true">▸</span>
     </summary>
     <div class="bankbody">
       ${sub?`<p class="banksub">${esc(sub)}</p>`:''}
-      <div class="grid tests">${tests.map(testTile).join('')}</div>
+      <div class="grid tests">${shown.map((t,i)=>testTile(t,face,i)).join('')}</div>
       ${note?`<p class="banknote">${note}</p>`:''}
     </div>
   </details>`;
+}
+/* ---- Start here ----
+   The next paper you have never sat, or once they are all sat the weakest one
+   you have still not passed. This is the answer to 150 identical doors: one of
+   them is open. */
+function nextUp(){
+  const unsat=TESTS.filter(t=>testStat(t.n).best==null);
+  if(unsat.length)return{t:unsat[0],why:'new'};
+  const open=TESTS.filter(t=>!testStat(t.n).lastPass);
+  if(!open.length)return null;
+  return{t:open.slice().sort((a,b)=>(testStat(a.n).best??0)-(testStat(b.n).best??0))[0],why:'retry'};
+}
+function nextUpCard(){
+  const nx=nextUp();
+  if(!nx)return `<div class="card nextup" style="--tone:var(--good);cursor:default">
+    <span class="ico" aria-hidden="true">🏆</span>
+    <div class="body">
+      <div class="k">All done</div>
+      <div class="t">Every paper passed</div>
+      <div class="d">All ${TESTS.length} of them. Keep the drill ticking over until exam day.</div>
+    </div>
+  </div>`;
+  const f=faceFor(nx.t),st=testStat(nx.t.n),c=testMix(nx.t),top=c.indexOf(Math.max(...c));
+  return `<div class="card nextup" style="--tone:${f.acc}" onclick="startTest(${nx.t.n})" title="${esc(f.name||'')}">
+    <span class="ico" aria-hidden="true">${f.ico}</span>
+    <div class="body">
+      <div class="k">${nx.why==='new'?'Start here':'Worth another go'}</div>
+      <div class="t">${esc(f.word||'Test')} ${nx.t.n}</div>
+      <div class="d">${esc(f.name||'')} · mostly ${esc(TOPICS[top])}${nx.why==='retry'?` · best ${st.best}/24`:''}</div>
+    </div>
+    <button class="btn primary go" onclick="event.stopPropagation();startTest(${nx.t.n})">Start →</button>
+  </div>`;
+}
+function filterChips(){
+  const n=filterCounts();
+  return `<div class="fchips">${FILTERS.map(([k,l])=>
+    `<button class="fchip${testFilter===k?' on':''}" onclick="setTestFilter('${k}')"${n[k]||testFilter===k?'':' disabled'}>${l}<span class="c">${n[k]}</span></button>`
+  ).join('')}</div>`;
+}
+/* The big numbers roll up rather than snapping into place. Only elements whose
+   whole text is the number carry data-count — the ones with markup inside them
+   (the "112/150" stat) would have it overwritten. */
+function countUp(el){
+  const ns=el.querySelectorAll('[data-count]');
+  if(!ns.length)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  ns.forEach(n=>{
+    const to=+n.dataset.count,suf=n.dataset.suf||'';
+    if(!(to>0))return;
+    const t0=performance.now(),dur=560;
+    const step=now=>{
+      const k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);
+      n.textContent=Math.round(to*e)+suf;
+      if(k<1)requestAnimationFrame(step);
+    };
+    n.textContent='0'+suf;
+    requestAnimationFrame(step);
+  });
 }
 function bankSection(b,bi){
   /* First-seen order, so the section order follows the test numbers: mocks
@@ -982,15 +1267,35 @@ function renderDashboard(){
   const left=daysLeft(),tw=twistStats(),ex=examStats();
   const rd=readiness(),rp=Math.round(rd.p*100);
   const el=document.getElementById('view-dashboard');
+  /* A filter that matches nothing would render a page of nothing, and the chip
+     that would take you back out of it is drawn by that same page. Falling back
+     to All keeps the way out on screen — it can only happen after a sit changes
+     the counts under a filter you had already chosen. */
+  if(testFilter!=='all'&&!filterCounts()[testFilter])testFilter='all';
+  /* `passed` counts rows in the store, not rows that still match a test in a
+     loaded bank — so a bank that is not on the page (an old lituk.html number,
+     a data file that failed to load) can push it past TESTS.length. The stat
+     box has always shown that raw figure; the rail must not, or it draws itself
+     at 333% and says "-350 to go". */
+  const railDone=Math.min(passed,TESTS.length),railLeft=TESTS.length-railDone;
+  const railPct=Math.round(railDone/TESTS.length*100);
   el.innerHTML=`
-    <h1>Your dashboard</h1>
-    <p class="sub">${TESTS.length} official-style tests · 24 questions each · 75% to pass.</p>
+    <div class="card phero">
+      <p class="k">Life in the UK</p>
+      <h1>Practice Tests</h1>
+      <p class="line">${railDone
+        ? `<b>${railDone} of ${TESTS.length} papers passed</b>${railLeft?` — ${railLeft} to go.`:' — all of them.'}`
+        : `<b>${TESTS.length} papers</b> waiting, 24 questions each.`
+      } Pass mark ${PASSMARK}/24.${left!=null&&left>=0?` <b>${left} day${left===1?'':'s'}</b> until your exam.`:''}</p>
+      <div class="rail" role="img" aria-label="${railDone} of ${TESTS.length} papers passed"><i style="width:${railPct}%"></i></div>
+      <div class="rail-l"><span><span data-count="${railPct}" data-suf="%">${railPct}%</span> complete</span><span>${railDone}/${TESTS.length}</span></div>
+    </div>
     ${backupNag()}
     ${resumeSection()}
     ${drillCard()}
     <div class="card stat hero tap" onclick="explainReadiness()" title="How this is worked out">
       <div>
-        <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}">${rp}%</div><div class="l">Pass probability</div>
+        <div class="n ${rp>=85?'good':rp>=50?'brand':'bad'}" data-count="${rp}" data-suf="%">${rp}%</div><div class="l">Pass probability</div>
         <div class="s">${readyLabel(rd.p)} · pass at ${PASSMARK} · tap for the maths</div>
       </div>
       <div class="hero-side"><b>${rd.mean.toFixed(1)}<i>/24</i></b><em>expected score</em></div>
@@ -1016,12 +1321,18 @@ function renderDashboard(){
       <button class="card act" onclick="topicPicker()"><span class="emo">📚</span><div><div class="t">Practice by topic</div><div class="d">Target a weak area</div></div></button>
       <button class="card act" onclick="go('cram')"><span class="emo">📄</span><div><div class="t">Cram sheet</div><div class="d">${cramCount()} to revise, printable</div></div></button>
     </div>
-    <div class="btn-row" style="margin:8px 0 14px;align-items:center">
-      <b style="margin-right:auto">All tests</b>
+    <div class="tests-head">
+      <h2>All tests</h2>
       <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="toggleAllGroups()">${grpAnyOpen()?'▴ Collapse all':'▾ Expand all'}</button>
       <button class="chip" style="cursor:pointer;border:1px solid var(--line)" onclick="openSettings()">⚙️ Drill ${drillSize()} · ${prefs.feedback==='instant'?'Instant feedback':'Answers at end'} · ${prefs.shufQ?'Shuffled':'In order'}</button>
     </div>
+    ${nextUpCard()}
+    ${filterChips()}
     ${BANKS.map(bankSection).join('')}`;
+  /* Rendered, so the pulse has been spent. Synchronous: innerHTML above is the
+     one and only place it is read. */
+  justPassed=null;
+  countUp(el);
 }
 
 /* ============ PREFS ============
@@ -2203,6 +2514,9 @@ function finishQuiz(){
     const isBest=score>(st.best??-1);
     S.tests[sess.testN]={best:Math.max(st.best??0,score),attempts:st.attempts+1,
       lastPass:passed,lastScore:score,revealed:isBest?!!sess.instant:!!st.revealed};
+    /* So the dashboard can find this tile again — its section opens itself and
+       the tile pulses once, the next time you look at it. */
+    if(passed)justPassed=sess.testN;
   }
   /* A sweep or a gauntlet is the day's work as much as a drill is — it keeps
      the streak alive. */
