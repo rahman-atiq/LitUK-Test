@@ -114,7 +114,7 @@
 
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = SAFE_CSS + HUB_CSS;
+    s.textContent = SAFE_CSS + HUB_CSS + EGG_CSS;
     document.head.appendChild(s);
   }
 
@@ -491,6 +491,467 @@
     offerResume(rec, target);
   }
 
+  /* ---------------- hidden surprises ----------------
+     Seven of them, scattered across the app. None of this touches the study
+     material or the scoring — it is all decoration, it all stays out of the
+     way until somebody goes looking, and once one is found the hub grows a
+     small cabinet listing the rest by hint. Typed triggers are ignored while
+     the caret is in a field, so the hub's search box stays a search box. */
+
+  var EGG_KEY = "lituk_eggs_v1";
+
+  var EGGS = [
+    { id: "assent", icon: "👑", name: "Royal Assent",
+      hint: "A very old cheat code. Arrows first, two letters after.",
+      line: "Le Roy le veult. Royal Assent granted — the bill is now an Act." },
+    { id: "brew", icon: "☕", name: "Put the kettle on", word: "tea",
+      hint: "Type the three letters this country actually runs on.",
+      line: "Priorities. Milk in after, and never let anyone tell you otherwise." },
+    { id: "rain", icon: "🌧", name: "Typical", word: "rain",
+      hint: "Type the national conversation topic. Four letters.",
+      line: "Typical. Take a coat — you will want it by four." },
+    { id: "queue", icon: "🧍", name: "The Queue", word: "queue",
+      hint: "Type the one thing nobody here ever jumps.",
+      line: "Not a single person pushed in. A beautiful, orderly line." },
+    { id: "hastings", icon: "🏹", name: "Hastings", word: "1066",
+      hint: "Type the one date the test will never let you forget.",
+      line: "1066. William, Harold, and an arrow. You will not forget it now." },
+    { id: "sorry", icon: "🙇", name: "No, after you", word: "sorry",
+      hint: "Type what you say when somebody else steps on your foot.",
+      line: "No — I'm sorry. Honestly. Entirely my fault." },
+    { id: "flag", icon: "🇬🇧", name: "Flutter",
+      hint: "The flag at the top of the hub would like some attention. Five taps.",
+      line: "Three crosses, one flag, and a very respectable flutter." }
+  ];
+
+  var EGG_CSS =
+    ".egg-stage{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden;" +
+    "transition:opacity .8s ease}" +
+    ".egg-stage.out{opacity:0}" +
+
+    /* confetti */
+    ".egg-bit{position:absolute;top:-16px;width:9px;height:14px;display:block;opacity:.95;" +
+    "animation:eggFall linear forwards}" +
+    "@keyframes eggFall{to{transform:translate(var(--drift,0),108vh) rotate(var(--spin,180deg));opacity:.1}}" +
+
+    /* crown */
+    ".egg-crown{position:absolute;left:50%;top:36%;font-size:clamp(64px,16vw,108px);opacity:0;" +
+    "filter:drop-shadow(0 16px 30px rgba(0,0,0,.45));animation:eggCrown 2.8s cubic-bezier(.2,.9,.3,1.25) forwards}" +
+    "@keyframes eggCrown{0%{opacity:0;transform:translate(-50%,-190%) scale(.4) rotate(-20deg)}" +
+    "32%{opacity:1;transform:translate(-50%,-50%) scale(1.14) rotate(5deg)}" +
+    "46%{transform:translate(-50%,-50%) scale(1) rotate(0)}" +
+    "78%{opacity:1;transform:translate(-50%,-50%) scale(1)}" +
+    "100%{opacity:0;transform:translate(-50%,-70%) scale(1.06)}}" +
+
+    /* the brew */
+    ".egg-cup{position:absolute;left:50%;bottom:-150px;width:140px;height:130px;margin-left:-70px;" +
+    "animation:eggRise 3.6s cubic-bezier(.2,.75,.3,1) forwards}" +
+    ".egg-cup .c{position:absolute;left:0;right:0;bottom:0;text-align:center;line-height:1;" +
+    "font-size:clamp(56px,14vw,76px);filter:drop-shadow(0 14px 24px rgba(0,0,0,.35))}" +
+    ".egg-cup .s{position:absolute;bottom:76px;left:50%;width:10px;height:10px;border-radius:50%;" +
+    "background:radial-gradient(circle,rgba(255,255,255,.72),rgba(255,255,255,0) 70%);" +
+    "animation:eggSteam 2.2s ease-out infinite}" +
+    "@keyframes eggRise{0%{bottom:-150px;opacity:0}22%{opacity:1}34%{bottom:25vh}74%{bottom:28vh;opacity:1}" +
+    "100%{bottom:38vh;opacity:0}}" +
+    "@keyframes eggSteam{0%{opacity:0;transform:translate(-50%,0) scale(.5)}28%{opacity:.7}" +
+    "100%{opacity:0;transform:translate(-50%,-62px) scale(1.9)}}" +
+
+    /* weather */
+    ".egg-drop{position:absolute;top:-16vh;width:1.5px;height:14vh;border-radius:2px;" +
+    "background:linear-gradient(180deg,rgba(150,190,235,0),rgba(150,190,235,.6));" +
+    "animation:eggRain linear infinite}" +
+    "@keyframes eggRain{to{transform:translateY(130vh)}}" +
+
+    /* the queue */
+    ".egg-walk{position:absolute;bottom:9vh;left:-100px;font-size:clamp(26px,7vw,36px);" +
+    "animation:eggWalk 6.6s linear forwards}" +
+    ".egg-walk i{display:inline-block;font-style:normal;animation:eggBob .62s ease-in-out infinite}" +
+    "@keyframes eggWalk{to{transform:translateX(calc(100vw + 160px))}}" +
+    "@keyframes eggBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
+
+    /* the arrow at Hastings */
+    ".egg-arrow{position:absolute;top:62vh;left:-90px;font-size:clamp(30px,8vw,44px);opacity:0;" +
+    "animation:eggFly 1.6s cubic-bezier(.32,.08,.6,1) forwards}" +
+    "@keyframes eggFly{0%{opacity:0;transform:translate(0,0) rotate(-30deg)}12%{opacity:1}" +
+    "90%{opacity:1}100%{opacity:0;transform:translate(calc(100vw + 180px),-36vh) rotate(-4deg)}}" +
+
+    /* the flutter */
+    ".egg-mini{position:absolute;bottom:-46px;font-size:clamp(18px,5vw,24px);opacity:0;" +
+    "animation:eggFloat 3.8s ease-in forwards}" +
+    "@keyframes eggFloat{0%{opacity:0;transform:translateY(0) rotate(0)}16%{opacity:1}" +
+    "100%{opacity:0;transform:translateY(-96vh) rotate(var(--spin,180deg))}}" +
+    ".egg-flutter{animation:eggFlutter 1.25s ease-in-out}" +
+    "@keyframes eggFlutter{0%,100%{transform:none}18%{transform:rotate(-9deg) skewX(7deg)}" +
+    "44%{transform:rotate(8deg) skewX(-7deg)}70%{transform:rotate(-4deg) skewX(3deg)}}" +
+    ".egg-tap{animation:eggTap .28s ease}" +
+    "@keyframes eggTap{50%{transform:scale(1.12)}}" +
+
+    /* the note that says what you just found */
+    ".egg-toast{position:fixed;left:0;right:0;margin:0 auto;z-index:9999;width:max-content;" +
+    "max-width:min(92vw,430px);bottom:calc(var(--lituk-sab,0px) + 22px);cursor:pointer;" +
+    "padding:13px 17px;border-radius:14px;text-align:left;opacity:0;transform:translateY(16px);" +
+    "transition:opacity .3s ease,transform .3s cubic-bezier(.2,.8,.3,1);" +
+    "font:400 .85rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;" +
+    "color:var(--ink,var(--text,#222));background:var(--card,var(--panel,#fff));" +
+    "border:1px solid color-mix(in srgb,var(--gold,#D4A94E) 42%,var(--line,rgba(128,128,128,.35)));" +
+    "box-shadow:0 2px 6px rgba(0,0,0,.22),0 18px 44px rgba(0,0,0,.3);" +
+    "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}" +
+    ".egg-toast.on{opacity:1;transform:none}" +
+    ".egg-toast b{display:block;font-weight:700;font-size:.92rem;letter-spacing:-.005em}" +
+    ".egg-toast span{display:block;margin-top:2px;color:var(--ink-2,var(--muted,#777))}" +
+    ".egg-toast i{display:block;margin-top:7px;font-style:normal;font-size:.7rem;font-weight:700;" +
+    "letter-spacing:.09em;text-transform:uppercase;color:var(--gold,#D4A94E)}" +
+    ".egg-toast.bow.on{animation:eggBow 1.3s ease .2s 2}" +
+    "@keyframes eggBow{0%,100%{transform:none}38%{transform:translateY(9px) rotate(-1.3deg)}}" +
+
+    /* the cabinet, hub only, and only once something is in it */
+    ".curio{max-width:540px;margin:20px auto 2px;text-align:left}" +
+    ".curio>summary{list-style:none;cursor:pointer;text-align:center;padding:8px;" +
+    "font-size:.72rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;" +
+    "color:var(--ink-3,#8B8F98);transition:color .15s ease}" +
+    ".curio>summary::-webkit-details-marker{display:none}" +
+    ".curio>summary:hover{color:var(--gold,#D4A94E)}" +
+    ".curio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:8px;margin-top:8px}" +
+    ".curio-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:11px;" +
+    "border:1px solid var(--line,rgba(128,128,128,.3));font-size:.78rem;line-height:1.45;text-align:left}" +
+    ".curio-item .cx{flex:0 0 auto;font-size:1.05rem;line-height:1.3}" +
+    ".curio-item:not(.got) .cx{font:700 1rem/1.35 var(--serif,Georgia,serif);color:var(--ink-3,#8B8F98);opacity:.7}" +
+    ".curio-item b{display:block;font-weight:650;color:var(--ink,inherit)}" +
+    ".curio-item span{display:block;color:var(--ink-3,#8B8F98)}" +
+    ".curio-item.got{border-color:color-mix(in srgb,var(--gold,#D4A94E) 45%,transparent);" +
+    "background:color-mix(in srgb,var(--gold,#D4A94E) 9%,transparent)}" +
+    ".curio-item.got b{color:var(--gold,#D4A94E)}" +
+
+    "@media (prefers-reduced-motion:reduce){" +
+    ".egg-toast,.egg-toast.on{transition:none}.egg-toast.bow.on{animation:none}}" +
+    "@media print{.egg-stage,.egg-toast{display:none}}";
+
+  function eggsFound() {
+    try { return JSON.parse(localStorage.getItem(EGG_KEY) || "{}") || {}; }
+    catch (e) { return {}; }
+  }
+  function eggsSave(f) { try { localStorage.setItem(EGG_KEY, JSON.stringify(f)); } catch (e) {} }
+  function eggById(id) {
+    for (var i = 0; i < EGGS.length; i++) if (EGGS[i].id === id) return EGGS[i];
+    return null;
+  }
+  /* Every particle effect is skipped outright for anyone who has asked their
+     system for less motion — the note still appears, so the find still counts. */
+  function calm() {
+    try { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
+    catch (e) { return false; }
+  }
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  /* A short-lived full-viewport canvas. Fades itself out, then removes itself. */
+  function stage(ms) {
+    var d = document.createElement("div");
+    d.className = "egg-stage";
+    document.body.appendChild(d);
+    setTimeout(function () { d.classList.add("out"); }, Math.max(0, ms - 800));
+    setTimeout(function () { d.remove(); }, ms);
+    return d;
+  }
+
+  var FLAG_INK = ["#C8102E", "#F4F2EA", "#012169", "#D4A94E"];
+
+  function confetti(n, host) {
+    if (calm()) return;
+    var d = host || stage(5200);
+    for (var i = 0; i < n; i++) {
+      var b = document.createElement("i");
+      b.className = "egg-bit";
+      b.style.left = rand(0, 100).toFixed(2) + "vw";
+      b.style.background = FLAG_INK[i % FLAG_INK.length];
+      b.style.animationDelay = rand(0, .9).toFixed(2) + "s";
+      b.style.animationDuration = rand(2.3, 4).toFixed(2) + "s";
+      b.style.setProperty("--spin", rand(-540, 540).toFixed(0) + "deg");
+      b.style.setProperty("--drift", rand(-70, 70).toFixed(0) + "px");
+      if (i % 3 === 0) b.style.borderRadius = "50%";
+      d.appendChild(b);
+    }
+    return d;
+  }
+
+  var EFFECTS = {
+    assent: function () {
+      if (calm()) return;
+      var d = stage(5200);
+      confetti(80, d);
+      var c = document.createElement("div");
+      c.className = "egg-crown";
+      c.textContent = "👑";
+      d.appendChild(c);
+    },
+    brew: function () {
+      if (calm()) return;
+      var d = stage(3900);
+      var w = document.createElement("div");
+      w.className = "egg-cup";
+      var c = document.createElement("div");
+      c.className = "c";
+      c.textContent = "☕";
+      w.appendChild(c);
+      [-16, 0, 16].forEach(function (dx, i) {
+        var s = document.createElement("div");
+        s.className = "s";
+        s.style.marginLeft = dx + "px";
+        s.style.animationDelay = (i * .45).toFixed(2) + "s";
+        w.appendChild(s);
+      });
+      d.appendChild(w);
+    },
+    rain: function () {
+      if (calm()) return;
+      var d = stage(5400);
+      for (var i = 0; i < 70; i++) {
+        var r = document.createElement("i");
+        r.className = "egg-drop";
+        r.style.left = rand(-4, 102).toFixed(2) + "vw";
+        r.style.animationDuration = rand(.6, 1.2).toFixed(2) + "s";
+        r.style.animationDelay = "-" + rand(0, 1.2).toFixed(2) + "s";
+        r.style.opacity = rand(.35, 1).toFixed(2);
+        d.appendChild(r);
+      }
+    },
+    queue: function () {
+      if (calm()) return;
+      var d = stage(7200);
+      var folk = ["🧍", "🧍‍♀️", "🧓", "🧍‍♂️", "👩", "☂️"];
+      folk.forEach(function (who, i) {
+        var p = document.createElement("div");
+        p.className = "egg-walk";
+        var g = document.createElement("i");
+        g.textContent = who;
+        g.style.animationDelay = (i * .11).toFixed(2) + "s";
+        p.appendChild(g);
+        p.style.animationDelay = (i * .48).toFixed(2) + "s";
+        d.appendChild(p);
+      });
+    },
+    hastings: function () {
+      if (calm()) return;
+      var d = stage(2000);
+      var a = document.createElement("div");
+      a.className = "egg-arrow";
+      a.textContent = "🏹";
+      d.appendChild(a);
+    },
+    sorry: function () {},
+    flag: function () {
+      var seal = document.getElementById("flagSeal");
+      if (seal && !calm()) {
+        seal.classList.remove("egg-flutter");
+        void seal.offsetWidth;                      // restart the animation
+        seal.classList.add("egg-flutter");
+      }
+      if (calm()) return;
+      var d = stage(4200);
+      for (var i = 0; i < 14; i++) {
+        var f = document.createElement("i");
+        f.className = "egg-mini";
+        f.textContent = "🇬🇧";
+        f.style.left = rand(4, 94).toFixed(2) + "vw";
+        f.style.animationDelay = rand(0, 1.4).toFixed(2) + "s";
+        f.style.animationDuration = rand(3, 4.4).toFixed(2) + "s";
+        f.style.setProperty("--spin", rand(-90, 90).toFixed(0) + "deg");
+        d.appendChild(f);
+      }
+    }
+  };
+
+  var eggToastTimer = 0;
+
+  function eggNote(icon, name, line, tail) {
+    var old = document.querySelector(".egg-toast");
+    if (old) old.remove();
+
+    var t = document.createElement("div");
+    t.className = "egg-toast";
+    t.setAttribute("role", "status");
+
+    var h = document.createElement("b");
+    h.textContent = icon + "  " + name;
+    var p = document.createElement("span");
+    p.textContent = line;
+    t.appendChild(h);
+    t.appendChild(p);
+    if (tail) {
+      var f = document.createElement("i");
+      f.textContent = tail;
+      t.appendChild(f);
+    }
+
+    document.body.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add("on"); });
+
+    function close() {
+      clearTimeout(eggToastTimer);
+      t.classList.remove("on");
+      setTimeout(function () { t.remove(); }, 400);
+    }
+    t.addEventListener("click", close);
+    clearTimeout(eggToastTimer);
+    eggToastTimer = setTimeout(close, 4600);
+    return t;
+  }
+
+  function fireEgg(id) {
+    var egg = eggById(id);
+    if (!egg) return;
+
+    var found = eggsFound();
+    var isNew = !found[egg.id];
+    if (isNew) { found[egg.id] = Date.now(); eggsSave(found); }
+    var n = Object.keys(found).length;
+
+    (EFFECTS[egg.id] || function () {})();
+    var note = eggNote(egg.icon, egg.name, egg.line,
+      isNew ? "✦ Curiosity " + n + " of " + EGGS.length + " found" : "");
+    if (egg.id === "sorry") note.classList.add("bow");
+
+    if (!isNew) return;
+    renderCurio();
+    if (n >= EGGS.length) {
+      document.documentElement.setAttribute("data-eggs", "complete");
+      setTimeout(function () {
+        confetti(110);
+        eggNote("🎖️", "The cabinet is complete",
+          "All seven found. Now go and pass the actual test.",
+          "✦ " + EGGS.length + " of " + EGGS.length);
+      }, 1100);
+    }
+  }
+
+  /* ---- triggers ---- */
+
+  var KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
+  var typed = "", arrows = [];
+
+  function typing(el) {
+    if (!el) return false;
+    if (el.isContentEditable) return true;
+    return /^(input|textarea|select)$/i.test(el.tagName || "");
+  }
+
+  function onEggKey(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (typing(e.target)) return;
+    var k = String(e.key || "").toLowerCase();
+
+    /* the arrow sequence */
+    arrows.push(k);
+    if (arrows.length > KONAMI.length) arrows.shift();
+    if (arrows.length === KONAMI.length && arrows.join(",") === KONAMI.join(",")) {
+      arrows = [];
+      fireEgg("assent");
+      return;
+    }
+
+    /* the typed words */
+    if (!/^[a-z0-9]$/.test(k)) return;
+    typed = (typed + k).slice(-12);
+    for (var i = 0; i < EGGS.length; i++) {
+      var w = EGGS[i].word;
+      if (w && typed.slice(-w.length) === w) { typed = ""; fireEgg(EGGS[i].id); return; }
+    }
+  }
+
+  function hookFlag() {
+    var seal = document.getElementById("flagSeal");
+    if (!seal) return;
+    var taps = 0, clear = 0;
+    seal.addEventListener("click", function () {
+      taps++;
+      clearTimeout(clear);
+      clear = setTimeout(function () { taps = 0; }, 3200);
+      if (!calm()) {
+        seal.classList.remove("egg-tap");
+        void seal.offsetWidth;
+        seal.classList.add("egg-tap");
+      }
+      if (taps >= 5) { taps = 0; clearTimeout(clear); fireEgg("flag"); }
+    });
+  }
+
+  /* The cabinet stays invisible until the first find — then it lists what is
+     left, by hint only. */
+  function renderCurio() {
+    var host = document.getElementById("curio");
+    if (!host) return;
+    var found = eggsFound();
+    var n = Object.keys(found).length;
+    if (!n) { host.innerHTML = ""; return; }
+
+    var open = host.querySelector("details");
+    open = open ? open.open : false;
+
+    var d = document.createElement("details");
+    d.className = "curio";
+    d.open = open;
+    var s = document.createElement("summary");
+    s.textContent = n >= EGGS.length
+      ? "🎖️ Cabinet of curiosities — all " + EGGS.length + " found"
+      : "🎖️ Cabinet of curiosities — " + n + " of " + EGGS.length + " found";
+    d.appendChild(s);
+
+    var g = document.createElement("div");
+    g.className = "curio-grid";
+    EGGS.forEach(function (egg) {
+      var got = !!found[egg.id];
+      var item = document.createElement("div");
+      item.className = "curio-item" + (got ? " got" : "");
+      var x = document.createElement("span");
+      x.className = "cx";
+      x.textContent = got ? egg.icon : "?";
+      var body = document.createElement("div");
+      var b = document.createElement("b");
+      b.textContent = got ? egg.name : "Still hidden";
+      var sub = document.createElement("span");
+      sub.textContent = got ? egg.line : egg.hint;
+      body.appendChild(b);
+      body.appendChild(sub);
+      item.appendChild(x);
+      item.appendChild(body);
+      g.appendChild(item);
+    });
+    d.appendChild(g);
+
+    host.innerHTML = "";
+    host.appendChild(d);
+  }
+
+  function startEggs() {
+    if (Object.keys(eggsFound()).length >= EGGS.length) {
+      document.documentElement.setAttribute("data-eggs", "complete");
+    }
+    renderCurio();
+    hookFlag();
+    document.addEventListener("keydown", onEggKey);
+
+    /* One line for anyone who opens the console. It is a hint, not a spoiler. */
+    if (isHub()) {
+      var left = EGGS.length - Object.keys(eggsFound()).length;
+      if (left > 0 && window.console && console.log) {
+        console.log("%cLife in the UK%c  " + left + " thing" + (left === 1 ? " is" : "s are") +
+          " hidden in here. LitUK.eggs.hints() if you get stuck.",
+          "font:700 12px system-ui;color:#D4A94E", "font:12px system-ui;color:#8B8F98");
+      }
+    }
+  }
+
+  var eggsAPI = {
+    KEY: EGG_KEY,
+    all: function () { return EGGS.map(function (e) { return { id: e.id, name: e.name, hint: e.hint }; }); },
+    found: function () { return Object.keys(eggsFound()); },
+    hints: function () {
+      var f = eggsFound();
+      return EGGS.filter(function (e) { return !f[e.id]; }).map(function (e) { return e.hint; });
+    },
+    fire: fireEgg,
+    forget: function () { eggsSave({}); document.documentElement.removeAttribute("data-eggs"); renderCurio(); }
+  };
+
   /* ---------------- service worker ---------------- */
 
   function registerSW() {
@@ -522,6 +983,7 @@
   /* After highlight(), which rewrites text nodes and may open a <details> —
      both move headings, and the measurement has to see where they ended up. */
   startReading();
+  startEggs();
 
   window.LitUK = {
     THEME_KEY: THEME_KEY,
@@ -529,6 +991,7 @@
     setTheme: setTheme,
     toggleTheme: toggleTheme,
     highlight: highlight,
+    eggs: eggsAPI,
     reading: {
       KEY: READ_KEY,
       all: readAll,

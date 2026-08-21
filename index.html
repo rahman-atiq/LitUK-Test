@@ -31,6 +31,9 @@
     --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
     --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+    --lift:0 2px 5px rgba(0,0,0,.32), 0 20px 46px rgba(0,0,0,.42);
+    --sheen:rgba(255,255,255,.07);
+    --aurora:.55;
   }
   :root[data-theme="light"] {
     --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
@@ -38,6 +41,9 @@
     --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
     --pink:#D62B72;
     --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+    --lift:0 2px 6px rgba(32,36,44,.07), 0 18px 42px rgba(32,36,44,.13);
+    --sheen:rgba(255,255,255,.75);
+    --aurora:.34;
   }
 
   body {
@@ -47,77 +53,167 @@
     -webkit-tap-highlight-color:transparent;
     padding-bottom:56px;
   }
-  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  /* An ambient wash of the era colours, painted once behind the page. It sits
+     above body's own background and below .wrap, so nothing needs a z-index of
+     its own beyond the one on .wrap. */
+  body::before {
+    content:""; position:fixed; inset:0; pointer-events:none; opacity:var(--aurora);
+    background:
+      radial-gradient(58% 40% at 10% -8%,  color-mix(in srgb, var(--era4) 26%, transparent), transparent 70%),
+      radial-gradient(50% 36% at 94% 2%,   color-mix(in srgb, var(--era3) 20%, transparent), transparent 70%),
+      radial-gradient(72% 44% at 50% 106%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 74%);
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; position:relative; z-index:1; }
   a { color:inherit; text-decoration:none; }
 
   .themeToggle {
     position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
     font-family:inherit; font-size:.78rem; font-weight:600;
-    background:var(--card); color:var(--ink); border:1px solid var(--line);
-    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+    background:color-mix(in srgb, var(--card) 82%, transparent); color:var(--ink);
+    border:1px solid var(--line); border-radius:9px; padding:6px 12px; box-shadow:var(--shadow);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    transition:transform .14s ease, border-color .14s ease, color .14s ease;
   }
+  .themeToggle:hover { transform:translateY(-1px); border-color:var(--gold-dim); color:var(--gold); }
+  .themeToggle:active { transform:scale(.96); }
 
   /* ---------- masthead ---------- */
-  header.mast { padding:54px 0 30px; text-align:center; }
-  .mast .flag { font-size:34px; letter-spacing:3px; }
+  header.mast { padding:52px 0 30px; text-align:center; position:relative; }
+  /* The flag sits in a seal rather than loose on the page — a ring of gold, a
+     little inner light, and a slow drift so the top of the page is not static. */
+  .mast .flag {
+    position:relative; display:inline-grid; place-items:center;
+    width:82px; height:82px; margin:0 auto; border-radius:50%;
+    font-size:36px; line-height:1; cursor:default; user-select:none;
+    background:
+      radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 68%),
+      var(--card);
+    border:1px solid color-mix(in srgb, var(--gold) 34%, var(--line));
+    box-shadow:inset 0 1px 0 var(--sheen), 0 10px 30px rgba(0,0,0,.22);
+    animation:drift 7s ease-in-out infinite;
+  }
+  .mast .flag::before {
+    content:""; position:absolute; inset:-7px; border-radius:50%;
+    border:1px solid color-mix(in srgb, var(--gold) 16%, transparent);
+  }
+  @keyframes drift { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-5px) } }
+  /* It drifts, but it holds still under a cursor — it is a tap target too. */
+  .mast .flag:hover { animation-play-state:paused; }
+
   .mast h1 {
     font-family:var(--serif); font-weight:400;
-    font-size:clamp(2rem, 7vw, 2.9rem); line-height:1.1;
-    margin:.35em 0 .25em; letter-spacing:-.01em;
+    font-size:clamp(2.1rem, 7.4vw, 3.1rem); line-height:1.08;
+    margin:.42em 0 .26em; letter-spacing:-.015em;
+    background:linear-gradient(168deg, var(--ink) 34%, color-mix(in srgb, var(--gold) 62%, var(--ink)));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:var(--ink);
   }
   .mast .sub { color:var(--ink-2); font-size:.95rem; margin:0 auto; max-width:34em; }
-  .rule { height:1px; background:linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent); margin:34px 0 0; }
+  /* One line with a gap cut out of the middle, and a gold lozenge in the gap. */
+  .rule {
+    position:relative; height:1px; margin:34px 0 0;
+    background:linear-gradient(90deg, transparent, var(--line) 16%, var(--line) 45%,
+      transparent 47%, transparent 53%, var(--line) 55%, var(--line) 84%, transparent);
+  }
+  .rule::after {
+    content:"\25C6"; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    color:var(--gold); font-size:.56rem; line-height:1;
+  }
 
   /* ---------- section headings ---------- */
   h2.sec {
     font-family:var(--sans); font-size:.74rem; font-weight:700;
     letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
-    margin:38px 0 14px; display:flex; align-items:center; gap:12px;
+    margin:38px 0 14px; display:flex; align-items:center; gap:11px;
   }
-  h2.sec::after { content:""; flex:1; height:1px; background:var(--line); }
+  h2.sec::before {
+    content:""; flex:0 0 auto; width:5px; height:5px; border-radius:50%;
+    background:var(--gold); opacity:.8;
+  }
+  h2.sec::after { content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line), transparent); }
 
   /* ---------- big feature tiles ---------- */
   .tiles { display:grid; gap:12px; }
   .tile {
+    position:relative; overflow:hidden;
     display:flex; align-items:center; gap:16px;
     background:var(--card); border:1px solid var(--line);
     border-radius:16px; padding:17px 18px; box-shadow:var(--shadow);
-    transition:transform .12s ease, border-color .12s ease;
+    transition:transform .18s cubic-bezier(.2,.8,.3,1), border-color .18s ease, box-shadow .18s ease;
   }
-  .tile:active { transform:scale(.985); }
-  .tile:hover { border-color:var(--accent, var(--gold)); }
+  /* The accent bleeds in from the top-left corner on hover rather than the
+     border simply changing colour — the card lights up from the icon out. */
+  .tile::before {
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    opacity:0; transition:opacity .2s ease;
+    background:radial-gradient(120% 150% at 10% 0%,
+      color-mix(in srgb, var(--accent, var(--gold)) 15%, transparent), transparent 62%);
+  }
+  .tile > * { position:relative; }
+  .tile:hover::before { opacity:1; }
+  .tile:hover { transform:translateY(-2px); box-shadow:var(--lift);
+    border-color:color-mix(in srgb, var(--accent, var(--gold)) 65%, var(--line)); }
+  .tile:active { transform:translateY(0) scale(.99); }
   .tile .ic {
     flex:0 0 auto; width:50px; height:50px; border-radius:14px;
     display:grid; place-items:center; font-size:24px;
-    background:color-mix(in srgb, var(--accent, var(--gold)) 16%, transparent);
+    background:linear-gradient(150deg,
+      color-mix(in srgb, var(--accent, var(--gold)) 26%, transparent),
+      color-mix(in srgb, var(--accent, var(--gold)) 8%, transparent));
     border:1px solid color-mix(in srgb, var(--accent, var(--gold)) 38%, transparent);
+    box-shadow:inset 0 1px 0 var(--sheen);
+    transition:transform .2s cubic-bezier(.2,.8,.3,1);
   }
+  .tile:hover .ic { transform:scale(1.07) rotate(-4deg); }
   .tile .body { flex:1; min-width:0; }
   .tile .body b { display:block; font-size:1.02rem; font-weight:650; letter-spacing:-.005em; }
   /* direct child only — the .tag pill inside <b> must stay inline */
   .tile .body > span { display:block; font-size:.85rem; color:var(--ink-2); line-height:1.45; margin-top:2px; }
-  .tile .chev { color:var(--ink-3); font-size:1.1rem; flex:0 0 auto; }
+  .tile .chev {
+    color:var(--ink-3); font-size:1.1rem; flex:0 0 auto;
+    transition:transform .2s cubic-bezier(.2,.8,.3,1), color .2s ease;
+  }
+  .tile:hover .chev { transform:translateX(4px); color:var(--accent, var(--gold)); }
   .tile .tag {
     font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
     color:var(--accent, var(--gold)); border:1px solid color-mix(in srgb, var(--accent, var(--gold)) 40%, transparent);
+    background:color-mix(in srgb, var(--accent, var(--gold)) 12%, transparent);
     border-radius:999px; padding:2px 8px; margin-left:8px; vertical-align:2px;
   }
 
   /* ---------- chapter rows ---------- */
   .chapters { display:grid; gap:10px; }
   .ch {
-    display:flex; align-items:baseline; gap:14px;
+    position:relative; overflow:hidden;
+    display:flex; align-items:center; gap:14px;
     background:var(--card); border:1px solid var(--line);
     border-left:3px solid var(--accent, var(--gold));
     border-radius:12px; padding:14px 16px;
-    transition:transform .12s ease, border-color .12s ease;
+    transition:transform .18s cubic-bezier(.2,.8,.3,1), border-color .18s ease, box-shadow .18s ease;
   }
-  .ch:active { transform:scale(.985); }
-  .ch:hover { border-color:var(--accent, var(--gold)); }
+  .ch::before {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    opacity:0; transition:opacity .2s ease;
+    background:linear-gradient(90deg,
+      color-mix(in srgb, var(--accent, var(--gold)) 13%, transparent), transparent 46%);
+  }
+  .ch > * { position:relative; }
+  .ch:hover::before { opacity:1; }
+  .ch:active { transform:translateX(0) scale(.99); }
+  .ch:hover { transform:translateX(3px); box-shadow:var(--lift);
+    border-color:color-mix(in srgb, var(--accent, var(--gold)) 60%, var(--line)); }
+  /* The numeral gets a coin of its own — it is the only thing on the row that
+     carries the chapter's colour once the border is a hairline. */
   .ch .n {
-    font-family:var(--serif); font-size:1.15rem; color:var(--accent, var(--gold));
-    flex:0 0 auto; width:1.3em; text-align:center;
+    font-family:var(--serif); font-size:1.05rem; color:var(--accent, var(--gold));
+    flex:0 0 auto; width:36px; height:36px; border-radius:50%;
+    display:grid; place-items:center; text-align:center;
+    background:color-mix(in srgb, var(--accent, var(--gold)) 13%, transparent);
+    border:1px solid color-mix(in srgb, var(--accent, var(--gold)) 32%, transparent);
+    box-shadow:inset 0 1px 0 var(--sheen);
   }
+  .ch .chev { transition:transform .2s cubic-bezier(.2,.8,.3,1); }
+  .ch:hover .chev { transform:translateX(4px); }
   .ch .t { flex:1; min-width:0; }
   .ch .t b { display:block; font-weight:650; font-size:.98rem; }
   .ch .t span { display:block; font-size:.83rem; color:var(--ink-2); line-height:1.45; margin-top:1px; }
@@ -128,11 +224,18 @@
     display:flex; align-items:center; gap:12px;
     border:1px solid var(--line); border-radius:10px;
     padding:11px 14px; font-size:.92rem; color:var(--ink-2);
-    transition:color .12s ease, border-color .12s ease;
+    transition:color .16s ease, border-color .16s ease, transform .16s cubic-bezier(.2,.8,.3,1),
+      background-color .16s ease;
   }
-  .ref:hover { color:var(--ink); border-color:var(--gold-dim); }
+  .ref:hover {
+    color:var(--ink); border-color:var(--gold-dim); transform:translateX(3px);
+    background:color-mix(in srgb, var(--gold) 6%, transparent);
+  }
   .ref .n { font-family:var(--serif); color:var(--ink-3); flex:0 0 auto; width:1.3em; text-align:center; }
+  .ref:hover .n { color:var(--gold); }
   .ref .t { flex:1; min-width:0; }
+  .ref .chev { flex:0 0 auto; color:var(--ink-3); transition:transform .16s cubic-bezier(.2,.8,.3,1); }
+  .ref:hover .chev { transform:translateX(3px); color:var(--gold); }
 
   /* ---------- reading progress ----------
      Drawn from the position app.js saves while you scroll a chapter. The bar
@@ -164,23 +267,51 @@
      a phone, all six on a laptop. */
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px; margin-bottom:12px; }
   .st {
+    position:relative; overflow:hidden;
     background:var(--card); border:1px solid var(--line); border-radius:12px;
-    padding:12px 8px; text-align:center;
+    padding:13px 8px 12px; text-align:center;
+    transition:transform .16s cubic-bezier(.2,.8,.3,1), border-color .16s ease;
   }
-  .st b { display:block; font-size:1.35rem; font-weight:700; letter-spacing:-.02em; line-height:1.15; }
+  /* A hairline along the top edge in whatever colour the number came out as. */
+  .st::before {
+    content:""; position:absolute; inset:0 0 auto; height:2px;
+    background:linear-gradient(90deg, transparent, var(--tone, var(--ink-3)), transparent);
+    opacity:.65;
+  }
+  .st:hover { transform:translateY(-2px); border-color:color-mix(in srgb, var(--tone, var(--gold)) 45%, var(--line)); }
+  .st b {
+    display:block; font-size:1.4rem; font-weight:700; letter-spacing:-.025em; line-height:1.15;
+    font-variant-numeric:tabular-nums;
+  }
   .st span { display:block; font-size:.66rem; color:var(--ink-3); letter-spacing:.04em; text-transform:uppercase; margin-top:3px; }
   .st b.good { color:var(--era2); } .st b.bad { color:var(--era3); } .st b.gold { color:var(--gold); }
+  .st:has(b.good) { --tone:var(--era2); }
+  .st:has(b.bad)  { --tone:var(--era3); }
+  .st:has(b.gold) { --tone:var(--gold); }
   .cta {
+    position:relative; overflow:hidden;
     display:flex; align-items:center; gap:12px;
     background:linear-gradient(135deg, color-mix(in srgb, var(--era5) 20%, var(--card)), var(--card));
     border:1px solid color-mix(in srgb, var(--era5) 42%, var(--line));
     border-radius:14px; padding:14px 16px; box-shadow:var(--shadow);
+    transition:transform .18s cubic-bezier(.2,.8,.3,1), box-shadow .18s ease;
   }
+  /* A slow band of light crossing the card every few seconds. It is the one
+     thing on the page asking to be tapped, so it is the one thing that moves. */
+  .cta::after {
+    content:""; position:absolute; top:0; bottom:0; left:-60%; width:45%; pointer-events:none;
+    background:linear-gradient(100deg, transparent, var(--sheen), transparent);
+    animation:sweep 6s cubic-bezier(.4,0,.3,1) infinite;
+  }
+  @keyframes sweep { 0%, 62% { left:-60% } 100% { left:125% } }
+  .cta:hover { transform:translateY(-2px); box-shadow:var(--lift); }
+  .cta > * { position:relative; }
   .cta .ic { font-size:22px; flex:0 0 auto; }
   .cta .body { flex:1; min-width:0; }
   .cta .body b { display:block; font-size:.98rem; font-weight:650; }
   .cta .body span { display:block; font-size:.82rem; color:var(--ink-2); margin-top:1px; }
-  .cta .chev { color:var(--era5); font-size:1.1rem; }
+  .cta .chev { color:var(--era5); font-size:1.1rem; transition:transform .18s cubic-bezier(.2,.8,.3,1); }
+  .cta:hover .chev { transform:translateX(4px); }
   .weakline { font-size:.82rem; color:var(--ink-3); margin:10px 2px 0; }
   .weakline b { color:var(--ink-2); font-weight:650; }
   @media (max-width:400px) {
@@ -193,18 +324,30 @@
     width:100%; font-family:inherit; font-size:.95rem; color:var(--ink);
     background:var(--card); border:1px solid var(--line); border-radius:12px;
     padding:13px 15px 13px 40px; box-shadow:var(--shadow); -webkit-appearance:none;
+    transition:border-color .16s ease, box-shadow .16s ease;
   }
   .searchbox input::placeholder { color:var(--ink-3); }
-  .searchbox input:focus { outline:none; border-color:var(--gold); }
-  .searchbox .mag { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--ink-3); font-size:.95rem; pointer-events:none; }
+  .searchbox input:focus {
+    outline:none; border-color:var(--gold);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--gold) 20%, transparent), var(--shadow);
+  }
+  .searchbox .mag {
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    color:var(--ink-3); font-size:.95rem; pointer-events:none; transition:color .16s ease;
+  }
+  .searchbox:focus-within .mag { color:var(--gold); }
   .results { margin-top:10px; display:grid; gap:7px; }
   .results[hidden] { display:none; }
   .rgroup { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin:10px 2px 2px; }
   .rhit {
     display:block; background:var(--card); border:1px solid var(--line);
     border-radius:11px; padding:11px 13px; border-left:3px solid var(--accent, var(--gold));
+    transition:transform .16s cubic-bezier(.2,.8,.3,1), border-color .16s ease, box-shadow .16s ease;
   }
-  .rhit:hover { border-color:var(--accent, var(--gold)); }
+  .rhit:hover {
+    border-color:color-mix(in srgb, var(--accent, var(--gold)) 60%, var(--line));
+    transform:translateX(3px); box-shadow:var(--shadow);
+  }
   .rhit .rt { font-size:.9rem; font-weight:600; line-height:1.4; }
   .rhit .rs { font-size:.8rem; color:var(--ink-2); line-height:1.45; margin-top:3px; }
   .rhit .rm { font-size:.68rem; color:var(--ink-3); letter-spacing:.04em; text-transform:uppercase; margin-top:5px; }
@@ -212,22 +355,44 @@
   .rnone { color:var(--ink-3); font-size:.86rem; padding:14px 2px; }
 
   footer.foot {
-    margin:46px 0 0; padding-top:22px; border-top:1px solid var(--line);
+    position:relative; margin:52px 0 0; padding-top:26px;
     text-align:center; color:var(--ink-3); font-size:.8rem; line-height:1.7;
+  }
+  footer.foot::before {
+    content:""; position:absolute; inset:0 0 auto; height:1px;
+    background:linear-gradient(90deg, transparent, var(--line) 22%, var(--line) 78%, transparent);
   }
   footer.foot .tip { color:var(--ink-2); }
   .offline {
     font-family:inherit; font-size:.78rem; font-weight:600; cursor:pointer;
     background:var(--card); color:var(--ink-2); border:1px solid var(--line);
-    border-radius:9px; padding:8px 14px; margin:6px 0 14px;
+    border-radius:9px; padding:9px 15px; margin:6px 0 14px; box-shadow:var(--shadow);
+    transition:transform .14s ease, color .14s ease, border-color .14s ease;
   }
-  .offline:hover { color:var(--ink); border-color:var(--gold-dim); }
-  .offline[disabled] { opacity:.6; cursor:default; }
+  .offline:hover { color:var(--ink); border-color:var(--gold-dim); transform:translateY(-1px); }
+  .offline:active { transform:scale(.97); }
+  .offline[disabled] { opacity:.6; cursor:default; transform:none; }
+
+  /* Sections rise into place once, in the order you would read them. Applied
+     from script so the page still renders fully without JS. */
+  .rise { opacity:0; transform:translateY(12px); animation:rise .55s cubic-bezier(.22,.85,.3,1) forwards; }
+  @keyframes rise { to { opacity:1; transform:none } }
 
   @media (max-width:420px) {
     .wrap { padding:0 16px; }
     .tile { padding:15px 15px; gap:13px; }
     .tile .ic { width:44px; height:44px; font-size:21px; border-radius:12px; }
+    .mast .flag { width:72px; height:72px; font-size:32px; }
+  }
+
+  /* Everything decorative that moves, switched off in one place. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration:.001ms !important; animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+    }
+    .rise { opacity:1; transform:none; }
+    .cta::after { display:none; }
   }
 </style>
 </head>
@@ -238,7 +403,7 @@
 <div class="wrap">
 
   <header class="mast">
-    <div class="flag">🇬🇧</div>
+    <div class="flag" id="flagSeal" aria-hidden="true">🇬🇧</div>
     <h1>Life in the UK</h1>
     <p class="sub">Everything for the test in one place — the story of Britain, the reference notes, and enough practice questions to make the real thing feel boring.</p>
     <div class="rule"></div>
@@ -364,6 +529,7 @@
     <button class="offline" id="offlineBtn" hidden></button>
     <p class="tip">Tip — tap Share → <b>Add to Home Screen</b> to keep this a tap away.<br>Progress saves on this device.</p>
     <p>Good luck. You've got this. 💛</p>
+    <div id="curio"></div>
   </footer>
 
 </div>
@@ -467,6 +633,7 @@ var TOPIC_NAMES = [
       tile(toFix, "to fix", toFix ? "bad" : "good"),
       tile(streak, "day streak", streak ? "gold" : "")
     ].join("");
+    countUp(document.getElementById("stats"));
 
     var sub = [];
     if (due) sub.push(due + " due for review");
@@ -502,6 +669,30 @@ var TOPIC_NAMES = [
 
   function tile(n, label, cls) {
     return '<div class="st"><b class="' + (cls || "") + '">' + n + "</b><span>" + label + "</span></div>";
+  }
+
+  /* Numbers land on their value rather than appearing at it. Purely cosmetic —
+     the text is already correct before the first frame runs, so a reader who
+     has asked for less motion simply keeps it. */
+  function countUp(root) {
+    if (!root) return;
+    try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; } catch (e) { return; }
+    Array.prototype.forEach.call(root.querySelectorAll("b"), function (el, i) {
+      var m = /^(\d+)(\D*)$/.exec(el.textContent.trim());
+      if (!m) return;
+      var to = +m[1], suffix = m[2];
+      if (to < 3) return;
+      el.textContent = "0" + suffix;
+      setTimeout(function () {
+        var t0 = 0;
+        requestAnimationFrame(function step(ts) {
+          if (!t0) t0 = ts;
+          var k = Math.min(1, (ts - t0) / 720);
+          el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + suffix;
+          if (k < 1) requestAnimationFrame(step);
+        });
+      }, 110 + i * 55);
+    });
   }
 })();
 
@@ -754,6 +945,36 @@ var TOPIC_NAMES = [
       btn.disabled = false;
       btn.textContent = "Could not save — try again";
     });
+  });
+})();
+
+/* ============================================================
+   Entrance — each section rises a beat after the one above it.
+   Runs last, so the blocks the scripts above unhid are included and
+   the ones still hidden are not. The class is removed when it lands,
+   so the later show/hide of #progress and #browse during a search
+   never replays it.
+   ============================================================ */
+(function () {
+  "use strict";
+  try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; } catch (e) { return; }
+
+  var browse = document.getElementById("browse");
+  var order = [document.querySelector("header.mast"), document.getElementById("progress"),
+               document.querySelector(".searchbox")]
+    .concat(browse ? Array.prototype.slice.call(browse.children) : [])
+    .concat([document.querySelector("footer.foot")]);
+
+  var step = 0;
+  order.forEach(function (el) {
+    if (!el || el.hidden) return;
+    el.style.animationDelay = Math.min(step * 55, 620) + "ms";
+    el.classList.add("rise");
+    el.addEventListener("animationend", function () {
+      el.classList.remove("rise");
+      el.style.animationDelay = "";
+    }, { once: true });
+    step++;
   });
 })();
 </script>
