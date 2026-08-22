@@ -1,0 +1,2138 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0F14">
+<meta name="description" content="Every prize, medal and tally in the Life in the UK handbook — indexed by award, by person, and by the number itself, so the figures stop migrating between names.">
+<title>Life in the UK · The Honours Board</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<meta name="robots" content="noindex">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Tokens are the hub's, verbatim. Nothing on this page invents a colour. */
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --pink:#FF4F9A;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --pink:#D62B72;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+  }
+  :root { --trap-bg:var(--ink); --trap-ink:var(--page); }
+
+  /* One accent per family of prize. Same eight tokens the Cast domains use, so
+     an award and the domain it belongs to are already the same colour. */
+  :root {
+    --aw-nobel:var(--gold);
+    --aw-sci:var(--era2);
+    --aw-film:color-mix(in srgb, var(--era6) 55%, var(--era2));
+    --aw-stage:var(--era3);
+    --aw-art:var(--era1);
+    --aw-book:var(--era6);
+    --aw-music:var(--pink);
+    --aw-sport:var(--era4);
+    --aw-valour:var(--era5);
+    /* One accent per medium in The Works, borrowed from the same eight so a
+       painting and the prize for painting are already the same colour. */
+    --wk-book:var(--aw-book);
+    --wk-poem:var(--gold);
+    --wk-stage:var(--aw-stage);
+    --wk-music:var(--aw-music);
+    --wk-art:var(--aw-art);
+    --wk-film:var(--aw-film);
+    --wk-build:var(--era4);
+    --wk-object:var(--era5);
+  }
+
+  html { scroll-behavior:smooth; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+    padding-bottom:40px;
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  a { color:inherit; text-decoration:none; }
+
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:6px 12px; box-shadow:var(--shadow);
+  }
+
+  /* ---------- sheet switcher (identical to the day-before sheets) ---------- */
+  .chapswitch {
+    display:flex; justify-content:center; gap:6px; flex-wrap:wrap;
+    padding:54px 0 0; margin:0;
+  }
+  .chapswitch > a, .chapswitch > span {
+    display:inline-flex; align-items:center; gap:7px;
+    min-height:44px; padding:0 13px; border-radius:11px;
+    font-size:.79rem; font-weight:650; white-space:nowrap;
+    color:var(--ink-2); background:var(--card);
+    border:1px solid var(--line);
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  .chapswitch .n {
+    flex:0 0 auto; display:grid; place-items:center;
+    width:28px; height:28px; border-radius:8px;
+    background:var(--card); border:1px solid var(--line);
+    font-family:var(--serif); font-size:1.02rem; color:var(--gold); line-height:1;
+  }
+  .chapswitch a:active { transform:scale(.97); }
+  .chapswitch .cur {
+    color:var(--ink); background:var(--card-2);
+    border-color:color-mix(in srgb, var(--gold) 50%, var(--line));
+    box-shadow:var(--shadow);
+  }
+  .chapswitch + .mast { padding-top:22px; }
+  @media (max-width:380px) {
+    .chapswitch { gap:4px; }
+    .chapswitch > a, .chapswitch > span { padding:0 9px; font-size:.74rem; gap:5px; }
+    .chapswitch .n { width:25px; height:25px; font-size:.95rem; }
+  }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding:52px 0 4px; text-align:center; }
+  .mast .eyebrow {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700; margin:0;
+  }
+  .mast h1 {
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(2rem, 7.4vw, 2.9rem); line-height:1.08;
+    margin:.3em 0 .22em; letter-spacing:-.01em;
+  }
+  .mast .sub { color:var(--ink-2); font-size:.93rem; margin:0 auto; max-width:33em; }
+
+  /* ---------- sticky jump nav ---------- */
+  .jump {
+    position:sticky; top:calc(var(--lituk-sat) + 52px); z-index:30;
+    display:flex; gap:5px; margin:20px 0 0; padding:5px;
+    background:color-mix(in srgb, var(--card) 90%, transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    backdrop-filter:saturate(180%) blur(14px);
+    border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+  }
+  .jump a {
+    flex:1 1 0; min-width:0; min-height:44px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:10px; font-size:.82rem; font-weight:650; color:var(--ink-2);
+    transition:background .14s ease, color .14s ease;
+  }
+  .jump a.cur { background:var(--card-2); color:var(--ink); }
+  .jump a:active { transform:scale(.97); }
+  /* Six sections now, so the strip has to survive a 320px phone: the labels
+     shrink before the tap targets do, and the 44px height never moves. */
+  @media (max-width:420px) { .jump { gap:3px; padding:4px; } .jump a { font-size:.72rem; } }
+  @media (max-width:360px) { .jump a { font-size:.67rem; letter-spacing:-.01em; } }
+
+  .tenmin { text-align:center; font-size:.86rem; color:var(--ink-3); margin:12px 0 0; }
+  .tenmin a {
+    color:var(--era3); font-weight:700;
+    border-bottom:1px solid color-mix(in srgb, var(--era3) 45%, transparent);
+  }
+
+  /* ---------- section furniture ---------- */
+  section { scroll-margin-top:calc(var(--lituk-sat) + 112px); }
+  .sec-head { margin:46px 0 0; }
+  .sec-head .n {
+    font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700;
+  }
+  .sec-head h2 {
+    font-family:var(--serif); font-weight:400; letter-spacing:-.01em;
+    font-size:clamp(1.6rem, 5.6vw, 2.1rem); line-height:1.15; margin:.12em 0 .18em;
+  }
+  .sec-head p { color:var(--ink-2); font-size:.89rem; margin:0; max-width:46em; }
+  .sec-head p b { color:var(--ink); font-weight:650; }
+
+  /* ---------- shared: filter chips + tools ---------- */
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin:20px 0 0; }
+  .chip {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease, background .14s ease;
+  }
+  .chip .dot { width:9px; height:9px; border-radius:50%; background:var(--era, var(--ink-3)); flex:0 0 auto; }
+  .chip.sel {
+    color:var(--ink);
+    border-color:color-mix(in srgb, var(--era, var(--gold)) 60%, var(--line));
+    background:color-mix(in srgb, var(--era, var(--gold)) 13%, var(--card));
+  }
+  .chip:active { transform:scale(.97); }
+  .tools { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 0; }
+  .tools button {
+    font-family:inherit; font-size:.78rem; font-weight:650; cursor:pointer;
+    min-height:44px; padding:0 13px; display:inline-flex; align-items:center;
+    background:var(--card); color:var(--ink-2);
+    border:1px solid var(--line); border-radius:11px;
+    transition:transform .1s ease, border-color .14s ease;
+  }
+  .tools button:hover { border-color:color-mix(in srgb, var(--gold) 50%, var(--line)); }
+  .tools button:active { transform:scale(.97); }
+  .tools button.on {
+    color:var(--ink); background:color-mix(in srgb, var(--gold) 14%, var(--card));
+    border-color:color-mix(in srgb, var(--gold) 55%, var(--line));
+  }
+  .tools .tally { margin-left:auto; font-size:.76rem; color:var(--ink-3); font-variant-numeric:tabular-nums; }
+  .railnote { font-size:.76rem; color:var(--ink-3); margin:12px 2px 0; line-height:1.5; }
+  .railnote b { color:var(--ink-2); font-weight:650; }
+
+  /* ---------- 1 · the board ----------
+     One card per prize. The head line carries the two things the exam asks
+     first — which field, and which prize — so a card can be answered from its
+     top edge alone. */
+  .board { display:grid; grid-template-columns:repeat(auto-fit, minmax(255px, 1fr)); gap:12px; margin-top:18px; }
+  .awd {
+    background:var(--card); border:1px solid var(--line);
+    border-left:3px solid var(--era, var(--gold));
+    border-radius:11px; padding:14px 16px; box-shadow:var(--shadow);
+  }
+  .awd h3 { font-family:var(--serif); font-weight:400; font-size:1.14rem; margin:0; line-height:1.2; }
+  .awd .field {
+    display:inline-block; margin:6px 0 9px;
+    font-size:.66rem; letter-spacing:.13em; text-transform:uppercase; font-weight:700;
+    color:var(--era); border:1px solid color-mix(in srgb, var(--era) 45%, var(--line));
+    background:color-mix(in srgb, var(--era) 12%, var(--card));
+    border-radius:99px; padding:3px 9px;
+  }
+  .awd dl { margin:0; font-size:.85rem; }
+  .awd dt {
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:700; margin-top:9px;
+  }
+  .awd dt:first-of-type { margin-top:0; }
+  .awd dd { margin:1px 0 0; color:var(--ink-2); line-height:1.45; }
+  .awd dd b { color:var(--ink); font-weight:650; }
+
+  /* A family heading inside the board grid. The eleven prizes only cluster
+     into five fields, and the field is what the exam asks first — so the
+     grouping is drawn, not left to the filter chips to imply. */
+  .grp {
+    grid-column:1 / -1; display:flex; align-items:baseline; gap:9px;
+    margin:16px 0 -3px;
+  }
+  .grp:first-child { margin-top:0; }
+  .grp .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; align-self:center; }
+  .grp b {
+    font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .grp .cnt { font-size:.7rem; color:var(--ink-3); font-weight:650; }
+  .grp[hidden], .awd[hidden], .wk[hidden] { display:none; }
+
+  /* ---------- 1b · the winners' roll ----------
+     The board answers "what is this prize for". The roll answers the other
+     half of the question — who actually won it, and whether the handbook
+     gives you a year at all. Half of them it doesn't, and that absence is
+     itself examinable: you cannot be asked for a date that was never printed. */
+  .roll { margin:22px 0 0; }
+  .roll-row {
+    display:grid; grid-template-columns:1fr auto; gap:3px 14px; align-items:baseline;
+    padding:11px 0; border-top:1px dotted var(--line);
+  }
+  .roll-row:first-child { border-top:0; }
+  .roll-w { font-family:var(--serif); font-size:1.04rem; line-height:1.25; }
+  .roll-w .sub {
+    display:block; font-family:var(--sans); font-size:.68rem; font-weight:700;
+    letter-spacing:.05em; text-transform:uppercase; color:var(--era, var(--ink-3)); margin-top:2px;
+  }
+  .roll-y {
+    font-size:.77rem; font-weight:700; color:var(--era, var(--ink-3));
+    font-variant-numeric:tabular-nums; white-space:nowrap; text-align:right;
+  }
+  .roll-y.none { color:var(--ink-3); font-weight:650; font-style:italic; }
+  .roll-v { grid-column:1 / -1; font-size:.85rem; color:var(--ink-2); line-height:1.5; }
+  .roll-v b { color:var(--ink); font-weight:650; }
+  @media (min-width:600px) {
+    .roll-row { grid-template-columns:210px 1fr auto; }
+    .roll-v { grid-column:auto; }
+  }
+
+  /* ---------- 2 · the works ----------
+     Same shape as the tally, on purpose: a title column, a date column in
+     tabular figures, and the maker in prose. Which means the same cover-and-
+     recite trick works — except here the blank is the *name*, because the
+     question is always "who wrote it", never "what is it called". */
+  .wks { margin:16px 0 0; }
+  .wk {
+    display:grid; grid-template-columns:1fr auto; gap:3px 14px; align-items:baseline;
+    padding:11px 0; border-top:1px dotted var(--line);
+  }
+  .wk-t { font-family:var(--serif); font-size:1.04rem; line-height:1.3; }
+  .wk-t .sub {
+    display:block; font-family:var(--sans); font-size:.68rem; font-weight:700;
+    letter-spacing:.05em; text-transform:uppercase; color:var(--era, var(--ink-3)); margin-top:2px;
+  }
+  .wk-y {
+    font-size:.77rem; font-weight:700; color:var(--era, var(--ink-3));
+    font-variant-numeric:tabular-nums; white-space:nowrap; text-align:right;
+  }
+  .wk-m { grid-column:1 / -1; font-size:.85rem; color:var(--ink-2); line-height:1.5; }
+  .wk-m b { color:var(--ink); font-weight:700; }
+  .wk-m i { font-style:normal; color:var(--era, var(--ink-3)); font-weight:650; }
+  @media (min-width:600px) {
+    .wk { grid-template-columns:250px 1fr auto; }
+    .wk-m { grid-column:auto; }
+  }
+  .wks.hide .wk-m b {
+    color:transparent; background:var(--card-2); border-radius:4px;
+    box-shadow:0 0 0 1px var(--line) inset; cursor:pointer;
+  }
+  .wks.hide .wk-m b.show { color:var(--ink); background:none; box-shadow:none; }
+  .wks.hide .wk-m b:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+  /* ---------- 3 · the tally ----------
+     A table in everything but markup: a name column that never wraps away from
+     its numbers, and the numbers in tabular figures so the columns line up and
+     a 6 sitting under a 16 is visibly a different length. */
+  .tal { margin:18px 0 0; }
+  .tal-row {
+    display:grid; grid-template-columns:1fr auto; gap:4px 14px;
+    align-items:baseline;
+    padding:12px 0; border-top:1px dotted var(--line);
+  }
+  .tal-row:first-child { border-top:0; }
+  .tal-n { font-family:var(--serif); font-size:1.06rem; line-height:1.25; }
+  .tal-n .sub { display:block; font-family:var(--sans); font-size:.71rem; font-weight:700; letter-spacing:.05em; color:var(--era, var(--ink-3)); text-transform:uppercase; margin-top:2px; }
+  .tal-v {
+    grid-column:1 / -1;
+    font-size:.87rem; color:var(--ink-2); line-height:1.5;
+  }
+  .tal-v b { color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums; }
+  .tal-y {
+    font-size:.78rem; font-weight:700; color:var(--era, var(--ink-3));
+    font-variant-numeric:tabular-nums; white-space:nowrap; text-align:right;
+  }
+  @media (min-width:600px) {
+    .tal-row { grid-template-columns:200px 1fr auto; }
+    .tal-v { grid-column:auto; }
+  }
+  /* Cover-and-recite. The numbers blank, the name and the claim stay, because
+     the question is always "how many", never "who is this". */
+  .tal.hide .tal-v b, .tal.hide .tal-y {
+    color:transparent; background:var(--card-2); border-radius:4px;
+    box-shadow:0 0 0 1px var(--line) inset; cursor:pointer;
+  }
+  .tal.hide .tal-v b.show, .tal.hide .tal-y.show {
+    color:var(--ink); background:none; box-shadow:none;
+  }
+  .tal.hide .tal-y.show { color:var(--era, var(--ink-3)); }
+  .tal.hide .tal-v b:focus-visible, .tal.hide .tal-y:focus-visible {
+    outline:2px solid var(--gold); outline-offset:2px;
+  }
+
+  /* ---------- 4 · the number line ----------
+     The page's whole reason to exist. Reading down the left column you are
+     asked "what is a six?" and every six in the handbook answers at once, so
+     the collision is a thing you have looked at rather than a thing that
+     ambushes you. */
+  .nums { margin:18px 0 0; }
+  .num {
+    display:grid; grid-template-columns:64px 1fr; gap:0 16px;
+    padding:14px 0; border-top:1px solid var(--line);
+  }
+  .num:first-child { border-top:0; }
+  .num-k {
+    font-family:var(--serif); font-size:2.3rem; line-height:1;
+    color:var(--ink-3); text-align:right; font-variant-numeric:tabular-nums;
+    padding-top:2px;
+  }
+  /* A number owned by two or more people is the dangerous kind, and it says so
+     in a word as well as a colour. */
+  .num.clash .num-k { color:var(--gold); }
+  .num-k .flag {
+    display:block; font-family:var(--sans); font-size:.58rem; font-weight:700;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--gold);
+    margin-top:5px; line-height:1.2;
+  }
+  .num-b { min-width:0; }
+  .own { display:flex; gap:9px; padding:4px 0; font-size:.87rem; line-height:1.45; }
+  .own .dot { width:8px; height:8px; border-radius:50%; background:var(--era, var(--ink-3)); flex:0 0 auto; margin-top:.5em; }
+  .own-t { flex:1 1 auto; min-width:0; color:var(--ink-2); }
+  .own-t b { color:var(--ink); font-weight:650; }
+  .own-t i { font-style:normal; color:var(--era, var(--ink-3)); font-weight:700; }
+  .num-hook {
+    margin:8px 0 0; font-size:.8rem; line-height:1.5; color:var(--ink-2);
+    background:color-mix(in srgb, var(--gold) 8%, var(--card));
+    border:1px dashed color-mix(in srgb, var(--gold) 40%, var(--line));
+    border-radius:9px; padding:9px 11px;
+  }
+  .num-hook b { color:var(--ink); font-weight:700; }
+  .num-hook::before {
+    content:"Hook"; display:block; font-size:.62rem; letter-spacing:.14em;
+    text-transform:uppercase; font-weight:700; color:var(--gold); margin-bottom:4px;
+  }
+  @media (max-width:420px) {
+    .num { grid-template-columns:48px 1fr; gap:0 12px; }
+    .num-k { font-size:1.9rem; }
+  }
+
+  /* ---------- 5 · the year line ---------- */
+  .rail { list-style:none; margin:16px 0 0; padding:0; }
+  .ev { position:relative; display:flex; gap:10px; padding:9px 0 9px 26px; }
+  .ev::before {
+    content:""; position:absolute; left:5px; top:0; bottom:0; width:2px;
+    background:color-mix(in srgb, var(--era) 40%, transparent);
+  }
+  .ev:first-child::before { top:15px; }
+  .ev:last-child::before  { bottom:auto; height:15px; }
+  .ev::after {
+    content:""; position:absolute; left:1px; top:11px;
+    width:10px; height:10px; border-radius:50%;
+    background:var(--era); box-shadow:0 0 0 3px var(--page);
+  }
+  /* A year that carries two prizes wears a halo — those are the ones worth
+     fusing into one memory rather than keeping apart. */
+  .ev.dbl::after { box-shadow:0 0 0 3px var(--page), 0 0 0 5px color-mix(in srgb, var(--era) 70%, transparent); }
+  .ev-y {
+    flex:0 0 88px; white-space:nowrap;
+    font-size:.76rem; font-weight:700; color:var(--era);
+    font-variant-numeric:tabular-nums; letter-spacing:-.01em; padding-top:.2em;
+  }
+  .ev-b { flex:1 1 auto; min-width:0; }
+  .ev-t { display:block; font-size:.93rem; font-weight:650; line-height:1.35; overflow-wrap:break-word; }
+  .ev-w { display:block; font-size:.8rem; color:var(--ink-2); line-height:1.4; margin-top:2px; }
+  .ev-w b { color:var(--ink); font-weight:650; }
+  @media (min-width:540px) { .ev-y { flex-basis:104px; font-size:.83rem; } }
+
+  /* ---------- 6 · the traps ---------- */
+  .pair { margin:30px 0 0; }
+  .pair-head { display:flex; align-items:center; gap:9px; margin:0 0 2px; }
+  .pair-head .dot { width:10px; height:10px; border-radius:50%; background:var(--era); flex:0 0 auto; }
+  .pair-head b {
+    font-size:.72rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--era); font-weight:700;
+  }
+  .hook, .trap { border-radius:12px; padding:15px 17px; margin-top:10px; font-size:.91rem; line-height:1.55; }
+  .hook {
+    background:color-mix(in srgb, var(--era) 8%, var(--card));
+    border:1px dashed color-mix(in srgb, var(--era) 45%, var(--line));
+    color:var(--ink-2);
+  }
+  .hook b, .trap b { color:inherit; font-weight:700; }
+  .hook .lab, .trap .lab {
+    display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:700; margin-bottom:6px; color:var(--era);
+  }
+  .hook .big {
+    font-family:var(--serif); font-size:1.24rem; color:var(--ink);
+    display:block; margin:2px 0 6px; line-height:1.28;
+  }
+  .trap { background:var(--trap-bg); color:var(--trap-ink); box-shadow:var(--shadow); }
+  .trap .lab { color:var(--trap-ink); opacity:.66; }
+
+  /* The never-won list: the only section on the page where being absent is the
+     fact, so it is set as a list of names with the denial attached. */
+  .never { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin:14px 0 0; }
+  .nev {
+    background:var(--card); border:1px solid var(--line);
+    border-left:3px solid var(--era5); border-radius:10px; padding:12px 14px;
+  }
+  .nev b { display:block; font-family:var(--serif); font-weight:400; font-size:1.06rem; }
+  .nev span { display:block; font-size:.82rem; color:var(--ink-2); margin-top:3px; line-height:1.42; }
+  .nev span i { font-style:normal; color:var(--era5); font-weight:700; }
+
+  .note {
+    font-size:.8rem; color:var(--ink-2); line-height:1.45;
+    background:var(--card-2); border-radius:10px; padding:11px 13px; margin:18px 0 0;
+  }
+  .note b { color:var(--ink); font-weight:650; }
+
+  footer.foot {
+    margin:52px 0 0; padding-top:22px; border-top:1px solid var(--line);
+    color:var(--ink-3); font-size:.79rem; line-height:1.65;
+  }
+  footer.foot a { color:var(--ink-2); border-bottom:1px solid var(--line); }
+  footer.foot p { margin:0 0 10px; }
+
+  @media (max-width:420px) {
+    .wrap { padding:0 16px; }
+    .hook, .trap { padding:14px 15px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle light or dark theme">☀︎ Light</button>
+
+<div class="wrap">
+
+  <nav class="chapswitch" aria-label="Revision sheet by chapter">
+    <a href="life-in-uk-day-before.html"><span class="n">3</span>History</a>
+    <a href="life-in-uk-day-before-ch4.html"><span class="n">4</span>Society</a>
+    <a href="life-in-uk-day-before-ch5.html"><span class="n">5</span>Government</a>
+    <a href="life-in-uk-cast.html"><span class="n">★</span>The Cast</a>
+    <span class="cur" aria-current="page"><span class="n">🏅</span>Awards</span>
+  </nav>
+
+  <header class="mast">
+    <p class="eyebrow">Revision sheet · Prizes &amp; tallies</p>
+    <h1>The Honours Board</h1>
+    <p class="sub">Nobody forgets that Chris Hoy won gold. They forget whether it was six or eleven — because eleven is his too, and six belongs to two other people as well. Nobody forgets <i>The Planets</i> either; they just hand it to Elgar. So this sheet indexes the whole prize-giving, work-making half of the handbook four ways: <b>by prize</b>, <b>by work</b>, <b>by person</b>, and <b>by the number itself</b>.</p>
+  </header>
+
+  <nav class="jump" id="jump" aria-label="Jump to a section">
+    <a href="#board">Prizes</a>
+    <a href="#works">Works</a>
+    <a href="#tally">People</a>
+    <a href="#numbers">Numbers</a>
+    <a href="#years">Years</a>
+    <a href="#traps">Traps</a>
+  </nav>
+  <p class="tenmin">Ten minutes? <a href="#numbers">Read The Number Line.</a> Weak on culture? <a href="#works">Read The Works.</a></p>
+
+  <!-- ═══════════════ 1 · THE BOARD ═══════════════ -->
+  <section id="board">
+    <div class="sec-head">
+      <p class="n">One</p>
+      <h2>The Prizes</h2>
+      <p>Eleven prizes in <b>five families</b>, and the exam nearly always asks the same thing first: <b>which field is it for</b>. Get the field right and most questions are already answered. Below the board, <b>the winners' roll</b> takes the second question — <i>who won it, and when</i> — and answers it name by name, including the many times the handbook gives no date at all.</p>
+    </div>
+
+    <div class="chips" id="fieldChips" role="group" aria-label="Filter by field">
+      <button class="chip sel" type="button" data-f="">All 11</button>
+      <button class="chip" type="button" data-f="words" style="--era:var(--aw-book)"><span class="dot"></span>Words</button>
+      <button class="chip" type="button" data-f="screen" style="--era:var(--aw-film)"><span class="dot"></span>Screen &amp; stage</button>
+      <button class="chip" type="button" data-f="artmusic" style="--era:var(--aw-music)"><span class="dot"></span>Art &amp; music</button>
+      <button class="chip" type="button" data-f="science" style="--era:var(--aw-sci)"><span class="dot"></span>Science</button>
+      <button class="chip" type="button" data-f="valour" style="--era:var(--aw-valour)"><span class="dot"></span>Valour</button>
+    </div>
+
+    <div class="board" id="boardList">
+
+      <div class="grp" data-f="words" style="--era:var(--aw-book)"><span class="dot"></span><b>Words</b><span class="cnt">2 prizes · 7 named winners</span></div>
+
+      <div class="awd" data-f="words" style="--era:var(--aw-nobel)">
+        <h3>Nobel Prize in Literature</h3>
+        <span class="field">Writing</span>
+        <dl>
+          <dt>The handbook's three</dt>
+          <dd><b>Sir William Golding</b> — novelist<br><b>Seamus Heaney</b> — poet<br><b>Harold Pinter</b> — playwright</dd>
+          <dt>And one more, with a year</dt>
+          <dd><b>Rudyard Kipling</b>, <b>1907</b> — the only literature Nobel the handbook dates. Born in India; <i>The Jungle Book</i>, <i>Just So Stories</i>.</dd>
+          <dt>When the other three won</dt>
+          <dd><b>No years are given.</b> If a question offers you a date for Golding, Heaney or Pinter, the date is not the thing being tested — the <i>name</i> is.</dd>
+          <dt>Not a winner</dt>
+          <dd><b>Agatha Christie</b>. Detective stories and <i>The Mousetrap</i> — no Nobel.</dd>
+        </dl>
+      </div>
+
+      <div class="awd" data-f="words" style="--era:var(--aw-book)">
+        <h3>The Man Booker Prize</h3>
+        <span class="field">Fiction</span>
+        <dl>
+          <dt>For</dt>
+          <dd>The best <b>fiction novel</b>, awarded <b>annually</b>.</dd>
+          <dt>Since</dt>
+          <dd><b>1968</b>.</dd>
+          <dt>Who's eligible</dt>
+          <dd>Authors from the <b>Commonwealth, Ireland or Zimbabwe</b>.</dd>
+          <dt>Winners named</dt>
+          <dd><b>Ian McEwan · Hilary Mantel · Julian Barnes</b> — three names, <b>no winning years</b>. The only date on this card is the prize's own: 1968.</dd>
+        </dl>
+      </div>
+
+      <div class="grp" data-f="screen" style="--era:var(--aw-film)"><span class="dot"></span><b>Screen &amp; stage</b><span class="cnt">3 prizes · 6 named winners</span></div>
+
+      <div class="awd" data-f="screen" style="--era:var(--aw-film)">
+        <h3>The Oscars</h3>
+        <span class="field">Film</span>
+        <dl>
+          <dt>Recent British actors who have won</dt>
+          <dd><b>Colin Firth · Sir Anthony Hopkins · Dame Judi Dench · Kate Winslet · Tilda Swinton</b>. Five names — learn them as a set, because the question is usually "pick TWO".</dd>
+          <dt>And an animator</dt>
+          <dd><b>Nick Park</b> — <b>four</b> Oscars, <b>three</b> of them for <b>Wallace and Gromit</b>.</dd>
+          <dt>When they won</dt>
+          <dd>The handbook says only <b>"recent"</b> — <b>no years at all</b>, not even for Park. Every Oscar question is therefore a <i>who</i>, never a <i>when</i>.</dd>
+          <dt>Not winners</dt>
+          <dd><b>Richard Burton</b> and <b>Emily Watson</b> — both turn up as the odd one out.</dd>
+        </dl>
+      </div>
+
+      <div class="awd" data-f="screen" style="--era:var(--aw-film)">
+        <h3>The BAFTAs</h3>
+        <span class="field">Film</span>
+        <dl>
+          <dt>What it is</dt>
+          <dd>The <b>British Academy Film Awards</b> — "the British Oscars".</dd>
+          <dt>Who hosts them</dt>
+          <dd>The <b>British Academy of Film and Television Arts</b>. The acronym is just those words in order: <b>B·A·F·T·A</b>.</dd>
+          <dt>Winners named</dt>
+          <dd><b>None.</b> The handbook names the awards and stops — so a BAFTA question can only ever be about <i>what the letters stand for</i>.</dd>
+        </dl>
+      </div>
+
+      <div class="awd" data-f="screen" style="--era:var(--aw-stage)">
+        <h3>Laurence Olivier Awards</h3>
+        <span class="field">Theatre</span>
+        <dl>
+          <dt>For</dt>
+          <dd><b>Professional theatre</b> — the London stage.</dd>
+          <dt>Where &amp; when</dt>
+          <dd><b>Annually, at different venues in London.</b></dd>
+          <dt>Categories</dt>
+          <dd>Best <b>director</b>, best <b>actor</b>, best <b>actress</b>.</dd>
+          <dt>Named after</dt>
+          <dd><b>Sir Laurence Olivier</b>, later <b>Lord Olivier</b> — the great Shakespearean actor. He is the <i>namesake</i>, not a listed winner.</dd>
+        </dl>
+      </div>
+
+      <div class="grp" data-f="artmusic" style="--era:var(--aw-music)"><span class="dot"></span><b>Art &amp; music</b><span class="cnt">3 prizes · 2 named winners</span></div>
+
+      <div class="awd" data-f="artmusic" style="--era:var(--aw-art)">
+        <h3>The Turner Prize</h3>
+        <span class="field">Contemporary art</span>
+        <dl>
+          <dt>Established</dt>
+          <dd><b>1984</b>. One of the most prestigious <b>visual art</b> awards in Europe.</dd>
+          <dt>Named after</dt>
+          <dd><b>Joseph Turner</b> (1775–1851), the landscape painter.</dd>
+          <dt>How it works</dt>
+          <dd><b>Four</b> works are shortlisted each year and shown at <b>Tate Britain</b> before the winner is announced.</dd>
+          <dt>Winners named — and when</dt>
+          <dd><b>Damien Hirst</b>, <b>Richard Wright</b>. <b>No winning years given</b>; 1984 is the prize's birthday, not anybody's win.</dd>
+        </dl>
+      </div>
+
+      <div class="awd" data-f="artmusic" style="--era:var(--aw-music)">
+        <h3>The Mercury Music Prize</h3>
+        <span class="field">Music</span>
+        <dl>
+          <dt>For</dt>
+          <dd>The best <b>album</b> — one winner.</dd>
+          <dt>When</dt>
+          <dd>Each <b>September</b>.</dd>
+          <dt>From where</dt>
+          <dd>The <b>UK and Ireland</b>.</dd>
+          <dt>Winners named</dt>
+          <dd><b>None.</b> A Mercury question is always <i>album · September · UK and Ireland</i>.</dd>
+        </dl>
+      </div>
+
+      <div class="awd" data-f="artmusic" style="--era:var(--aw-music)">
+        <h3>The Brit Awards</h3>
+        <span class="field">Music</span>
+        <dl>
+          <dt>For</dt>
+          <dd>Music, in a <b>range of categories</b> — best <b>British group</b>, best <b>British solo artist</b>.</dd>
+          <dt>When</dt>
+          <dd><b>Annual.</b></dd>
+          <dt>Winners named</dt>
+          <dd><b>None</b> — though <b>The Beatles</b> and <b>The Rolling Stones</b> are the bands the handbook does name, for leading the British sound from the <b>1960s</b>.</dd>
+          <dt>Not</dt>
+          <dd>Sport. The true/false version of this question exists.</dd>
+        </dl>
+      </div>
+
+      <div class="grp" data-f="science" style="--era:var(--aw-sci)"><span class="dot"></span><b>Science</b><span class="cnt">2 prizes · 2 named winners</span></div>
+
+      <div class="awd" data-f="science" style="--era:var(--aw-sci)">
+        <h3>Nobel Prize in Medicine</h3>
+        <span class="field">Science</span>
+        <dl>
+          <dt>Winner</dt>
+          <dd><b>Alexander Fleming</b> (1881–1955), born in Scotland, doctor in London.</dd>
+          <dt>For</dt>
+          <dd>Discovering <b>penicillin</b> — found <b>1928</b> while researching influenza, made usable by Florey and Chain, mass-produced in the 1940s.</dd>
+          <dt>Year of the prize</dt>
+          <dd><b>1945</b> — the one science Nobel on this board with a date on both ends: <b>found 1928, awarded 1945</b>.</dd>
+        </dl>
+      </div>
+
+      <div class="awd" data-f="science" style="--era:var(--aw-sci)">
+        <h3>Nobel Prize · DNA</h3>
+        <span class="field">Science</span>
+        <dl>
+          <dt>Winner</dt>
+          <dd><b>Francis Crick</b> (1916–2004) — the handbook's point is that he <b>was British</b>, and that he was <i>one of</i> those awarded.</dd>
+          <dt>For</dt>
+          <dd>The <b>structure of the DNA molecule</b>, discovered <b>1953</b>.</dd>
+          <dt>Where</dt>
+          <dd>British universities in <b>London and Cambridge</b>.</dd>
+          <dt>Year of the prize</dt>
+          <dd><b>Not given</b> — and neither is the category. 1953 is the <i>discovery</i>. Don't let it drift into being the prize.</dd>
+        </dl>
+      </div>
+
+      <div class="grp" data-f="valour" style="--era:var(--aw-valour)"><span class="dot"></span><b>Valour</b><span class="cnt">1 medal · awarded to soldiers</span></div>
+
+      <div class="awd" data-f="valour" style="--era:var(--aw-valour)">
+        <h3>The Victoria Cross</h3>
+        <span class="field">Valour</span>
+        <dl>
+          <dt>Introduced by</dt>
+          <dd><b>Queen Victoria</b>.</dd>
+          <dt>During</dt>
+          <dd>The <b>Crimean War</b> (1853–56, with Turkey and France, against Russia).</dd>
+          <dt>For</dt>
+          <dd><b>Acts of valour by soldiers.</b></dd>
+          <dt>Winners named</dt>
+          <dd><b>None by name</b> — the only prize here whose winners are a category, not a list. The examinable pair is <i>Victoria · Crimea</i>.</dd>
+        </dl>
+      </div>
+
+    </div>
+
+    <div class="pair-head" style="--era:var(--gold); margin-top:34px"><span class="dot"></span><b>The winners’ roll · who won it, and when</b></div>
+    <p class="railnote">Every winner the handbook names, with the date beside them — and where it prints <b>no date at all</b>, the roll says so in as many words. That blank is not a gap in these notes; it is the handbook's own silence, and it means the question cannot be a date question. <b>Eleven prizes, eighteen named winners, four dates between them.</b></p>
+
+    <div class="roll" id="rollList">
+
+      <div class="roll-row" style="--era:var(--aw-nobel)">
+        <div class="roll-w">Rudyard Kipling<span class="sub">Nobel · Literature</span></div>
+        <div class="roll-y">1907</div>
+        <div class="roll-v">Born in <b>India</b>; wrote <i>The Jungle Book</i> and <i>Just So Stories</i>. <b>The only literature Nobel the handbook dates</b> — and it lands one year before the first London Olympics.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-nobel)">
+        <div class="roll-w">Sir William Golding<span class="sub">Nobel · Literature</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">A <b>novelist</b>. One of the handbook's three modern literature laureates.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-nobel)">
+        <div class="roll-w">Seamus Heaney<span class="sub">Nobel · Literature</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">A <b>poet</b>. The middle name of the three — and the one most often swapped out for Christie.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-nobel)">
+        <div class="roll-w">Harold Pinter<span class="sub">Nobel · Literature</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">A <b>playwright</b>. <b>Novelist · poet · playwright</b> — the three do one job each, which is how you keep all three.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-sci)">
+        <div class="roll-w">Alexander Fleming<span class="sub">Nobel · Medicine</span></div>
+        <div class="roll-y">1945</div>
+        <div class="roll-v">For <b>penicillin</b>, discovered <b>1928</b>. Born in <b>Scotland</b>, working as a doctor in <b>London</b>.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-sci)">
+        <div class="roll-w">Francis Crick<span class="sub">Nobel · DNA</span></div>
+        <div class="roll-y none">prize year not given</div>
+        <div class="roll-v">For the <b>structure of DNA</b>, discovered <b>1953</b> at <b>London and Cambridge</b>. He was <i>one of</i> those awarded, and he was <b>British</b>.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-book)">
+        <div class="roll-w">Ian McEwan<span class="sub">Man Booker</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">The prize itself runs <b>since 1968</b> — that date belongs to the prize, never to a winner.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-book)">
+        <div class="roll-w">Hilary Mantel<span class="sub">Man Booker</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">Best <b>fiction novel</b>, from the <b>Commonwealth, Ireland or Zimbabwe</b>.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-book)">
+        <div class="roll-w">Julian Barnes<span class="sub">Man Booker</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v"><b>McEwan · Mantel · Barnes</b> — all three initials sit at the front of the alphabet's middle. Learn them as one line.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-art)">
+        <div class="roll-w">Damien Hirst<span class="sub">Turner Prize</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">The prize was <b>founded 1984</b> and is shown at <b>Tate Britain</b>. Four works are shortlisted a year.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-art)">
+        <div class="roll-w">Richard Wright<span class="sub">Turner Prize</span></div>
+        <div class="roll-y none">no year given</div>
+        <div class="roll-v">The second of the two named winners. <b>Contemporary art</b> — not landscapes, despite the name.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-film)">
+        <div class="roll-w">Colin Firth<span class="sub">Oscar</span></div>
+        <div class="roll-y none">"recent"</div>
+        <div class="roll-v">First of the five recent British Oscar-winning actors.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-film)">
+        <div class="roll-w">Sir Anthony Hopkins<span class="sub">Oscar</span></div>
+        <div class="roll-y none">"recent"</div>
+        <div class="roll-v">Welsh-born; the only knight among the five.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-film)">
+        <div class="roll-w">Dame Judi Dench<span class="sub">Oscar</span></div>
+        <div class="roll-y none">"recent"</div>
+        <div class="roll-v">The Dame of the set — and not the same Dame as Mary Peters, who got hers <b>for sport, in 2000</b>.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-film)">
+        <div class="roll-w">Kate Winslet<span class="sub">Oscar</span></div>
+        <div class="roll-y none">"recent"</div>
+        <div class="roll-v">Fourth of five.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-film)">
+        <div class="roll-w">Tilda Swinton<span class="sub">Oscar</span></div>
+        <div class="roll-y none">"recent"</div>
+        <div class="roll-v">Fifth of five. <b>Firth · Hopkins · Dench · Winslet · Swinton</b> — two men, three women.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-film)">
+        <div class="roll-w">Nick Park<span class="sub">Oscar · animation</span></div>
+        <div class="roll-y">4 Oscars</div>
+        <div class="roll-v"><b>Four</b> in total, <b>three</b> of them for films featuring <b>Wallace and Gromit</b>. The count is the date here — no years are given.</div>
+      </div>
+
+      <div class="roll-row" style="--era:var(--aw-valour)">
+        <div class="roll-w">Soldiers, unnamed<span class="sub">Victoria Cross</span></div>
+        <div class="roll-y">1853–56</div>
+        <div class="roll-v">Introduced by <b>Queen Victoria</b> during the <b>Crimean War</b>, for <b>acts of valour</b>. The only award here won by a category of people rather than a list of names.</div>
+      </div>
+
+    </div>
+
+    <div class="hook" style="--era:var(--gold); margin-top:20px">
+      <span class="lab">The shape of the roll</span>
+      <span class="big">Four dates in the whole roll. Everything else is a name.</span>
+      <b>1907</b> Kipling · <b>1945</b> Fleming · <b>1853–56</b> the Victoria Cross · and <b>four</b>, which is Park's Oscar count standing in for a year. Every other winner on this board arrives <b>undated</b> — so when an option pairs a winner with a year you have never seen, that is the distractor, not a memory failure.
+    </div>
+
+    <p class="railnote">Filtering dims the cards it isn't showing rather than removing them, so the board keeps its shape. <b>Every fact above is the handbook's own wording, condensed</b> — nothing has been added from outside it.</p>
+  </section>
+
+
+  <!-- ═══════════════ 2 · THE WORKS ═══════════════ -->
+  <section id="works">
+    <div class="sec-head">
+      <p class="n">Two</p>
+      <h2>The Works</h2>
+      <p>The prizes are the easy half. The harder half is the pile of <b>books, poems, plays, symphonies, paintings, films and objects</b> the handbook names — usually in a single clause, usually attached to a person you have to supply. So here every named work is listed with <b>who made it</b> and <b>when</b>, in one place, in one direction: <i>work → maker → date</i>.</p>
+    </div>
+
+    <div class="hook" style="--era:var(--gold); margin-top:18px">
+      <span class="lab">Read this before the list</span>
+      <span class="big">The handbook dates the maker, not the work.</span>
+      Austen is <b>1775–1817</b>; <i>Pride and Prejudice</i> has no date at all. Holst is <b>1874–1934</b>; <i>The Planets</i> has none. That is why the date column below is mostly <b>life dates</b> — and why a question that offers you a publication year is offering you something the handbook never printed. <b>Films are the exception</b>: eleven of them, each with a year and a director, and those you should know exactly.
+    </div>
+
+    <div class="chips" id="mediumChips" role="group" aria-label="Filter by medium">
+      <button class="chip sel" type="button" data-m="">All 102</button>
+      <button class="chip" type="button" data-m="books" style="--era:var(--wk-book)"><span class="dot"></span>Books</button>
+      <button class="chip" type="button" data-m="poems" style="--era:var(--wk-poem)"><span class="dot"></span>Poems</button>
+      <button class="chip" type="button" data-m="stage" style="--era:var(--wk-stage)"><span class="dot"></span>Stage</button>
+      <button class="chip" type="button" data-m="music" style="--era:var(--wk-music)"><span class="dot"></span>Music</button>
+      <button class="chip" type="button" data-m="art" style="--era:var(--wk-art)"><span class="dot"></span>Art</button>
+      <button class="chip" type="button" data-m="films" style="--era:var(--wk-film)"><span class="dot"></span>Films</button>
+      <button class="chip" type="button" data-m="build" style="--era:var(--wk-build)"><span class="dot"></span>Buildings</button>
+      <button class="chip" type="button" data-m="object" style="--era:var(--wk-object)"><span class="dot"></span>Objects</button>
+    </div>
+
+    <div class="tools">
+      <button type="button" id="wkHideBtn">Hide the makers</button>
+      <button type="button" id="wkShowBtn">Show all</button>
+      <span class="tally" id="wkTally"></span>
+    </div>
+    <p class="railnote">Unlike the tally below, the blank here is the <b>name</b>. The title stays on screen, because the exam never asks what a book is called — it asks <b>who wrote it</b>. Tap any blank to check just that one. Filtering and hiding work together, so you can drill one medium at a time.</p>
+
+    <div class="wks" id="wkList">
+
+      <div class="grp" data-m="books" style="--era:var(--wk-book); margin-top:26px"><span class="dot"></span><b>Books &amp; novels</b><span class="cnt">15 · the handbook dates the writer, not the book</span></div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Pride and Prejudice · Sense and Sensibility<span class="sub">Novels</span></div>
+        <div class="wk-y">1775–1817</div>
+        <div class="wk-m"><b>Jane Austen</b> — novels about <i>marriage and family</i>, and the manners around both.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Oliver Twist · Great Expectations<span class="sub">Novels</span></div>
+        <div class="wk-y">1812–70</div>
+        <div class="wk-m"><b>Charles Dickens</b> — gave English two words it still uses: <i>Scrooge</i> and <i>Mr Micawber</i>.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Far from the Madding Crowd · Jude the Obscure<span class="sub">Novels</span></div>
+        <div class="wk-y">1840–1928</div>
+        <div class="wk-m"><b>Thomas Hardy</b> — <i>rural settings</i>, and the countryside doing most of the damage.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Treasure Island · Kidnapped · Dr Jekyll and Mr Hyde<span class="sub">Novels</span></div>
+        <div class="wk-y">1850–94</div>
+        <div class="wk-m"><b>Robert Louis Stevenson</b> — three titles, one author, and all three get used as distractors for each other.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Sherlock Holmes<span class="sub">Detective fiction</span></div>
+        <div class="wk-y">1859–1930</div>
+        <div class="wk-m"><b>Sir Arthur Conan Doyle</b> — a <i>Scottish doctor</i> who created him. Doctor writes detective; the other detective writer, Christie, wrote no doctor.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Decline and Fall · Scoop · Brideshead Revisited<span class="sub">Novels</span></div>
+        <div class="wk-y">1903–66</div>
+        <div class="wk-m"><b>Evelyn Waugh</b> — <i>satire</i>. One of the two writers the handbook plants in the 1930s cultural bloom.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">The Heart of the Matter · Brighton Rock · Our Man in Havana · The Honorary Consul<span class="sub">Novels</span></div>
+        <div class="wk-y">1904–91</div>
+        <div class="wk-m"><b>Graham Greene</b> — the other 1930s name, alongside the economist <i>John Maynard Keynes</i>.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Lucky Jim<span class="sub">Novel</span></div>
+        <div class="wk-y">1922–95</div>
+        <div class="wk-m"><b>Sir Kingsley Amis</b> — wrote <i>more than twenty</i> novels; this is the one the handbook names.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Harry Potter<span class="sub">Novels</span></div>
+        <div class="wk-y">1965–</div>
+        <div class="wk-m"><b>J.K. Rowling</b> — and one of the two <i>highest-grossing UK film franchises</i>. She now writes for adults too.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">James Bond<span class="sub">Novels</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><b>Ian Fleming</b> — the other highest-grossing franchise. Not to be confused with <i>Alexander</i> Fleming and his penicillin.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">The Lord of the Rings<span class="sub">Novel</span></div>
+        <div class="wk-y">voted 2003</div>
+        <div class="wk-m"><b>J.R.R. Tolkien</b> — voted the nation's <i>best-loved novel</i> in <b>2003</b>. One of the few works the handbook actually dates.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">Detective stories, read worldwide<span class="sub">Detective fiction</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><b>Agatha Christie</b> — read all over the world, and famously <i>not</i> a Nobel laureate. Her stage hit is on the Stage row below.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">The Canterbury Tales<span class="sub">Poetry &amp; prose</span></div>
+        <div class="wk-y">14th c.</div>
+        <div class="wk-m"><b>Geoffrey Chaucer</b> — later among the first books printed by <b>William Caxton</b>, the first person to print books in England.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">The Bruce<span class="sub">Epic poem</span></div>
+        <div class="wk-y">14th c.</div>
+        <div class="wk-m"><b>John Barbour</b> — written in <i>Scots</i>, about the Battle of <i>Bannockburn</i>.</div>
+      </div>
+
+      <div class="wk" data-m="books" style="--era:var(--wk-book)">
+        <div class="wk-t">The Jungle Book · Just So Stories<span class="sub">Stories</span></div>
+        <div class="wk-y">1907 Nobel</div>
+        <div class="wk-m"><b>Rudyard Kipling</b> — born in <i>India</i>; the handbook's only dated literature Nobel.</div>
+      </div>
+
+      <div class="grp" data-m="poems" style="--era:var(--wk-poem); margin-top:26px"><span class="dot"></span><b>Poems &amp; poets</b><span class="cnt">13 · opening lines you have to place</span></div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">Beowulf<span class="sub">Epic poem</span></div>
+        <div class="wk-y">Anglo-Saxon</div>
+        <div class="wk-m"><b>Poet unknown</b> — an Anglo-Saxon epic, and it is <i>still being translated</i> today.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">Sir Gawain and the Green Knight<span class="sub">Poem</span></div>
+        <div class="wk-y">medieval</div>
+        <div class="wk-m"><b>Poet unknown</b> — tells of <i>King Arthur's court</i>. The two unknowns are the two oldest; that pairing is free marks.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">Paradise Lost<span class="sub">Epic poem</span></div>
+        <div class="wk-y">17th c.</div>
+        <div class="wk-m"><b>John Milton</b> — born out of <i>Protestant ideas</i>.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">The sonnets — fourteen lines each<span class="sub">Sonnets</span></div>
+        <div class="wk-y">1564–1616</div>
+        <div class="wk-m"><b>William Shakespeare</b> — plays, long poems and sonnets. Born <i>Stratford-upon-Avon</i>; the number to keep is <b>14</b>.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">“I wander'd lonely as a cloud”<span class="sub">Nature poetry</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><b>William Wordsworth</b> — the daffodils. Wordsworth = the <i>nature</i> poet.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">Poems of Scotland and the border ballads<span class="sub">Poetry</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><b>Sir Walter Scott</b> — poems <i>and</i> novels, inspired by Scotland.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">“She walks in beauty, like the night”<span class="sub">Poetry</span></div>
+        <div class="wk-y">19th c.</div>
+        <div class="wk-m"><b>Lord Byron</b> — one of the six nineteenth-century names.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">“Tyger! Tyger! Burning bright”<span class="sub">Poetry</span></div>
+        <div class="wk-y">19th c.</div>
+        <div class="wk-m"><b>William Blake</b> — the loudest opening line on the sheet, and the easiest to place.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">“Oh, to be in England / Now that April's there”<span class="sub">Poetry</span></div>
+        <div class="wk-y">19th c.</div>
+        <div class="wk-m"><b>Robert Browning</b> — married to <b>Elizabeth Browning</b>, who is on the list in her own right.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">“What passing-bells for these who die as cattle?”<span class="sub">War poetry</span></div>
+        <div class="wk-y">First World War</div>
+        <div class="wk-m"><b>Wilfred Owen</b> — wrote <i>from the trenches</i>, with <b>Siegfried Sassoon</b>. Those two are the war poets; Hughes and Betjeman are later.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">The rest of the nineteenth century<span class="sub">Poetry</span></div>
+        <div class="wk-y">19th c.</div>
+        <div class="wk-m"><b>Keats</b> · <b>Shelley</b> · <b>Tennyson</b> · <b>Elizabeth Browning</b> — named without individual works.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">The moderns<span class="sub">Poetry</span></div>
+        <div class="wk-y">20th c.</div>
+        <div class="wk-m"><b>Walter de la Mare</b> · <b>John Masefield</b> · <b>Sir John Betjeman</b> · <b>Ted Hughes</b>.</div>
+      </div>
+
+      <div class="wk" data-m="poems" style="--era:var(--wk-poem)">
+        <div class="wk-t">Poets' Corner, Westminster Abbey<span class="sub">Place</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m">Where many of them are <i>buried or memorialised</i> — the one address on this whole page that is an answer by itself.</div>
+      </div>
+
+      <div class="grp" data-m="stage" style="--era:var(--wk-stage); margin-top:26px"><span class="dot"></span><b>Stage — plays, musicals, opera</b><span class="cnt">10 · the West End, and what's on in it</span></div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">The Mousetrap<span class="sub">Play</span></div>
+        <div class="wk-y">opened 1952</div>
+        <div class="wk-m"><b>Agatha Christie</b> — the <i>longest initial run of any show in history</i>, and still running in the West End.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">HMS Pinafore · The Pirates of Penzance · The Mikado<span class="sub">Comic operas</span></div>
+        <div class="wk-y">19th c.</div>
+        <div class="wk-m"><b>Gilbert and Sullivan</b> — one writer, one composer, always named as a pair.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">Jesus Christ Superstar · Evita<span class="sub">Musicals</span></div>
+        <div class="wk-y">20th c.</div>
+        <div class="wk-m"><b>Andrew Lloyd Webber</b> — these two <i>with</i> <b>Tim Rice</b>. The collaboration is the examinable bit.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">Cats · The Phantom of the Opera<span class="sub">Musicals</span></div>
+        <div class="wk-y">20th c.</div>
+        <div class="wk-m"><b>Andrew Lloyd Webber</b> — these two without Rice.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">Peter Grimes · Billy Budd<span class="sub">Operas</span></div>
+        <div class="wk-y">1913–76</div>
+        <div class="wk-m"><b>Benjamin Britten</b> — the composer who also belongs on the Music list.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">Midsummer Night's Dream · Hamlet · Macbeth · Romeo &amp; Juliet<span class="sub">Plays</span></div>
+        <div class="wk-y">1564–1616</div>
+        <div class="wk-m"><b>William Shakespeare</b> — first to portray <i>ordinary Englishmen and women</i>, and inventor of many English words.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">Pantomime<span class="sub">Christmas shows</span></div>
+        <div class="wk-y">each Christmas</div>
+        <div class="wk-m">Family shows drawn from <i>fairy tales</i>. The <i>Dame</i> is a woman played by a man; the panto horse is <i>two actors</i>.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">The Globe, London<span class="sub">Theatre</span></div>
+        <div class="wk-y">a modern copy</div>
+        <div class="wk-m">A modern reconstruction of the theatres <b>Shakespeare</b> wrote for.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">The Edinburgh Festival and its Fringe<span class="sub">Festival</span></div>
+        <div class="wk-y">each summer</div>
+        <div class="wk-m">The <i>Fringe</i> shows theatre and comedy, <i>often experimental</i>.</div>
+      </div>
+
+      <div class="wk" data-m="stage" style="--era:var(--wk-stage)">
+        <div class="wk-t">London's West End — “Theatreland”<span class="sub">District</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m">Where the Olivier Awards and the Mousetrap both live.</div>
+      </div>
+
+      <div class="grp" data-m="music" style="--era:var(--wk-music); margin-top:26px"><span class="dot"></span><b>Music &amp; composers</b><span class="cnt">11 · one chain, Purcell to Britten</span></div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">Church music and operas, in a distinctly British style<span class="sub">Composition</span></div>
+        <div class="wk-y">1659–95</div>
+        <div class="wk-m"><b>Henry Purcell</b> — organist at <i>Westminster Abbey</i>. The first link in the chain.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">Water Music · Music for the Royal Fireworks · Messiah<span class="sub">Composition</span></div>
+        <div class="wk-y">1695–1759</div>
+        <div class="wk-m"><b>George Frederick Handel</b> — <i>German-born</i>, a British citizen in <b>1727</b>. <i>Water Music</i> for <b>George I</b>, <i>Fireworks</i> for <b>George II</b>; <i>Messiah</i> is the oratorio.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">Pomp and Circumstance March No. 1 — “Land of Hope and Glory”<span class="sub">Composition</span></div>
+        <div class="wk-y">1857–1934</div>
+        <div class="wk-m"><b>Sir Edward Elgar</b> — born in <i>Worcester</i>; a <i>Last Night of the Proms</i> fixture.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">The Planets — and Jupiter, adapted into “I Vow to Thee, My Country”<span class="sub">Composition</span></div>
+        <div class="wk-y">1874–1934</div>
+        <div class="wk-m"><b>Gustav Holst</b> — the single most swapped fact in this chapter. <i>Holst has the planets; Elgar has the glory.</i></div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">Orchestral and choral music shaped by English folk music<span class="sub">Composition</span></div>
+        <div class="wk-y">1872–1958</div>
+        <div class="wk-m"><b>Ralph Vaughan Williams</b> — no single title is named, which is itself the answer.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">Coronation marches · Façade · Belshazzar's Feast<span class="sub">Composition</span></div>
+        <div class="wk-y">1902–83</div>
+        <div class="wk-m"><b>Sir William Walton</b> — the marches were for <b>George VI</b> and <b>Elizabeth II</b>.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">A Young Person's Guide to the Orchestra<span class="sub">Composition</span></div>
+        <div class="wk-y">1913–76</div>
+        <div class="wk-m"><b>Benjamin Britten</b> — built on a <i>Purcell</i> theme, which ties the last link back to the first. He founded the <i>Aldeburgh festival</i> in Suffolk.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">The Proms<span class="sub">Concert season</span></div>
+        <div class="wk-y">BBC since 1927</div>
+        <div class="wk-m">An <i>eight-week</i> summer season of orchestral music; the <i>Last Night</i>, at the <b>Royal Albert Hall</b>, is televised.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">The British sound of the sixties<span class="sub">Popular music</span></div>
+        <div class="wk-y">1960s</div>
+        <div class="wk-m"><b>The Beatles</b> and <b>The Rolling Stones</b> led it; <i>punk</i> arrived in the <b>late 1970s</b>; <i>boy and girl bands</i> in the <b>1990s</b>.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">National Eisteddfod of Wales<span class="sub">Festival</span></div>
+        <div class="wk-y">annual</div>
+        <div class="wk-m">Music, dance, art and <i>Welsh-language</i> performance and poetry.</div>
+      </div>
+
+      <div class="wk" data-m="music" style="--era:var(--wk-music)">
+        <div class="wk-t">Glastonbury · Isle of Wight · V Festival<span class="sub">Festivals</span></div>
+        <div class="wk-y">annual</div>
+        <div class="wk-m">The three festivals the handbook names. The venues it names are <i>Wembley Stadium</i>, <i>The O2</i> in Greenwich and the <i>SECC</i> in Glasgow.</div>
+      </div>
+
+      <div class="grp" data-m="art" style="--era:var(--wk-art); margin-top:26px"><span class="dot"></span><b>Paintings &amp; sculpture</b><span class="cnt">12 · life dates, because no picture has a year</span></div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Portraits, often in country or garden settings<span class="sub">Painting</span></div>
+        <div class="wk-y">1727–88</div>
+        <div class="wk-m"><b>Thomas Gainsborough</b> — portraits with the landscape behind them.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">The Origin of Painting<span class="sub">Painting</span></div>
+        <div class="wk-y">1744–96</div>
+        <div class="wk-m"><b>David Allan</b> — a <i>Scottish</i> portraitist, and the only painter here with a single named picture.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Modern-style landscapes<span class="sub">Painting</span></div>
+        <div class="wk-y">1775–1851</div>
+        <div class="wk-m"><b>Joseph Turner</b> — raised the standing of the whole genre. The <i>Turner Prize</i> is named after him, and awards <i>contemporary</i> art.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Landscapes of Dedham Vale<span class="sub">Painting</span></div>
+        <div class="wk-y">1776–1837</div>
+        <div class="wk-m"><b>John Constable</b> — the <i>Suffolk–Essex border</i>. Born one year after Turner, and forever swapped with him.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Detailed, brightly coloured religious and literary scenes<span class="sub">Painting</span></div>
+        <div class="wk-y">late 19th c.</div>
+        <div class="wk-m"><b>The Pre-Raphaelites</b> — <b>Holman Hunt</b>, <b>Rossetti</b>, <b>Millais</b>. A movement, not a person.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Portraits of the Royal Family<span class="sub">Painting</span></div>
+        <div class="wk-y">1856–1941</div>
+        <div class="wk-m"><b>Sir John Lavery</b> — <i>Northern Irish</i>.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Large bronze abstract sculptures<span class="sub">Sculpture</span></div>
+        <div class="wk-y">1898–1986</div>
+        <div class="wk-m"><b>Henry Moore</b> — the only sculptor on the list.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Engravings and stained glass<span class="sub">Engraving &amp; glass</span></div>
+        <div class="wk-y">1914–91</div>
+        <div class="wk-m"><b>John Petts</b> — <i>Welsh</i>.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Portraits<span class="sub">Painting</span></div>
+        <div class="wk-y">1922–2011</div>
+        <div class="wk-m"><b>Lucian Freud</b> — <i>German-born</i>, like Handel. Those are the chapter's two German-born Britons.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Pop art of the 1960s<span class="sub">Painting</span></div>
+        <div class="wk-y">1937–</div>
+        <div class="wk-m"><b>David Hockney</b> — the only living painter named.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Religious art, then foreign hands<span class="sub">Painting</span></div>
+        <div class="wk-y">16th–17th c.</div>
+        <div class="wk-m">Medieval art here was <i>religious</i>; many painters working in Britain then came from abroad — <b>Holbein</b> and <b>Van Dyck</b>.</div>
+      </div>
+
+      <div class="wk" data-m="art" style="--era:var(--wk-art)">
+        <div class="wk-t">Where the pictures hang<span class="sub">Galleries</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><i>National Gallery</i> · <i>Tate Britain</i> · <i>Tate Modern</i> (London) · <i>National Museum</i>, Cardiff · <i>National Gallery of Scotland</i>, Edinburgh.</div>
+      </div>
+
+      <div class="grp" data-m="films" style="--era:var(--wk-film); margin-top:26px"><span class="dot"></span><b>Films</b><span class="cnt">17 · the one list with real dates and real directors</span></div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">The 39 Steps<span class="sub">Film</span></div>
+        <div class="wk-y">1935</div>
+        <div class="wk-m"><b>Alfred Hitchcock</b> — directed here before moving to Hollywood; died in <b>1980</b>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Brief Encounter<span class="sub">Film</span></div>
+        <div class="wk-y">1945</div>
+        <div class="wk-m"><b>David Lean</b> — first of his two on the list.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">The Third Man<span class="sub">Film</span></div>
+        <div class="wk-y">1949</div>
+        <div class="wk-m"><b>Carol Reed</b>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">The Belles of St Trinian's<span class="sub">Film</span></div>
+        <div class="wk-y">1954</div>
+        <div class="wk-m"><b>Frank Launder</b> — the same year as Bannister's four-minute mile.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Lawrence of Arabia<span class="sub">Film</span></div>
+        <div class="wk-y">1962</div>
+        <div class="wk-m"><b>David Lean</b> again — the only director with two films here.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Women in Love<span class="sub">Film</span></div>
+        <div class="wk-y">1969</div>
+        <div class="wk-m"><b>Ken Russell</b> — and the same year as <i>Monty Python's Flying Circus</i>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Don't Look Now<span class="sub">Film</span></div>
+        <div class="wk-y">1973</div>
+        <div class="wk-m"><b>Nicolas Roeg</b>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Chariots of Fire<span class="sub">Film</span></div>
+        <div class="wk-y">1981</div>
+        <div class="wk-m"><b>Hugh Hudson</b> — the handbook gives the film, the year and the director, and <i>does not say it won an Oscar</i>. Some question banks do.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">The Killing Fields<span class="sub">Film</span></div>
+        <div class="wk-y">1984</div>
+        <div class="wk-m"><b>Roland Joffé</b> — the same year the Turner Prize was founded.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Four Weddings and a Funeral<span class="sub">Film</span></div>
+        <div class="wk-y">1994</div>
+        <div class="wk-m"><b>Mike Newell</b>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Touching the Void<span class="sub">Film</span></div>
+        <div class="wk-y">2003</div>
+        <div class="wk-m"><b>Kevin MacDonald</b> — the newest named film, and the same year Tolkien won the nation's vote.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Wallace and Gromit<span class="sub">Animation</span></div>
+        <div class="wk-y">4 Oscars</div>
+        <div class="wk-m"><b>Nick Park</b> — <b>three</b> of his <b>four</b> Oscars feature the pair.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">In Which We Serve<span class="sub">Film</span></div>
+        <div class="wk-y">Second World War</div>
+        <div class="wk-m">Made to boost <i>wartime morale</i>. No director is named — so the question can only be <i>what it was for</i>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">The tramp<span class="sub">Silent film</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><b>Charlie Chaplin</b> — famous for the character, not for a titled film.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Harry Potter · James Bond<span class="sub">Franchises</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m">The two <i>highest-grossing</i> UK film franchises.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">Ealing Studios<span class="sub">Studio</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m">A claim to being the <i>oldest continuously working film studio in the world</i>.</div>
+      </div>
+
+      <div class="wk" data-m="films" style="--era:var(--wk-film)">
+        <div class="wk-t">The first public film showings in the UK<span class="sub">Screenings</span></div>
+        <div class="wk-y">1896</div>
+        <div class="wk-m">No maker named — the date is the whole fact.</div>
+      </div>
+
+      <div class="grp" data-m="build" style="--era:var(--wk-build); margin-top:26px"><span class="dot"></span><b>Buildings &amp; gardens</b><span class="cnt">10 · who built it, and roughly when</span></div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">The White Tower, Tower of London<span class="sub">Castle keep</span></div>
+        <div class="wk-y">1066</div>
+        <div class="wk-m">A <i>Norman keep</i> built for <b>William the Conqueror</b>. It now holds the <i>Crown Jewels</i>, and the tours are given by <i>Yeoman Warders</i>.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Durham · Lincoln · Canterbury · Salisbury<span class="sub">Cathedrals</span></div>
+        <div class="wk-y">medieval</div>
+        <div class="wk-m">Medieval cathedrals <i>still standing</i>. The stained glass to name is at <i>Lincoln Cathedral</i> and <i>York Minster</i>.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Queen's House, Greenwich · Banqueting House, Whitehall<span class="sub">Architecture</span></div>
+        <div class="wk-y">17th c.</div>
+        <div class="wk-m"><b>Inigo Jones</b> — worked from <i>classical models</i>.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">St Paul's Cathedral — the new one<span class="sub">Architecture</span></div>
+        <div class="wk-y">17th c.</div>
+        <div class="wk-m"><b>Sir Christopher Wren</b> — built after the Great Fire.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Dumfries House, and interiors that shaped Bath's Royal Crescent<span class="sub">Architecture</span></div>
+        <div class="wk-y">18th c.</div>
+        <div class="wk-m"><b>Robert Adam</b> — <i>Scottish</i>.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Houses of Parliament · St Pancras Station<span class="sub">Architecture</span></div>
+        <div class="wk-y">19th c.</div>
+        <div class="wk-m">The <i>gothic revival</i> — with the town halls of Manchester and Sheffield. A style, not a person.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">New Delhi · the Cenotaph, Whitehall<span class="sub">Architecture</span></div>
+        <div class="wk-y">20th c.</div>
+        <div class="wk-m"><b>Sir Edwin Lutyens</b> — designed <i>New Delhi</i> as India's seat of government.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Natural-looking landscape gardens<span class="sub">Gardens</span></div>
+        <div class="wk-y">18th c.</div>
+        <div class="wk-m"><b>Lancelot “Capability” Brown</b> — landscapes designed to look like they were never designed.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Colourful gardens, often alongside Lutyens<span class="sub">Gardens</span></div>
+        <div class="wk-y">—</div>
+        <div class="wk-m"><b>Gertrude Jekyll</b>. The show to name is the <i>Chelsea Flower Show</i>.</div>
+      </div>
+
+      <div class="wk" data-m="build" style="--era:var(--wk-build)">
+        <div class="wk-t">Modern British architecture<span class="sub">Architecture</span></div>
+        <div class="wk-y">today</div>
+        <div class="wk-m"><b>Sir Norman Foster</b> · <b>Lord Richard Rogers</b> · <b>Dame Zaha Hadid</b>.</div>
+      </div>
+
+      <div class="grp" data-m="object" style="--era:var(--wk-object); margin-top:26px"><span class="dot"></span><b>Objects &amp; documents</b><span class="cnt">14 · the things that still exist</span></div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">The Sutton Hoo ship burial, Suffolk<span class="sub">Burial treasure</span></div>
+        <div class="wk-y">by AD 600</div>
+        <div class="wk-m">An <i>Anglo-Saxon king</i> buried in a <i>ship</i>, under a mound, with <i>treasure and armour</i>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">The Bayeux Tapestry<span class="sub">Embroidery</span></div>
+        <div class="wk-y">1066</div>
+        <div class="wk-m">Commemorates the <i>Battle of Hastings</i> — and it <i>still exists, in France</i>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">The Domesday Book<span class="sub">Survey</span></div>
+        <div class="wk-y">1086</div>
+        <div class="wk-m"><b>William the Conqueror</b>'s survey of every town and village — people, land and animals. <i>It still exists too.</i></div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Magna Carta<span class="sub">Charter</span></div>
+        <div class="wk-y">1215</div>
+        <div class="wk-m">The start of Britain's rights tradition, which runs on through the <i>Habeas Corpus Act (1679)</i> to the <i>Bill of Rights (1689)</i>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">The first books printed in England<span class="sub">Printing</span></div>
+        <div class="wk-y">15th c.</div>
+        <div class="wk-m"><b>William Caxton</b> — the first person to print books in England; Chaucer's <i>Canterbury Tales</i> were among them.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">The Book of Common Prayer<span class="sub">Liturgy</span></div>
+        <div class="wk-y">Edward VI's reign</div>
+        <div class="wk-m">Written in the reign of <b>Edward VI</b>, the strongly Protestant boy king who died at fifteen.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">The King James Bible — the “Authorised Version”<span class="sub">Translation</span></div>
+        <div class="wk-y">James I's reign</div>
+        <div class="wk-m">Translated in the reign of <b>James I</b>. <i>Not the first English Bible</i>, and still in use today.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Principia Mathematica<span class="sub">Scientific work</span></div>
+        <div class="wk-y">1643–1727</div>
+        <div class="wk-m"><b>Isaac Newton</b> — gravity applies to the <i>whole universe</i>; and white light is made of the <i>colours of the rainbow</i>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Punch, then Private Eye<span class="sub">Satirical magazines</span></div>
+        <div class="wk-y">1840s</div>
+        <div class="wk-m"><i>Punch</i> from the <b>1840s</b>, in a comic line running from medieval jesters through 18th-century political cartoons.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Monty Python's Flying Circus<span class="sub">Television comedy</span></div>
+        <div class="wk-y">1969</div>
+        <div class="wk-m">A <i>new, progressive</i> kind of comedy — and one of the handbook's few dated cultural moments.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Eighteenth-century furniture<span class="sub">Furniture</span></div>
+        <div class="wk-y">18th c.</div>
+        <div class="wk-m"><b>Thomas Chippendale</b>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Art Deco ceramics<span class="sub">Ceramics</span></div>
+        <div class="wk-y">20th c.</div>
+        <div class="wk-m"><b>Clarice Cliff</b>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">Interior design<span class="sub">Design</span></div>
+        <div class="wk-y">20th c.</div>
+        <div class="wk-m"><b>Sir Terence Conran</b>.</div>
+      </div>
+
+      <div class="wk" data-m="object" style="--era:var(--wk-object)">
+        <div class="wk-t">British fashion<span class="sub">Fashion</span></div>
+        <div class="wk-y">20th c.–</div>
+        <div class="wk-m"><b>Mary Quant</b> · <b>Alexander McQueen</b> · <b>Vivienne Westwood</b>.</div>
+      </div>
+
+    </div>
+
+    <p class="railnote">Everything above is named in the handbook. Where a maker is given without a title — Vaughan Williams, Hockney, Chippendale — that absence <b>is</b> the answer: the question can only be about the <i>kind</i> of work, not its name.</p>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--wk-music)"><span class="dot"></span><b>The four pairs that get swapped</b></div>
+      <div class="trap">
+        <span class="lab">Learn these as pairs, not as facts</span>
+        <b>Holst wrote The Planets. Elgar wrote Land of Hope and Glory.</b> The most swapped pair in the chapter.<br><br>
+        <b>Turner painted modern landscapes; Constable painted Dedham Vale.</b> Born a year apart, and the prize is named after Turner — for <i>contemporary</i> art, which he never made.<br><br>
+        <b>Handel and Lucian Freud were both German-born.</b> Composer and painter, two centuries apart; Handel took citizenship in <b>1727</b>.<br><br>
+        <b>Owen and Sassoon are the war poets.</b> Ted Hughes and Betjeman are moderns, and neither went near a trench.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3 · THE TALLY ═══════════════ -->
+  <section id="tally">
+    <div class="sec-head">
+      <p class="n">Three</p>
+      <h2>The Tally</h2>
+      <p>The same names as The Cast, but here only the counting matters. Three groups, because the exam asks three different questions: <b>how many</b>, <b>which year</b>, and <b>who was first</b>.</p>
+    </div>
+
+    <div class="tools">
+      <button type="button" id="hideBtn">Hide the numbers</button>
+      <button type="button" id="showBtn">Show all</button>
+      <span class="tally" id="talTally"></span>
+    </div>
+    <p class="railnote">With the numbers hidden, tap any blank to check just that one. The names and the claims stay on screen — the question is never <i>who is this</i>, it is always <i>how many</i>. The right-hand column is each person’s <b>headline number</b>, so you can cover that alone and recite down the page.</p>
+
+    <div class="tal" id="talList">
+
+      <div class="pair-head" style="--era:var(--aw-sport); margin-top:26px"><span class="dot"></span><b>Group 1 · the ones with a running total</b></div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Baroness Tanni Grey-Thompson<span class="sub">Wheelchair racing</span></div>
+        <div class="tal-y">16 medals</div>
+        <div class="tal-v"><b>16</b> Paralympic medals, <b>11</b> of them gold, across <b>5</b> Paralympic Games. Also <b>6</b> London Marathons and <b>30</b> world records.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Sir Chris Hoy<span class="sub">Cycling · Scottish</span></div>
+        <div class="tal-y">6 golds</div>
+        <div class="tal-v"><b>6</b> Olympic golds and <b>1</b> silver — so <b>7</b> medals in total. Plus <b>11</b> world championship titles.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Sir Bradley Wiggins<span class="sub">Cycling</span></div>
+        <div class="tal-y">7 medals</div>
+        <div class="tal-v"><b>7</b> Olympic medals, including golds in <b>2004</b>, <b>2008</b> and <b>2012</b>.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">David Weir<span class="sub">Wheelchair racing</span></div>
+        <div class="tal-y">6 golds</div>
+        <div class="tal-v"><b>6</b> gold medals across <b>2</b> Paralympic Games. Also <b>6</b> London Marathons.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Sir Steve Redgrave<span class="sub">Rowing</span></div>
+        <div class="tal-y">5 Games</div>
+        <div class="tal-v">Rowing gold at <b>5</b> consecutive Olympic Games — the handbook counts his <i>Games</i>, not his medals.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Ellie Simmonds<span class="sub">Swimming · Paralympic</span></div>
+        <div class="tal-y">2008 · 2012</div>
+        <div class="tal-v">Swimming golds at the <b>2008</b> and <b>2012</b> Paralympic Games; youngest member of the British team in <b>2008</b>; holds a number of world records.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Dame Kelly Holmes<span class="sub">Athletics</span></div>
+        <div class="tal-y">2 golds</div>
+        <div class="tal-v"><b>2</b> gold medals for running at the <b>2004</b> Olympic Games.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Sir Jackie Stewart<span class="sub">Motor racing · Scottish</span></div>
+        <div class="tal-y">3 titles</div>
+        <div class="tal-v">Won the Formula 1 world championship <b>3</b> times.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Torvill &amp; Dean<span class="sub">Ice dance</span></div>
+        <div class="tal-y">1984</div>
+        <div class="tal-v">Olympic ice-dancing gold in <b>1984</b>, plus <b>4</b> consecutive world championships.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-film)">
+        <div class="tal-n">Nick Park<span class="sub">Animation</span></div>
+        <div class="tal-y">4 Oscars</div>
+        <div class="tal-v"><b>4</b> Oscars for his animated films — <b>3</b> of them for films featuring <b>Wallace and Gromit</b>.</div>
+      </div>
+
+      <div class="pair-head" style="--era:var(--aw-sport); margin-top:30px"><span class="dot"></span><b>Group 2 · one gold, one year, one event</b></div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Mary Peters<span class="sub">Athletics</span></div>
+        <div class="tal-y">1972</div>
+        <div class="tal-v">Olympic gold in the <b>pentathlon</b>, <b>1972</b>. Born in Manchester, moved to Northern Ireland as a child; later team manager of the women's British Olympic team, and made a <b>Dame</b> of the British Empire in <b>2000</b>.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Dame Jessica Ennis<span class="sub">Athletics</span></div>
+        <div class="tal-y">2012</div>
+        <div class="tal-v">Olympic gold in the <b>heptathlon</b>, <b>2012</b> — <b>7</b> track and field events. Holds a number of British athletics records.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Sir Mo Farah<span class="sub">Athletics · born in Somalia</span></div>
+        <div class="tal-y">2012</div>
+        <div class="tal-v">Golds at the <b>2012</b> Olympics in the <b>5,000</b> and <b>10,000</b> metres.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-sport)">
+        <div class="tal-n">Sir Andy Murray<span class="sub">Tennis · Scottish</span></div>
+        <div class="tal-y">2012</div>
+        <div class="tal-v">Won the men's singles at the <b>2012</b> US Open, and Olympic <b>gold and silver</b> in the same year.</div>
+      </div>
+
+      <div class="pair-head" style="--era:var(--aw-valour); margin-top:30px"><span class="dot"></span><b>Group 3 · the firsts — a claim, not a count</b></div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Roger Bannister<span class="sub">Athletics</span></div>
+        <div class="tal-y">1954</div>
+        <div class="tal-v">First man <b>in the world</b> to run a mile in under four minutes, in <b>1954</b>.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Bobby Moore<span class="sub">Football</span></div>
+        <div class="tal-y">1966</div>
+        <div class="tal-v">Captained the English football team that won the <b>World Cup</b> in <b>1966</b> — hosted in the UK.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Bradley Wiggins<span class="sub">Cycling</span></div>
+        <div class="tal-y">2012</div>
+        <div class="tal-v">First Briton to win the <b>Tour de France</b>, in <b>2012</b>.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Mo Farah<span class="sub">Athletics</span></div>
+        <div class="tal-y">2012</div>
+        <div class="tal-v">First Briton to win Olympic gold in the <b>10,000</b> metres.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Andy Murray<span class="sub">Tennis</span></div>
+        <div class="tal-y">2012</div>
+        <div class="tal-v">First British man to win a <b>Grand Slam singles title since 1936</b> — a wait of <b>76</b> years.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Francis Chichester<span class="sub">Sailing</span></div>
+        <div class="tal-y">1966/67</div>
+        <div class="tal-v">Sailed <b>single-handed around the world</b> in <b>1966/67</b>.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Robin Knox-Johnston<span class="sub">Sailing</span></div>
+        <div class="tal-y">+2 years</div>
+        <div class="tal-v">First to sail single-handed around the world <b>without stopping</b> — <b>two</b> years after Chichester.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Dame Ellen MacArthur<span class="sub">Sailing</span></div>
+        <div class="tal-y">2004</div>
+        <div class="tal-v"><b>Fastest</b> person to sail around the world single-handed, in <b>2004</b>.</div>
+      </div>
+
+      <div class="tal-row" style="--era:var(--aw-valour)">
+        <div class="tal-n">Sir Ian Botham<span class="sub">Cricket</span></div>
+        <div class="tal-y">captain</div>
+        <div class="tal-v">Captained the England cricket team and set <b>batting and bowling</b> records.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════ 4 · THE NUMBER LINE ═══════════════ -->
+  <section id="numbers">
+    <div class="sec-head">
+      <p class="n">Four</p>
+      <h2>The Number Line</h2>
+      <p>The same table read backwards. You are not usually asked <i>who won six golds</i> — you are asked <b>how many did Hoy win</b>, with 6 and 11 both on the answer sheet, because both are his. So here every number is asked once and <b>everyone who owns it answers together</b>. Look at the collision now and it stops being a surprise later.</p>
+    </div>
+
+    <div class="nums">
+
+      <div class="num clash">
+        <div class="num-k">2<span class="flag">shared</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Kelly Holmes</b> — <i>gold medals</i>, both for running, 2004</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>David Weir</b> — <i>Paralympic Games</i> across which his six golds fall</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Mo Farah</b> — <i>distances</i> won in 2012: the 5,000 and the 10,000</span></div>
+          <div class="own" style="--era:var(--aw-valour)"><span class="dot"></span><span class="own-t"><b>Robin Knox-Johnston</b> — <i>years</i> after Chichester that he sailed non-stop</span></div>
+          <p class="num-hook">Holmes is the only person on this board whose <b>gold count</b> is two. Every other 2 here counts something else — Games, distances, years.</p>
+        </div>
+      </div>
+
+      <div class="num clash">
+        <div class="num-k">3<span class="flag">shared</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Jackie Stewart</b> — <i>Formula 1 world championships</i></span></div>
+          <div class="own" style="--era:var(--aw-film)"><span class="dot"></span><span class="own-t"><b>Nick Park</b> — Oscars <i>for Wallace and Gromit</i> (of four in total)</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>The UK</b> — times it has <i>hosted the Olympics</i>: 1908, 1948, 2012</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Great Britain</b> — where the team <i>finished in the 2012 medal table</i></span></div>
+          <p class="num-hook">Four different threes, and 2012 owns two of them: <b>the third London Games, third in the table</b>. Say that as one sentence and it never comes apart.</p>
+        </div>
+      </div>
+
+      <div class="num clash">
+        <div class="num-k">4<span class="flag">shared</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-film)"><span class="dot"></span><span class="own-t"><b>Nick Park</b> — Oscars <i>in total</i></span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Torvill &amp; Dean</b> — <i>consecutive world championships</i>, on top of the 1984 gold</span></div>
+          <div class="own" style="--era:var(--aw-art)"><span class="dot"></span><span class="own-t"><b>The Turner Prize</b> — <i>works shortlisted</i> each year, shown at Tate Britain</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Roger Bannister</b> — the <i>minutes</i> he ran the mile under, in 1954</span></div>
+          <p class="num-hook">Torvill &amp; Dean's year <b>ends in the count</b>: gold in ’8<b>4</b>, and <b>4</b> world titles. And Park is the four-three pair — <b>four Oscars, three with the dog</b>.</p>
+        </div>
+      </div>
+
+      <div class="num clash">
+        <div class="num-k">5<span class="flag">shared</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Steve Redgrave</b> — <i>consecutive Olympic Games</i> at which he won rowing gold</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Tanni Grey-Thompson</b> — <i>Paralympic Games</i> she raced across</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Royal Ascot</b> — <i>days</i> the race meeting runs, in Berkshire</span></div>
+          <p class="num-hook"><b>Five is always a Games count</b>, never a medal count. And a free coincidence worth keeping: Tanni's 16 medals minus 11 golds leaves <b>5</b> — the same as her number of Games.</p>
+        </div>
+      </div>
+
+      <div class="num clash">
+        <div class="num-k">6<span class="flag">the bad one</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Chris Hoy</b> — <i>Olympic gold medals</i> (plus one silver)</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>David Weir</b> — <i>Paralympic gold medals</i>, over two Games</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>David Weir</b> — <i>London Marathon wins</i></span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Tanni Grey-Thompson</b> — <i>London Marathon wins</i></span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>The Six Nations</b> — <i>countries</i>: England, Ireland, Scotland, Wales, France, Italy</span></div>
+          <p class="num-hook">Two hooks, and you need both. <b>Redgrave counts Games; Hoy counts golds</b> — Redgr<b>a</b>ve/G<b>a</b>mes, H<b>o</b>y/g<b>o</b>ld, the vowels match. And the London Marathon is <b>six for both wheelchair racers</b>, so that number can never tell Weir and Tanni apart. What does: <b>Tanni's headline is 16 medals; Weir's is 6 golds over 2 Games.</b></p>
+        </div>
+      </div>
+
+      <div class="num clash">
+        <div class="num-k">7<span class="flag">shared</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Bradley Wiggins</b> — <i>Olympic medals</i>, golds in 2004, 2008 and 2012</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Chris Hoy</b> — <i>Olympic medals</i> too, if you add his 6 golds and 1 silver</span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Jessica Ennis</b> — <i>events in the heptathlon</i>, her 2012 gold</span></div>
+          <p class="num-hook">Both cyclists total <b>seven Olympic medals</b> — Hoy's seven is <b>6 + 1</b>, Wiggins' seven is just stated as seven. And <b>hept-</b> is Greek for seven: heptathlon, Ennis, 2012.</p>
+        </div>
+      </div>
+
+      <div class="num clash">
+        <div class="num-k">11<span class="flag">shared</span></div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Chris Hoy</b> — <i>world championship titles</i></span></div>
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Tanni Grey-Thompson</b> — <i>Paralympic golds</i>, of her 16 medals</span></div>
+          <p class="num-hook">The rule that saves you: <b>eleven is never an Olympic number</b>. Hoy's eleven are <i>world</i> titles; Tanni's eleven are <i>Paralympic</i> golds. So if the question says "Olympic" and 11 is an option, 11 is the trap.</p>
+        </div>
+      </div>
+
+      <div class="num">
+        <div class="num-k">16</div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Tanni Grey-Thompson</b> — <i>Paralympic medals</i> in total</span></div>
+          <p class="num-hook">Sixteen has exactly <b>one owner</b> and one meaning: Tanni, <b>medals</b> — not golds. The biggest number on the board belongs to the biggest name on it.</p>
+        </div>
+      </div>
+
+      <div class="num">
+        <div class="num-k">30</div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Tanni Grey-Thompson</b> — <i>world records</i> broken</span></div>
+          <p class="num-hook">Also hers. <b>16 · 11 · 5 · 6 · 30</b> — learn Tanni as a five-number run and four of the collisions above solve themselves.</p>
+        </div>
+      </div>
+
+      <div class="num">
+        <div class="num-k">76</div>
+        <div class="num-b">
+          <div class="own" style="--era:var(--aw-sport)"><span class="dot"></span><span class="own-t"><b>Andy Murray</b> — <i>years</i> since a British man last won a Grand Slam singles title</span></div>
+          <p class="num-hook">Not a number the exam asks for — it is the <b>arithmetic that pins 1936</b>. 2012 minus 76. The date they <i>do</i> ask for is <b>1936</b>.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════ 5 · THE YEAR LINE ═══════════════ -->
+  <section id="years">
+    <div class="sec-head">
+      <p class="n">Five</p>
+      <h2>The Year Line</h2>
+      <p>Every dated prize, medal, record <b>and work</b> in one order — the two halves of this page on one spine. A haloed dot means <b>two things happened that year</b>: those are the ones to fuse into a single memory rather than keep apart. The eleven named films have their own dates in <a href="#works" style="color:var(--era3);font-weight:700">The Works</a> and are left off here, or they would drown everything else.</p>
+    </div>
+
+    <ul class="rail">
+      <li class="ev dbl" style="--era:var(--wk-object)"><span class="ev-y">1066</span><span class="ev-b"><span class="ev-t">The Bayeux Tapestry · the White Tower</span><span class="ev-w">One year, two objects that still exist: the tapestry commemorating <b>Hastings</b> (in France), and the <b>Norman keep</b> built for William the Conqueror.</span></span></li>
+      <li class="ev" style="--era:var(--wk-object)"><span class="ev-y">1086</span><span class="ev-b"><span class="ev-t">The Domesday Book</span><span class="ev-w">William's survey of every town and village — people, land and animals. <b>Twenty years after the tapestry.</b></span></span></li>
+      <li class="ev" style="--era:var(--wk-music)"><span class="ev-y">1727</span><span class="ev-b"><span class="ev-t">Handel becomes a British citizen</span><span class="ev-w"><b>German-born</b>, and by now the composer of <i>Water Music</i> for George I. The other German-born Briton, <b>Lucian Freud</b>, arrives two centuries later.</span></span></li>
+      <li class="ev" style="--era:var(--wk-object)"><span class="ev-y">1840s</span><span class="ev-b"><span class="ev-t"><i>Punch</i> is first published</span><span class="ev-w">The satirical magazine; <b>Private Eye</b> follows much later.</span></span></li>
+      <li class="ev" style="--era:var(--aw-valour)"><span class="ev-y">1853–56</span><span class="ev-b"><span class="ev-t">The Victoria Cross is introduced</span><span class="ev-w">By <b>Queen Victoria</b>, during the <b>Crimean War</b>, for acts of valour by soldiers.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1872</span><span class="ev-b"><span class="ev-t">First tennis club — Leamington Spa</span><span class="ev-w">Wimbledon is the <b>oldest tennis tournament in the world</b> and the only Grand Slam on <b>grass</b>.</span></span></li>
+      <li class="ev" style="--era:var(--wk-film)"><span class="ev-y">1896</span><span class="ev-b"><span class="ev-t">Films first shown publicly in the UK</span><span class="ev-w">No maker, no title — <b>the date is the entire fact</b>, which is exactly why it gets asked.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1902</span><span class="ev-b"><span class="ev-t">Motor-car racing starts in the UK</span><span class="ev-w">A Formula 1 <b>Grand Prix</b> has been held here every year since.</span></span></li>
+      <li class="ev" style="--era:var(--aw-nobel)"><span class="ev-y">1907</span><span class="ev-b"><span class="ev-t">Kipling — Nobel Prize in Literature</span><span class="ev-w">The <b>only literature Nobel the handbook dates</b>. And it lands <b>one year before</b> the first London Olympics — 1907, then 1908.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1908</span><span class="ev-b"><span class="ev-t">London Olympics — the first</span><span class="ev-w">One of <b>three</b>.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sci)"><span class="ev-y">1928</span><span class="ev-b"><span class="ev-t">Fleming discovers penicillin</span><span class="ev-w">While researching influenza. <b>This is why 1928 feels like an Olympic year and isn't</b> — it is the answer sheet's favourite fake Olympics.</span></span></li>
+      <li class="ev" style="--era:var(--wk-music)"><span class="ev-y">1927</span><span class="ev-b"><span class="ev-t">The BBC starts running the Proms</span><span class="ev-w">An <b>eight-week</b> summer season; the <b>Last Night</b> at the Royal Albert Hall is televised. <b>1927 is the BBC's Proms, not the BBC's radio</b> — radio was 1922.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1936</span><span class="ev-b"><span class="ev-t">The last British Grand Slam singles title</span><span class="ev-w">Until <b>Murray</b>, 76 years later.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sci)"><span class="ev-y">1945</span><span class="ev-b"><span class="ev-t">Fleming — Nobel Prize in Medicine</span><span class="ev-w">Discovered between the wars, decorated at the end of the second: <b>1928 found, 1945 awarded</b>.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1948</span><span class="ev-b"><span class="ev-t">London Olympics — the second</span><span class="ev-w"><b>Forty years</b> after the first.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sci)"><span class="ev-y">1953</span><span class="ev-b"><span class="ev-t">The structure of DNA</span><span class="ev-w">At British universities in <b>London and Cambridge</b>. <b>Francis Crick</b>, one of those awarded the Nobel, was British.</span></span></li>
+      <li class="ev" style="--era:var(--wk-stage)"><span class="ev-y">1952</span><span class="ev-b"><span class="ev-t"><i>The Mousetrap</i> opens</span><span class="ev-w"><b>Agatha Christie</b>'s play — the <b>longest initial run in history</b>, and still running. Two years before Bannister, and still going when you sit the test.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1954</span><span class="ev-b"><span class="ev-t">Bannister's four-minute mile</span><span class="ev-w">First man <b>in the world</b> under four minutes.</span></span></li>
+      <li class="ev dbl" style="--era:var(--aw-sport)"><span class="ev-y">1966</span><span class="ev-b"><span class="ev-t">England win the World Cup · Chichester sets sail</span><span class="ev-w"><b>Bobby Moore</b> captains; the tournament was <b>hosted in the UK</b>. The same year, <b>Chichester</b> leaves to sail single-handed around the world.</span></span></li>
+      <li class="ev" style="--era:var(--aw-book)"><span class="ev-y">1968</span><span class="ev-b"><span class="ev-t">The Man Booker Prize begins</span><span class="ev-w"><b>Books in ’68, brushes in ’84</b> — Booker then Turner, sixteen years apart.</span></span></li>
+      <li class="ev" style="--era:var(--wk-object)"><span class="ev-y">1969</span><span class="ev-b"><span class="ev-t"><i>Monty Python's Flying Circus</i></span><span class="ev-w">A new, progressive comedy — and the same year as <b>Ken Russell's <i>Women in Love</i></b>. <b>Booker ’68, Python ’69</b>: consecutive years, and the only place this page has two.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">1972</span><span class="ev-b"><span class="ev-t">Mary Peters — pentathlon gold</span><span class="ev-w">Her only Olympic medal, and the handbook's only <b>pentathlon</b>.</span></span></li>
+      <li class="ev" style="--era:var(--aw-film)"><span class="ev-y">1981</span><span class="ev-b"><span class="ev-t"><i>Chariots of Fire</i> — Hugh Hudson</span><span class="ev-w">One of the handbook's <b>named films</b>. Some question banks add that it <b>won an Oscar</b>; the handbook itself only names the film, the year and the director.</span></span></li>
+      <li class="ev dbl" style="--era:var(--aw-art)"><span class="ev-y">1984</span><span class="ev-b"><span class="ev-t">Turner Prize founded · Torvill &amp; Dean take gold</span><span class="ev-w"><b>Ice and art in the same year.</b> Fuse them — they are never asked together, so the pairing costs nothing and buys you both.</span></span></li>
+      <li class="ev" style="--era:var(--aw-sport)"><span class="ev-y">2000</span><span class="ev-b"><span class="ev-t">Mary Peters made a Dame</span><span class="ev-w">Of the British Empire — <b>for sport</b>, twenty-eight years after her gold.</span></span></li>
+      <li class="ev dbl" style="--era:var(--aw-sport)"><span class="ev-y">2004</span><span class="ev-b"><span class="ev-t">Holmes' double gold · MacArthur's record · Wiggins' first gold</span><span class="ev-w"><b>Kelly Holmes</b> takes two running golds; <b>Ellen MacArthur</b> becomes the fastest to sail solo around the world; <b>Wiggins</b> wins the first of three Olympic golds.</span></span></li>
+      <li class="ev dbl" style="--era:var(--aw-sport)"><span class="ev-y">2008</span><span class="ev-b"><span class="ev-t">Simmonds' first golds · Wiggins' second</span><span class="ev-w"><b>Ellie Simmonds</b>, the youngest member of the British team, wins Paralympic swimming gold.</span></span></li>
+      <li class="ev dbl" style="--era:var(--aw-sport)"><span class="ev-y">2012</span><span class="ev-b"><span class="ev-t">London — the third Olympics, and the Paralympics</span><span class="ev-w">Main site <b>Stratford, East London</b>; Britain finished <b>third</b> in the medal table. <b>Wiggins</b> (Tour de France) · <b>Farah</b> (5,000 &amp; 10,000) · <b>Ennis</b> (heptathlon) · <b>Murray</b> (US Open, plus Olympic gold and silver) · <b>Simmonds</b> (swimming).</span></span></li>
+      <li class="ev" style="--era:var(--wk-book)"><span class="ev-y">2003</span><span class="ev-b"><span class="ev-t"><i>The Lord of the Rings</i> voted best-loved novel · <i>Touching the Void</i></span><span class="ev-w"><b>Tolkien</b> wins the nation's vote, and <b>Kevin MacDonald's</b> film is the newest the handbook names. <b>The one year that is a book and a film at once.</b></span></span></li>
+    </ul>
+
+    <p class="railnote">The three Olympic years said aloud: <b>nineteen-oh-eight, nineteen-forty-eight, twenty-twelve</b>. Two eights and a twelve — and <b>1928 is the impostor</b>.</p>
+  </section>
+
+  <!-- ═══════════════ 6 · THE TRAPS ═══════════════ -->
+  <section id="traps">
+    <div class="sec-head">
+      <p class="n">Six</p>
+      <h2>The Traps</h2>
+      <p>Where the marks actually go. Read this last, and read it again in the car park.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--aw-valour)"><span class="dot"></span><b>Trap 1 · the ones who never won</b></div>
+      <div class="never">
+        <div class="nev"><b>Agatha Christie</b><span><i>No Nobel Prize in Literature.</i> She wrote detective stories and <i>The Mousetrap</i> — the longest initial run in history, open since 1952. The Nobel three are Golding, Heaney and Pinter.</span></div>
+        <div class="nev"><b>Richard Burton</b><span><i>No Oscar.</i> A celebrated British actor, and exactly the name they put beside Firth, Hopkins, Dench, Winslet and Swinton.</span></div>
+        <div class="nev"><b>Emily Watson</b><span><i>No Oscar.</i> The other name used the same way.</span></div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--aw-sport)"><span class="dot"></span><b>Trap 2 · the numbers migrate between names</b></div>
+      <div class="trap">
+        <span class="lab">Don't let them move</span>
+        <b>Redgrave = 5</b> — and it counts <b>Games</b>, not medals.<br>
+        <b>Hoy = 6</b> — and it counts <b>golds</b>. His 11 is world titles. His 7 is total medals.<br>
+        <b>Tanni = 16</b> medals, <b>11</b> gold, <b>5</b> Games, <b>6</b> marathons, <b>30</b> world records.<br>
+        <b>Weir = 6</b> golds over <b>2</b> Games, <b>6</b> marathons.<br>
+        <b>Wiggins = 7</b> medals, golds in ’04, ’08 and ’12.
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--aw-music)"><span class="dot"></span><b>Trap 3 · which prize, which field</b></div>
+      <div class="hook">
+        <span class="lab">One line each</span>
+        <b>Turner</b> → contemporary <b>art</b> · <b>Booker</b> → <b>fiction</b> · <b>Mercury</b> → best <b>album</b> · <b>Brit</b> → best British <b>group / solo artist</b> · <b>Olivier</b> → <b>theatre</b> · <b>BAFTA</b> → <b>film</b> · <b>Nobel</b> → <b>literature</b> (Golding, Heaney, Pinter, Kipling), <b>medicine</b> (Fleming), and the prize <b>Crick</b> shared for DNA — for which the handbook names no category at all.
+      </div>
+      <div class="hook">
+        <span class="lab">Mercury versus Brit</span>
+        <span class="big">Mercury crosses the Irish Sea. The Brits don't.</span>
+        <b>Mercury</b>: one winner, one <b>album</b>, each <b>September</b>, from the <b>UK <i>and Ireland</i></b>.<br>
+        <b>Brits</b>: many <b>categories</b>, best <b>British</b> group and best <b>British</b> solo artist.
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--aw-stage)"><span class="dot"></span><b>Trap 4 · the person is not what the sentence says</b></div>
+      <div class="trap">
+        <span class="lab">The classic true/false</span>
+        "<b>Mary Peters was an author</b> who was later made a Dame in recognition of her work promoting literacy." — <b>False.</b> She is an <b>athlete</b>; the Dame, in <b>2000</b>, was for <b>sport</b>.<br><br>
+        "<b>The Brit Awards</b> is an event where sports people are given awards." — <b>False.</b> Music.<br><br>
+        "<b>Mo Farah</b> was the first person to sail around the world single-handed." — <b>False.</b> That is <b>Chichester</b>. Farah runs.
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--aw-sport)"><span class="dot"></span><b>Trap 5 · read which Games they asked for</b></div>
+      <div class="hook">
+        <span class="lab">2012 was both</span>
+        London hosted the <b>Olympics</b> and the <b>Paralympics</b> in 2012, so "which international event was held in London in 2012" can correctly be either — read the options before you answer. And the <b>Paralympic movement itself began in Britain</b>: <b>Dr Sir Ludwig Guttmann</b>, a <b>German refugee</b>, at <b>Stoke Mandeville</b> hospital in Buckinghamshire.
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--aw-sci)"><span class="dot"></span><b>Trap 6 · the two science Nobels are different questions</b></div>
+      <div class="hook">
+        <span class="lab">Fleming versus Crick</span>
+        <b>Fleming</b> — <b>penicillin</b>, found <b>1928</b>, Nobel in <b>Medicine</b>, <b>1945</b>. Born in <b>Scotland</b>.<br>
+        <b>Crick</b> — the <b>structure of DNA</b>, <b>1953</b>, at <b>London and Cambridge</b>. The handbook's emphasis is that he <b>was British</b> and was <i>one of</i> those awarded.<br>
+        Swap them and you lose the mark: <b>Fleming has the dates, Crick has the universities.</b>
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--wk-book)"><span class="dot"></span><b>Trap 7 · the date belongs to the prize, not the winner</b></div>
+      <div class="trap">
+        <span class="lab">Four dates in the whole roll</span>
+        <b>1968</b> is when the <b>Booker began</b> — not when McEwan, Mantel or Barnes won.<br>
+        <b>1984</b> is when the <b>Turner Prize was founded</b> — not when Hirst or Wright won.<br>
+        <b>1953</b> is when <b>DNA was solved</b> — not when Crick's Nobel was awarded, which the handbook never says.<br>
+        <b>1928</b> is when <b>penicillin was found</b>; <b>1945</b> is Fleming's Nobel. He is the only winner here with both.<br><br>
+        Winners the handbook actually dates: <b>Kipling 1907</b>, <b>Fleming 1945</b>, and the Victoria Cross to soldiers of the <b>Crimean War</b>. That is the complete list.
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-head" style="--era:var(--wk-art)"><span class="dot"></span><b>Trap 8 · a work with a year is nearly always a film</b></div>
+      <div class="hook">
+        <span class="lab">Where the real dates live</span>
+        <span class="big">Eleven films have years. Almost nothing else does.</span>
+        Books, poems, paintings and symphonies come with <b>life dates for the maker</b> and nothing for the work. So when a question dates a <i>work</i>, check the medium first: if it is not one of the <b>eleven named films</b>, or one of the handful of dated moments — <b>1952 Mousetrap · 1969 Monty Python · 2003 Lord of the Rings · 1896 first film showings · 1927 the Proms</b> — then the year in front of you is decoration.
+      </div>
+    </div>
+
+    <div class="note">
+      <b>Where the question banks drift from the handbook.</b> Three places, and it is worth knowing which is which. <b>Ellie Simmonds</b> — the handbook says <b>2008 and 2012</b>; some banks add <b>2016</b> and say four golds. <b>Kelly Holmes</b> — the handbook says only "two gold medals for running"; some banks name the <b>800m and 1500m</b>. <b>Chariots of Fire</b> — the handbook names the film, the year (1981) and the director (Hugh Hudson), but does not say it won an Oscar; some banks do. In the real exam, answer from the handbook.
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Prizes, works and tallies, drawn from Chapters 3 and 4 — the exam samples all five. Everything here is collated from <a href="life-in-uk-chapter3.html">the Chapter 3</a> and <a href="life-in-uk-chapter4.html">Chapter 4</a> notes; nothing was rewritten and nothing was added.</p>
+    <p>Eleven prizes · eighteen named winners · one hundred and two named works.</p>
+    <p>Next: <a href="life-in-uk-cast.html">drill the names themselves</a> · <a href="life-in-uk-day-before-ch4.html">the rest of Chapter 4</a> · <a href="life-in-uk-mock-tests.html#drill">Daily drill</a></p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  /* ---- theme, shared with every other page ---- */
+  var root = document.documentElement, btn = document.getElementById("themeToggle");
+  function label() { btn.textContent = root.dataset.theme === "light" ? "☾ Dark" : "☀︎ Light"; }
+  btn.addEventListener("click", function () { LitUK.toggleTheme(); label(); });
+  document.addEventListener("lituk:theme", label);
+  label();
+
+  /* ---- 1 · field filter on the board ----
+     Dims rather than hides, so the eleven cards keep their positions and you
+     can still see how much of the board a field accounts for. */
+  var board = document.getElementById("boardList");
+  var cards = [].slice.call(board.querySelectorAll(".awd, .grp"));
+  var fchips = [].slice.call(document.querySelectorAll("#fieldChips .chip"));
+  fchips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var f = chip.dataset.f || "";
+      fchips.forEach(function (c) { c.classList.toggle("sel", c === chip); });
+      cards.forEach(function (c) {
+        var on = !f || c.dataset.f === f;
+        c.style.opacity = on ? "" : ".18";
+      });
+    });
+  });
+
+  /* ---- 2 · cover and recite on the tally ----
+     Every number on this page lives inside a <b>, which is what makes hiding
+     them a one-selector job. The class goes on only once the script has run,
+     so a page whose JavaScript never arrives shows the numbers rather than a
+     table of blanks nobody can uncover. */
+  var tal = document.getElementById("talList");
+  var talTally = document.getElementById("talTally");
+  var hideBtn = document.getElementById("hideBtn");
+  var showBtn = document.getElementById("showBtn");
+  var blanks = [].slice.call(tal.querySelectorAll(".tal-v b, .tal-y"));
+
+  function count() {
+    if (!tal.classList.contains("hide")) { talTally.textContent = ""; return; }
+    var n = 0;
+    blanks.forEach(function (b) { if (b.classList.contains("show")) n++; });
+    talTally.textContent = n + " of " + blanks.length + " checked";
+  }
+  /* The blanks are <b> and <div>, not buttons — ninety buttons inside prose
+     would fight the reading. They earn their keyboard affordances only while
+     hide mode is on, and give them back when it is off, so nothing lands in
+     the tab order that has nothing to do. */
+  function affordances(on) {
+    blanks.forEach(function (b) {
+      if (on) {
+        b.setAttribute("tabindex", "0");
+        b.setAttribute("role", "button");
+        b.setAttribute("aria-label", "Reveal the number");
+      } else {
+        b.removeAttribute("tabindex");
+        b.removeAttribute("role");
+        b.removeAttribute("aria-label");
+      }
+    });
+  }
+  function reveal(el) {
+    el.classList.toggle("show");
+    if (el.classList.contains("show")) el.removeAttribute("aria-label");
+    else el.setAttribute("aria-label", "Reveal the number");
+    count();
+  }
+  function setHidden(on) {
+    tal.classList.toggle("hide", on);
+    hideBtn.classList.toggle("on", on);
+    hideBtn.textContent = on ? "Numbers hidden" : "Hide the numbers";
+    hideBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    if (!on) blanks.forEach(function (b) { b.classList.remove("show"); });
+    affordances(on);
+    count();
+  }
+  hideBtn.addEventListener("click", function () { setHidden(!tal.classList.contains("hide")); });
+  showBtn.addEventListener("click", function () {
+    if (tal.classList.contains("hide")) { blanks.forEach(function (b) { b.classList.add("show"); }); count(); }
+    else setHidden(false);
+  });
+  tal.addEventListener("click", function (e) {
+    if (!tal.classList.contains("hide")) return;
+    var t = e.target;
+    if (blanks.indexOf(t) === -1) return;
+    reveal(t);
+  });
+  tal.addEventListener("keydown", function (e) {
+    if (!tal.classList.contains("hide")) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var t = e.target;
+    if (blanks.indexOf(t) === -1) return;
+    e.preventDefault();
+    reveal(t);
+  });
+  setHidden(false);
+
+  /* ---- 3 · the works: filter by medium ----
+     This list is a hundred rows long, so unlike the board it *removes* what
+     it isn't showing. Dimming a hundred rows leaves you scrolling past ninety
+     ghosts to reach ten answers. The family headings carry the same data-m,
+     so a filtered view keeps its labels and loses its empty sections. */
+  var wkList = document.getElementById("wkList");
+  var wkRows = [].slice.call(wkList.querySelectorAll(".wk, .grp"));
+  var wkAll = [].slice.call(wkList.getElementsByClassName("wk"));
+  var mchips = [].slice.call(document.querySelectorAll("#mediumChips .chip"));
+  var wkTally = document.getElementById("wkTally");
+  var wkHide = document.getElementById("wkHideBtn");
+  var wkShow = document.getElementById("wkShowBtn");
+  var wkBlanks = [].slice.call(wkList.querySelectorAll(".wk-m b"));
+
+  function wkVisible() {
+    return wkAll.filter(function (r) { return !r.hidden; });
+  }
+  function wkCount() {
+    var vis = wkVisible();
+    if (!wkList.classList.contains("hide")) {
+      wkTally.textContent = vis.length === wkAll.length
+        ? "" : vis.length + " of " + wkAll.length + " works";
+      return;
+    }
+    /* While hidden, count only the blanks you can actually see — a filtered
+       drill should report on the ten rows in front of you, not the hundred. */
+    var total = 0, done = 0;
+    vis.forEach(function (r) {
+      [].slice.call(r.querySelectorAll(".wk-m b")).forEach(function (b) {
+        total++; if (b.classList.contains("show")) done++;
+      });
+    });
+    wkTally.textContent = done + " of " + total + " named";
+  }
+  mchips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var m = chip.dataset.m || "";
+      mchips.forEach(function (c) { c.classList.toggle("sel", c === chip); });
+      wkRows.forEach(function (r) { r.hidden = !!m && r.dataset.m !== m; });
+      wkCount();
+    });
+  });
+
+  function wkAfford(on) {
+    wkBlanks.forEach(function (b) {
+      if (on) {
+        b.setAttribute("tabindex", "0");
+        b.setAttribute("role", "button");
+        b.setAttribute("aria-label", "Reveal the name");
+      } else {
+        b.removeAttribute("tabindex");
+        b.removeAttribute("role");
+        b.removeAttribute("aria-label");
+      }
+    });
+  }
+  function wkReveal(el) {
+    el.classList.toggle("show");
+    if (el.classList.contains("show")) el.removeAttribute("aria-label");
+    else el.setAttribute("aria-label", "Reveal the name");
+    wkCount();
+  }
+  function wkSetHidden(on) {
+    wkList.classList.toggle("hide", on);
+    wkHide.classList.toggle("on", on);
+    wkHide.textContent = on ? "Makers hidden" : "Hide the makers";
+    wkHide.setAttribute("aria-pressed", on ? "true" : "false");
+    if (!on) wkBlanks.forEach(function (b) { b.classList.remove("show"); });
+    wkAfford(on);
+    wkCount();
+  }
+  wkHide.addEventListener("click", function () { wkSetHidden(!wkList.classList.contains("hide")); });
+  wkShow.addEventListener("click", function () {
+    if (wkList.classList.contains("hide")) { wkBlanks.forEach(function (b) { b.classList.add("show"); }); wkCount(); }
+    else wkSetHidden(false);
+  });
+  wkList.addEventListener("click", function (e) {
+    if (!wkList.classList.contains("hide")) return;
+    if (wkBlanks.indexOf(e.target) === -1) return;
+    wkReveal(e.target);
+  });
+  wkList.addEventListener("keydown", function (e) {
+    if (!wkList.classList.contains("hide")) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (wkBlanks.indexOf(e.target) === -1) return;
+    e.preventDefault();
+    wkReveal(e.target);
+  });
+  wkSetHidden(false);
+
+  /* ---- 4 · which section am I in ---- */
+  var links = [].slice.call(document.querySelectorAll("#jump a"));
+  var seen = {};
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { seen[e.target.id] = e.isIntersecting; });
+      var cur = null;
+      links.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        if (!cur && seen[id]) cur = id;
+      });
+      links.forEach(function (a) { a.classList.toggle("cur", a.getAttribute("href") === "#" + cur); });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    links.forEach(function (a) {
+      var el = document.getElementById(a.getAttribute("href").slice(1));
+      if (el) io.observe(el);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
