@@ -273,6 +273,74 @@
   }
   .flag .mk { font-size:.72rem; }
 
+  /* ---------- the court map ----------
+     Same scroll-and-shadow furniture as the grid, because it is the same
+     problem: a wide picture on a 390px phone. Nothing here invents a colour.
+     Two systems run at once and they do not compete: the *panel* says which
+     jurisdiction you are in, the *node fill* says what kind of case it is. */
+  .dwrap { margin-top:12px; }
+  .mapkicker {
+    margin:30px 0 2px; font-family:var(--serif); font-weight:400;
+    font-size:1.24rem; line-height:1.25; letter-spacing:-.01em; color:var(--ink);
+  }
+  .mapsub { margin:0; font-size:.85rem; color:var(--ink-2); line-height:1.5; max-width:46em; }
+  .mapsub b { color:var(--ink); font-weight:650; }
+  .dia { display:block; width:940px; min-width:940px; font-family:var(--sans); }
+  .dia .panel { fill:var(--card-2); stroke:var(--line); stroke-width:1; }
+  .dia .panel.sco {
+    fill:color-mix(in srgb, var(--sco) 9%, var(--card-2));
+    stroke:color-mix(in srgb, var(--sco) 45%, var(--line));
+  }
+  .dia .jur { fill:var(--ink-2); font-size:11px; font-weight:700; letter-spacing:.13em; }
+  .dia .jur.sco { fill:var(--sco-ink); }
+  .dia .band { fill:var(--ink-3); font-size:9.5px; font-weight:700; letter-spacing:.16em; }
+  /* --c is set on the wrapping <g>, so one rule dresses every node and the
+     category classes below only have to name a token. */
+  .dia .node {
+    fill:color-mix(in srgb, var(--c) 12%, var(--card));
+    stroke:color-mix(in srgb, var(--c) 50%, var(--line)); stroke-width:1;
+  }
+  .dia .node.dash { stroke-dasharray:5 4; }   /* small claims: not a separate court */
+  .dia .minor   { --c:var(--era2); }
+  .dia .serious { --c:var(--era5); }
+  .dia .youth   { --c:var(--era4); }
+  .dia .civil   { --c:var(--era6); }
+  .dia .ghost .node { fill:none; stroke:var(--line); stroke-dasharray:5 4; }
+  .dia .nt { fill:var(--ink); font-size:13px; font-weight:700; }
+  .dia .ns { fill:var(--ink-2); font-size:11.4px; }
+  .dia .ghost .nt { fill:var(--ink-3); font-weight:650; }
+  .dia .ghost .ns { fill:var(--ink-3); }
+  .dia .mk { fill:var(--sco-ink); font-size:12px; font-weight:700; }
+  .dia .crown {
+    fill:color-mix(in srgb, var(--gold) 13%, var(--card));
+    stroke:color-mix(in srgb, var(--gold) 55%, var(--line)); stroke-width:1;
+  }
+  .dia .crown-t { fill:var(--ink); font-size:14.5px; font-weight:700; }
+  .dia .crown-s { fill:var(--ink-2); font-size:11.4px; }
+  .dia .lnk {
+    fill:none; stroke:var(--ink-3); stroke-width:1.4;
+    stroke-linecap:round; stroke-linejoin:round; opacity:.85;
+  }
+  .dia .lnk.soft { stroke-dasharray:4 4; opacity:.45; }
+  .dia .arrowhead { fill:var(--ink-3); opacity:.85; }
+
+  /* The map's own key. Each swatch is the same colour-mix as the node it
+     stands for, so the legend cannot drift away from the picture. */
+  .diakey {
+    display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
+    margin:10px 2px 0; font-size:.75rem; color:var(--ink-3); line-height:1.4;
+  }
+  .diakey span { display:inline-flex; align-items:center; gap:7px; }
+  .diakey i {
+    width:12px; height:12px; border-radius:4px; flex:0 0 auto; font-style:normal;
+    background:color-mix(in srgb, var(--c) 26%, var(--card));
+    border:1px solid color-mix(in srgb, var(--c) 55%, var(--line));
+  }
+  .diakey .k-minor   { --c:var(--era2); }
+  .diakey .k-serious { --c:var(--era5); }
+  .diakey .k-youth   { --c:var(--era4); }
+  .diakey .k-civil   { --c:var(--era6); }
+
   /* ---------- which court do I want ---------- */
   .pickbox {
     margin:14px 0 0; padding:14px 16px; border-radius:12px;
@@ -455,14 +523,14 @@
     <a href="#roles">Roles</a>
     <a href="#numbers">Numbers</a>
   </nav>
-  <p class="tenmin">Confused about courts? That's <a href="#courts">section 1</a>, and it's the only diagram on the page.</p>
+  <p class="tenmin">Confused about courts? That's <a href="#courts">section 1</a> — a grid to look them up, and a map of how they connect.</p>
 
   <!-- ═══════════════ 1 · THE COURTS ═══════════════ -->
   <section id="courts" data-ch="5">
     <div class="sec-head">
       <div class="n">One</div>
       <h2>The Courts</h2>
-      <p>Not a ladder — a matrix. Two axes: <b>what kind of case</b> (criminal, civil, youth) and <b>which jurisdiction</b> you are in — and the three jurisdictions do not use the same names for the same job. Read <b>across a row</b> to compare countries; read <b>down a column</b> to stay in one.</p>
+      <p>Not a ladder — a matrix. Two axes: <b>what kind of case</b> (criminal, civil, youth) and <b>which jurisdiction</b> you are in — and the three jurisdictions do not use the same names for the same job. Read <b>across a row</b> to compare countries; read <b>down a column</b> to stay in one — then the map below shows how the rungs connect.</p>
     </div>
 
     <div class="keyline">
@@ -513,17 +581,33 @@
             <td class="sco">
               <b class="ct">Sheriff Court</b>
               <span class="flag"><span class="mk">◆</span> Same court as ordinary civil</span>
-              <span class="sub">Judge and jury · <b>15 jurors</b> · a third verdict: <b>“not proven”</b></span>
+              <span class="sub">A <b>sheriff alone</b>, or a <b>sheriff with a jury</b> · <b>15 jurors</b> · a third verdict: <b>“not proven”</b></span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Most serious crime</th>
+            <td>
+              <b class="ct">Crown Court</b>
+              <span class="sub">No separate tier — <b>murder is tried in the Crown Court too</b></span>
+            </td>
+            <td>
+              <b class="ct">Crown Court</b>
+              <span class="sub">No separate tier — <b>murder is tried in the Crown Court too</b></span>
+            </td>
+            <td class="sco">
+              <b class="ct">High Court</b>
+              <span class="sub">Scotland <b>does</b> have a third tier: <b>murder and the like</b>, judge and jury, <b>15 jurors</b></span>
             </td>
           </tr>
           <tr>
             <th scope="row">Aged 10–17</th>
             <td>
               <b class="ct">Youth Court</b>
-              <span class="sub">Up to <b>three specially trained magistrates</b> · <b>parents must attend</b> · <b>public excluded</b> · <b>no naming or photographs</b></span>
+              <span class="sub">Up to <b>three specially trained magistrates</b> or a <b>District Judge</b> · <b>parents must attend</b> · <b>public excluded</b> · <b>no naming or photographs</b> · serious cases go up to the <b>Crown Court</b></span>
             </td>
             <td>
-              <b class="ct">Youth conferencing</b>
+              <b class="ct">Youth Court</b>
+              <span class="sub">Same rules as England &amp; Wales, alongside a system of <b>youth conferencing</b></span>
             </td>
             <td class="sco">
               <b class="ct">Children's Hearings</b>
@@ -551,16 +635,16 @@
           <tr>
             <th scope="row">Small claims</th>
             <td>
-              <b class="ct">Under £5,000</b>
+              <b class="ct">Under £10,000</b>
               <span class="sub">Not a separate court</span>
             </td>
             <td>
-              <b class="ct">Under £3,000</b>
+              <b class="ct">Under £5,000</b>
               <span class="sub">Not a separate court</span>
             </td>
             <td class="sco">
-              <b class="ct">Under £3,000</b>
-              <span class="sub">Not a separate court</span>
+              <b class="ct">Under £5,000</b>
+              <span class="sub">Not a separate court · Scotland calls it the <b>simple procedure</b></span>
             </td>
           </tr>
         </tbody>
@@ -569,12 +653,210 @@
 
     <p class="note"><b>Small claims</b> are heard <b>informally, in an ordinary room, before a judge</b> — no separate court, which is why that row holds money limits and not names. Claims can start at <b>Money Claims Online</b>.</p>
 
+    <!-- The same facts as the grid, wired up. The grid answers "which court?";
+         this answers "and then what?" — where a case goes when it gets too
+         serious for the court it started in. -->
+    <h3 class="mapkicker">The same courts, wired up</h3>
+    <p class="mapsub">The grid tells you <b>which</b> court. This tells you <b>where a case goes next</b> — the judiciary above all three systems, a criminal lane and a civil lane inside each, and every rung a case can climb.</p>
+
+    <p class="swipe"><i>↔</i> Swipe the map sideways, or pinch to zoom.</p>
+    <div class="cwrap dwrap" id="dwrap" role="region" aria-label="The UK court system as a flow chart" tabindex="0">
+        <svg class="dia" viewBox="0 0 940 896" width="940" height="896" role="img" aria-labelledby="diaTitle diaDesc">
+          <title id="diaTitle">The UK court system, jurisdiction by jurisdiction</title>
+          <desc id="diaDesc">A flow chart. The judiciary sits above three separate court systems — England and Wales, Northern Ireland, and Scotland — and belongs to none of them. Each system runs a criminal lane (minor crime, serious crime, the most serious crime, and defendants aged 10 to 17) and a civil lane (small claims, ordinary civil disputes, major civil cases), with arrows showing where a case goes when it outgrows the court it started in. The same information is in the table above this diagram.</desc>
+          <defs>
+            <marker id="diaAr" viewBox="0 0 9 9" refX="8.4" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path class="arrowhead" d="M0,0 L9,4.5 L0,9 Z"/></marker>
+          </defs>
+
+          <!-- the judiciary sits above all three systems and belongs to none of them -->
+          <rect class="crown" x="230" y="14" width="480" height="76" rx="16"/>
+          <text class="crown-t" x="470" y="40" text-anchor="middle">The Judiciary</text>
+          <text class="crown-s" x="470" y="60" text-anchor="middle">Judges interpret the law and keep trials fair —</text>
+          <text class="crown-s" x="470" y="77" text-anchor="middle">government cannot interfere with their decisions.</text>
+          <path class="lnk" d="M470,90 V106"/>
+          <path class="lnk" d="M470,106 H162 V119" marker-end="url(#diaAr)"/>
+          <path class="lnk" d="M470,106 V119" marker-end="url(#diaAr)"/>
+          <path class="lnk" d="M470,106 H778 V119" marker-end="url(#diaAr)"/>
+
+          <!-- England & Wales -->
+          <g class="col">
+            <rect class="panel" x="12" y="122" width="300" height="758" rx="16"/>
+            <text class="jur" x="162" y="150" text-anchor="middle">ENGLAND &amp; WALES</text>
+            <text class="band" x="24" y="175">CRIMINAL</text>
+            <text class="band" x="24" y="585">CIVIL</text>
+            <g class="minor">
+              <rect class="node" x="24" y="184" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="209">Magistrates' Court</text>
+              <text class="ns" x="38" y="229">Minor crime. Magistrates are unpaid</text>
+              <text class="ns" x="38" y="245">and need no legal qualifications.</text>
+            </g>
+            <g class="serious">
+              <rect class="node" x="24" y="282" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="307">Crown Court</text>
+              <text class="ns" x="38" y="327">Serious crime, judge and jury.</text>
+              <text class="ns" x="38" y="343">12 jurors.</text>
+            </g>
+            <g class="ghost">
+              <rect class="node" x="24" y="380" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="405">No separate tier</text>
+              <text class="ns" x="38" y="425">The most serious crime — murder —</text>
+              <text class="ns" x="38" y="441">is still tried in the Crown Court.</text>
+            </g>
+            <g class="youth">
+              <rect class="node" x="24" y="478" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="503">Youth Court</text>
+              <text class="ns" x="38" y="523">Ages 10–17. Up to three trained</text>
+              <text class="ns" x="38" y="539">magistrates. Parents must attend.</text>
+            </g>
+            <g class="civil">
+              <rect class="node dash" x="24" y="594" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="619">Small claims — under £10,000</text>
+              <text class="ns" x="38" y="639">Not a separate court: informal,</text>
+              <text class="ns" x="38" y="655">before a judge in an ordinary room.</text>
+            </g>
+            <g class="civil">
+              <rect class="node" x="24" y="692" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="717">County Court</text>
+              <text class="ns" x="38" y="737">Ordinary civil disputes — money,</text>
+              <text class="ns" x="38" y="753">injury, family, contracts, divorce.</text>
+            </g>
+            <g class="civil">
+              <rect class="node" x="24" y="790" width="250" height="74" rx="11"/>
+              <text class="nt" x="38" y="815">High Court</text>
+              <text class="ns" x="38" y="835">Major civil cases, such as large</text>
+              <text class="ns" x="38" y="851">claims for compensation.</text>
+            </g>
+            <path class="lnk" d="M162,258 V279" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M162,668 V689" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M162,766 V787" marker-end="url(#diaAr)"/>
+            <path class="lnk soft" d="M162,356 V377" marker-end="url(#diaAr)"/>
+            <!-- serious cases climb out of the youth track, routed clear of the tier above -->
+            <path class="lnk" d="M274,515 H294 V319 H277" marker-end="url(#diaAr)"/>
+          </g>
+
+          <!-- Northern Ireland -->
+          <g class="col">
+            <rect class="panel" x="320" y="122" width="300" height="758" rx="16"/>
+            <text class="jur" x="470" y="150" text-anchor="middle">NORTHERN IRELAND</text>
+            <text class="band" x="332" y="175">CRIMINAL</text>
+            <text class="band" x="332" y="585">CIVIL</text>
+            <g class="minor">
+              <rect class="node" x="332" y="184" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="209">Magistrates' Court</text>
+              <text class="ns" x="346" y="229">Minor crime. Heard by a District</text>
+              <text class="ns" x="346" y="245">Judge — paid and legally qualified.</text>
+            </g>
+            <g class="serious">
+              <rect class="node" x="332" y="282" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="307">Crown Court</text>
+              <text class="ns" x="346" y="327">Serious crime, judge and jury.</text>
+              <text class="ns" x="346" y="343">12 jurors.</text>
+            </g>
+            <g class="ghost">
+              <rect class="node" x="332" y="380" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="405">No separate tier</text>
+              <text class="ns" x="346" y="425">The most serious crime — murder —</text>
+              <text class="ns" x="346" y="441">is still tried in the Crown Court.</text>
+            </g>
+            <g class="youth">
+              <rect class="node" x="332" y="478" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="503">Youth Court</text>
+              <text class="ns" x="346" y="523">Ages 10–17, alongside a system of</text>
+              <text class="ns" x="346" y="539">youth conferencing.</text>
+            </g>
+            <g class="civil">
+              <rect class="node dash" x="332" y="594" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="619">Small claims — under £5,000</text>
+              <text class="ns" x="346" y="639">Not a separate court: informal,</text>
+              <text class="ns" x="346" y="655">before a judge in an ordinary room.</text>
+            </g>
+            <g class="civil">
+              <rect class="node" x="332" y="692" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="717">County Court</text>
+              <text class="ns" x="346" y="737">Ordinary civil disputes.</text>
+            </g>
+            <g class="civil">
+              <rect class="node" x="332" y="790" width="250" height="74" rx="11"/>
+              <text class="nt" x="346" y="815">High Court</text>
+              <text class="ns" x="346" y="835">Major civil cases.</text>
+            </g>
+            <path class="lnk" d="M470,258 V279" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M470,668 V689" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M470,766 V787" marker-end="url(#diaAr)"/>
+            <path class="lnk soft" d="M470,356 V377" marker-end="url(#diaAr)"/>
+            <!-- serious cases climb out of the youth track, routed clear of the tier above -->
+            <path class="lnk" d="M582,515 H602 V319 H585" marker-end="url(#diaAr)"/>
+          </g>
+
+          <!-- Scotland -->
+          <g class="col">
+            <rect class="panel sco" x="628" y="122" width="300" height="758" rx="16"/>
+            <text class="jur sco" x="778" y="150" text-anchor="middle">SCOTLAND</text>
+            <text class="band" x="640" y="175">CRIMINAL</text>
+            <text class="band" x="640" y="585">CIVIL</text>
+            <g class="minor">
+              <rect class="node" x="640" y="184" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="209">Justice of the Peace Court</text>
+              <text class="ns" x="654" y="229">Minor crime. JPs are unpaid and</text>
+              <text class="ns" x="654" y="245">need no legal qualifications.</text>
+            </g>
+            <g class="serious">
+              <rect class="node" x="640" y="282" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="307">Sheriff Court<tspan class="mk" dx="6">◆</tspan></text>
+              <text class="ns" x="654" y="327">Serious crime, before a sheriff or</text>
+              <text class="ns" x="654" y="343">a sheriff with a jury of 15.</text>
+            </g>
+            <g class="serious">
+              <rect class="node" x="640" y="380" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="405">High Court</text>
+              <text class="ns" x="654" y="425">The most serious crime, e.g. murder.</text>
+              <text class="ns" x="654" y="441">Judge and jury. 15 jurors.</text>
+            </g>
+            <g class="youth">
+              <rect class="node" x="640" y="478" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="503">Children's Hearings System</text>
+              <text class="ns" x="654" y="523">Young offenders — not a court.</text>
+            </g>
+            <g class="civil">
+              <rect class="node dash" x="640" y="594" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="619">Simple procedure — under £5,000</text>
+              <text class="ns" x="654" y="639">Not a separate court: informal,</text>
+              <text class="ns" x="654" y="655">before a judge in an ordinary room.</text>
+            </g>
+            <g class="civil">
+              <rect class="node" x="640" y="692" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="717">Sheriff Court<tspan class="mk" dx="6">◆</tspan></text>
+              <text class="ns" x="654" y="737">Ordinary civil disputes — the same</text>
+              <text class="ns" x="654" y="753">court that hears serious crime.</text>
+            </g>
+            <g class="civil">
+              <rect class="node" x="640" y="790" width="250" height="74" rx="11"/>
+              <text class="nt" x="654" y="815">Court of Session</text>
+              <text class="ns" x="654" y="835">Major civil cases. Edinburgh.</text>
+            </g>
+            <path class="lnk" d="M778,258 V279" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M778,668 V689" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M778,766 V787" marker-end="url(#diaAr)"/>
+            <path class="lnk" d="M778,356 V377" marker-end="url(#diaAr)"/>
+            <!-- serious cases climb out of the youth track, routed clear of the tier above -->
+            <path class="lnk" d="M890,515 H910 V319 H893" marker-end="url(#diaAr)"/>
+          </g>
+        </svg>
+    </div>
+
+    <div class="diakey">
+      <span><i class="k-minor"></i>Minor crime</span>
+      <span><i class="k-serious"></i>Serious crime</span>
+      <span><i class="k-youth"></i>Aged 10–17</span>
+      <span><i class="k-civil"></i>Civil</span>
+    </div>
+
     <div class="pickbox">
       <h3>Which court do I want?</h3>
       <div class="pick"><span class="pick-q">Minor crime</span><span class="ar">→</span><span class="pick-a">Tier 1 — Magistrates' Court, or the JP Court in Scotland</span></div>
       <div class="pick"><span class="pick-q">Serious crime</span><span class="ar">→</span><span class="pick-a">Tier 2 — Crown Court, or the Sheriff Court in Scotland</span></div>
       <div class="pick"><span class="pick-q">Suing someone</span><span class="ar">→</span><span class="pick-a">Civil, ordinary — County Court, or the Sheriff Court in Scotland</span></div>
-      <div class="pick"><span class="pick-q">Small money</span><span class="ar">→</span><span class="pick-a">Small claims — under £5,000 in England &amp; Wales, under £3,000 in Scotland &amp; NI</span></div>
+      <div class="pick"><span class="pick-q">Small money</span><span class="ar">→</span><span class="pick-a">Small claims — under £10,000 in England &amp; Wales, under £5,000 in Scotland &amp; NI</span></div>
     </div>
 
     <!-- The courts hook lives in section 2 with the other five, but it is the
@@ -584,14 +866,14 @@
       <div class="hook">
         <span class="lab">Memory hook</span>
         <span class="big">Scotland does everything a bit differently</span>
-        One rule of thumb saves eight facts: in Scotland it's <b>JP Courts</b> (not magistrates'), the <b>Sheriff Court</b> (not Crown/County), <b>15 jurors</b> (not 12), <b>three verdicts</b> (“not proven”), a <b>£3,000</b> small-claims limit, and <b>Children's Hearings</b> for the young.
+        One rule of thumb saves eight facts: in Scotland it's <b>JP Courts</b> (not magistrates'), the <b>Sheriff Court</b> (not Crown/County), <b>15 jurors</b> (not 12), <b>three verdicts</b> (“not proven”), a <b>£5,000</b> small-claims limit (England &amp; Wales allow £10,000), and <b>Children's Hearings</b> for the young.
       </div>
       <a class="seealso" href="#trap-courts">The courts exam trap is in section 2 →</a>
     </div>
 
     <p class="note"><b>Judges interpret the law and keep trials fair — government cannot interfere</b>; if the government acts illegally, it must <b>change its policies or ask Parliament to change the law</b>. <b>Jury service is compulsory</b> for those summoned, unless ineligible or excused for good reason. <b>Solicitors</b> are trained lawyers who advise, act and represent; fees usually follow <b>time spent</b>.</p>
 
-    <p class="note quiet">That is every court the chapter names. There is <b>no appeal tier in Chapter 5</b> — no Supreme Court, no Court of Appeal — so there is none on this grid. If a court isn't here, the chapter never says it.</p>
+    <p class="note quiet">That is every court the chapter names. Scotland's <b>High Court</b> is a first-instance court for the worst crimes, not an appeal court: there is <b>no appeal tier in Chapter 5</b> — no Supreme Court, no Court of Appeal — so there is none on the grid or the map. If a court isn't here, the chapter never says it.</p>
   </section>
 
   <!-- ═══════════════ 2 · THE TRAPS ═══════════════ -->
@@ -646,7 +928,7 @@
       <div class="hook">
         <span class="lab">Memory hook</span>
         <span class="big">Scotland does everything a bit differently</span>
-        One rule of thumb saves eight facts: in Scotland it's <b>JP Courts</b> (not magistrates'), the <b>Sheriff Court</b> (not Crown/County), <b>15 jurors</b> (not 12), <b>three verdicts</b> (“not proven”), a <b>£3,000</b> small-claims limit, and <b>Children's Hearings</b> for the young.
+        One rule of thumb saves eight facts: in Scotland it's <b>JP Courts</b> (not magistrates'), the <b>Sheriff Court</b> (not Crown/County), <b>15 jurors</b> (not 12), <b>three verdicts</b> (“not proven”), a <b>£5,000</b> small-claims limit (England &amp; Wales allow £10,000), and <b>Children's Hearings</b> for the young.
       </div>
       <div class="trap">
         <span class="lab">Exam trap</span>
@@ -927,8 +1209,8 @@
         <div class="cs-row"><div class="cs-year">Nov 2012</div><div class="cs-event">first Police and Crime Commissioner elections</div></div>
         <div class="cs-row"><div class="cs-year">12 / 15</div><div class="cs-event">jurors: England, Wales, NI / Scotland (+ “not proven”)</div></div>
         <div class="cs-row"><div class="cs-year">10–17</div><div class="cs-event">Youth Court — parents attend, public barred, no naming</div></div>
-        <div class="cs-row"><div class="cs-year">£5,000</div><div class="cs-event">small-claims ceiling in England &amp; Wales</div></div>
-        <div class="cs-row"><div class="cs-year">£3,000</div><div class="cs-event">small-claims ceiling in Scotland &amp; NI</div></div>
+        <div class="cs-row"><div class="cs-year">£10,000</div><div class="cs-event">small-claims ceiling in England &amp; Wales</div></div>
+        <div class="cs-row"><div class="cs-year">£5,000</div><div class="cs-event">small-claims ceiling in Scotland &amp; NI</div></div>
       </div>
       <div class="cs-group" style="--era:var(--era5)">
         <h3>Rights &amp; money</h3>
@@ -974,22 +1256,28 @@
   document.addEventListener("lituk:theme", label);
   label();
 
-  /* ---- the courts grid ----
+  /* ---- the courts grid and the courts map ----
      Two jobs, both cosmetic: drop the "swipe it" line when there is nothing to
      swipe (wide screens), and only shadow the sticky column once the table has
-     actually moved. The grid itself is plain HTML and needs none of this. */
-  var cw = document.getElementById("cwrap");
-  var swipe = document.querySelector(".swipe");
-  if (cw) {
+     actually moved. Both scrollers want the same two things, and each one's
+     prompt is the .swipe line immediately above it — so pair them off rather
+     than hunting for ids. The grid itself is plain HTML and needs none of this. */
+  var syncAll = [];
+  [].slice.call(document.querySelectorAll(".cwrap")).forEach(function (cw) {
+    var prev = cw.previousElementSibling;
+    var swipe = prev && prev.classList.contains("swipe") ? prev : null;
     var sync = function () {
       var scrolls = cw.scrollWidth > cw.clientWidth + 1;
       if (swipe) swipe.style.display = scrolls ? "" : "none";
       cw.classList.toggle("shifted", cw.scrollLeft > 2);
     };
     cw.addEventListener("scroll", sync, { passive: true });
-    window.addEventListener("resize", sync);
+    syncAll.push(sync);
     sync();
-  }
+  });
+  window.addEventListener("resize", function () {
+    syncAll.forEach(function (f) { f(); });
+  });
 
   /* ---- which section am I in ---- */
   var links = [].slice.call(document.querySelectorAll("#jump a"));
