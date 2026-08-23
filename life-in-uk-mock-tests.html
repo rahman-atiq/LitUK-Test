@@ -295,17 +295,20 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    the same fixed-counts-plus-orphan-rules answer .stat-row already uses, and for
    the same reason: auto-fit sized these off a 196px floor, which needed 401px to
    reach two tracks and so never gave a phone anything but one column of eight.
-   The count is 7 or 6 depending on whether any real-exam questions have been
+   The count is 8 or 7 depending on whether any real-exam questions have been
    reported, so an odd tail is the normal case here, not the edge one.
 
-   Seven, because "Practice mistakes" is gone. It called go('mistakes'), which is
-   the Mistakes button pinned in the nav on every screen, and its count is one of
-   the three stat boxes 100px above — the door and the number were both already
-   there, so the row was 65px of echo.
-   The order runs by how much is waiting: the four that count something, then the
-   two that do not, then the picker. The picker is last because the last tile is
-   the one the orphan rule stretches across both columns, and of the seven it is
-   the one with least to say. */
+   "Practice mistakes" is still gone: it called go('mistakes'), which is the
+   Mistakes button pinned in the nav on every screen, and its count is one of the
+   three stat boxes 100px above — the door and the number were both already
+   there, so the row was 65px of echo. What sits first instead is Mistake set,
+   which is not that door: it starts a sitting rather than opening a list, and
+   it is first because with an exam date on the page it is the one tile whose
+   contents expire at midnight.
+   After it the order runs by how much is waiting: the ones that count something,
+   then the ones that do not, then the picker. The picker is last because the
+   last tile is the one the orphan rule stretches across both columns, and of the
+   eight it is the one with least to say. */
 .actions{grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}
 .actions > .act:last-child:nth-child(odd){grid-column:1/-1}
 @media (min-width:700px){
@@ -1432,6 +1435,7 @@ function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
   const rec=recentAcc();
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
+  const ms=mistakeSetPos();
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
   const left=daysLeft(),tw=twistStats(),ex=examStats();
   const rd=readiness(),rp=Math.round(rd.p*100);
@@ -1475,6 +1479,9 @@ function renderDashboard(){
       <div class="card stat"><div class="n ${openMistakes?'bad':'good'}">${openMistakes}</div><div class="l">Mistakes to review</div></div>
     </div>
     <div class="grid actions">
+      <button class="card act" onclick="startMistakeSet()" title="${ms.live
+        ? `Set ${ms.i} of ${ms.of} — ${Math.min(MISTAKE_SET_N,ms.live)} questions, oldest first. ${ms.live} of your ${ms.open} can still earn a day today.`
+        : ms.open?`All ${ms.open} have had their day today — the next tick has to be tomorrow`:'Nothing open'}"><span class="emo">🎯</span><span class="t">Mistake set</span><span class="n${ms.live?'':' done'}">${ms.live?`${ms.i}/${ms.of}`:'✓'}</span></button>
       <button class="card act" onclick="startSweep()" title="${unseen?`${Math.min(SWEEP_N,unseen)} you have never seen, ${unseen} left in the bank`:'Whole bank seen'}"><span class="emo">🧭</span><span class="t">Sweep</span><span class="n${unseen?'':' done'}">${unseen||'✓'}</span></button>
       <button class="card act" onclick="startTwist()" title="${tw.total} two-option traps, in clusters${tw.fresh?` · ${tw.fresh} new`:tw.weak?` · ${tw.weak} still open`:''}"><span class="emo">🌀</span><span class="t">Twists</span><span class="n">${tw.total}</span></button>
       ${ex.total?`<button class="card act" onclick="startExamQs()" title="${ex.total} reported as recently asked${ex.fresh?` · ${ex.fresh} new`:ex.weak?` · ${ex.weak} still open`:''}"><span class="emo">⭐</span><span class="t">Reported</span><span class="n">${ex.total}</span></button>`:''}
@@ -1757,7 +1764,7 @@ function collisionPrompt(s,fresh){
 function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,order=null}){
   let list=qs.slice();
   if(order==='cluster')list=clusterOrder(list);
-  else if(order!=='keep'&&prefs.shufQ&&source!=='mistakes')list=shuffle(list);
+  else if(order!=='keep'&&prefs.shufQ&&source!=='mistakes'&&source!=='mset')list=shuffle(list);
   if(instant==null)instant=prefs.feedback==='instant';
   /* startTs doubles as the session id: unique per session for any human, and it
      sorts the resume list by recency for free. The loop is pure insurance
@@ -1793,6 +1800,74 @@ function practiceMistakes(){
   makeSession(ids,{title:'Mistake practice',timed:false,source:'mistakes'});
 }
 function startTopic(tp){const qs=POOL.filter(q=>q.p===tp);makeSession(shuffle(qs).slice(0,24),{title:TOPICS[tp],timed:false,source:'topic'})}
+
+/* ============ MISTAKE SETS ============
+   practiceMistakes() serves the whole list in one go. At 150+ that is not a
+   session, it is a wall, and a wall gets abandoned halfway — which is the
+   actual reason the list drains slowly. It is not the retirement rule. Nothing
+   clears on a session you did not finish.
+
+   So the same pile, cut into papers. Not a smaller dose: the appetite here is
+   the whole list in a day and more, sat across six or seven sittings that each
+   feel like a test with a front and a back. The chunk is the entire feature.
+
+   Two rules decide what is in each one, and neither touches how hard it is to
+   clear a question:
+
+   1. Only what can still EARN something today. A day is credited once
+      (recordAnswer), and never on the day you slipped, so an entry already
+      ticked off today or missed today is dead weight — right or wrong, its
+      counter cannot move again until tomorrow. That also makes the sets walk
+      forward on their own: every question answered leaves the pool, so set 2
+      is 24 questions set 1 never showed you, with no bookkeeping to keep.
+   2. Oldest-untouched first, not random. Retirement needs each question to
+      collect its own separate days, so the queue has to walk the whole list
+      rather than re-roll the same faces; a random draw leaves a tail that
+      never comes up at all.
+
+   Severity is the tie-break, not the sort. Ranking by it outright means a
+   solid block of leeches every day while the tail starves — and leeches have
+   their own protection already: they never retire on the counter, so they
+   cannot leave the list by accident however often they surface. */
+const MISTAKE_SET_N=24;
+/* Open, not already credited today, not missed today — everything a session
+   today could actually move. */
+function mistakePool(){
+  const today=dayKey();
+  return Object.entries(S.mistakes)
+    .filter(([,m])=>!m.done&&m.miss!==today&&!(m.ok||[]).includes(today))
+    .map(([g,m])=>({q:QByG[canon(g)],m})).filter(x=>x.q);
+}
+function mistakeQueue(){
+  return mistakePool().sort((a,b)=>lastSeen(a.q)-lastSeen(b.q)||cramRank(b.m)-cramRank(a.m));
+}
+/* "Set 3 of 7", derived, never stored. Counting what has already had its day
+   is the same question asked from the other side, so the label cannot drift
+   out of step with the pool: an abandoned set leaves its questions live and
+   the number simply does not advance, mistakes made in a practice test during
+   the day grow the denominator honestly, and clearing one in the daily drill
+   moves the set on because it genuinely did the work. */
+function mistakeSetPos(){
+  const today=dayKey(),open=Object.values(S.mistakes).filter(m=>!m.done);
+  const spent=open.filter(m=>m.miss===today||(m.ok||[]).includes(today)).length;
+  return {i:Math.floor(spent/MISTAKE_SET_N)+1,
+          of:Math.max(1,Math.ceil(open.length/MISTAKE_SET_N)),
+          live:open.length-spent,open:open.length};
+}
+function startMistakeSet(n){
+  const size=Math.max(1,Math.min(DRILL_MAX,Math.round(+n||MISTAKE_SET_N)));
+  const qs=mistakeQueue().slice(0,size).map(x=>x.q);
+  if(!qs.length){
+    toast(cramCount()?'Every open mistake has had its day today ✅ — the next tick has to be tomorrow':'No mistakes to review 🎉');
+    return;
+  }
+  const p=mistakeSetPos();
+  /* Its own source, not 'mistakes': makeSession leaves the order alone for both
+     (the queue above IS the point — shuffling it hands back a random 24), but
+     only this one is a training set, walks a queue on Next batch, and needs a
+     results screen that talks about days rather than a pass mark. */
+  makeSession(qs,{title:`Mistake set ${p.i} of ${p.of}`,timed:false,source:'mset'});
+}
 
 /* ============ DAILY DRILL ============
    prefs.dailyTarget questions, mixed by an explicit ratio: what spaced
@@ -2652,11 +2727,13 @@ function explainReadiness(){
    Sources whose score is not a readiness signal: they are training sets, built
    to be harder or stranger than a real sit. */
 /* Not scored as a pass attempt, and not a test result. Each of these serves a
-   deliberately unrepresentative slice — unseen questions, coin flips, dates, or
-   the 263 hardest-yield questions in the bank ordered by what you owe them — so
-   a score here is not an estimate of anything and must not move the pass rate.
-   All four still count as the day's work and keep the streak alive. */
-const TRAINING=new Set(['sweep','twist','dates','examq']);
+   deliberately unrepresentative slice — unseen questions, coin flips, dates,
+   the 263 hardest-yield questions in the bank ordered by what you owe them, or
+   your own open mistakes — so a score here is not an estimate of anything and
+   must not move the pass rate. A mistake set is the plainest case of the five:
+   it is your worst questions, hardest-first, by construction.
+   All five still count as the day's work and keep the streak alive. */
+const TRAINING=new Set(['sweep','twist','dates','examq','mset']);
 function finishQuiz(){
   stopTimer();
   /* Graded is finished: the store entry goes here and on an explicit discard,
@@ -2729,6 +2806,8 @@ function renderResults(score,total,passed){
             ?`📅 Dates drilled${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :sess.source==='examq'
             ?`⭐ Exam questions drilled${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            :sess.source==='mset'
+            ?`🎯 ${esc(sess.title)} done`
             :sess.source==='drill'
             ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :(passed?'🎉 Passed!':'Keep practising')}</div>
@@ -2740,6 +2819,11 @@ function renderResults(score,total,passed){
             ?`<b>${score}</b> of <b>${total}</b>, with the near-miss years put back in. Doesn't count towards your pass rate.`
             :sess.source==='examq'
             ?`<b>${score}</b> of <b>${total}</b>, all of them reported as recently asked in a real exam. <b>${examStats().fresh}</b> of the ${EXAM_POOL.length} still never seen. Doesn't count towards your pass rate — hardest-first is not a fair sample.`
+            :sess.source==='mset'
+            ?(()=>{const p=mistakeSetPos();
+               return `<b>${score}</b> of <b>${total}</b> — the ${score} you got right have earned a day each towards clearing. ${p.live
+                 ? `<b>${p.live}</b> still open and able to earn one today, ${Math.ceil(p.live/MISTAKE_SET_N)} more set${Math.ceil(p.live/MISTAKE_SET_N)===1?'':'s'}' worth.`
+                 : `That's every open mistake given its day. The next tick has to be tomorrow — spacing is what makes them stick.`} Doesn't count towards your pass rate — these are your worst questions by construction.`})()
             :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} ${took}${readinessMove()}</p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
@@ -2819,6 +2903,7 @@ function retrySame(){
   if(sess.source==='twist')return startTwist(sess.items.length);
   if(sess.source==='dates')return startDates(sess.items.length);
   if(sess.source==='examq')return startExamQs(sess.items.length);
+  if(sess.source==='mset')return startMistakeSet(sess.items.length);
   if(sess.testN)return startTest(sess.testN);
   const src=sess.items.map(it=>it.q);
   makeSession(src,{title:sess.title,timed:sess.timed,testN:sess.testN,source:sess.source});
@@ -2883,13 +2968,18 @@ function renderMistakes(){
   const open=all.filter(x=>!x.m.leech&&(x.m.count||0)>0);
   const guessed=all.filter(x=>!x.m.leech&&!(x.m.count||0));
   const done=Object.entries(S.mistakes).filter(([g,m])=>m.done).length;
+  const ms=mistakeSetPos();
   const flagged=Object.keys(S.flags).map(g=>QByG[g]).filter(Boolean);
   const el=document.getElementById('view-mistakes');
   el.innerHTML=`
     <h1>Mistakes & flags</h1>
     <p class="sub">A question clears when you get it right on <b>${RETIRE_4} separate days</b> — ${RETIRE_2} for a two-option question, never on the day you slipped, and never on a day you tapped "wasn't sure". ${done} cleared so far.</p>
+    <p class="sub" style="margin:-6px 0 12px">Sets of ${MISTAKE_SET_N}, oldest-untouched first, and only what can still earn a day today — so each one is ${MISTAKE_SET_N} the last set didn't show you. ${ms.live
+      ? `<b>${ms.live}</b> left today across ${Math.ceil(ms.live/MISTAKE_SET_N)} set${Math.ceil(ms.live/MISTAKE_SET_N)===1?'':'s'}.`
+      : all.length?`All ${all.length} have had their day — come back tomorrow.`:''}</p>
     <div class="btn-row" style="margin-bottom:16px">
-      <button class="btn primary" onclick="practiceMistakes()" ${all.length?'':'disabled'}>🎯 Practise ${all.length} mistake${all.length===1?'':'s'}</button>
+      <button class="btn primary" onclick="startMistakeSet()" ${ms.live?'':'disabled'}>🎯 ${ms.live?`Mistake set ${ms.i} of ${ms.of}`:'All had their day today'}</button>
+      <button class="btn" onclick="practiceMistakes()" ${all.length?'':'disabled'}>Practise all ${all.length}</button>
       ${flagged.length?`<button class="btn" onclick="practiceFlagged()">★ Practise ${flagged.length} flagged</button>`:''}
       ${all.length?`<button class="btn ghost" onclick="go('cram')">📄 Cram sheet</button>`:''}
       ${all.length?`<button class="btn ghost" onclick="clearMistakes()">Clear list</button>`:''}
@@ -3068,7 +3158,7 @@ function renderStats(){
     <div class="card pad" style="margin-bottom:18px">
       <b>Recent attempts</b>
       ${S.history.length?`<div style="margin-top:10px">${S.history.slice(0,12).map(h=>`<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
-        <span class="ic" style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--on-solid);font-size:11px;font-weight:800;background:${h.src==='sweep'?'var(--brand)':h.passed?'var(--good)':'var(--bad)'}">${h.src==='sweep'?'🧭':h.passed?'✓':'✕'}</span>
+        <span class="ic" style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--on-solid);font-size:11px;font-weight:800;background:${h.src==='sweep'||h.src==='mset'?'var(--brand)':h.passed?'var(--good)':'var(--bad)'}">${h.src==='sweep'?'🧭':h.src==='mset'?'🎯':h.passed?'✓':'✕'}</span>
         <span style="flex:1">${esc(h.title)}</span><b>${h.score}/${h.total}</b>
         <span class="tag">${new Date(h.t).toLocaleDateString()}</span></div>`).join('')}</div>`
       :'<p class="sub" style="margin-top:8px">No attempts yet.</p>'}
