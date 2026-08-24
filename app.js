@@ -503,24 +503,32 @@
   var EGGS = [
     { id: "assent", icon: "👑", name: "Royal Assent",
       hint: "A very old cheat code. Arrows first, two letters after.",
+      touchHint: "Say what a bill needs from the monarch before it becomes an Act.",
+      say: ["assent", "leroyleveult", "leroy"],
       line: "Le Roy le veult. Royal Assent granted — the bill is now an Act." },
     { id: "brew", icon: "☕", name: "Put the kettle on", word: "tea",
       hint: "Type the three letters this country actually runs on.",
+      touchHint: "Say the three letters this country actually runs on.",
       line: "Priorities. Milk in after, and never let anyone tell you otherwise." },
     { id: "rain", icon: "🌧", name: "Typical", word: "rain",
       hint: "Type the national conversation topic. Four letters.",
+      touchHint: "Say the national conversation topic. Four letters.",
       line: "Typical. Take a coat — you will want it by four." },
     { id: "queue", icon: "🧍", name: "The Queue", word: "queue",
       hint: "Type the one thing nobody here ever jumps.",
+      touchHint: "Say the one thing nobody here ever jumps.",
       line: "Not a single person pushed in. A beautiful, orderly line." },
     { id: "hastings", icon: "🏹", name: "Hastings", word: "1066",
       hint: "Type the one date the test will never let you forget.",
+      touchHint: "Say the one date the test will never let you forget.",
       line: "1066. William, Harold, and an arrow. You will not forget it now." },
     { id: "sorry", icon: "🙇", name: "No, after you", word: "sorry",
       hint: "Type what you say when somebody else steps on your foot.",
+      touchHint: "Say what you say when somebody else steps on your foot.",
       line: "No — I'm sorry. Honestly. Entirely my fault." },
     { id: "flag", icon: "🇬🇧", name: "Flutter",
       hint: "The flag at the top of the hub would like some attention. Five taps.",
+      touchHint: "The flag at the top of the hub would like some attention. Five taps.",
       line: "Three crosses, one flag, and a very respectable flutter." }
   ];
 
@@ -605,7 +613,10 @@
     ".egg-flutter{animation:eggFlutter 1.25s ease-in-out}" +
     "@keyframes eggFlutter{0%,100%{transform:none}18%{transform:rotate(-9deg) skewX(7deg)}" +
     "44%{transform:rotate(8deg) skewX(-7deg)}70%{transform:rotate(-4deg) skewX(3deg)}}" +
-    ".egg-tap{animation:eggTap .28s ease}" +
+    /* The seal already carries a drift animation from a two-class selector, so
+       a bare .egg-tap never won the shorthand and the tap pulse never showed.
+       The id gets it back. */
+    ".egg-tap,#flagSeal.egg-tap{animation:eggTap .28s ease}" +
     "@keyframes eggTap{50%{transform:scale(1.12)}}" +
 
     /* the note that says what you just found */
@@ -643,10 +654,63 @@
     ".curio-item.got{border-color:color-mix(in srgb,var(--gold,#D4A94E) 45%,transparent);" +
     "background:color-mix(in srgb,var(--gold,#D4A94E) 9%,transparent)}" +
     ".curio-item.got b{color:var(--gold,#D4A94E)}" +
+    ".curio-note{margin:11px 2px 2px;font-size:.74rem;line-height:1.55;text-align:left;" +
+    "color:var(--ink-3,#8B8F98)}" +
+    ".curio-note b{font-weight:700;color:var(--gold,#D4A94E)}" +
+
+    /* Both hold targets. iOS otherwise answers a long press with the selection
+       callout (or a link preview on the pill), and five fast taps with a zoom. */
+    "#flagSeal,.lituk-hub{touch-action:manipulation;-webkit-touch-callout:none;" +
+    "-webkit-user-select:none;user-select:none}" +
+    "#flagSeal.egg-hold{animation-play-state:paused;filter:brightness(1.14) saturate(1.12)}" +
+    ".lituk-hub.egg-hold{transform:scale(.94)}" +
+    /* Three taps in and the gold starts answering back — five taps on a seal
+       nobody knows is a button is not a hunt, it is a coincidence. */
+    "#flagSeal.egg-warm{box-shadow:inset 0 1px 0 var(--sheen,transparent)," +
+    "0 0 0 2px color-mix(in srgb,var(--gold,#D4A94E) 60%,transparent),0 10px 30px rgba(0,0,0,.22)}" +
+
+    /* the plaque — the phone's stand-in for a keyboard */
+    ".egg-plaque-back{position:fixed;inset:0;z-index:10000;display:flex;" +
+    "align-items:flex-end;justify-content:center;" +
+    "padding:0 calc(var(--lituk-sal,0px) + 14px) calc(var(--lituk-sab,0px) + 18px)" +
+    " calc(var(--lituk-sar,0px) + 14px);" +
+    "background:rgba(8,10,14,.46);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);" +
+    "opacity:0;transition:opacity .22s ease}" +
+    ".egg-plaque-back.on{opacity:1}" +
+    ".egg-plaque{position:relative;width:min(420px,100%);box-sizing:border-box;" +
+    "padding:15px 16px 16px;border-radius:16px;transform:translateY(20px);" +
+    "transition:transform .26s cubic-bezier(.2,.8,.3,1);" +
+    "font:400 .85rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;" +
+    "color:var(--ink,var(--text,#222));background:var(--card,var(--panel,#fff));" +
+    "border:1px solid color-mix(in srgb,var(--gold,#D4A94E) 48%,var(--line,rgba(128,128,128,.35)));" +
+    "box-shadow:0 2px 6px rgba(0,0,0,.25),0 26px 60px rgba(0,0,0,.42)}" +
+    ".egg-plaque-back.on .egg-plaque{transform:none}" +
+    ".egg-plaque b{display:block;font-size:.72rem;font-weight:700;letter-spacing:.13em;" +
+    "text-transform:uppercase;color:var(--gold,#D4A94E)}" +
+    ".egg-plaque span{display:block;margin-top:5px;font-size:.78rem;color:var(--ink-3,#8B8F98)}" +
+    ".egg-plaque .x{position:absolute;top:6px;right:6px;width:34px;height:34px;padding:0;" +
+    "font:400 19px/1 system-ui,sans-serif;color:var(--ink-3,#8B8F98);background:none;border:0;" +
+    "cursor:pointer;-webkit-appearance:none;appearance:none}" +
+    ".egg-plaque-row{display:flex;gap:8px;margin-top:12px}" +
+    /* 1rem, not smaller: anything under 16px and iOS zooms the page on focus. */
+    ".egg-plaque input{flex:1 1 auto;min-width:0;box-sizing:border-box;padding:11px 12px;" +
+    "font:400 1rem/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;" +
+    "border-radius:11px;color:var(--ink,inherit);background:var(--page,var(--bg,transparent));" +
+    "border:1px solid var(--line,rgba(128,128,128,.35));-webkit-appearance:none;appearance:none}" +
+    ".egg-plaque input:focus{outline:none;border-color:var(--gold,#D4A94E)}" +
+    ".egg-plaque .go{flex:0 0 auto;min-height:44px;padding:0 16px;border:0;border-radius:11px;" +
+    "font:700 .82rem/1 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;" +
+    "color:#20242C;background:var(--gold,#D4A94E);cursor:pointer;" +
+    "-webkit-appearance:none;appearance:none}" +
+    ".egg-plaque.no{animation:eggNo .42s ease}" +
+    "@keyframes eggNo{10%,90%{transform:translateX(-3px)}30%,70%{transform:translateX(5px)}" +
+    "50%{transform:translateX(-6px)}}" +
 
     "@media (prefers-reduced-motion:reduce){" +
-    ".egg-toast,.egg-toast.on{transition:none}.egg-toast.bow.on{animation:none}}" +
-    "@media print{.egg-stage,.egg-toast{display:none}}";
+    ".egg-toast,.egg-toast.on{transition:none}.egg-toast.bow.on{animation:none}" +
+    ".egg-plaque-back,.egg-plaque{transition:none}.egg-plaque.no{animation:none}" +
+    "#flagSeal.egg-hold{filter:none}}" +
+    "@media print{.egg-stage,.egg-toast,.egg-plaque-back{display:none}}";
 
   function eggsFound() {
     try { return JSON.parse(localStorage.getItem(EGG_KEY) || "{}") || {}; }
@@ -662,6 +726,14 @@
   function calm() {
     try { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
     catch (e) { return false; }
+  }
+  /* Installed on a phone there is no keyboard unless a field has the caret, and
+     the typed triggers deliberately ignore fields — so six of the seven were
+     unreachable on the one device this app is actually used on. Anything
+     touch-primary gets told to hold the seal instead. */
+  function coarse() {
+    try { return matchMedia("(hover:none),(pointer:coarse)").matches; }
+    catch (e) { return "ontouchstart" in window; }
   }
   function rand(a, b) { return a + Math.random() * (b - a); }
 
@@ -880,31 +952,262 @@
     }
   }
 
+  /* ---- the plaque: a keyboard for a device that has none ----
+
+     Six of the seven are words you type at the page, and a page never gets a
+     keystroke on a phone unless the caret is in a field — which the typed
+     triggers ignore on purpose, so the hub's search box stays a search box.
+     Press and hold the seal (or the Hub pill on every other page) and this
+     opens instead: one field, no label worth reading, and the same trailing
+     match the keyboard uses, so a word fires the moment it is finished. */
+
+  var plaque = null, swallowClick = false;
+
+  function normSay(v) {
+    return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  }
+
+  function sayMatch(v) {
+    var t = normSay(v);
+    if (!t) return null;
+    for (var i = 0; i < EGGS.length; i++) {
+      var words = (EGGS[i].say || []).concat(EGGS[i].word ? [EGGS[i].word] : []);
+      for (var j = 0; j < words.length; j++) {
+        var w = normSay(words[j]);
+        /* Trailing, not exact: iOS autocorrect likes to prepend a capital or
+           leave a stray letter behind, and none of that should cost a find. */
+        if (w && t.slice(-w.length) === w) return EGGS[i].id;
+      }
+    }
+    return null;
+  }
+
+  function onPlaqueKey(e) {
+    if (e.key === "Escape") closePlaque();
+  }
+
+  /* The keyboard shrinks the visual viewport but not the layout viewport a
+     fixed element is pinned to, so a bottom sheet gets buried under it. Lift it
+     by the difference and it sits on top of the keys, where you can see what
+     you are typing. */
+  function fitPlaque() {
+    if (!plaque) return;
+    var vv = window.visualViewport;
+    var lift = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+    plaque.back.style.paddingBottom = "calc(var(--lituk-sab,0px) + 18px + " + Math.round(lift) + "px)";
+  }
+
+  function closePlaque() {
+    if (!plaque) return;
+    var p = plaque;
+    plaque = null;
+    document.removeEventListener("keydown", onPlaqueKey);
+    if (window.visualViewport) {
+      visualViewport.removeEventListener("resize", fitPlaque);
+      visualViewport.removeEventListener("scroll", fitPlaque);
+    }
+    try { p.input.blur(); } catch (e) {}
+    p.back.classList.remove("on");
+    setTimeout(function () { p.back.remove(); }, 300);
+  }
+
+  function tryWord(v) {
+    var id = sayMatch(v);
+    if (!id) return false;
+    closePlaque();
+    /* Let the keyboard drop first, or the confetti lands behind it. */
+    setTimeout(function () { fireEgg(id); }, 120);
+    return true;
+  }
+
+  function openPlaque() {
+    if (plaque) return;
+
+    var left = EGGS.length - Object.keys(eggsFound()).length;
+
+    var back = document.createElement("div");
+    back.className = "egg-plaque-back";
+
+    var box = document.createElement("form");
+    box.className = "egg-plaque";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", "Say the word");
+    box.action = "#";
+
+    var title = document.createElement("b");
+    title.textContent = "Say the word";
+    var sub = document.createElement("span");
+    sub.textContent = left > 0
+      ? left + (left === 1 ? " thing is" : " things are") + " still hidden in here."
+      : "Nothing left to find. Say one again if you like.";
+
+    var x = document.createElement("button");
+    x.type = "button";
+    x.className = "x";
+    x.textContent = "×";
+    x.setAttribute("aria-label", "Close");
+    x.addEventListener("click", closePlaque);
+
+    var row = document.createElement("div");
+    row.className = "egg-plaque-row";
+
+    var input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "…";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.setAttribute("autocapitalize", "none");
+    input.setAttribute("autocorrect", "off");
+    input.setAttribute("enterkeyhint", "go");
+    input.setAttribute("aria-label", "The word");
+
+    var go = document.createElement("button");
+    go.type = "submit";
+    go.className = "go";
+    go.textContent = "Say it";
+
+    input.addEventListener("input", function () { tryWord(input.value); });
+    box.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (tryWord(input.value)) return;
+      sub.textContent = "Nothing happens. Try another word.";
+      if (calm()) return;
+      box.classList.remove("no");
+      void box.offsetWidth;
+      box.classList.add("no");
+    });
+    back.addEventListener("click", function (e) { if (e.target === back) closePlaque(); });
+    document.addEventListener("keydown", onPlaqueKey);
+
+    row.appendChild(input);
+    row.appendChild(go);
+    box.appendChild(x);
+    box.appendChild(title);
+    box.appendChild(sub);
+    box.appendChild(row);
+    back.appendChild(box);
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add("on"); });
+
+    plaque = { back: back, input: input };
+    if (window.visualViewport) {
+      visualViewport.addEventListener("resize", fitPlaque);
+      visualViewport.addEventListener("scroll", fitPlaque);
+    }
+  }
+
+  /* iOS only raises the keyboard for a focus() that happens inside a real
+     gesture handler, and a hold timer has long since left one — so the panel
+     opens on the timer and the caret goes in on the release. */
+  function focusPlaque() {
+    if (!plaque) return;
+    try { plaque.input.focus(); } catch (e) {}
+    /* The keyboard animates in; visualViewport reports the new height a beat
+       later, and one nudge afterwards covers the case where it never fires. */
+    setTimeout(fitPlaque, 320);
+  }
+
+  /* ---- press and hold ---- */
+
+  function hookHold(el, tap) {
+    var timer = 0, live = false, opened = false, sx = 0, sy = 0;
+
+    function stop() {
+      clearTimeout(timer);
+      live = false;
+      el.classList.remove("egg-hold");
+    }
+
+    el.addEventListener("pointerdown", function (e) {
+      if (e.button) return;
+      /* Cleared per press, not per click: iOS does not always send a click
+         after a long press, and a stranded flag would eat the next real tap —
+         which on the pill is the way home. */
+      swallowClick = false;
+      live = true;
+      opened = false;
+      sx = e.clientX;
+      sy = e.clientY;
+      el.classList.add("egg-hold");
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (!live) return;
+        opened = true;
+        el.classList.remove("egg-hold");
+        openPlaque();
+      }, 620);
+    });
+
+    /* A hold that turns into a scroll is a scroll. */
+    el.addEventListener("pointermove", function (e) {
+      if (live && (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10)) stop();
+    });
+
+    el.addEventListener("pointerup", function (e) {
+      var held = opened;
+      stop();
+      opened = false;
+      if (held) {
+        e.preventDefault();
+        swallowClick = true;      // the pill is a link; it must not navigate
+        focusPlaque();
+      } else if (tap) {
+        tap();
+      }
+    });
+
+    ["pointercancel", "pointerleave"].forEach(function (ev) {
+      el.addEventListener(ev, function () { stop(); opened = false; });
+    });
+
+    el.addEventListener("click", function (e) {
+      if (!swallowClick) return;
+      swallowClick = false;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+  }
+
   function hookFlag() {
     var seal = document.getElementById("flagSeal");
     if (!seal) return;
     var taps = 0, clear = 0;
-    seal.addEventListener("click", function () {
+
+    function cool() { taps = 0; seal.classList.remove("egg-warm"); }
+
+    hookHold(seal, function () {
       taps++;
       clearTimeout(clear);
-      clear = setTimeout(function () { taps = 0; }, 3200);
+      clear = setTimeout(cool, 3200);
       if (!calm()) {
         seal.classList.remove("egg-tap");
         void seal.offsetWidth;
         seal.classList.add("egg-tap");
       }
-      if (taps >= 5) { taps = 0; clearTimeout(clear); fireEgg("flag"); }
+      if (taps >= 3) seal.classList.add("egg-warm");
+      if (taps >= 5) { clearTimeout(clear); cool(); fireEgg("flag"); }
     });
   }
 
-  /* The cabinet stays invisible until the first find — then it lists what is
-     left, by hint only. */
+  /* Every page but the hub gets the back-to-hub pill instead of a seal, so the
+     pill carries the plaque there. lituk.html opts out of the pill entirely and
+     has its own mascot to poke. */
+  function hookPill() {
+    var pill = document.querySelector(".lituk-hub");
+    if (pill) hookHold(pill, null);
+  }
+
+  /* The cabinet is a closed disclosure in the hub footer, and it lists what is
+     left by hint only. It used to stay invisible until the first find, which
+     worked on a desktop where the console says how many are hidden — on a
+     phone there is no console, so it was seven secrets and no door. It now
+     opens from zero, and says nothing but how many. */
   function renderCurio() {
     var host = document.getElementById("curio");
     if (!host) return;
     var found = eggsFound();
     var n = Object.keys(found).length;
-    if (!n) { host.innerHTML = ""; return; }
+    var touch = coarse();
 
     var open = host.querySelector("details");
     open = open ? open.open : false;
@@ -915,7 +1218,9 @@
     var s = document.createElement("summary");
     s.textContent = n >= EGGS.length
       ? "🎖️ Cabinet of curiosities — all " + EGGS.length + " found"
-      : "🎖️ Cabinet of curiosities — " + n + " of " + EGGS.length + " found";
+      : n === 0
+        ? "🎖️ Cabinet of curiosities — " + EGGS.length + " still hidden"
+        : "🎖️ Cabinet of curiosities — " + n + " of " + EGGS.length + " found";
     d.appendChild(s);
 
     var g = document.createElement("div");
@@ -932,7 +1237,7 @@
       var b = document.createElement("b");
       b.textContent = got ? egg.name : "Still hidden";
       var sub = document.createElement("span");
-      sub.textContent = got ? egg.line : egg.hint;
+      sub.textContent = got ? egg.line : (touch && egg.touchHint ? egg.touchHint : egg.hint);
       body.appendChild(b);
       body.appendChild(sub);
       item.appendChild(x);
@@ -940,6 +1245,23 @@
       g.appendChild(item);
     });
     d.appendChild(g);
+
+    /* Six of the hints say "say" rather than "type" on a phone, and this is the
+       one line that explains where the saying happens. */
+    if (touch && n < EGGS.length) {
+      var note = document.createElement("p");
+      note.className = "curio-note";
+      note.appendChild(document.createTextNode("No keyboard on a phone — so press and hold the "));
+      var b1 = document.createElement("b");
+      b1.textContent = "seal at the top of this page";
+      note.appendChild(b1);
+      note.appendChild(document.createTextNode(" (or the "));
+      var b2 = document.createElement("b");
+      b2.textContent = "\u2190 Hub";
+      note.appendChild(b2);
+      note.appendChild(document.createTextNode(" pill on any other page), and say the word."));
+      d.appendChild(note);
+    }
 
     host.innerHTML = "";
     host.appendChild(d);
@@ -951,6 +1273,7 @@
     }
     renderCurio();
     hookFlag();
+    hookPill();
     document.addEventListener("keydown", onEggKey);
 
     /* One line for anyone who opens the console. It is a hint, not a spoiler. */
@@ -973,6 +1296,7 @@
       return EGGS.filter(function (e) { return !f[e.id]; }).map(function (e) { return e.hint; });
     },
     fire: fireEgg,
+    plaque: openPlaque,
     forget: function () { eggsSave({}); document.documentElement.removeAttribute("data-eggs"); renderCurio(); }
   };
 
