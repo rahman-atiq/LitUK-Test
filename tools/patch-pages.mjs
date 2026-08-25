@@ -45,15 +45,20 @@ const THEME_SNIPPET =
    having to raise its own content. */
 const WASH_SNIPPET =
   `<style>:root{--aurora:.55}:root[data-theme="light"]{--aurora:.34}` +
-  `html[data-lituk-aurora] body::before{content:"";position:fixed;inset:0;z-index:-1;` +
+  `html[data-lituk-tokens="hub"] body::before{content:"";position:fixed;inset:0;z-index:-1;` +
   `pointer-events:none;opacity:var(--aurora);background:` +
   `radial-gradient(58% 40% at 10% -8%,color-mix(in srgb,var(--era4) 26%,transparent),transparent 70%),` +
   `radial-gradient(50% 36% at 94% 2%,color-mix(in srgb,var(--era3) 20%,transparent),transparent 70%),` +
   `radial-gradient(72% 44% at 50% 106%,color-mix(in srgb,var(--gold,var(--era1)) 16%,transparent),transparent 74%)}</style>`;
 
-/* Their palettes use none of the tokens above, so neither the wash nor the
-   accents reach them; they keep the looks they were designed with. */
-const UNWASHED = ["life-in-uk-mock-tests.html", "lituk.html"];
+/* Which set of colour token names a page speaks. app.js keys the accent
+   palettes off this, so a page whose vocabulary has not been mapped cannot be
+   reached by them at all — the gate is the selector, not a runtime check.
+   "hub"   -- --page/--card/--line/--gold plus the era colours (18 pages).
+   "tests" -- the practice-test app's --bg/--panel/--brand.
+   Study Quest is absent on purpose: its fixed pink is the design, not a theme. */
+const TOKENS = { "life-in-uk-mock-tests.html": "tests", "lituk.html": null };
+const tokensOf = (file) => (file in TOKENS ? TOKENS[file] : "hub");
 
 /* The layout half of the safe-area handling, inline so it lands on the first
    paint rather than after app.js defers in. No page styles html/body padding of
@@ -114,7 +119,7 @@ function edit(file, fn) {
 
 /* ---------- 1. shared head block ---------- */
 function injectHead(src, file) {
-  const block = sharedHead({ theme: file !== "lituk.html", wash: !UNWASHED.includes(file) });
+  const block = sharedHead({ theme: file !== "lituk.html", wash: tokensOf(file) === "hub" });
   const existing = new RegExp(`${OPEN}[\\s\\S]*?${CLOSE}\\n?`);
   if (existing.test(src)) return src.replace(existing, block + "\n");
   const m = src.match(/<\/title>/i);
@@ -175,13 +180,22 @@ document.getElementById('themeToggle').onclick = function(){ LitUK.toggleTheme()
       `$('themeToggle').onclick = ()=>{ LitUK.toggleTheme(); };`],
   ],
 
+  /* Two starting points, newest first: each edit's "already done" check is the
+     presence of the target, so the state this repo is actually in has to be
+     rewritten before the original one is looked for. */
   "life-in-uk-mock-tests.html": [
-    [`function toggleTheme(){const d=document.documentElement;const dark=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',dark?'light':'dark');localStorage.setItem('lituk_theme',dark?'light':'dark');document.getElementById('themeBtn').textContent=dark?'🌙':'☀️'}
-(function(){const s=localStorage.getItem('lituk_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',s);document.getElementById('themeBtn').textContent=s==='dark'?'☀️':'🌙'})();`,
-      `function themeBtnLabel(){document.getElementById('themeBtn').textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'}
+    [`function themeBtnLabel(){document.getElementById('themeBtn').textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'}
 function toggleTheme(){LitUK.toggleTheme();themeBtnLabel()}
 document.addEventListener('lituk:theme',themeBtnLabel);
-themeBtnLabel();`],
+themeBtnLabel();`,
+      `/* app.js replaces this button with the shared theme-and-colour picker and
+   owns its label from there — relabelling it here would wipe the swatch. */
+function toggleTheme(){LitUK.toggleTheme()}`],
+    [`function toggleTheme(){const d=document.documentElement;const dark=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',dark?'light':'dark');localStorage.setItem('lituk_theme',dark?'light':'dark');document.getElementById('themeBtn').textContent=dark?'🌙':'☀️'}
+(function(){const s=localStorage.getItem('lituk_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',s);document.getElementById('themeBtn').textContent=s==='dark'?'☀️':'🌙'})();`,
+      `/* app.js replaces this button with the shared theme-and-colour picker and
+   owns its label from there — relabelling it here would wipe the swatch. */
+function toggleTheme(){LitUK.toggleTheme()}`],
   ],
 };
 
@@ -245,15 +259,16 @@ function markReadable(src, file) {
   return src.slice(0, m.index + m[0].length) + " data-lituk-read" + src.slice(m.index + m[0].length);
 }
 
-/* ---------- 4b. the ambient wash ----------
-   Static on <html> rather than set by app.js, so the rule above matches on the
-   very first paint instead of a frame later. */
-function markWashed(src, file) {
-  if (UNWASHED.includes(file)) return src;
-  if (/<html[^>]*\sdata-lituk-aurora\b/.test(src)) return src;
+/* ---------- 4b. colour vocabulary ----------
+   Static on <html> rather than set by app.js, so the accent and wash rules match
+   on the very first paint instead of a frame later. */
+function markTokens(src, file) {
+  const vocab = tokensOf(file);
+  src = src.replace(/ data-lituk-(?:aurora|tokens)(?:="[^"]*")?/g, "");
+  if (!vocab) return src;
   const m = src.match(/<html\b[^>]*/);
   if (!m) throw new Error(`no <html> in ${file}`);
-  return src.slice(0, m.index + m[0].length) + " data-lituk-aurora" + src.slice(m.index + m[0].length);
+  return src.slice(0, m.index + m[0].length) + ` data-lituk-tokens="${vocab}"` + src.slice(m.index + m[0].length);
 }
 
 /* ---------- 5. per-page odds and ends ---------- */
@@ -318,7 +333,7 @@ for (const file of ALL) {
     src = applyThemeEdits(src, file);
     src = fixGutters(src, file);
     src = markReadable(src, file);
-    src = markWashed(src, file);
+    src = markTokens(src, file);
     return extras(src, file);
   });
   if (did) { touched++; note(file, "patched"); } else note(file, "already up to date");

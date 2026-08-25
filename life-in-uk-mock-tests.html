@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-lituk-nohub data-lituk-topbar>
+<html lang="en" data-theme="light" data-lituk-nohub data-lituk-topbar data-lituk-tokens="tests">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1118,10 +1118,9 @@ function mergeDuplicateState(){
 }
 
 /* ============ THEME ============ */
-function themeBtnLabel(){document.getElementById('themeBtn').textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'}
-function toggleTheme(){LitUK.toggleTheme();themeBtnLabel()}
-document.addEventListener('lituk:theme',themeBtnLabel);
-themeBtnLabel();
+/* app.js replaces this button with the shared theme-and-colour picker and
+   owns its label from there — relabelling it here would wipe the swatch. */
+function toggleTheme(){LitUK.toggleTheme()}
 
 /* ============ HELPERS ============ */
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));

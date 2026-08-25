@@ -122,13 +122,17 @@
      panel below is ours, and it is positioned off the same insets as the button
      rather than measured — one less thing to get wrong on a page that has
      restyled the button. */
+  /* --gold on the hub pages, --brand in the practice-test app: the picker paints
+     itself in whatever the current page calls its accent, so the swatch on the
+     button always shows the colour actually in force. */
   var PICKER_CSS =
     ".themeToggle{z-index:70}" +
     ".lituk-pal,.lituk-pal *{box-sizing:border-box}" +
-    ".lituk-dot{width:9px;height:9px;border-radius:50%;background:var(--gold,currentColor);" +
-    "box-shadow:0 0 0 2px color-mix(in srgb,var(--gold,currentColor) 26%,transparent);" +
+    ".lituk-dot{width:9px;height:9px;border-radius:50%;background:var(--gold,var(--brand,currentColor));" +
+    "box-shadow:0 0 0 2px color-mix(in srgb,var(--gold,var(--brand,currentColor)) 26%,transparent);" +
     "display:inline-block;flex:none;margin-right:2px}" +
     ".lituk-pal{position:fixed;z-index:71;" +
+    /* replaced by place() the moment it opens; this is only the first frame */
     "top:calc(var(--lituk-sat) + var(--lituk-inset) + 42px);" +
     "right:calc(var(--lituk-sar) + var(--lituk-inset));" +
     "min-width:184px;padding:12px;border-radius:12px;" +
@@ -150,14 +154,14 @@
     "transition:border-color .12s ease,transform .12s ease}" +
     ".lituk-pal button:active{transform:scale(.95)}" +
     ".lituk-mode button{flex:1;padding:7px 4px}" +
-    ".lituk-mode button[aria-pressed=\"true\"]{border-color:var(--gold,currentColor);" +
-    "background:color-mix(in srgb,var(--gold,currentColor) 13%,transparent)}" +
+    ".lituk-mode button[aria-pressed=\"true\"]{border-color:var(--gold,var(--brand,currentColor));" +
+    "background:color-mix(in srgb,var(--gold,var(--brand,currentColor)) 13%,transparent)}" +
     ".lituk-sw button{width:28px;height:28px;padding:0;display:grid;place-items:center;border-radius:50%}" +
     ".lituk-sw i{width:16px;height:16px;border-radius:50%;background:var(--sw-light)}" +
     "html[data-theme=\"dark\"] .lituk-sw i{background:var(--sw-dark)}" +
     ".lituk-sw button[aria-pressed=\"true\"]{border-width:2px;border-color:var(--sw-light)}" +
     "html[data-theme=\"dark\"] .lituk-sw button[aria-pressed=\"true\"]{border-color:var(--sw-dark)}" +
-    ".lituk-pal button:focus-visible,.themeToggle:focus-visible{outline:2px solid var(--gold,currentColor);outline-offset:2px}" +
+    ".lituk-pal button:focus-visible,.themeToggle:focus-visible{outline:2px solid var(--gold,var(--brand,currentColor));outline-offset:2px}" +
     "@media print{.lituk-pal,.themeToggle{display:none}}";
 
   /* Every page carries its own copy of the toggle and its own two-line script to
@@ -165,19 +169,25 @@
      that listener along with it (the page's inline script has already run by the
      time a deferred script does), so the control below is the only one live. */
   function buildPicker() {
-    var old = document.getElementById("themeToggle");
+    /* The corner pill on eighteen pages, the header icon on the practice-test
+       app. Either way the replacement keeps the id and class it found, so the
+       page's own styling and layout still apply to it. */
+    var old = document.getElementById("themeToggle") || document.getElementById("themeBtn");
     if (!old || document.querySelector(".lituk-pal")) return;
+    /* An emoji-only button is an icon in someone's toolbar — it gets the swatch
+       alone, because the word would burst a square. */
+    var iconOnly = old.textContent.trim().length <= 2;
 
     var btn = document.createElement("button");
     btn.className = old.className || "themeToggle";
-    btn.id = "themeToggle";
+    btn.id = old.id;
     btn.type = "button";
     btn.setAttribute("aria-haspopup", "true");
     btn.setAttribute("aria-expanded", "false");
     btn.setAttribute("aria-label", "Theme and colour");
     btn.style.gap = "7px";
     btn.appendChild(Object.assign(document.createElement("span"), { className: "lituk-dot" }));
-    btn.appendChild(document.createTextNode("Theme"));
+    if (!iconOnly) btn.appendChild(document.createTextNode("Theme"));
     old.parentNode.replaceChild(btn, old);
 
     var pal = document.createElement("div");
@@ -200,7 +210,7 @@
     /* A page that names its colours differently is not repainted by the accent
        block, so offering the swatches there would be a control that does
        nothing. Mode still works everywhere. */
-    var tinted = usesSharedPalette();
+    var tinted = !!vocabulary();
     if (tinted) {
       ACCENTS.forEach(function (a) {
         var b = document.createElement("button");
@@ -237,11 +247,20 @@
       });
     }
 
+    /* Measured off the button rather than off the viewport insets: the two
+       buttons sit in different places, and only the button knows where. */
+    function place() {
+      var r = btn.getBoundingClientRect();
+      pal.style.top = (r.bottom + 8) + "px";
+      pal.style.right = Math.max(8, innerWidth - r.right) + "px";
+    }
+
     function setOpen(yes) {
       pal.hidden = !yes;
       btn.setAttribute("aria-expanded", String(yes));
-      if (yes) sync();
+      if (yes) { sync(); place(); }
     }
+    addEventListener("resize", function () { if (!pal.hidden) place(); });
 
     btn.addEventListener("click", function (e) { e.stopPropagation(); setOpen(pal.hidden); });
     pal.addEventListener("click", function (e) { e.stopPropagation(); });
@@ -303,27 +322,45 @@
      absent: they carry meaning (chapter colours, right and wrong) or carry the
      contrast, and an accent has no business repainting either. */
   var ACCENT_CSS =
-    ":root[data-theme=\"dark\"][data-accent=\"rose\"]{--page:#140D0E;--card:#221819;--card-2:#2E1D1F;--line:#3E2A2C;--chip:#342526;--gold:#F6939F;--gold-dim:#A3636B;}" +
-    ":root[data-theme=\"light\"][data-accent=\"rose\"]{--page:#F7EFEF;--card:#FFF9FA;--card-2:#F7E9EA;--line:#E8D8DA;--chip:#F3E6E7;--gold:#AC5965;--gold-dim:#D9A3A9;}" +
-    ":root[data-theme=\"dark\"][data-accent=\"oak\"]{--page:#0C100C;--card:#161D16;--card-2:#1A261A;--line:#273527;--chip:#222C22;--gold:#7AC07C;--gold-dim:#538054;}" +
-    ":root[data-theme=\"light\"][data-accent=\"oak\"]{--page:#EDF3ED;--card:#F8FCF8;--card-2:#E7F0E7;--line:#D6E0D6;--chip:#E4ECE4;--gold:#437F46;--gold-dim:#9BBF9B;}" +
-    ":root[data-theme=\"dark\"][data-accent=\"slate\"]{--page:#0B1014;--card:#141C22;--card-2:#17242F;--line:#24323F;--chip:#202B34;--gold:#69B7F6;--gold-dim:#497AA2;}" +
-    ":root[data-theme=\"light\"][data-accent=\"slate\"]{--page:#ECF2F7;--card:#F7FBFF;--card-2:#E5EEF7;--line:#D3DEE8;--chip:#E3EBF2;--gold:#3377AD;--gold-dim:#92B8DA;}" +
-    ":root[data-theme=\"dark\"][data-accent=\"heather\"]{--page:#110E12;--card:#1E1920;--card-2:#281F2C;--line:#362C3B;--chip:#2E2631;--gold:#D09CE8;--gold-dim:#8A6999;}" +
-    ":root[data-theme=\"light\"][data-accent=\"heather\"]{--page:#F3EFF6;--card:#FDFAFE;--card-2:#F1EAF4;--line:#E1D9E5;--chip:#EDE7F0;--gold:#8E61A2;--gold-dim:#C3A8D0;}";
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"rose\"]{--page:#140D0E;--card:#221819;--card-2:#2E1D1F;--line:#3E2A2C;--chip:#342526;--gold:#F6939F;--gold-dim:#A3636B;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"rose\"]{--page:#F7EFEF;--card:#FFF9FA;--card-2:#F7E9EA;--line:#E8D8DA;--chip:#F3E6E7;--gold:#AC5965;--gold-dim:#D9A3A9;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"oak\"]{--page:#0C100C;--card:#161D16;--card-2:#1A261A;--line:#273527;--chip:#222C22;--gold:#7AC07C;--gold-dim:#538054;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"oak\"]{--page:#EDF3ED;--card:#F8FCF8;--card-2:#E7F0E7;--line:#D6E0D6;--chip:#E4ECE4;--gold:#437F46;--gold-dim:#9BBF9B;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"slate\"]{--page:#0B1014;--card:#141C22;--card-2:#17242F;--line:#24323F;--chip:#202B34;--gold:#69B7F6;--gold-dim:#497AA2;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"slate\"]{--page:#ECF2F7;--card:#F7FBFF;--card-2:#E5EEF7;--line:#D3DEE8;--chip:#E3EBF2;--gold:#3377AD;--gold-dim:#92B8DA;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"heather\"]{--page:#110E12;--card:#1E1920;--card-2:#281F2C;--line:#362C3B;--chip:#2E2631;--gold:#D09CE8;--gold-dim:#8A6999;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"heather\"]{--page:#F3EFF6;--card:#FDFAFE;--card-2:#F1EAF4;--line:#E1D9E5;--chip:#EDE7F0;--gold:#8E61A2;--gold-dim:#C3A8D0;}";
+
+  /* The practice-test app names its colours differently — --bg/--panel/--brand
+     rather than --page/--card/--gold — so it needs its own block against the
+     same five accents. Same method: each token keeps its own OKLCH lightness
+     and chroma and only turns its hue, except --brand, which is both a fill
+     with --on-solid on it and a link colour on --panel, so it is solved per hue
+     against the tighter of the two. --ink, --muted, --good/--bad/--warn and the
+     five topic colours stay put: they carry contrast or meaning. */
+  var TESTS_ACCENT_CSS =
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"rose\"]{--bg:#1D0F11;--panel:#291619;--panel-2:#321D20;--line:#412629;--chip:#391F22;--brand:#E68E98;--accent:#EEA0A9;--ring:#E68E9844;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"rose\"]{--bg:#FCF7F7;--panel:#FFFFFF;--panel-2:#FBF3F3;--line:#EFDFE0;--chip:#F6E9EA;--brand:#B8495E;--accent:#BA5465;--ring:#B8495E33;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"oak\"]{--bg:#0C160D;--panel:#132013;--panel-2:#1A281A;--line:#223422;--chip:#1B2D1B;--brand:#78B77A;--accent:#93C994;--ring:#78B77A44;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"oak\"]{--bg:#F6F9F6;--panel:#FFFFFF;--panel-2:#F2F6F1;--line:#DCE7DC;--chip:#E8F0E7;--brand:#247F2F;--accent:#408E45;--ring:#247F2F33;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"slate\"]{--bg:#0A151E;--panel:#0F1E2A;--panel-2:#162633;--line:#1D3142;--chip:#162A3A;--brand:#69AEE6;--accent:#85C0F2;--ring:#69AEE644;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"slate\"]{--bg:#F5F9FC;--panel:#FFFFFF;--panel-2:#F0F6FA;--line:#D9E5EF;--chip:#E6EEF6;--brand:#0072BA;--accent:#2280C2;--ring:#0072BA33;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"heather\"]{--bg:#18101B;--panel:#221827;--panel-2:#2A1F2F;--line:#36293D;--chip:#2F2235;--brand:#C496D9;--accent:#D0A7E3;--ring:#C496D944;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"heather\"]{--bg:#FAF7FB;--panel:#FFFFFF;--panel-2:#F7F3F9;--line:#E8E0EC;--chip:#F0EAF3;--brand:#9355AD;--accent:#975FAF;--ring:#9355AD33;}";
 
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = SAFE_CSS + ACCENT_CSS + PICKER_CSS + HUB_CSS + EGG_CSS;
+    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + PICKER_CSS + HUB_CSS + EGG_CSS;
     document.head.appendChild(s);
   }
 
-  /* The two outliers — the mock-test app and Study Quest — name their colours
-     differently and are not repainted by any of the above. Asking the page what
-     it actually computes is cheaper than keeping a list of filenames in sync. */
-  function usesSharedPalette() {
-    var cs = getComputedStyle(document.documentElement);
-    return !!cs.getPropertyValue("--era4").trim() && !!cs.getPropertyValue("--card").trim();
+  /* Which colour vocabulary this page speaks, written into <html> by
+     tools/patch-pages.mjs. Null means no accent block covers it — Study Quest,
+     whose fixed pink is the design rather than a theme. The accent rules gate
+     on the same attribute, so this only decides whether to offer the swatches;
+     it is never what keeps a palette off a page. */
+  function vocabulary() {
+    return document.documentElement.getAttribute("data-lituk-tokens");
   }
 
   /* ---------------- ?find= highlighting ---------------- */
