@@ -164,7 +164,12 @@
   }
   .tile:hover .ic { transform:scale(1.07) rotate(-4deg); }
   .tile .body { flex:1; min-width:0; }
-  .tile .body b { display:block; font-size:1.02rem; font-weight:650; letter-spacing:-.005em; }
+  /* A row rather than a block so the pill drops flush under the title when the
+     two cannot share a line — as a margin it kept an 8px indent down there. */
+  .tile .body b {
+    display:flex; flex-wrap:wrap; align-items:center; column-gap:8px; row-gap:5px;
+    font-size:1.02rem; font-weight:650; letter-spacing:-.005em;
+  }
   /* direct child only — the .tag pill inside <b> must stay inline */
   .tile .body > span { display:block; font-size:.85rem; color:var(--ink-2); line-height:1.45; margin-top:2px; }
   .tile .chev {
@@ -172,11 +177,16 @@
     transition:transform .2s cubic-bezier(.2,.8,.3,1), color .2s ease;
   }
   .tile:hover .chev { transform:translateX(4px); color:var(--accent, var(--gold)); }
+  /* inline-block and nowrap together: a plain inline pill breaks at the space
+     in "11 days" and each half is drawn as its own pill, the first one running
+     out past the card's clipped edge. Kept whole, it moves under the title
+     instead when the title is too long to share the line. */
   .tile .tag {
+    display:inline-block; white-space:nowrap;
     font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
     color:var(--accent, var(--gold)); border:1px solid color-mix(in srgb, var(--accent, var(--gold)) 40%, transparent);
     background:color-mix(in srgb, var(--accent, var(--gold)) 12%, transparent);
-    border-radius:999px; padding:2px 8px; margin-left:8px; vertical-align:2px;
+    border-radius:999px; padding:2px 8px;
   }
 
   /* ---------- chapter rows ---------- */
