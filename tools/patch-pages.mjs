@@ -19,10 +19,41 @@ const ALL = ["index.html", ...STORY, ...REF, "life-in-uk-quiz.html", "life-in-uk
 const OPEN = "<!-- lituk:shared -->";
 const CLOSE = "<!-- /lituk:shared -->";
 
+/* Mode and accent both land before the first paint. The accent especially: it
+   repaints the paper as well as the trim, so leaving it to the deferred app.js
+   would flash the default palette on every single navigation. The id list is
+   the one in app.js — an unknown value is ignored and the page stays gold. */
+const ACCENTS = ["gold", "rose", "oak", "slate", "heather"];
+
 const THEME_SNIPPET =
-  `<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");` +
+  `<script>/* theme + accent before first paint — one key each, every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");` +
   `if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";` +
-  `document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>`;
+  `document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t);` +
+  `var _a=localStorage.getItem("lituk_accent");` +
+  `if(/^(${ACCENTS.join("|")})$/.test(_a))document.documentElement.setAttribute("data-accent",_a)` +
+  `}catch(e){}</script>`;
+
+/* The ambient wash the hub has always had, now every page's. Inline for the
+   same reason as the accent — it paints the background, so it cannot wait for a
+   deferred script. The two apps that name their colours differently opt out by
+   simply never being given the attribute.
+
+   z-index:-1 is what makes it safe on pages that never planned for it: body's
+   background propagates to the canvas and paints first, the negative layer of
+   the root stacking context paints next, and in-flow content paints over both.
+   So the wash sits above the page colour and under every word without any page
+   having to raise its own content. */
+const WASH_SNIPPET =
+  `<style>:root{--aurora:.55}:root[data-theme="light"]{--aurora:.34}` +
+  `html[data-lituk-aurora] body::before{content:"";position:fixed;inset:0;z-index:-1;` +
+  `pointer-events:none;opacity:var(--aurora);background:` +
+  `radial-gradient(58% 40% at 10% -8%,color-mix(in srgb,var(--era4) 26%,transparent),transparent 70%),` +
+  `radial-gradient(50% 36% at 94% 2%,color-mix(in srgb,var(--era3) 20%,transparent),transparent 70%),` +
+  `radial-gradient(72% 44% at 50% 106%,color-mix(in srgb,var(--gold,var(--era1)) 16%,transparent),transparent 74%)}</style>`;
+
+/* Their palettes use none of the tokens above, so neither the wash nor the
+   accents reach them; they keep the looks they were designed with. */
+const UNWASHED = ["life-in-uk-mock-tests.html", "lituk.html"];
 
 /* The layout half of the safe-area handling, inline so it lands on the first
    paint rather than after app.js defers in. No page styles html/body padding of
@@ -36,7 +67,7 @@ const SAFE_SNIPPET =
   `html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}` +
   `html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>`;
 
-function sharedHead({ theme = true } = {}) {
+function sharedHead({ theme = true, wash = true } = {}) {
   return [
     OPEN,
     `<link rel="manifest" href="manifest.webmanifest">`,
@@ -51,6 +82,7 @@ function sharedHead({ theme = true } = {}) {
     `<meta name="robots" content="noindex">`,
     theme ? THEME_SNIPPET : null,
     SAFE_SNIPPET,
+    wash ? WASH_SNIPPET : null,
     `<script src="app.js" defer></script>`,
     CLOSE,
   ].filter(Boolean).join("\n");
@@ -82,7 +114,7 @@ function edit(file, fn) {
 
 /* ---------- 1. shared head block ---------- */
 function injectHead(src, file) {
-  const block = sharedHead({ theme: file !== "lituk.html" });
+  const block = sharedHead({ theme: file !== "lituk.html", wash: !UNWASHED.includes(file) });
   const existing = new RegExp(`${OPEN}[\\s\\S]*?${CLOSE}\\n?`);
   if (existing.test(src)) return src.replace(existing, block + "\n");
   const m = src.match(/<\/title>/i);
@@ -213,6 +245,17 @@ function markReadable(src, file) {
   return src.slice(0, m.index + m[0].length) + " data-lituk-read" + src.slice(m.index + m[0].length);
 }
 
+/* ---------- 4b. the ambient wash ----------
+   Static on <html> rather than set by app.js, so the rule above matches on the
+   very first paint instead of a frame later. */
+function markWashed(src, file) {
+  if (UNWASHED.includes(file)) return src;
+  if (/<html[^>]*\sdata-lituk-aurora\b/.test(src)) return src;
+  const m = src.match(/<html\b[^>]*/);
+  if (!m) throw new Error(`no <html> in ${file}`);
+  return src.slice(0, m.index + m[0].length) + " data-lituk-aurora" + src.slice(m.index + m[0].length);
+}
+
 /* ---------- 5. per-page odds and ends ---------- */
 function extras(src, file) {
   if (file === "lituk.html") {
@@ -275,6 +318,7 @@ for (const file of ALL) {
     src = applyThemeEdits(src, file);
     src = fixGutters(src, file);
     src = markReadable(src, file);
+    src = markWashed(src, file);
     return extras(src, file);
   });
   if (did) { touched++; note(file, "patched"); } else note(file, "already up to date");

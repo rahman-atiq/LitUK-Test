@@ -8,6 +8,19 @@
 
   var THEME_KEY = "lituk_theme";
   var LEGACY_THEME_KEYS = ["liuk-story-theme"];
+  var ACCENT_KEY = "lituk_accent";
+
+  /* The colour half of the theme. Mode (light/dark) and accent are separate
+     axes: every accent ships both modes, so the two never have to agree.
+     "gold" is what the pages already paint, so it declares nothing at all —
+     picking it means no rule matches and each page's own palette stands. */
+  var ACCENTS = [
+    { id: "gold",    name: "Gold",    dark: "#D4A94E", light: "#9A7420" },
+    { id: "rose",    name: "Rose",    dark: "#F6939F", light: "#AC5965" },
+    { id: "oak",     name: "Oak",     dark: "#7AC07C", light: "#437F46" },
+    { id: "slate",   name: "Slate",   dark: "#69B7F6", light: "#3377AD" },
+    { id: "heather", name: "Heather", dark: "#D09CE8", light: "#8E61A2" }
+  ];
 
   /* ---------------- theme ---------------- */
 
@@ -34,6 +47,28 @@
 
   function toggleTheme() { setTheme(current() === "dark" ? "light" : "dark"); return current(); }
 
+  /* ---------------- accent ---------------- */
+
+  function isAccent(a) {
+    for (var i = 0; i < ACCENTS.length; i++) if (ACCENTS[i].id === a) return true;
+    return false;
+  }
+
+  function currentAccent() {
+    var a = document.documentElement.getAttribute("data-accent");
+    if (isAccent(a)) return a;
+    try { a = localStorage.getItem(ACCENT_KEY); } catch (e) { a = null; }
+    return isAccent(a) ? a : "gold";
+  }
+
+  function setAccent(a, quiet) {
+    if (!isAccent(a)) return;
+    document.documentElement.setAttribute("data-accent", a);
+    if (!quiet) { try { localStorage.setItem(ACCENT_KEY, a); } catch (e) {} }
+    syncThemeColor();
+    document.dispatchEvent(new CustomEvent("lituk:accent", { detail: a }));
+  }
+
   /* Keep the browser/status-bar chrome matching whatever the page actually paints. */
   function syncThemeColor() {
     if (!document.body) return;
@@ -47,6 +82,7 @@
   /* Another tab changed the theme — follow it. */
   addEventListener("storage", function (e) {
     if (e.key === THEME_KEY && e.newValue) setTheme(e.newValue, true);
+    if (e.key === ACCENT_KEY && e.newValue) setAccent(e.newValue, true);
   });
 
   /* ---------------- shared shell ---------------- */
@@ -80,6 +116,144 @@
     "#mascot{bottom:calc(var(--lituk-sab) + 18px)}" +
     ".bubble{bottom:calc(var(--lituk-sab) + 150px)}";
 
+  /* ---------------- the picker ----------------
+     The button itself keeps the .themeToggle class each page already styles, so
+     it stays where that page put it and looks like it belongs there. Only the
+     panel below is ours, and it is positioned off the same insets as the button
+     rather than measured — one less thing to get wrong on a page that has
+     restyled the button. */
+  var PICKER_CSS =
+    ".themeToggle{z-index:70}" +
+    ".lituk-pal,.lituk-pal *{box-sizing:border-box}" +
+    ".lituk-dot{width:9px;height:9px;border-radius:50%;background:var(--gold,currentColor);" +
+    "box-shadow:0 0 0 2px color-mix(in srgb,var(--gold,currentColor) 26%,transparent);" +
+    "display:inline-block;flex:none;margin-right:2px}" +
+    ".lituk-pal{position:fixed;z-index:71;" +
+    "top:calc(var(--lituk-sat) + var(--lituk-inset) + 42px);" +
+    "right:calc(var(--lituk-sar) + var(--lituk-inset));" +
+    "min-width:184px;padding:12px;border-radius:12px;" +
+    "font:600 .72rem/1 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;" +
+    "color:var(--ink,var(--text,#222));background:var(--card,var(--panel,#fff));" +
+    "border:1px solid var(--line,var(--stroke,rgba(128,128,128,.35)));" +
+    "box-shadow:0 1px 2px rgba(0,0,0,.18),0 12px 34px rgba(0,0,0,.24);" +
+    "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);" +
+    "transform-origin:top right;animation:lituk-pop .13s ease-out}" +
+    "@keyframes lituk-pop{from{opacity:0;transform:scale(.94) translateY(-4px)}}" +
+    "@media (prefers-reduced-motion:reduce){.lituk-pal{animation:none}}" +
+    ".lituk-pal[hidden]{display:none}" +
+    ".lituk-pal h4{margin:0 0 7px;font:inherit;font-size:.62rem;letter-spacing:.14em;" +
+    "text-transform:uppercase;color:var(--ink-3,var(--muted,#888))}" +
+    ".lituk-pal h4+*{margin-bottom:13px}" +
+    ".lituk-row{display:flex;gap:6px}" +
+    ".lituk-pal button{font:inherit;cursor:pointer;color:inherit;border-radius:8px;" +
+    "border:1px solid var(--line,rgba(128,128,128,.35));background:transparent;" +
+    "transition:border-color .12s ease,transform .12s ease}" +
+    ".lituk-pal button:active{transform:scale(.95)}" +
+    ".lituk-mode button{flex:1;padding:7px 4px}" +
+    ".lituk-mode button[aria-pressed=\"true\"]{border-color:var(--gold,currentColor);" +
+    "background:color-mix(in srgb,var(--gold,currentColor) 13%,transparent)}" +
+    ".lituk-sw button{width:28px;height:28px;padding:0;display:grid;place-items:center;border-radius:50%}" +
+    ".lituk-sw i{width:16px;height:16px;border-radius:50%;background:var(--sw-light)}" +
+    "html[data-theme=\"dark\"] .lituk-sw i{background:var(--sw-dark)}" +
+    ".lituk-sw button[aria-pressed=\"true\"]{border-width:2px;border-color:var(--sw-light)}" +
+    "html[data-theme=\"dark\"] .lituk-sw button[aria-pressed=\"true\"]{border-color:var(--sw-dark)}" +
+    ".lituk-pal button:focus-visible,.themeToggle:focus-visible{outline:2px solid var(--gold,currentColor);outline-offset:2px}" +
+    "@media print{.lituk-pal,.themeToggle{display:none}}";
+
+  /* Every page carries its own copy of the toggle and its own two-line script to
+     drive it — and two different labels between them. Replacing the node drops
+     that listener along with it (the page's inline script has already run by the
+     time a deferred script does), so the control below is the only one live. */
+  function buildPicker() {
+    var old = document.getElementById("themeToggle");
+    if (!old || document.querySelector(".lituk-pal")) return;
+
+    var btn = document.createElement("button");
+    btn.className = old.className || "themeToggle";
+    btn.id = "themeToggle";
+    btn.type = "button";
+    btn.setAttribute("aria-haspopup", "true");
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", "Theme and colour");
+    btn.style.gap = "7px";
+    btn.appendChild(Object.assign(document.createElement("span"), { className: "lituk-dot" }));
+    btn.appendChild(document.createTextNode("Theme"));
+    old.parentNode.replaceChild(btn, old);
+
+    var pal = document.createElement("div");
+    pal.className = "lituk-pal";
+    pal.hidden = true;
+
+    var modeRow = document.createElement("div");
+    modeRow.className = "lituk-row lituk-mode";
+    [["light", "☀︎ Light"], ["dark", "☾ Dark"]].forEach(function (m) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = m[1];
+      b.setAttribute("data-mode", m[0]);
+      b.addEventListener("click", function () { setTheme(m[0]); });
+      modeRow.appendChild(b);
+    });
+
+    var swRow = document.createElement("div");
+    swRow.className = "lituk-row lituk-sw";
+    /* A page that names its colours differently is not repainted by the accent
+       block, so offering the swatches there would be a control that does
+       nothing. Mode still works everywhere. */
+    var tinted = usesSharedPalette();
+    if (tinted) {
+      ACCENTS.forEach(function (a) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-accent", a.id);
+        b.setAttribute("aria-label", a.name);
+        b.title = a.name;
+        b.style.setProperty("--sw-light", a.light);
+        b.style.setProperty("--sw-dark", a.dark);
+        b.appendChild(document.createElement("i"));
+        b.addEventListener("click", function () { setAccent(a.id); });
+        swRow.appendChild(b);
+      });
+    }
+
+    function head(text, row) {
+      var h = document.createElement("h4");
+      h.textContent = text;
+      pal.appendChild(h);
+      pal.appendChild(row);
+    }
+    head("Mode", modeRow);
+    if (tinted) head("Colour", swRow);
+    pal.lastChild.style.marginBottom = "0";
+    document.body.appendChild(pal);
+
+    function sync() {
+      var t = current(), a = currentAccent();
+      modeRow.querySelectorAll("button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === t));
+      });
+      swRow.querySelectorAll("button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-accent") === a));
+      });
+    }
+
+    function setOpen(yes) {
+      pal.hidden = !yes;
+      btn.setAttribute("aria-expanded", String(yes));
+      if (yes) sync();
+    }
+
+    btn.addEventListener("click", function (e) { e.stopPropagation(); setOpen(pal.hidden); });
+    pal.addEventListener("click", function (e) { e.stopPropagation(); });
+    addEventListener("click", function () { if (!pal.hidden) setOpen(false); });
+    addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !pal.hidden) { setOpen(false); btn.focus(); }
+    });
+    document.addEventListener("lituk:theme", sync);
+    document.addEventListener("lituk:accent", sync);
+    sync();
+  }
+
   var HUB_CSS =
     ".lituk-hub{position:fixed;z-index:60;top:calc(var(--lituk-sat) + var(--lituk-inset));" +
     "left:calc(var(--lituk-sal) + var(--lituk-inset));display:inline-flex;align-items:center;gap:6px;" +
@@ -112,10 +286,44 @@
     document.body.appendChild(a);
   }
 
+  /* ---------------- accent palettes ----------------
+     Two palettes are in play across the app. The hub pages declare dark on a
+     bare :root and light on [data-theme="light"]; the reference and quiz pages
+     do the reverse. Naming both the mode and the accent here outranks either
+     arrangement, so one block covers both without touching a single page.
+
+     Values are not hand-picked. Each token keeps the OKLCH lightness and chroma
+     of the default it replaces and only turns its hue, which is why the paper
+     reads as a tint rather than a colour and why body-contrast lands within
+     0.1:1 of the default everywhere. The two accents that carry text — --gold
+     and --gold-dim — are instead solved per hue for a fixed contrast against
+     their own --card, because contrast at a fixed lightness varies with hue.
+     That lands every accent at 4.6:1 on light, where the default gold reaches
+     only 4.14:1. --ink, --era1..6, --good/--bad and --trap-* are deliberately
+     absent: they carry meaning (chapter colours, right and wrong) or carry the
+     contrast, and an accent has no business repainting either. */
+  var ACCENT_CSS =
+    ":root[data-theme=\"dark\"][data-accent=\"rose\"]{--page:#140D0E;--card:#221819;--card-2:#2E1D1F;--line:#3E2A2C;--chip:#342526;--gold:#F6939F;--gold-dim:#A3636B;}" +
+    ":root[data-theme=\"light\"][data-accent=\"rose\"]{--page:#F7EFEF;--card:#FFF9FA;--card-2:#F7E9EA;--line:#E8D8DA;--chip:#F3E6E7;--gold:#AC5965;--gold-dim:#D9A3A9;}" +
+    ":root[data-theme=\"dark\"][data-accent=\"oak\"]{--page:#0C100C;--card:#161D16;--card-2:#1A261A;--line:#273527;--chip:#222C22;--gold:#7AC07C;--gold-dim:#538054;}" +
+    ":root[data-theme=\"light\"][data-accent=\"oak\"]{--page:#EDF3ED;--card:#F8FCF8;--card-2:#E7F0E7;--line:#D6E0D6;--chip:#E4ECE4;--gold:#437F46;--gold-dim:#9BBF9B;}" +
+    ":root[data-theme=\"dark\"][data-accent=\"slate\"]{--page:#0B1014;--card:#141C22;--card-2:#17242F;--line:#24323F;--chip:#202B34;--gold:#69B7F6;--gold-dim:#497AA2;}" +
+    ":root[data-theme=\"light\"][data-accent=\"slate\"]{--page:#ECF2F7;--card:#F7FBFF;--card-2:#E5EEF7;--line:#D3DEE8;--chip:#E3EBF2;--gold:#3377AD;--gold-dim:#92B8DA;}" +
+    ":root[data-theme=\"dark\"][data-accent=\"heather\"]{--page:#110E12;--card:#1E1920;--card-2:#281F2C;--line:#362C3B;--chip:#2E2631;--gold:#D09CE8;--gold-dim:#8A6999;}" +
+    ":root[data-theme=\"light\"][data-accent=\"heather\"]{--page:#F3EFF6;--card:#FDFAFE;--card-2:#F1EAF4;--line:#E1D9E5;--chip:#EDE7F0;--gold:#8E61A2;--gold-dim:#C3A8D0;}";
+
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = SAFE_CSS + HUB_CSS + EGG_CSS;
+    s.textContent = SAFE_CSS + ACCENT_CSS + PICKER_CSS + HUB_CSS + EGG_CSS;
     document.head.appendChild(s);
+  }
+
+  /* The two outliers — the mock-test app and Study Quest — name their colours
+     differently and are not repainted by any of the above. Asking the page what
+     it actually computes is cheaper than keeping a list of filenames in sync. */
+  function usesSharedPalette() {
+    var cs = getComputedStyle(document.documentElement);
+    return !!cs.getPropertyValue("--era4").trim() && !!cs.getPropertyValue("--card").trim();
   }
 
   /* ---------------- ?find= highlighting ---------------- */
@@ -1336,6 +1544,8 @@
   injectCSS();
   injectHub();
   setTheme(current(), true);
+  setAccent(currentAccent(), true);
+  buildPicker();
   syncThemeColor();
   registerSW();
 
@@ -1352,6 +1562,10 @@
     getTheme: current,
     setTheme: setTheme,
     toggleTheme: toggleTheme,
+    ACCENT_KEY: ACCENT_KEY,
+    accents: ACCENTS.map(function (a) { return a.id; }),
+    getAccent: currentAccent,
+    setAccent: setAccent,
     highlight: highlight,
     eggs: eggsAPI,
     reading: {

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-lituk-aurora>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -17,8 +17,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Life in UK">
 <meta name="robots" content="noindex">
-<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<script>/* theme + accent before first paint — one key each, every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t);var _a=localStorage.getItem("lituk_accent");if(/^(gold|rose|oak|slate|heather)$/.test(_a))document.documentElement.setAttribute("data-accent",_a)}catch(e){}</script>
 <style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
+<style>:root{--aurora:.55}:root[data-theme="light"]{--aurora:.34}html[data-lituk-aurora] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:var(--aurora);background:radial-gradient(58% 40% at 10% -8%,color-mix(in srgb,var(--era4) 26%,transparent),transparent 70%),radial-gradient(50% 36% at 94% 2%,color-mix(in srgb,var(--era3) 20%,transparent),transparent 70%),radial-gradient(72% 44% at 50% 106%,color-mix(in srgb,var(--gold,var(--era1)) 16%,transparent),transparent 74%)}</style>
 <script src="app.js" defer></script>
 <!-- /lituk:shared -->
 <style>
@@ -33,7 +34,6 @@
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
     --lift:0 2px 5px rgba(0,0,0,.32), 0 20px 46px rgba(0,0,0,.42);
     --sheen:rgba(255,255,255,.07);
-    --aurora:.55;
   }
   :root[data-theme="light"] {
     --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
@@ -43,7 +43,6 @@
     --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
     --lift:0 2px 6px rgba(32,36,44,.07), 0 18px 42px rgba(32,36,44,.13);
     --sheen:rgba(255,255,255,.75);
-    --aurora:.34;
   }
 
   body {
@@ -53,16 +52,8 @@
     -webkit-tap-highlight-color:transparent;
     padding-bottom:56px;
   }
-  /* An ambient wash of the era colours, painted once behind the page. It sits
-     above body's own background and below .wrap, so nothing needs a z-index of
-     its own beyond the one on .wrap. */
-  body::before {
-    content:""; position:fixed; inset:0; pointer-events:none; opacity:var(--aurora);
-    background:
-      radial-gradient(58% 40% at 10% -8%,  color-mix(in srgb, var(--era4) 26%, transparent), transparent 70%),
-      radial-gradient(50% 36% at 94% 2%,   color-mix(in srgb, var(--era3) 20%, transparent), transparent 70%),
-      radial-gradient(72% 44% at 50% 106%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 74%);
-  }
+  /* The ambient wash this page used to own alone now belongs to every page, and
+     lives in the shared pre-paint block above — including its --aurora opacity. */
   .wrap { max-width:760px; margin:0 auto; padding:0 22px; position:relative; z-index:1; }
   a { color:inherit; text-decoration:none; }
 
