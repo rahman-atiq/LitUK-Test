@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0F14">
+<meta name="description" content="The run-up to exam day: what to do each night, and the two dates where the drill changes its own behaviour.">
+<title>Life in the UK · The Last Eleven Days</title>
+<!-- lituk:shared -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Life in UK">
+<meta name="robots" content="noindex">
+<script>/* theme before first paint — one key for every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t)}catch(e){}</script>
+<style>:root{--lituk-sat:env(safe-area-inset-top,0px);--lituk-sar:env(safe-area-inset-right,0px);--lituk-sab:env(safe-area-inset-bottom,0px);--lituk-sal:env(safe-area-inset-left,0px);--lituk-inset:12px}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;padding-bottom:var(--lituk-sab)}body{padding-left:var(--lituk-sal);padding-right:var(--lituk-sar)}html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>
+<script src="app.js" defer></script>
+<!-- /lituk:shared -->
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Tokens are the hub's, verbatim. Nothing on this page invents a colour, and
+     nothing here loads a webfont: the app is installable and precached, so a
+     face that 404s offline is a worse heading than a plain one. */
+  :root {
+    --page:#0D0F14; --card:#171B23; --card-2:#1D2230; --ink:#EFEDE4; --ink-2:#A9ADB6; --ink-3:#767B85;
+    --line:#2A3040; --gold:#D4A94E; --gold-dim:#8A7238;
+    --era1:#C08A3E; --era2:#4AA968; --era3:#DE6490; --era4:#6B95E8; --era5:#E07E44; --era6:#37AECB;
+    --pink:#FF4F9A;
+    --serif:"Baskerville","Iowan Old Style","Palatino Linotype","Palatino",Georgia,serif;
+    --sans:"Avenir Next","Avenir","Segoe UI",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+    --sheen:rgba(255,255,255,.07);
+  }
+  :root[data-theme="light"] {
+    --page:#F3F1EA; --card:#FCFBF6; --card-2:#F0EDE2; --ink:#22252D; --ink-2:#5B606B; --ink-3:#8B8F98;
+    --line:#E0DDD0; --gold:#9A7420; --gold-dim:#C4B285;
+    --era1:#9A6A1F; --era2:#23703A; --era3:#CE3F70; --era4:#2C5FBF; --era5:#D96A22; --era6:#0794B8;
+    --pink:#D62B72;
+    --shadow:0 1px 2px rgba(32,36,44,.06), 0 6px 20px rgba(32,36,44,.08);
+    --sheen:rgba(255,255,255,.75);
+  }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:64px;
+  }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+  a { color:inherit; text-decoration:none; }
+
+  .themeToggle {
+    position:fixed; top:14px; right:14px; z-index:40; cursor:pointer;
+    font-family:inherit; font-size:.78rem; font-weight:600;
+    background:color-mix(in srgb, var(--card) 82%, transparent); color:var(--ink);
+    border:1px solid var(--line); border-radius:9px; padding:6px 12px; box-shadow:var(--shadow);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    transition:transform .14s ease, border-color .14s ease, color .14s ease;
+  }
+  .themeToggle:hover { transform:translateY(-1px); border-color:var(--gold-dim); color:var(--gold); }
+  .themeToggle:active { transform:scale(.96); }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding:46px 0 22px; }
+  .eyebrow {
+    margin:0 0 8px; font-size:.72rem; font-weight:700; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--gold);
+  }
+  h1 {
+    margin:0; font-family:var(--serif); font-weight:400;
+    font-size:clamp(2rem, 8vw, 3.1rem); line-height:1.04; letter-spacing:-.02em;
+    text-wrap:balance;
+  }
+  .mast .sub { margin:12px 0 0; color:var(--ink-2); font-size:1rem; max-width:56ch; }
+
+  /* ---------- the live row ---------- */
+  .now {
+    margin-top:22px; padding:16px 18px; border-radius:15px;
+    background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .cd { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .cd .big {
+    font-family:var(--serif); font-size:2.5rem; line-height:1; font-weight:700;
+    color:var(--gold); font-variant-numeric:tabular-nums;
+  }
+  .cd .unit { font-size:.92rem; font-weight:700; }
+  .cd .mode {
+    font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    padding:4px 10px; border-radius:999px;
+    background:color-mix(in srgb, var(--ink-3) 18%, transparent); color:var(--ink-2);
+  }
+  .cd .mode.final { background:color-mix(in srgb, var(--pink) 18%, transparent); color:var(--pink); }
+
+  /* Read out of lituk_v1, the same key the hub reads. This page carries no
+     question bank, so it reports the engine's numbers rather than recomputing
+     any of them. */
+  .live { display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line);
+          border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  /* A class selector beats the UA sheet's [hidden]{display:none}, so a page
+     that has never seen this device would draw an empty three-cell box. */
+  .live[hidden] { display:none; }
+  .live div { background:var(--card-2); padding:11px 10px; text-align:center; }
+  .live .v { display:block; font-family:var(--serif); font-size:1.3rem; font-weight:700;
+             line-height:1.1; font-variant-numeric:tabular-nums; }
+  .live .v.good { color:var(--era2); } .live .v.bad { color:var(--pink); } .live .v.gold { color:var(--gold); }
+  .live .k { display:block; margin-top:3px; font-size:.7rem; color:var(--ink-3);
+             letter-spacing:.05em; text-transform:uppercase; }
+
+  .rail { height:6px; border-radius:99px; background:var(--card-2); overflow:hidden; }
+  .rail i { display:block; height:100%; width:0; background:var(--gold); border-radius:99px;
+            transition:width .35s ease; }
+  .rail-l { display:flex; justify-content:space-between; gap:12px; font-size:.78rem;
+            font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums; }
+  .rail-l button { font:inherit; color:var(--gold); background:none; border:0; padding:0;
+                   cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .rail-l button:hover { color:var(--ink); }
+
+  .notice {
+    margin-top:14px; padding:12px 15px; border-radius:12px; font-size:.87rem; line-height:1.5;
+    background:color-mix(in srgb, var(--era5) 13%, var(--card));
+    border:1px solid color-mix(in srgb, var(--era5) 40%, var(--line)); color:var(--ink);
+  }
+  .notice b { color:var(--era5); }
+
+  /* ---------- section headings ---------- */
+  h2.sec {
+    margin:42px 0 14px; font-family:var(--serif); font-weight:400;
+    font-size:1.42rem; letter-spacing:-.01em; text-wrap:balance;
+  }
+  h2.sec .n { font-family:var(--sans); font-size:.78rem; font-weight:700; color:var(--ink-3);
+              letter-spacing:.06em; text-transform:uppercase; margin-left:10px; }
+
+  /* ---------- standing rules ---------- */
+  .rules { list-style:none; margin:0; padding:0; display:grid; gap:1px;
+           background:var(--line); border:1px solid var(--line); border-radius:15px; overflow:hidden; }
+  .rules li { background:var(--card); padding:13px 16px;
+              display:grid; grid-template-columns:26px 1fr; gap:12px; align-items:start; }
+  .rules .ico { font-size:.95rem; line-height:1.6; text-align:center; }
+  .rules .txt { min-width:0; }
+  .rules .txt b { display:block; font-size:.93rem; color:var(--ink); }
+  .rules .why { display:block; margin-top:3px; font-size:.85rem; color:var(--ink-2); line-height:1.5; }
+  .rules .why em { font-style:normal; color:var(--gold); }
+
+  /* ---------- the run ---------- */
+  .days { display:flex; flex-direction:column; gap:11px; }
+
+  .day { border:1px solid var(--line); border-radius:15px; background:var(--card);
+         box-shadow:var(--shadow); overflow:hidden; }
+  .day.past { opacity:.5; }
+  .day.today { border-color:var(--gold); box-shadow:0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent), var(--shadow); }
+  .day.exam { border-color:color-mix(in srgb, var(--era2) 55%, var(--line));
+              background:linear-gradient(150deg, color-mix(in srgb, var(--era2) 11%, transparent), transparent 60%), var(--card); }
+
+  .dhead { display:flex; align-items:center; gap:13px; padding:12px 15px 11px;
+           background:var(--card-2); border-bottom:1px solid var(--line); }
+  .dnum { font-family:var(--serif); font-size:1.6rem; font-weight:700; line-height:1;
+          color:var(--gold); min-width:36px; text-align:center; font-variant-numeric:tabular-nums; }
+  .day.exam .dnum { color:var(--era2); font-size:1.3rem; }
+  .dmeta { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .dmeta .date { font-size:.95rem; font-weight:700; letter-spacing:-.01em; white-space:nowrap; }
+  .dmeta .left { font-size:.68rem; font-weight:700; color:var(--ink-3);
+                 letter-spacing:.09em; text-transform:uppercase; white-space:nowrap; }
+  .pill { margin-left:auto; flex:none; font-size:.62rem; font-weight:700; letter-spacing:.11em;
+          text-transform:uppercase; padding:4px 9px; border-radius:999px;
+          background:color-mix(in srgb, var(--ink-3) 18%, transparent); color:var(--ink-2); }
+  .pill.final { background:color-mix(in srgb, var(--pink) 18%, transparent); color:var(--pink); }
+  .pill.exam { background:color-mix(in srgb, var(--era2) 20%, transparent); color:var(--era2); }
+  .doneflag { margin-left:9px; flex:none; font-size:.72rem; font-weight:700; color:var(--era2);
+              opacity:0; transition:opacity .18s; }
+  .day.done .doneflag { opacity:1; }
+
+  .tasks { list-style:none; margin:0; padding:7px 8px 11px; }
+  .tasks li { display:grid; grid-template-columns:22px 1fr auto; gap:11px;
+              align-items:start; padding:7px 8px; border-radius:10px; transition:background .13s; }
+  .tasks li:hover { background:var(--card-2); }
+  .tasks input {
+    appearance:none; -webkit-appearance:none; margin:3px 0 0;
+    width:19px; height:19px; border:2px solid var(--ink-3); border-radius:6px;
+    background:transparent; cursor:pointer; display:grid; place-content:center;
+    transition:background .14s, border-color .14s;
+  }
+  .tasks input::after {
+    content:""; width:10px; height:6px; margin-top:-2px;
+    border-left:2.5px solid var(--page); border-bottom:2.5px solid var(--page);
+    transform:rotate(-45deg) scale(0); transition:transform .14s;
+  }
+  .tasks input:checked { background:var(--gold); border-color:var(--gold); }
+  .tasks input:checked::after { transform:rotate(-45deg) scale(1); }
+  .tasks input:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+  .tasks .t { font-size:.92rem; line-height:1.45; cursor:pointer; color:var(--ink); }
+  .tasks .t b { color:var(--ink); font-weight:700; }
+  .tasks input:checked ~ .t { color:var(--ink-3); text-decoration:line-through;
+                              text-decoration-color:var(--ink-3); }
+  .tasks input:checked ~ .t b { color:var(--ink-3); font-weight:600; }
+  .tasks .go {
+    flex:none; align-self:center; font-size:.72rem; font-weight:700; color:var(--gold);
+    border:1px solid color-mix(in srgb, var(--gold) 34%, var(--line)); border-radius:8px;
+    padding:4px 9px; white-space:nowrap; transition:background .13s, color .13s;
+  }
+  .tasks .go:hover { background:color-mix(in srgb, var(--gold) 16%, transparent); }
+  .tasks .go:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+  /* ---------- gates ----------
+     Two rows, and each is a real boundary in the engine rather than a divider:
+     the night coverage closes and final mode takes over, and the last date a
+     fresh mistake can still serve out its clean days. */
+  .gate {
+    display:grid; grid-template-columns:3px 1fr; gap:14px; align-items:stretch;
+    padding:15px 17px 15px 0; border-radius:15px;
+    background:linear-gradient(100deg, color-mix(in srgb, var(--gold) 11%, transparent), transparent 68%), var(--card);
+    border:1px solid color-mix(in srgb, var(--gold) 36%, var(--line));
+  }
+  .gate .bar { background:var(--gold); border-radius:0 99px 99px 0; }
+  .gate h3 { margin:0 0 4px; font-size:.7rem; font-weight:700; letter-spacing:.12em;
+             text-transform:uppercase; color:var(--gold); }
+  .gate p { margin:0; font-size:.9rem; line-height:1.5; }
+  .gate p + p { margin-top:7px; color:var(--ink-2); font-size:.86rem; }
+  .gate code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.8rem;
+               background:var(--card-2); color:var(--ink); padding:1px 5px; border-radius:5px; }
+
+  /* ---------- numbers ---------- */
+  .figs { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:1px;
+          background:var(--line); border:1px solid var(--line); border-radius:15px; overflow:hidden; }
+  .figs div { background:var(--card); padding:13px 15px; }
+  .figs .v { font-family:var(--serif); font-size:1.35rem; font-weight:700; line-height:1.1;
+             font-variant-numeric:tabular-nums; color:var(--gold); }
+  .figs .v small { font-family:var(--sans); font-size:.8rem; color:var(--ink-3); font-weight:600; }
+  .figs .k { display:block; margin-top:4px; font-size:.8rem; color:var(--ink-2); line-height:1.4; }
+
+  .foot { margin-top:38px; padding-top:20px; border-top:1px solid var(--line);
+          color:var(--ink-3); font-size:.83rem; line-height:1.6; }
+  .foot p { margin:0 0 8px; }
+  .foot p:last-child { margin:0; }
+  .foot b { color:var(--ink-2); }
+  .foot code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.78rem;
+               background:var(--card-2); color:var(--ink-2); padding:1px 5px; border-radius:5px; }
+
+  @media (max-width:560px) {
+    .wrap { padding:0 16px; }
+    /* The word goes, the arrow stays: a named chip under every task turned five
+       tasks into a whole screen. */
+    .tasks .go .lbl { display:none; }
+    .tasks .go { padding:3px 8px; font-size:.85rem; line-height:1.1; }
+    .pill { font-size:.58rem; padding:3px 7px; letter-spacing:.08em; }
+    .dnum { font-size:1.4rem; min-width:28px; }
+    .dhead { gap:10px; padding:11px 12px 10px; }
+    h2.sec .n { display:block; margin-left:0; margin-top:5px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+
+  @media print {
+    :root, :root[data-theme="light"] {
+      --page:#fff; --card:#fff; --card-2:#fff; --ink:#000; --ink-2:#333; --ink-3:#555;
+      --line:#b0b0b0; --gold:#000; --pink:#8a1420; --era2:#0a5a34; --shadow:none;
+    }
+    body { background:#fff; font-size:10pt; padding-bottom:0; }
+    .wrap { max-width:none; padding:0; }
+    .themeToggle, .rail-l button, .tasks .go, .lituk-hub { display:none !important; }
+    .day, .gate, .rules, .figs, .now { break-inside:avoid; box-shadow:none; }
+    .day.past { opacity:1; }
+    h2.sec { margin-top:20pt; }
+    @page { margin:12mm; }
+  }
+</style>
+</head>
+<body>
+
+<button class="themeToggle" id="themeToggle" aria-label="Toggle light or dark theme">☀︎ Light</button>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="eyebrow">Study plan · exam Saturday 5 September 2026</p>
+    <h1>The Last Eleven Days</h1>
+    <p class="sub">What to do each night, in what order, and the two dates where the drill changes its own behaviour whether you notice or not.</p>
+  </header>
+
+  <div class="now">
+    <div class="cd">
+      <span class="big" id="cd">11</span>
+      <span class="unit" id="cdu">days to go</span>
+      <span class="mode" id="mode">Consolidate mode</span>
+    </div>
+    <div class="live" id="live" hidden></div>
+    <div class="rail" role="img" aria-label="Plan progress"><i id="bar"></i></div>
+    <div class="rail-l">
+      <span id="cnt">0 of 0 done</span>
+      <button type="button" id="clear">Clear ticks</button>
+    </div>
+  </div>
+  <div class="notice" id="dateNotice" hidden></div>
+
+  <h2 class="sec">Every day, without being told<span class="n">five standing rules</span></h2>
+  <ul class="rules">
+    <li><span class="ico">🤔</span><span class="txt">
+      <b>Tap “Wasn’t sure” on every lucky guess</b>
+      <span class="why">It blocks the day’s credit and costs 12% in the model. A guess you don’t declare becomes a question the app thinks you know.</span></span></li>
+    <li><span class="ico">🐛</span><span class="txt">
+      <b>Leeches need the explicit tap</b>
+      <span class="why">Missed four or more times, and they never clear on the counter. Read the explanation properly, then <em>“I know this now”</em>.</span></span></li>
+    <li><span class="ico">📊</span><span class="txt">
+      <b>Trust pass probability, not tests passed</b>
+      <span class="why">That, and expected score out of 24. “Tests passed” is a footnote on the dashboard for a reason — it counts retries of the same 24 questions.</span></span></li>
+    <li><span class="ico">🗣</span><span class="txt">
+      <b>Compare pass probability out loud</b>
+      <span class="why">Separate phones, separate stores, separate ticks on this page. Whoever is behind gets the longer evening.</span></span></li>
+    <li><span class="ico">⬇</span><span class="txt">
+      <b>Progress lives in one browser only</b>
+      <span class="why">Settings → Export backup, on both phones. There is no version of 3 September where losing it is recoverable.</span></span></li>
+  </ul>
+
+  <h2 class="sec">The run<span class="n">25 August – 5 September</span></h2>
+  <div class="days" id="days"></div>
+
+  <h2 class="sec">The numbers you’re working against</h2>
+  <div class="figs">
+    <div><span class="v">18<small>/24</small></span><span class="k">Pass mark, 45 minutes</span></div>
+    <div><span class="v">3,147</span><span class="k">Unique questions across the four banks</span></div>
+    <div><span class="v">613</span><span class="k">Two-option questions — a coin flip if you don’t know</span></div>
+    <div><span class="v">663</span><span class="k">Reported as recently asked in a real exam</span></div>
+    <div><span class="v">3 / 4</span><span class="k">Clean days to retire a mistake — four options, then two</span></div>
+    <div><span class="v">10</span><span class="k">Days untouched before a card counts as cold</span></div>
+  </div>
+
+  <div class="foot">
+    <p><b>Ticks are saved in this browser only</b>, on this device — the same rule the rest of the app follows, so the two of you keep separate plans without trying. They sit under <code>lituk_plan_v1</code> and are deliberately left out of the Practice Tests backup: an unticked plan is a nuisance, not lost progress.</p>
+    <p>Built from the engine’s own thresholds: <code>drillMode()</code> flips to consolidate at 14 days out and final at 6, <code>MIX.final</code> serves no new questions at all, and a mistake needs three clean days on three separate dates before it retires.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---- theme, shared with every other page ---- */
+  var root = document.documentElement, btn = document.getElementById("themeToggle");
+  function label() { btn.textContent = root.dataset.theme === "light" ? "☾ Dark" : "☀︎ Light"; }
+  btn.addEventListener("click", function () { LitUK.toggleTheme(); label(); });
+  document.addEventListener("lituk:theme", label);
+  label();
+
+  var EXAM_ISO = "2026-09-05";
+  var EXAM = new Date(2026, 8, 5);
+  var KEY = "lituk_plan_v1";
+  var TESTS = "life-in-uk-mock-tests.html";
+  /* Asserted by tools/validate-banks.mjs, and carried by index.html and the
+     tests engine as the same figure. */
+  var UNIQUE_QUESTIONS = 3147;
+
+  function read(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function parseISO(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function daysBetween(a, b) { return Math.round((midnight(b) - midnight(a)) / 864e5); }
+
+  var today = midnight(new Date());
+
+  /* Each entry is one evening. `gate` rows interrupt the run wherever the
+     engine's own behaviour changes on that boundary. */
+  var PLAN = [
+    { d:"2026-08-25", label:"Tue 25 Aug", mode:"consolidate", tasks:[
+      { t:"Settings → <b>Questions per drill: 100</b>, and check the exam date reads 5 Sep", href:TESTS, go:"Settings" },
+      { t:"<b>⬇ Export a backup</b> on both phones — before anything else", href:TESTS, go:"Settings" },
+      { t:"<b>🧭 Sweep</b> — the unseen counter is the only thing that matters this week", href:TESTS + "#sweep", go:"Sweep" },
+      { t:"<b>🎯 Mistake set</b> — one set of 24", href:TESTS + "#mistakes", go:"Mistakes" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" }
+    ]},
+    { d:"2026-08-26", label:"Wed 26 Aug", mode:"consolidate", tasks:[
+      { t:"<b>🧭 Sweep</b> until the tile stops offering questions", href:TESTS + "#sweep", go:"Sweep" },
+      { t:"Daily drill — 100", href:TESTS + "#drill", go:"Drill" },
+      { t:"<b>🎯 Mistake set</b>", href:TESTS + "#mistakes", go:"Mistakes" }
+    ]},
+    { d:"2026-08-27", label:"Thu 27 Aug", mode:"consolidate", tasks:[
+      { t:"<b>🧭 Sweep</b>", href:TESTS + "#sweep", go:"Sweep" },
+      { t:"<b>🎯 Mistake set</b>", href:TESTS + "#mistakes", go:"Mistakes" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" }
+    ]},
+    { d:"2026-08-28", label:"Fri 28 Aug", mode:"consolidate", tasks:[
+      { t:"<b>🧭 Sweep</b>", href:TESTS + "#sweep", go:"Sweep" },
+      { t:"<b>🎯 Mistake set</b>", href:TESTS + "#mistakes", go:"Mistakes" },
+      { t:"<b>🌀 Twists</b> — one run through the clusters", href:TESTS + "#twist", go:"Twists" }
+    ]},
+    { d:"2026-08-29", label:"Sat 29 Aug", mode:"consolidate", tasks:[
+      { t:"<b>🧭 Sweep to zero.</b> Whatever is left tonight stays unseen until the exam", href:TESTS + "#sweep", go:"Sweep" },
+      { t:"<b>🎯 Mistake set</b>", href:TESTS + "#mistakes", go:"Mistakes" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" }
+    ]},
+
+    { gate:true, title:"Midnight tonight — coverage closes",
+      p1:"Tomorrow the drill flips itself to <b>final</b> mode, and <code>MIX.final</code> serves <b>no new questions at all</b>. Every question you have never met goes out of reach.",
+      p2:"Nothing to press, and no warning on screen. If the Sweep tile still shows a number at bedtime, that number is what you take into the exam blind." },
+
+    { d:"2026-08-30", label:"Sun 30 Aug", mode:"final", tasks:[
+      { t:"The drill flips to <b>final</b> on its own — half due, half mistakes, nothing new" },
+      { t:"Settings → <b>“Only at the end”</b> — from here every sit is blind", href:TESTS, go:"Settings" },
+      { t:"Daily drill — 100", href:TESTS + "#drill", go:"Drill" },
+      { t:"<b>🎲 Timed mock, real conditions</b> — phone face down, 45 minutes", href:TESTS, go:"Tests" },
+      { t:"<b>⭐ Reported</b> — first run at the questions seen in a real exam", href:TESTS + "#examq", go:"Reported" }
+    ]},
+    { d:"2026-08-31", label:"Mon 31 Aug", mode:"final", tasks:[
+      { t:"Daily drill — 100", href:TESTS + "#drill", go:"Drill" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" },
+      { t:"<b>🌀 Twists</b>", href:TESTS + "#twist", go:"Twists" },
+      { t:"<b>🎯 Mistake sets</b> — as many as the tile offers", href:TESTS + "#mistakes", go:"Mistakes" }
+    ]},
+    { d:"2026-09-01", label:"Tue 1 Sep", mode:"final", tasks:[
+      { t:"Daily drill — 100", href:TESTS + "#drill", go:"Drill" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" },
+      { t:"<b>⭐ Reported</b>", href:TESTS + "#examq", go:"Reported" },
+      { t:"<b>📅 Dates</b> — both directions", href:TESTS + "#dates", go:"Dates" }
+    ]},
+
+    { gate:true, title:"Last day a fresh mistake can still clear",
+      p1:"A four-option question needs <b>three clean days on three separate dates</b>, and a miss resets the count to zero. Miss something tomorrow and it cannot retire before Saturday.",
+      p2:"That is not a failure — it is what the cram sheet is for. From here, anything you get wrong is revision material rather than a drill target." },
+
+    { d:"2026-09-02", label:"Wed 2 Sep", mode:"final", tasks:[
+      { t:"Daily drill — 100", href:TESTS + "#drill", go:"Drill" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" },
+      { t:"<b>🐛 The leech list</b> — every one, read properly, then cleared by hand", href:TESTS + "#mistakes", go:"Leeches" },
+      { t:"<b>📅 Dates</b>", href:TESTS + "#dates", go:"Dates" }
+    ]},
+    { d:"2026-09-03", label:"Thu 3 Sep", mode:"final", tasks:[
+      { t:"Daily drill — 100", href:TESTS + "#drill", go:"Drill" },
+      { t:"<b>🎲 Timed mock</b>", href:TESTS, go:"Tests" },
+      { t:"<b>⭐ Reported</b> and <b>🌀 Twists</b>", href:TESTS + "#examq", go:"Reported" },
+      { t:"<b>⬇ Export a backup</b> — both phones, last sensible chance", href:TESTS, go:"Settings" }
+    ]},
+    { d:"2026-09-04", label:"Fri 4 Sep", mode:"final", tasks:[
+      { t:"<b>📄 Print the cram sheet</b> — it fits on two sides", href:TESTS + "#cram", go:"Cram sheet" },
+      { t:"<b>The Day Before: History</b>", href:"life-in-uk-day-before.html", go:"Open" },
+      { t:"<b>The Day Before: Society</b>", href:"life-in-uk-day-before-ch4.html", go:"Open" },
+      { t:"<b>The Day Before: Government</b>", href:"life-in-uk-day-before-ch5.html", go:"Open" },
+      { t:"<b>🏅 The Honours Board</b> — every prize and medal", href:"life-in-uk-awards.html", go:"Open" },
+      { t:"<b>🎲 One last mock</b>, then stop", href:TESTS, go:"Tests" },
+      { t:"<b>Stop by 20:00.</b> Nothing learned after that survives the night" }
+    ]},
+    { d:"2026-09-05", label:"Sat 5 Sep", mode:"exam", tasks:[
+      { t:"Cram sheet on the way in. Nothing new, nothing timed", href:TESTS + "#cram", go:"Cram sheet" },
+      { t:"18 out of 24, 45 minutes — you only need three quarters of it" },
+      { t:"Good luck 🤞" }
+    ]}
+  ];
+
+  /* ---- ticks. localStorage can throw outright in a private window, and an
+     unticked plan is still a working plan — never let it take the page down. */
+  var state = read(KEY, {}) || {};
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---- countdown, from the viewer's own clock ---- */
+  var left = daysBetween(today, EXAM);
+  var cd = document.getElementById("cd"), cdu = document.getElementById("cdu"), mode = document.getElementById("mode");
+  if (left > 0) {
+    cd.textContent = left;
+    cdu.textContent = left === 1 ? "day to go" : "days to go";
+    mode.textContent = (left <= 6 ? "Final" : left <= 14 ? "Consolidate" : "Coverage") + " mode";
+    if (left <= 6) mode.classList.add("final");
+  } else if (left === 0) {
+    cd.textContent = "Today";
+    cd.style.fontSize = "1.8rem";
+    cdu.textContent = "is the exam";
+    mode.textContent = "Good luck";
+  } else {
+    cd.textContent = "—";
+    cd.style.fontSize = "1.8rem";
+    cdu.textContent = "the exam has been and gone";
+    mode.textContent = "Hope it went well";
+  }
+
+  /* ---- live figures, read from the tests engine's own store ---- */
+  var M = read("lituk_v1", null) || {};
+  var sr = M.sr || {}, mistakes = M.mistakes || {};
+  if (M.answered) {
+    var R = M.readiness && typeof M.readiness.p === "number" ? M.readiness : null;
+    var seen = Math.min(Object.keys(sr).length, UNIQUE_QUESTIONS);
+    var unseen = UNIQUE_QUESTIONS - seen;
+    var toFix = Object.keys(mistakes).filter(function (g) { return !mistakes[g].done; }).length;
+    var live = document.getElementById("live");
+    live.innerHTML =
+      '<div><span class="v ' + (R ? (R.p >= .85 ? "good" : R.p >= .5 ? "gold" : "bad") : "") + '">' +
+        (R ? Math.round(R.p * 100) + "%" : "—") + '</span><span class="k">pass chance</span></div>' +
+      '<div><span class="v ' + (unseen ? "bad" : "good") + '">' + unseen + '</span><span class="k">never seen</span></div>' +
+      '<div><span class="v ' + (toFix ? "bad" : "good") + '">' + toFix + '</span><span class="k">to fix</span></div>';
+    live.hidden = false;
+  }
+
+  /* This plan is a fixed dated schedule. If the exam date in the tests app has
+     been moved, say so rather than letting the two quietly disagree. */
+  var setDate = typeof M.examDate === "string" ? M.examDate : "";
+  if (setDate && setDate !== EXAM_ISO) {
+    var n = document.getElementById("dateNotice");
+    n.innerHTML = "<b>Heads up:</b> Practice Tests has your exam date as " + setDate +
+      ", but this plan is written for " + EXAM_ISO + ". Change one or the other so they agree.";
+    n.hidden = false;
+  }
+
+  /* ---- build the run ---- */
+  var host = document.getElementById("days");
+  var boxes = [];
+
+  PLAN.forEach(function (row, ri) {
+    if (row.gate) {
+      var g = document.createElement("div");
+      g.className = "gate";
+      g.innerHTML = '<span class="bar" aria-hidden="true"></span>' +
+        "<div><h3>" + row.title + "</h3><p>" + row.p1 + "</p><p>" + row.p2 + "</p></div>";
+      host.appendChild(g);
+      return;
+    }
+
+    var date = parseISO(row.d);
+    var out = daysBetween(date, EXAM);
+    var isExam = row.mode === "exam";
+
+    var card = document.createElement("section");
+    card.className = "day" +
+      (date < today ? " past" : "") +
+      (daysBetween(today, date) === 0 ? " today" : "") +
+      (isExam ? " exam" : "");
+
+    var head = document.createElement("div");
+    head.className = "dhead";
+    head.innerHTML =
+      '<span class="dnum">' + (isExam ? "★" : out) + "</span>" +
+      '<span class="dmeta"><span class="date">' + row.label + "</span>" +
+      '<span class="left">' + (isExam ? "the day itself" : out + (out === 1 ? " day left" : " days left")) + "</span></span>" +
+      '<span class="pill' + (isExam ? " exam" : row.mode === "final" ? " final" : "") + '">' +
+        (isExam ? "Exam day" : row.mode === "final" ? "Final" : "Consolidate") + "</span>" +
+      '<span class="doneflag" aria-hidden="true">✓ done</span>';
+    card.appendChild(head);
+
+    var ul = document.createElement("ul");
+    ul.className = "tasks";
+    var mine = [];
+
+    row.tasks.forEach(function (task, ti) {
+      var id = "p-" + ri + "-" + ti;
+      var li = document.createElement("li");
+
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.id = id;
+      cb.checked = !!state[id];
+
+      var lab = document.createElement("label");
+      lab.className = "t";
+      lab.setAttribute("for", id);
+      lab.innerHTML = task.t;
+
+      li.appendChild(cb);
+      li.appendChild(lab);
+
+      if (task.href) {
+        var a = document.createElement("a");
+        a.className = "go";
+        a.href = task.href;
+        a.innerHTML = '<span class="lbl">' + task.go + "</span> \u203a";
+        li.appendChild(a);
+      }
+
+      ul.appendChild(li);
+
+      cb.addEventListener("change", function () {
+        state[id] = cb.checked;
+        if (!cb.checked) delete state[id];
+        persist();
+        paintCard();
+        paintTotal();
+      });
+
+      mine.push(cb);
+      boxes.push(cb);
+    });
+
+    card.appendChild(ul);
+    host.appendChild(card);
+
+    function paintCard() {
+      card.classList.toggle("done", mine.every(function (c) { return c.checked; }));
+    }
+    paintCard();
+  });
+
+  /* ---- progress rail ---- */
+  var bar = document.getElementById("bar"), cnt = document.getElementById("cnt");
+  function paintTotal() {
+    var done = boxes.filter(function (c) { return c.checked; }).length;
+    bar.style.width = (boxes.length ? done / boxes.length * 100 : 0) + "%";
+    cnt.textContent = done + " of " + boxes.length + " done";
+  }
+  paintTotal();
+
+  document.getElementById("clear").addEventListener("click", function () {
+    boxes.forEach(function (c) { c.checked = false; });
+    state = {};
+    persist();
+    Array.prototype.forEach.call(document.querySelectorAll(".day"), function (d) { d.classList.remove("done"); });
+    paintTotal();
+  });
+
+  /* Land on tonight rather than the top, when tonight is inside the window. */
+  var cur = document.querySelector(".day.today");
+  if (cur) cur.scrollIntoView({ block:"center", behavior:"auto" });
+})();
+</script>
+</body>
+</html>

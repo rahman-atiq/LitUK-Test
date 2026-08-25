@@ -452,6 +452,15 @@
   <h2 class="sec">Start here</h2>
   <div class="tiles">
 
+    <a class="tile" href="life-in-uk-plan.html" style="--accent:var(--gold)">
+      <div class="ic">🗓</div>
+      <div class="body">
+        <b>The Last Eleven Days <span class="tag" id="planTag">to 5 Sep</span></b>
+        <span>The run-up, night by night — what to drill, when the drill changes mode, and what to tick off.</span>
+      </div>
+      <div class="chev">›</div>
+    </a>
+
     <a class="tile" href="life-in-uk-mock-tests.html" style="--accent:var(--era2)">
       <div class="ic">📝</div>
       <div class="body">
@@ -596,6 +605,23 @@ var TOPIC_NAMES = [
 
   var M = read("lituk_v1", null) || {};
   var quizBest = +(localStorage.getItem("lituk_best") || 0);
+
+  /* The plan tile counts down on its own. It reads the date the tests app has
+     saved so the two never disagree on screen, and falls back to the date the
+     plan itself is written for. */
+  (function () {
+    var tag = document.getElementById("planTag");
+    if (!tag) return;
+    var iso = typeof M.examDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(M.examDate) ? M.examDate : "2026-09-05";
+    var p = iso.split("-");
+    var exam = new Date(+p[0], +p[1] - 1, +p[2]);
+    var now = new Date();
+    var left = Math.round((exam - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5);
+    /* Short enough to sit on one line beside the title, like every other tag
+       in this list. */
+    tag.textContent = left > 0 ? left + (left === 1 ? " day" : " days")
+      : left === 0 ? "today" : "done";
+  })();
 
   var tests = M.tests || {}, mistakes = M.mistakes || {}, sr = M.sr || {}, drill = M.drill || {};
   var passed = Object.keys(tests).filter(function (k) { return tests[k].lastPass; }).length;
