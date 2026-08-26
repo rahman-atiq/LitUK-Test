@@ -623,6 +623,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .qhead{display:flex;gap:8px;align-items:center;margin-bottom:6px;min-width:0}
 .qhead .topic{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .qhead .chip:not(.topic){flex:none}
+.qhead .hbadge{max-width:52%;overflow:hidden;text-overflow:ellipsis}
 .chip{background:var(--chip);color:var(--muted);font-weight:700;font-size:12px;padding:5px 10px;border-radius:20px;white-space:nowrap}
 .chip.topic{background:transparent;border:1px solid var(--line)}
 .timer{font-variant-numeric:tabular-nums;font-weight:800}
@@ -1053,6 +1054,26 @@ const EXAM_POOL=POOL.filter(isExamQ);
    BANK_NOTE, where they can differ. */
 const EXAM_CLAIM='Reported by test-takers as recently asked in real exams';
 const examBadge=q=>isExamQ(q)?`<span class="xbadge" title="${EXAM_CLAIM}">⭐ Real exam</span>`:'';
+/* What this question has already done to you, on the question card itself.
+   Four words, in the metadata row next to the topic — enough to know you are
+   looking at an old enemy rather than a stranger, without restating the whole
+   row from the mistakes list.
+
+   Never in a timed sit. A mock test feeds the pass rate, and "you have missed
+   this 3 times" is a nudge the real exam will not give you: it would make the
+   one number this app works hardest to keep honest quietly optimistic. Every
+   untimed mode — drill, mistake set, Ever wrong, topic practice — shows it. */
+function histBadge(q){
+  if(!sess||sess.timed)return '';
+  const m=S.mistakes[canon(q.g)];if(!m)return '';
+  const miss=m.count||0;
+  const chip=(txt,col)=>`<span class="chip hbadge" style="color:${col}">${txt}</span>`;
+  if(m.leech)return chip(`🐛 Leech · missed ${miss}×`,'var(--warn)');
+  if(m.done)return miss?chip(`✓ Cleared · missed ${miss}×`,'var(--good)'):'';
+  if(miss)return chip(`Missed ${miss}×`,'var(--bad)');
+  if(m.unsure)return chip('🤔 Guessed before','var(--muted)');
+  return '';
+}
 
 document.getElementById('brandSub').textContent=`${TESTS.length} Tests · ${UNIQUE_N} Questions`;
 
@@ -2315,6 +2336,7 @@ function renderQuiz(){
     <div class="card pad">
       <div class="qhead">
         <span class="chip topic">${esc(TOPICS[q.p])}</span>
+        ${histBadge(q)}
         ${multi?`<span class="chip" style="color:var(--warn)">Select ${ci.length}</span>`:''}
       </div>
       <div class="qtext">${esc(q.t)}</div>
@@ -3117,24 +3139,26 @@ function historyPool(){
 function historyQueue(){
   return historyPool().sort((a,b)=>lastSeen(a.q)-lastSeen(b.q)||cramRank(b.m)-cramRank(a.m));
 }
-/* "Set 3 of 17", derived — never stored — from what is LEFT in this pass
-   rather than counted up from what is done. Counting up cannot survive a short
-   final set: 60 questions go 24 + 24 + 12, and a counter working in 24s calls
-   the third one set 2. Counting down does not care how big any set was, so the
-   number stays right whatever else touched these questions today — a timed
-   test, the daily drill, a mistake set.
+/* How much of the list is still to come today, derived and never stored.
 
-   `fresh` hitting zero means every question in the list has been through once
-   today, and the page says exactly that and offers another lap. It does not
-   become set 4 of 3. */
+   This deliberately does NOT report a set number. It used to, and the number
+   was honest but answered a question nobody asks: `seen` counts everything
+   that touched these questions today by ANY route — the daily drill, a mistake
+   set, a timed test — so opening the page after a normal morning's work said
+   "Set 6 of 15" and read as though five sets had been skipped. Nothing had
+   been: the queue is least-recently-seen first, so a set is always drawn from
+   `fresh` and never from what the drill already covered.
+
+   `fresh` and `seen` say that plainly. `of` still describes the shape of the
+   whole list ("15 sets to a full pass"), which is the part a position was
+   really standing in for. `fresh` at zero means every question has been
+   through once today, and the page offers another lap rather than inventing
+   a set 16. */
 function historySetPos(){
   const pool=historyPool(),t0=todayStart();
   const total=pool.length,of=Math.max(1,Math.ceil(total/HISTORY_SET_N));
   const fresh=pool.filter(x=>lastSeen(x.q)<t0).length;
-  return {total,of,fresh,seen:total-fresh,
-    i:fresh?of-Math.ceil(fresh/HISTORY_SET_N)+1:1,
-    lapDone:total>0&&fresh===0,
-    open:pool.filter(x=>!x.m.done).length};
+  return {total,of,fresh,seen:total-fresh,lapDone:total>0&&fresh===0};
 }
 const NOTHING_WRONG='Nothing here yet — no question has ever caught you 🎉';
 /* `order:'keep'` because the queue above IS the point: shuffling it hands back
@@ -3154,7 +3178,7 @@ function startHistorySet(nq){
   const size=Math.max(1,Math.min(DRILL_MAX,Math.round(want)));
   const qs=historyQueue().slice(0,size).map(x=>x.q);
   if(!qs.length){toast(NOTHING_WRONG);return}
-  makeSession(qs,{title:p.lapDone?`Ever wrong · another ${qs.length}`:`Ever wrong · set ${p.i} of ${p.of}`,
+  makeSession(qs,{title:p.lapDone?`Ever wrong · another ${qs.length}`:`Ever wrong · next ${qs.length}`,
     timed:false,source:'hset',order:'keep'});
 }
 function practiceHistory(){
@@ -3184,7 +3208,7 @@ function renderHistory(){
       ? `<b>All ${pool.length}</b> have been through once today. Go round again as often as you like — nothing here is rationed by the day.`
       : p.seen?`<b>${p.seen}</b> seen today, <b>${p.fresh}</b> still to come round.`:''}</p>
     <div class="btn-row" style="margin-bottom:${pool.length?'10px':'16px'}">
-      <button class="btn primary" onclick="startHistorySet()" ${pool.length?'':'disabled'}>📓 ${!pool.length?'Nothing here yet':p.lapDone?'Go round again':`Set ${p.i} of ${p.of}`}</button>
+      <button class="btn primary" onclick="startHistorySet()" ${pool.length?'':'disabled'}>📓 ${!pool.length?'Nothing here yet':p.lapDone?'Go round again':`Next ${Math.min(HISTORY_SET_N,p.fresh)} · ${p.fresh} left today`}</button>
       <button class="btn" onclick="practiceHistory()" ${pool.length?'':'disabled'}>Practise all ${pool.length}</button>
       <button class="btn ghost" onclick="go('mistakes')">← Mistakes &amp; flags</button>
     </div>
