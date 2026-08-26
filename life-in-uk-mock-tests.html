@@ -860,6 +860,8 @@ select,input[type=text],input[type=date]{font:inherit;padding:9px 11px;border-ra
   <section id="view-results" class="hidden"></section>
   <!-- MISTAKES -->
   <section id="view-mistakes" class="hidden"></section>
+  <!-- EVER WRONG -->
+  <section id="view-history" class="hidden"></section>
   <!-- STATS -->
   <section id="view-stats" class="hidden"></section>
   <!-- CRAM SHEET -->
@@ -1137,7 +1139,7 @@ const correctIdx=q=>q.o.map((o,i)=>o[1]?i:-1).filter(i=>i>=0);
 const eqSet=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
 function testStat(n){return S.tests[n]||{best:null,attempts:0,lastPass:null}}
 function go(v){
-  ['dashboard','quiz','results','mistakes','stats','cram'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
+  ['dashboard','quiz','results','mistakes','history','stats','cram'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   /* A clock only runs while you are looking at it. A timed session left behind
      on another screen used to keep ticking and then grade itself (INV-9/INV-10);
@@ -1146,6 +1148,7 @@ function go(v){
   window.scrollTo(0,0);
   if(v==='dashboard')renderDashboard();
   if(v==='mistakes')renderMistakes();
+  if(v==='history')renderHistory();
   if(v==='stats')renderStats();
   if(v==='cram')renderCram();
   syncResumeChip();
@@ -1442,7 +1445,7 @@ function renderDashboard(){
   const passed=Object.values(S.tests).filter(t=>t.lastPass).length;
   const rec=recentAcc();
   const openMistakes=Object.values(S.mistakes).filter(m=>!m.done).length;
-  const ms=mistakeSetPos();
+  const ms=mistakeSetPos(),hp=historySetPos();
   const seen=srSeen(),unseen=UNIQUE_N-seen,cov=Math.round(seen/UNIQUE_N*100);
   const left=daysLeft(),tw=twistStats(),ex=examStats();
   const rd=readiness(),rp=Math.round(rd.p*100);
@@ -1490,6 +1493,9 @@ function renderDashboard(){
       <button class="card act" onclick="startMistakeSet()" title="${ms.live
         ? `Set ${ms.i} of ${ms.of} — ${Math.min(MISTAKE_SET_N,ms.live)} questions, oldest first. ${ms.live} of your ${ms.open} can still earn a day today.`
         : ms.open?`All ${ms.open} have had their day today — the next tick has to be tomorrow`:'Nothing open'}"><span class="emo">🎯</span><span class="t">Mistake set</span><span class="n${ms.live?'':' done'}">${ms.live?`${ms.i}/${ms.of}`:'✓'}</span></button>
+      <button class="card act" onclick="go('history')" title="${hp.total
+        ? `Every question that has ever caught you — ${hp.total} of them, in sets of ${HISTORY_SET_N}. Cleared ones are kept.`
+        : 'Nothing has caught you yet'}"><span class="emo">📓</span><span class="t">Ever wrong</span><span class="n${hp.total?'':' done'}">${hp.total||'✓'}</span></button>
       <button class="card act" onclick="startSweep()" title="${unseen?`${Math.min(SWEEP_N,unseen)} you have never seen, ${unseen} left in the bank`:'Whole bank seen'}"><span class="emo">🧭</span><span class="t">Sweep</span><span class="n${unseen?'':' done'}">${unseen||'✓'}</span></button>
       <button class="card act" onclick="startTwist()" title="${tw.total} two-option traps, in clusters${tw.fresh?` · ${tw.fresh} new`:tw.weak?` · ${tw.weak} still open`:''}"><span class="emo">🌀</span><span class="t">Twists</span><span class="n">${tw.total}</span></button>
       ${ex.total?`<button class="card act" onclick="startExamQs()" title="${ex.total} reported as recently asked${ex.fresh?` · ${ex.fresh} new`:ex.weak?` · ${ex.weak} still open`:''}"><span class="emo">⭐</span><span class="t">Reported</span><span class="n">${ex.total}</span></button>`:''}
@@ -2736,12 +2742,13 @@ function explainReadiness(){
    to be harder or stranger than a real sit. */
 /* Not scored as a pass attempt, and not a test result. Each of these serves a
    deliberately unrepresentative slice — unseen questions, coin flips, dates,
-   the 263 hardest-yield questions in the bank ordered by what you owe them, or
-   your own open mistakes — so a score here is not an estimate of anything and
-   must not move the pass rate. A mistake set is the plainest case of the five:
-   it is your worst questions, hardest-first, by construction.
-   All five still count as the day's work and keep the streak alive. */
-const TRAINING=new Set(['sweep','twist','dates','examq','mset']);
+   the 263 hardest-yield questions in the bank ordered by what you owe them,
+   your own open mistakes, or every question that has ever caught you — so a
+   score here is not an estimate of anything and must not move the pass rate.
+   The mistake set and the Ever wrong set are the plainest cases of the six:
+   they are your worst questions, hardest-first, by construction.
+   All six still count as the day's work and keep the streak alive. */
+const TRAINING=new Set(['sweep','twist','dates','examq','mset','hset']);
 function finishQuiz(){
   stopTimer();
   /* Graded is finished: the store entry goes here and on an explicit discard,
@@ -2816,6 +2823,8 @@ function renderResults(score,total,passed){
             ?`⭐ Exam questions drilled${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :sess.source==='mset'
             ?`🎯 ${esc(sess.title)} done`
+            :sess.source==='hset'
+            ?`📓 ${esc(sess.title)} done`
             :sess.source==='drill'
             ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
             :(passed?'🎉 Passed!':'Keep practising')}</div>
@@ -2832,6 +2841,13 @@ function renderResults(score,total,passed){
                return `<b>${score}</b> of <b>${total}</b> — the ${score} you got right have earned a day each towards clearing. ${p.live
                  ? `<b>${p.live}</b> still open and able to earn one today, ${Math.ceil(p.live/MISTAKE_SET_N)} more set${Math.ceil(p.live/MISTAKE_SET_N)===1?'':'s'}' worth.`
                  : `That's every open mistake given its day. The next tick has to be tomorrow — spacing is what makes them stick.`} Doesn't count towards your pass rate — these are your worst questions by construction.`})()
+            :sess.source==='hset'
+            ?(()=>{const p=historySetPos();
+               return `<b>${score}</b> of <b>${total}</b>, drawn from the <b>${p.total}</b> questions that have ever caught you. ${wrongItems.length
+                 ? `The <b>${wrongItems.length}</b> you missed ${wrongItems.length===1?'is':'are'} back on your mistakes list — cleared or not, a miss reopens it.`
+                 : `None of them caught you this time.`} ${p.lapDone
+                 ? `That's all ${p.total} through once today — go round again whenever you like.`
+                 : `<b>${p.fresh}</b> still to come round today, ${Math.ceil(p.fresh/HISTORY_SET_N)} more set${Math.ceil(p.fresh/HISTORY_SET_N)===1?'':'s'}' worth.`} Doesn't count towards your pass rate — these are your worst questions by construction.`})()
             :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} ${took}${readinessMove()}</p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
@@ -2912,6 +2928,7 @@ function retrySame(){
   if(sess.source==='dates')return startDates(sess.items.length);
   if(sess.source==='examq')return startExamQs(sess.items.length);
   if(sess.source==='mset')return startMistakeSet(sess.items.length);
+  if(sess.source==='hset')return startHistorySet(sess.items.length);
   if(sess.testN)return startTest(sess.testN);
   const src=sess.items.map(it=>it.q);
   makeSession(src,{title:sess.title,timed:sess.timed,testN:sess.testN,source:sess.source});
@@ -2981,7 +2998,7 @@ function renderMistakes(){
   const el=document.getElementById('view-mistakes');
   el.innerHTML=`
     <h1>Mistakes & flags</h1>
-    <p class="sub">A question clears when you get it right on <b>${RETIRE_4} separate days</b> — ${RETIRE_2} for a two-option question, never on the day you slipped, and never on a day you tapped "wasn't sure". ${done} cleared so far.</p>
+    <p class="sub">A question clears when you get it right on <b>${RETIRE_4} separate days</b> — ${RETIRE_2} for a two-option question, never on the day you slipped, and never on a day you tapped "wasn't sure". ${done} cleared so far — clearing one deletes nothing, and 📓 Ever wrong keeps every question that has ever caught you.</p>
     <p class="sub" style="margin:-6px 0 12px">Sets of ${MISTAKE_SET_N}, oldest-untouched first, and only what can still earn a day today — so each one is ${MISTAKE_SET_N} the last set didn't show you. ${ms.live
       ? `<b>${ms.live}</b> left today across ${Math.ceil(ms.live/MISTAKE_SET_N)} set${Math.ceil(ms.live/MISTAKE_SET_N)===1?'':'s'}.`
       : all.length?`All ${all.length} have had their day — come back tomorrow.`:''}</p>
@@ -2989,6 +3006,7 @@ function renderMistakes(){
       <button class="btn primary" onclick="startMistakeSet()" ${ms.live?'':'disabled'}>🎯 ${ms.live?`Mistake set ${ms.i} of ${ms.of}`:'All had their day today'}</button>
       <button class="btn" onclick="practiceMistakes()" ${all.length?'':'disabled'}>Practise all ${all.length}</button>
       ${flagged.length?`<button class="btn" onclick="practiceFlagged()">★ Practise ${flagged.length} flagged</button>`:''}
+      <button class="btn ghost" onclick="go('history')">📓 Ever wrong (${historyPool().length})</button>
       ${all.length?`<button class="btn ghost" onclick="go('cram')">📄 Cram sheet</button>`:''}
       ${all.length?`<button class="btn ghost" onclick="clearMistakes()">Clear list</button>`:''}
     </div>
@@ -3006,10 +3024,13 @@ function renderMistakes(){
 const times=n=>n===1?'once':n===2?'twice':`${n} times`;
 function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
   const need=retireDays(q),got=(m.ok||[]).length,guess=m.unsure||0,miss=m.count||0;
-  /* A guess-only entry is not a wrong answer and does not get the red badge. */
-  const kind=isFlag?'flag':m.leech?'leech':miss?'wrong':'guess';
-  const badge={flag:'★',leech:'🐛',wrong:miss||1,guess:'🤔'}[kind];
-  const colour=kind==='wrong'?'var(--bad)':kind==='guess'?'var(--muted)':'var(--warn)';
+  /* A guess-only entry is not a wrong answer and does not get the red badge.
+     `cleared` only ever arrives here from the Ever wrong page — every other
+     caller filters done entries out long before they reach a row. */
+  const kind=isFlag?'flag':m.done?'cleared':m.leech?'leech':miss?'wrong':'guess';
+  const badge={flag:'★',cleared:'✓',leech:'🐛',wrong:miss||1,guess:'🤔'}[kind];
+  const colour=kind==='wrong'?'var(--bad)':kind==='guess'?'var(--muted)'
+    :kind==='cleared'?'var(--good)':'var(--warn)';
   /* Which wrong option you keep going for. Naming it is the whole point: the
      fix for "you keep missing this" is unknowable, the fix for "you have picked
      1801 three times" is one sentence long. */
@@ -3027,11 +3048,17 @@ function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
       ${worst&&worst.n>1?`<p class="wrongpull">You have chosen “${esc(q.o[worst.oi][0])}” ${times(worst.n)}.</p>`:''}
       ${fact?`<p class="fact">💡 ${esc(fact)}</p>`:''}
       <div class="lbl" style="margin-top:8px">Explanation</div><div>${esc(q.e||'—')}</div>
-      ${isFlag?'':`<p class="sub" style="margin:8px 0 0;font-size:12.5px">${m.leech
+      ${isFlag?'':`<p class="sub" style="margin:8px 0 0;font-size:12.5px">${kind==='cleared'
+        ? `${got>=need
+            ? `Cleared on the counter — right on <b>${got}</b> separate days`
+            : `Marked as known by hand${got?` after ${got} right day${got===1?'':'s'}`:''}, never cleared on the counter`} · got it wrong ${times(miss)}${guess?` · guessed ${guess}×`:''}${m.miss?` · last slip ${esc(m.miss)}`:''}.`
+        : m.leech
         ? `Missed ${miss} times${guess?`, guessed ${guess}`:''} · right on ${got} day${got===1?'':'s'} since — clearing this one is a decision, not a counter.`
         : `Right on <b>${got}</b> of the ${need} separate days needed · ${miss?`missed ${miss}×`:'never actually got it wrong'}${guess?` · guessed ${guess}×`:''}${m.miss?` · last slip ${esc(m.miss)}`:''}.`}</p>`}
       <div class="btn-row" style="margin-top:8px">
-        <button class="btn sm ghost" onclick="event.preventDefault();unflag(${q.g})">${isFlag?'Remove flag':m.leech?'I know this now':'Mark as known'}</button>
+        ${kind==='cleared'
+          ? `<button class="btn sm ghost" onclick="event.preventDefault();reopen(${q.g})">↩ Put back on the list</button>`
+          : `<button class="btn sm ghost" onclick="event.preventDefault();unflag(${q.g})">${isFlag?'Remove flag':m.leech?'I know this now':'Mark as known'}</button>`}
         ${link?`<a class="btn sm ghost" href="${esc(link.href)}">📖 Read why · ${esc(link.label)}</a>`:''}
       </div>
     </div>
@@ -3040,8 +3067,149 @@ function mistakeRow(q,m,isFlag){const ci=correctIdx(q);
 function practiceFlagged(){const qs=Object.keys(S.flags).map(g=>QByG[g]).filter(Boolean);if(!qs.length)return;makeSession(qs,{title:'Flagged review',timed:false,source:'mistakes'})}
 /* The explicit tap a leech needs: it clears the leech flag too, so the question
    only becomes one again if it is missed LEECH_AT more times. */
-function unflag(g){const c=canon(g),m=S.mistakes[c];if(S.flags[c])delete S.flags[c];if(m){m.done=true;m.leech=false}save();renderMistakes()}
+function unflag(g){const c=canon(g),m=S.mistakes[c];if(S.flags[c])delete S.flags[c];if(m){m.done=true;m.leech=false}save();repaintList()}
+/* Mistakes and Ever wrong draw the same rows, so either can be the page a
+   row's button was tapped on. Repaint the one actually on screen — re-rendering
+   the hidden one leaves the tapped row sitting there looking like nothing
+   happened. */
+function repaintList(){document.getElementById('view-history').classList.contains('hidden')?renderMistakes():renderHistory()}
 function clearMistakes(){modal(`<h3 style="margin:0 0 8px">Clear all mistakes?</h3><p class="sub">This marks every mistake — leeches included — as mastered. Can't be undone.</p><div class="btn-row"><button class="btn primary" onclick="Object.values(S.mistakes).forEach(m=>{m.done=true;m.leech=false});save();closeModal();renderMistakes()">Yes, clear</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>`)}
+
+/* ============ EVER WRONG ============
+   The mistakes list is a queue with an exit: get a question right on enough
+   separate days and it retires, which is what makes the list drain — and the
+   drain is the point, three weeks out. But retiring a question only sets
+   `done`. The record itself — how many times it caught you, which wrong option
+   you kept reaching for, the day you last slipped — has been kept all along,
+   and until now nothing ever showed it to you.
+
+   This is that record. Every question that has ever caught you, cleared or
+   not, in one place that never empties, so the last few days before the exam
+   can be spent on the questions that actually beat you rather than on a list
+   which has spent a month emptying itself.
+
+   Derived, never stored. Anything that increments `count` anywhere in the app
+   — a timed test, the daily drill, a sweep, a gauntlet, a mistake set, a set
+   from this very page — is in here on the next render. There is no second
+   list to keep in step, and nothing has to be told a new mistake happened.
+
+   Guess-only entries are not in it. A question you got right while tapping
+   "wasn't sure" carries `count:0`: it belongs on the mistakes list, which says
+   so in its own words, but filing it under "ever got wrong" would be a lie. */
+const HISTORY_SET_N=24;
+const todayStart=()=>new Date().setHours(0,0,0,0);
+/* count>0 — actually answered wrong at least once, whatever became of it. */
+function historyPool(){
+  return Object.entries(S.mistakes)
+    .filter(([,m])=>(m.count||0)>0)
+    .map(([g,m])=>({q:QByG[canon(g)],m})).filter(x=>x.q);
+}
+/* Least-recently-seen first, worst as the tie-break: the mistake-set queue's
+   rule, for the mistake-set reason — a random draw over hundreds leaves a tail
+   that never comes up at all.
+
+   What it does NOT have is the mistake set's "can still earn a day today"
+   filter, because nothing here is trying to earn anything. Retirement is the
+   other list's job. This one is for repetition, and repetition has no daily
+   ration: every answer moves `sr.last`, so the 24 you just did fall to the
+   back on their own and the next set is 24 this one didn't show you, all day,
+   for as many laps as you want. */
+function historyQueue(){
+  return historyPool().sort((a,b)=>lastSeen(a.q)-lastSeen(b.q)||cramRank(b.m)-cramRank(a.m));
+}
+/* "Set 3 of 17", derived — never stored — from what is LEFT in this pass
+   rather than counted up from what is done. Counting up cannot survive a short
+   final set: 60 questions go 24 + 24 + 12, and a counter working in 24s calls
+   the third one set 2. Counting down does not care how big any set was, so the
+   number stays right whatever else touched these questions today — a timed
+   test, the daily drill, a mistake set.
+
+   `fresh` hitting zero means every question in the list has been through once
+   today, and the page says exactly that and offers another lap. It does not
+   become set 4 of 3. */
+function historySetPos(){
+  const pool=historyPool(),t0=todayStart();
+  const total=pool.length,of=Math.max(1,Math.ceil(total/HISTORY_SET_N));
+  const fresh=pool.filter(x=>lastSeen(x.q)<t0).length;
+  return {total,of,fresh,seen:total-fresh,
+    i:fresh?of-Math.ceil(fresh/HISTORY_SET_N)+1:1,
+    lapDone:total>0&&fresh===0,
+    open:pool.filter(x=>!x.m.done).length};
+}
+const NOTHING_WRONG='Nothing here yet — no question has ever caught you 🎉';
+/* `order:'keep'` because the queue above IS the point: shuffling it hands back
+   a random 24 and the walk stops walking. Its own source, so the results screen
+   can talk about laps rather than a pass mark, Next batch takes the next 24 off
+   the queue, and TRAINING keeps a set of your worst questions out of the pass
+   rate. */
+function startHistorySet(nq){
+  const p=historySetPos();
+  /* The tail of a pass is short — 60 questions are 24 + 24 + 12, not
+     24 + 24 + (12 fresh and 12 you did this morning) — so "set 3 of 3" is the
+     end of the list and a pass is exactly the list. Once the pass is done the
+     ration is off and a full set comes round again: everything seen today
+     sorts to the back of the queue, so another lap replays it in the order you
+     first met it. */
+  const want=+nq||(p.fresh?Math.min(HISTORY_SET_N,p.fresh):HISTORY_SET_N);
+  const size=Math.max(1,Math.min(DRILL_MAX,Math.round(want)));
+  const qs=historyQueue().slice(0,size).map(x=>x.q);
+  if(!qs.length){toast(NOTHING_WRONG);return}
+  makeSession(qs,{title:p.lapDone?`Ever wrong · another ${qs.length}`:`Ever wrong · set ${p.i} of ${p.of}`,
+    timed:false,source:'hset',order:'keep'});
+}
+function practiceHistory(){
+  const qs=historyQueue().map(x=>x.q);
+  if(!qs.length){toast(NOTHING_WRONG);return}
+  makeSession(qs,{title:'Everything you have ever got wrong',timed:false,source:'hset',order:'keep'});
+}
+/* Answering here is not a separate bookkeeping path, and deliberately so:
+   recordAnswer runs exactly as it does anywhere else. Right on a question
+   that is still open earns it a day towards clearing; right on one already
+   cleared changes nothing. Wrong reopens it — `done=false`, `ok=[]`, count up
+   — so a question you cleared in July and fluffed in September is back on the
+   mistakes list before you have left the results screen. */
+function renderHistory(){
+  if(FACTS===null)loadFacts().then(f=>{if(f)renderHistory()});   /* re-render once it lands */
+  const pool=historyPool(),p=historySetPos();
+  const worst=(a,b)=>cramRank(b.m)-cramRank(a.m);
+  const leeches=pool.filter(x=>!x.m.done&&x.m.leech).sort(worst);
+  const open=pool.filter(x=>!x.m.done&&!x.m.leech).sort(worst);
+  const cleared=pool.filter(x=>x.m.done).sort(worst);
+  const misses=pool.reduce((t,x)=>t+(x.m.count||0),0);
+  const el=document.getElementById('view-history');
+  el.innerHTML=`
+    <h1>Everything you've ever got wrong</h1>
+    <p class="sub">Every question that has ever caught you${pool.length?` — <b>${pool.length}</b> of them, across <b>${misses}</b> wrong answer${misses===1?'':'s'}`:''} — whether it is on your mistakes list right now or cleared weeks ago. Nothing ever leaves this page, and anything you get wrong anywhere in the app joins it.</p>
+    <p class="sub" style="margin:-6px 0 12px">Sets of ${HISTORY_SET_N}, least-recently-seen first, so each set is ${HISTORY_SET_N} the last one didn't show you${pool.length>HISTORY_SET_N?` — ${p.of} sets to a full pass`:''}. ${p.lapDone
+      ? `<b>All ${pool.length}</b> have been through once today. Go round again as often as you like — nothing here is rationed by the day.`
+      : p.seen?`<b>${p.seen}</b> seen today, <b>${p.fresh}</b> still to come round.`:''}</p>
+    <div class="btn-row" style="margin-bottom:${pool.length?'10px':'16px'}">
+      <button class="btn primary" onclick="startHistorySet()" ${pool.length?'':'disabled'}>📓 ${!pool.length?'Nothing here yet':p.lapDone?'Go round again':`Set ${p.i} of ${p.of}`}</button>
+      <button class="btn" onclick="practiceHistory()" ${pool.length?'':'disabled'}>Practise all ${pool.length}</button>
+      <button class="btn ghost" onclick="go('mistakes')">← Mistakes &amp; flags</button>
+    </div>
+    ${pool.length?`<p class="sub" style="margin:0 0 18px;font-size:12.5px">Getting one right here still earns it a day towards clearing, if it is still open. Getting one wrong puts it straight back on the mistakes list — cleared or not. Doesn't count towards your pass rate.</p>`:''}
+    ${leeches.length?`<b>🐛 Leeches (${leeches.length})</b>
+      <p class="sub" style="margin:2px 0 8px">Open, and missed ${LEECH_AT}+ times. The ones that keep coming back.</p>`
+      +leeches.map(({q,m})=>mistakeRow(q,m)).join(''):''}
+    ${open.length?`<b style="display:block;margin-top:${leeches.length?'22px':'0'}">Still open (${open.length})</b>
+      <p class="sub" style="margin:2px 0 8px">On your mistakes list right now, worst first.</p>`
+      +open.map(({q,m})=>mistakeRow(q,m)).join(''):''}
+    ${cleared.length?`<b style="display:block;margin-top:${leeches.length||open.length?'22px':'0'}">✅ Cleared (${cleared.length})</b>
+      <p class="sub" style="margin:2px 0 8px">Off the list, kept here. Each row says whether it cleared on the counter or was marked known by hand — and any of them can be put back.</p>`
+      +cleared.map(({q,m})=>mistakeRow(q,m)).join(''):''}
+    ${pool.length?'':`<div class="empty"><div class="e">🎉</div><p>No question has caught you yet. The first one that does will be here for good.</p></div>`}
+  `;
+}
+/* The opposite of "Mark as known": a cleared question you do not actually
+   trust goes back on the list. `ok` is emptied with it — a record that already
+   holds its full quota of days would otherwise re-clear on the next correct
+   answer, which is not putting it back, it is putting it back for an hour. */
+function reopen(g){
+  const c=canon(g),m=S.mistakes[c];if(!m)return;
+  m.done=false;m.ok=[];
+  save();repaintList();toast('Back on your mistakes list');
+}
 
 /* ============ CRAM SHEET ============
    The 4 September artifact: one screen, printable, everything still unresolved
@@ -3484,7 +3652,7 @@ document.addEventListener('keydown',e=>{
    against a loss that can no longer happen is just a dialog. */
 
 /* ============ DEEP LINKS ============
-   #drill · #sweep · #twist · #dates · #examq · #mistakes · #stats · #cram ·
+   #drill · #sweep · #twist · #dates · #examq · #mistakes · #history · #stats · #cram ·
    #test=7 · #q=412 (from the hub's search) */
 function showQuestion(g){
   const q=QByG[g];if(!q){toast('Question not found');return}
@@ -3515,7 +3683,7 @@ function route(){
   if(h==='twist'){resumeOrStart('twist',()=>startTwist());return}
   if(h==='dates'){resumeOrStart('dates',()=>startDates());return}
   if(h==='examq'){resumeOrStart('examq',()=>startExamQs());return}
-  if(h==='mistakes'||h==='stats'||h==='cram')go(h);
+  if(h==='mistakes'||h==='history'||h==='stats'||h==='cram')go(h);
 }
 addEventListener('hashchange',route);
 
