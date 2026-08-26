@@ -221,7 +221,9 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    sized tracks off a 140px floor, so a 900px page took five columns and any tile
    count that was not a multiple of five left a tile sitting alone beside a hole
    most of the page wide. Fixed counts plus the two orphan rules below mean the
-   last row always closes itself, at 3 tiles here and 3 on the stats page. */
+   last row always closes itself, at 4 tiles here and 3 on the stats page — four
+   is the one count that needs neither rule on a phone, since it is two clean
+   rows of two. */
 .stat-row{grid-template-columns:repeat(2,1fr)}
 .stat-row > .stat:last-child:nth-child(odd){grid-column:1/-1}
 @media (min-width:700px){
@@ -242,11 +244,17 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
    implies rides on the right so the card reads as a statement instead of a wide
    empty slab.
 
-   The row under it is three boxes, not six. Days to exam and Tests passed were
+   The row under it is four boxes, not six. Days to exam and Tests passed were
    both stated word for word by the band and its rail 350px above — the page was
-   arguing with itself — and Bank coverage and Never seen were one fact counted
-   from each end (seen/UNIQUE_N against UNIQUE_N-seen), so they are one box that
-   says seen out of total. What is left is three things the band does not say. */
+   arguing with itself — and Bank coverage went with them, because a percentage
+   and seen/UNIQUE_N are the same fact and only one of them names the bank.
+
+   Never seen is back beside it. It is the same fact counted from the other end,
+   which is why it was folded away, but the two ends are not read for the same
+   thing: seen/UNIQUE_N is how far you have come, and the remainder is the queue
+   Sweep works from and the only figure here that is supposed to reach zero. The
+   hub page and the plan page had both kept it as a tile of its own while this
+   page, the one you actually drill on, made you subtract. */
 .stat.hero{display:flex;align-items:center;gap:16px;margin:0 0 12px;padding:18px 20px;
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--panel)),color-mix(in srgb,var(--brand) 9%,var(--panel)) 58%,var(--panel));
   border-color:color-mix(in srgb,var(--brand) 26%,var(--line))}
@@ -265,7 +273,7 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .stat .n.good{color:var(--good)} .stat .n.bad{color:var(--bad)} .stat .n.brand{color:var(--brand)}
 .stat.tap{cursor:pointer;transition:transform .12s} .stat.tap:hover{border-color:var(--brand)}
 /* Six read-only boxes under a hero that already states the headline was 458px of
-   a 750px screen with nothing on it to tap. Three boxes now, and smaller: at
+   a 750px screen with nothing on it to tap. Four boxes now, and smaller: at
    26px a figure like "1412/1858" runs edge to edge in a 150px box. The hero
    keeps its size, because it is the one number the whole app exists to move —
    it just does not need 44px of it on a 393px screen. */
@@ -1474,6 +1482,7 @@ function renderDashboard(){
     </div>
     <div class="grid stat-row">
       <div class="card stat"><div class="n ${cov>=100?'good':'brand'}">${seen}/${UNIQUE_N}</div><div class="l">Questions seen</div></div>
+      <div class="card stat"><div class="n ${unseen?'bad':'good'}">${unseen}</div><div class="l">Never seen</div></div>
       <div class="card stat"><div class="n ${!rec?'':rec.pct>=75?'good':'bad'}">${rec?rec.pct+'%':'—'}</div><div class="l">Recent accuracy</div></div>
       <div class="card stat"><div class="n ${openMistakes?'bad':'good'}">${openMistakes}</div><div class="l">Mistakes to review</div></div>
     </div>
