@@ -273,6 +273,22 @@ for (const [name, re] of [["dateForward", /function dateForward\(/], ["dateRever
   if (!re.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no ${name}() — Phase 3's gauntlets are gone or renamed`);
 }
 
+/* ---- the recall fold ----
+   Existence only; tools/test-recall.mjs owns the behaviour. What is worth
+   failing a build over here is the two-line version of the whole feature: the
+   classifier that decides which questions can be asked from the stem, and the
+   refusal to do any of it against a clock. Lose the first and the fold appears
+   on questions with nothing in them; lose the second and a timed test stops
+   being a rehearsal of the real thing. */
+for (const [name, re] of [["recallable", /function recallable\(/], ["recallOn", /function recallOn\(/],
+                          ["recallHidden", /function recallHidden\(/], ["applyUnsure", /function applyUnsure\(/]]) {
+  if (!re.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no ${name}() — the recall fold is gone or renamed`);
+}
+if (!/function recallOn\(source,timed\)\{\s*if\(timed\)return false;/.test(engineSrc))
+  fail(`recallOn() no longer refuses timed sessions outright — the fold could appear in a timed test, which is the one session that has to be the real exam`);
+if (!/if\(it\.recall==='miss'\)applyUnsure\(it\)/.test(engineSrc))
+  fail(`a failed recall no longer routes into applyUnsure() — a right answer you could not remember would be promoted like one you knew`);
+
 /* ---- readiness, and the numbers it must never fake (Phase 4) ----
    The pass probability is the headline on both the dashboard and the hub, so
    the two things that make it honest are worth a build failure: an unseen
@@ -297,7 +313,20 @@ else if (!(+revealed[1] < 1)) fail(`REVEALED_W is ${revealed[1]} — a best scor
    learn, and it is the one mix ratio that must stay at zero. */
 const finalMix = engineSrc.match(/final:\s*\{due:\.?\d*\.?\d+,mistake:\.?\d*\.?\d+,new:(\.?\d*\.?\d+)\}/);
 if (!finalMix) fail(`could not find the final-week entry in MIX in life-in-uk-mock-tests.html`);
-else if (+finalMix[1] !== 0) fail(`MIX.final.new is ${finalMix[1]} — the last six days must serve no new questions`);
+else if (+finalMix[1] !== 0) fail(`MIX.final.new is ${finalMix[1]} — the final days must serve no new questions`);
+
+/* The threshold that decides when `final` starts. Not pinned to a value — it is
+   a study decision, not an invariant — but pinned to the window it has to sit
+   inside. Above 14 it would collide with `consolidate` and there would be no
+   consolidation phase at all; below EXAM_GAP it would let a question be seen for
+   the first time after the last scheduled review, which is a question met once
+   and never again. */
+const finalAt = engineSrc.match(/const FINAL_AT=(\d+)/);
+const examGap = engineSrc.match(/const EXAM_GAP=(\d+)/);
+if (!finalAt) fail(`life-in-uk-mock-tests.html has no FINAL_AT — the drill's final-phase threshold is gone or renamed`);
+else if (!examGap) fail(`life-in-uk-mock-tests.html has no EXAM_GAP`);
+else if (!(+finalAt[1] >= +examGap[1] && +finalAt[1] < 14))
+  fail(`FINAL_AT is ${finalAt[1]}, outside EXAM_GAP (${examGap[1]}) to 13 — new questions would either stop after the last review is schedulable, or never start being withheld at all`);
 if (!/@media print\{/.test(engineSrc)) fail(`life-in-uk-mock-tests.html has no print stylesheet — the cram sheet prints the dark theme as a black rectangle`);
 /* The hub cannot model anything (no bank data), so it reads what the engine
    left in S.readiness. Both halves have to exist or the tile is blank. */

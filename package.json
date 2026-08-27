@@ -9,5 +9,8 @@
     "verify-bank": "node tools/verify-bank.mjs --all",
     "build:facts": "node tools/build-facts.mjs",
     "build:search": "node tools/build-search-index.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
   }
 }

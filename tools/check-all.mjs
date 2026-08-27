@@ -29,6 +29,7 @@ const quiet = process.argv.includes("--quiet");
 const CHECKS = [
   ["validate-banks.mjs", "the question banks and everything derived from them"],
   ["test-verify-bank.mjs", "the answers that disagree with the handbook chapters"],
+  ["test-recall.mjs", "the recall fold — which questions hide their options, and how a miss scores"],
   ["test-backup.mjs", "export and restore — your progress surviving a lost phone"],
   ["test-cast-quiz.mjs", "the cast quiz"],
 ];

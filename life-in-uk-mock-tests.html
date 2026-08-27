@@ -649,6 +649,18 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .opt .otext{flex:1}
 /* scroll-margin keeps the verdict clear of the sticky header above and the
    sticky action bar below when it is scrolled into view after a check. */
+/* The fold that stands where the options would be. Deliberately not a card: it
+   is a gap in the question, and it should read as one thing missing rather than
+   as a new panel to get through. */
+.recall{margin-top:14px;padding:16px 15px;border:1.5px dashed var(--line);border-radius:12px;background:var(--panel-2)}
+.recall .rlbl{font-weight:800;font-size:15px;letter-spacing:-.01em}
+.recall .rsub{color:var(--muted);font-size:13px;line-height:1.5;margin:5px 0 12px}
+/* The honesty row, once the options are open. Sits above them, because the
+   question it asks is about the moment before you read them. */
+.rrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.rrow .rq{font-size:13px;color:var(--muted);font-weight:700;margin-right:auto}
+.rrow .btn.on{border-color:var(--brand);color:var(--brand);opacity:1}
+.rrow .btn.on.miss{border-color:var(--warn);color:var(--warn)}
 .explain{margin-top:14px;padding:14px 15px;border-radius:12px;border-left:4px solid var(--brand);background:var(--panel-2);display:none;scroll-margin:72px 0 96px}
 .explain.show{display:block;animation:fade .2s}
 .explain .verdict{font-weight:800}
@@ -1554,7 +1566,7 @@ document.addEventListener('keydown',e=>{
    four-week sprint means 60 a day is the floor for seeing the bank once with
    room for a second pass. 20 was a habit-builder, not a study plan. */
 const DRILL_MIN=5,DRILL_MAX=200,DRILL_DEFAULT=60,DRILL_SIZES=[20,40,60,100];
-let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant',dailyTarget:DRILL_DEFAULT},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
+let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant',dailyTarget:DRILL_DEFAULT,recall:'weak'},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
 /* Same reasoning as save(): a settings write must not throw out of an onchange
    handler. Prefs are small and re-derivable, so a lost one is a nuisance, not a
    loss — it does not deserve the full reclaim dance. */
@@ -1597,6 +1609,11 @@ function slimItem(it){
   const o={g:it.q.g,order:it.order,picked:it.picked,checked:!!it.checked};
   if(it.checked)o._correct=!!it._correct;
   if(it.unsure)o.unsure=1;
+  /* Both belong to the recall attempt, and both have to survive a reload: come
+     back to a resumed session and the options you had already opened must still
+     be open, and a miss you already owned up to must not be asked about twice. */
+  if(it.shown)o.sh=1;
+  if(it.recall)o.rc=it.recall;
   /* Not optional (F-7): without it "Wasn't sure" on a resumed question reads
      preBox as undefined, zeroes the box instead of restoring it, and leaves the
      credited day banked. */
@@ -1611,6 +1628,8 @@ function fatItem(si){
   const it={q,order:si.order,picked:si.picked,checked:!!si.checked};
   if(si.checked)it._correct=!!si._correct;
   if(si.unsure)it.unsure=true;
+  if(si.sh)it.shown=true;
+  if(si.rc==='hit'||si.rc==='miss')it.recall=si.rc;
   if(si._rec)it._rec=si._rec;
   return it;
 }
@@ -1633,13 +1652,14 @@ function sessOk(s){
 function slimSess(s){
   return {sid:s.sid,instant:s.instant,title:s.title,timed:s.timed,testN:s.testN,
     source:s.source,idx:s.idx,readyBefore:s.readyBefore,startTs:s.startTs,
-    deadline:s.deadline,items:s.items.map(slimItem)};
+    recall:!!s.recall,deadline:s.deadline,items:s.items.map(slimItem)};
 }
 function hydrate(s){
   if(!sessOk(s))return null;
   const items=s.items.map(fatItem);
   if(items.some(x=>!x))return null;        /* all or nothing (INV-12) */
   return {sid:s.sid,instant:!!s.instant,title:s.title,timed:!!s.timed,
+    recall:!!s.recall,
     testN:s.testN==null?null:s.testN,source:s.source,idx:s.idx,
     readyBefore:s.readyBefore,startTs:s.startTs,deadline:s.deadline,items};
 }
@@ -1806,6 +1826,10 @@ function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,ord
      against two sessions landing in the same millisecond. */
   let startTs=Date.now();while(sessions[startTs])startTs++;
   sess={sid:startTs,instant,title,timed,testN,source,idx:0,
+    /* Fixed at the start and carried, never re-read per question. Changing the
+       setting mid-session would otherwise fold the options away on question 40
+       of a session that has not asked for them once. */
+    recall:recallOn(source,timed),
     readyBefore:readiness().p,             /* so the results screen can show what the session moved */
     items:list.map(q=>{
       let order=q.o.map((_,i)=>i);
@@ -1919,12 +1943,26 @@ const MIX={coverage:   {due:.20,mistake:.20,new:.60},
 /* Not laid eyes on in this many days = cold, and in the final week it comes
    back regardless of which box it is sitting in. */
 const STALE_DAYS=10;
-/* Driven by the exam date: consolidate at 14 days out, final at 6. With no
-   date set the sprint is treated as being in its coverage weeks. */
+/* Driven by the exam date: consolidate at 14 days out, final at FINAL_AT. With
+   no date set the sprint is treated as being in its coverage weeks.
+
+   FINAL_AT was 6, and 6 was right for the bank this rule was written against:
+   1,858 questions with complete coverage as the stated baseline, where by six
+   days out there was nothing unseen left to serve and the switch cost nothing.
+   The bank is 3,147 now — it grew by about seventy per cent after the rule was
+   set, and the rule did not move with it. At 6 the switch would have buried
+   whatever was still unseen on 30 August without saying so, which is not a
+   decision a threshold should make on your behalf.
+
+   3, so new questions keep arriving until 2 September. That is one day inside
+   EXAM_GAP, which is deliberate: a question first met on the 2nd still gets its
+   last review before the ladder stops scheduling. Meeting one for the first
+   time in the exam is the outcome this is spending three days to avoid. */
+const FINAL_AT=3;
 function drillMode(){
   const left=daysLeft();
   if(left==null)return 'coverage';
-  return left<=6?'final':left<=14?'consolidate':'coverage';
+  return left<=FINAL_AT?'final':left<=14?'consolidate':'coverage';
 }
 function weakestTopics(){
   return TOPICS.map((n,i)=>{const s=S.topics[i]||{seen:0,correct:0};
@@ -2145,6 +2183,59 @@ function clusterOrder(qs,rank){
 
    Order is by how much the question still owes you, so successive sessions walk
    the whole 509 rather than re-serving the same batch. */
+/* ============ RECALL ============
+   Fold the options away and answer from memory first. Recognising the right
+   answer among four is a different and much easier act than knowing it, and the
+   exam is the only place that difference gets expensive — so where it is cheap,
+   practise the harder one.
+
+   Two whole classes cannot be attempted from the stem, and offering the fold on
+   them is worse than not having it: you would meet a question with nothing in
+   it, open the options immediately, and learn to open them without reading.
+
+     - A literal true/false. The options are always "True" and "False"; hiding
+       them removes nothing and tells you nothing.
+     - The 155 whose entire stem is "Which of these statements is correct?".
+       There, the question IS the options. Fold them away and no question is
+       left on the screen at all.
+
+   Measured over the 3,158 unique questions: 2,182 single-answer and 354
+   select-two stems stand on their own (80%), 444 true/false and 155 content-free
+   stems do not (19%). The "select TWO" ones are the best material here, not the
+   worst — "which TWO countries fought at Agincourt" is a real memory question.
+
+   What this deliberately does NOT do is blank words out of a stem to make it
+   recallable. That is generating question content, and INV-7 forbids it for the
+   reason it has always forbidden it: a question the app invented can teach a
+   fact the handbook never stated. */
+const RECALL_DEAD=/^\s*(which (of (these|the following) )?statements? (is|are)|which (of these|of the following) is (correct|true|incorrect|false)|select the (correct|true) statement)/i;
+function recallable(q){
+  if(!q||!q.t||!Array.isArray(q.o)||q.o.length<2)return false;
+  if(RECALL_DEAD.test(q.t))return false;
+  if(q.o.length===2&&q.o.every(o=>/^(true|false)$/i.test(String(o[0]).trim())))return false;
+  return true;
+}
+/* Where recognition is most likely to be fooling you: questions that have
+   already caught you once. Those lists are short and bounded, so the slower pace
+   costs a known amount — unlike a coverage sweep, where it would cost you the
+   thing coverage is short of. */
+const RECALL_WEAK=new Set(['mistakes','mset','hset']);
+/* Never in a timed sit, at any setting. The real test is multiple choice against
+   a clock, and the one session that has to be the real test is the timed one. */
+function recallOn(source,timed){
+  if(timed)return false;
+  const m=prefs.recall||'weak';
+  return m==='off'?false:m==='all'?true:RECALL_WEAK.has(source);
+}
+/* Is the fold standing in front of this question right now? */
+function recallHidden(it){
+  return !!(sess&&sess.recall&&it&&!it.shown&&!it.checked&&recallable(it.q));
+}
+/* Options open, answer not yet checked — the window the honesty row lives in. */
+function recallAsking(it){
+  return !!(sess&&sess.recall&&it&&it.shown&&!it.checked&&recallable(it.q));
+}
+const RECALL_N=POOL.filter(recallable).length;
 const TWO_OPT=POOL.filter(q=>q.o.length===2);
 /* Lower = drill me sooner. Never seen beats leech beats open mistake beats
    whatever is sitting in the lowest box. */
@@ -2347,6 +2438,16 @@ function renderQuiz(){
           if(multi)bits.push(`This question needs <b>${ci.length}</b> answers.`);
           if(!sess.instant&&sess.idx===0)bits.push('Answers stay hidden until you finish.');
           return bits.length?`<div class="hint">${bits.join(' ')}</div>`:''})()}
+      ${recallHidden(it)?`<div class="recall">
+        <div class="rlbl">Answer it from memory first</div>
+        <p class="rsub">Say it out loud before you open these. Picking the right answer out of ${it.order.length} is a much easier thing than knowing it — and the exam is the only place that difference costs you.</p>
+        <button class="btn ghost" onclick="revealOpts()">Show the options</button>
+      </div>`:`
+      ${recallAsking(it)?`<div class="rrow">
+        <span class="rq">Did you have it?</span>
+        <button class="btn sm ghost${it.recall==='hit'?' on':''}" onclick="recallSay(1)">Had it</button>
+        <button class="btn sm ghost miss${it.recall==='miss'?' on miss':''}" onclick="recallSay(0)">Didn't</button>
+      </div>`:''}
       <div class="opts" id="opts">
         ${it.order.map((oi,pos)=>{
           const sel=it.picked.includes(oi);
@@ -2354,7 +2455,7 @@ function renderQuiz(){
             <span class="mark">${multi?(sel?'✓':''):String.fromCharCode(65+pos)}</span>
             <span class="otext">${esc(q.o[oi][0])}</span>
           </div>`}).join('')}
-      </div>
+      </div>`}
       <div class="explain" id="explain"></div>
     </div>
     <button class="jtog" onclick="toggleJump()" aria-expanded="${open}">Jump to question ${open?'▴':`▾ (${sess.items.length})`}</button>
@@ -2364,7 +2465,9 @@ function renderQuiz(){
     <div class="qnav">
       <button class="btn" onclick="prevQ()" ${sess.idx===0?'disabled':''}>← Prev</button>
       <div class="spacer"></div>
-      ${sess.instant && !it.checked
+      ${recallHidden(it)
+        ? `<button class="btn primary" id="mainBtn" onclick="revealOpts()">Show the options</button>`
+        : sess.instant && !it.checked
         ? `<button class="btn primary" id="mainBtn" onclick="checkQ()">Check answer</button>`
         : (sess.idx<sess.items.length-1
             ? `<button class="btn primary" id="mainBtn" onclick="nextQ()">Next →</button>`
@@ -2396,12 +2499,34 @@ function refreshDots(){
   const mb=document.getElementById('mainBtn');
   if(mb&&sess.idx===sess.items.length-1&&!sess.instant){const a=sess.items.filter(x=>x.picked.length).length;mb.textContent=`Finish (${a}/${sess.items.length})`}
 }
+/* The fold comes down for this question and stays down for it. Not for the
+   session: the next question is a new attempt at remembering something. */
+function revealOpts(){
+  const it=sess&&sess.items[sess.idx];
+  if(!it||it.shown)return;
+  it.shown=true;touchSess();renderQuiz();
+}
+/* Peeking stays free. The alternative — making the fold expensive to open —
+   buys nothing, because you would open it anyway, just crossly. What it asks
+   for instead is one tap of honesty, which is the part that carries. */
+function recallSay(hit){
+  const it=sess&&sess.items[sess.idx];
+  if(!it||it.checked)return;
+  it.recall=hit?'hit':'miss';touchSess();renderQuiz();
+}
 function checkQ(){
   const it=sess.items[sess.idx];if(!it.picked.length){toast('Pick an answer first');return}
   it.checked=true;
   const ci=correctIdx(it.q);
   it._correct=eqSet(it.picked,ci);
   it._rec=recordAnswer(it.q,it._correct,it.picked);
+  /* A right answer you could not recall is a right answer you did not know —
+     which is the statement "Wasn't sure" already makes, so it takes that path
+     rather than a second one beside it. No new scoring axis, nothing new in the
+     readiness model, and the mistakes list keeps explaining itself the way it
+     always has. applyUnsure() ignores a wrong answer, which is right: a miss is
+     already a miss and needs no help. */
+  if(it.recall==='miss')applyUnsure(it);
   touchSess();
   /* renderQuiz() reassigns innerHTML and paints the check itself, so painting
      here first only ever decorated a DOM that was about to be thrown away (F-9). */
@@ -2426,7 +2551,7 @@ function paintCheck(){
       ${it._correct?`<button class="btn sm ghost unsure${it.unsure?' on':''}" onclick="markUnsure()"${it.unsure?' disabled':''}>${it.unsure?'🤔 Marked unsure':'🤔 Wasn’t sure'}</button>`:''}
     </div>
     <div class="lbl">Explanation</div><div>${esc(it.q.e||'—')}</div>
-    ${it.unsure?'<div class="sub" style="margin:8px 0 0;font-size:12.5px">No promotion, no credit towards clearing it — back tomorrow, and added to your mistakes list to practise.</div>':''}`;
+    ${it.unsure?`<div class="sub" style="margin:8px 0 0;font-size:12.5px">${it.recall==='miss'?'You had the answer in front of you, not in your head. ':''}No promotion, no credit towards clearing it — back tomorrow, and added to your mistakes list to practise.</div>`:''}`;
 }
 /* ---- "Wasn't sure" ----
    A right answer you did not know is a lucky guess, and 509 questions here are
@@ -2443,9 +2568,11 @@ function paintCheck(){
    Clearing one is the ordinary rule: right on N separate days, confidently.
    `miss` is set to today for the same reason a real miss sets it — answering
    confidently ten minutes after admitting you guessed is not a separate day. */
-function markUnsure(){
-  const it=sess&&sess.items[sess.idx];
-  if(!it||!it.checked||it.unsure||!it._correct)return;
+function markUnsure(){if(applyUnsure(sess&&sess.items[sess.idx]))paintCheck()}
+/* The state half, so a failed recall can take the same road without going
+   through the button. Returns whether anything changed. */
+function applyUnsure(it){
+  if(!it||!it.checked||it.unsure||!it._correct)return false;
   it.unsure=true;
   const g=canon(it.q.g),e=S.sr[g],r=it._rec||{},today=dayKey();
   if(e){
@@ -2458,7 +2585,8 @@ function markUnsure(){
   m.unsure=(m.unsure||0)+1;
   m.miss=today;
   m.done=false;                                    /* guessed is not mastered, even if it was */
-  save();touchSess();paintCheck();
+  save();touchSess();
+  return true;
 }
 const flagged=g=>!!S.flags[canon(g)];              /* duplicates share one flag */
 function toggleFlag(g){const c=canon(g);S.flags[c]?delete S.flags[c]:S.flags[c]=1;save();
@@ -2779,7 +2907,12 @@ function finishQuiz(){
   forgetSess(sess.sid);
   // grade any unchecked (exam) items now
   if(!sess.instant){
-    sess.items.forEach(it=>{const ci=correctIdx(it.q);it.checked=true;it._correct=it.picked.length?eqSet(it.picked,ci):false;recordAnswer(it.q,it._correct,it.picked)});
+    /* _rec is kept, not dropped: applyUnsure() reads preBox out of it, and
+       without it a recall miss graded here would zero the box instead of
+       restoring it — the same F-7 that bit "Wasn't sure" on a resumed session. */
+    sess.items.forEach(it=>{const ci=correctIdx(it.q);it.checked=true;it._correct=it.picked.length?eqSet(it.picked,ci):false;
+      it._rec=recordAnswer(it.q,it._correct,it.picked);
+      if(it.recall==='miss')applyUnsure(it)});
   }else{
     // practice: unchecked & unpicked count as not-correct but only grade if attempted
     sess.items.forEach(it=>{if(!it.checked){it.checked=true;it._correct=false}});
@@ -3537,7 +3670,7 @@ function topicPicker(){
     </div>`);
 }
 function openSettings(){
-  const fb=prefs.feedback,n=drillSize();
+  const fb=prefs.feedback,rc=prefs.recall||'weak',n=drillSize();
   const seen=srSeen(),left=UNIQUE_N-seen;
   modal(`<h3 style="margin:0 0 4px">Settings</h3><p class="sub" style="margin:0 0 14px">Applies to every test and practice you start next.</p>
     <div class="lbl">Questions per drill</div>
@@ -3558,6 +3691,20 @@ function openSettings(){
       <button class="btn ghost setopt ${fb==='end'?'on':''}" onclick="setFeedback('end')">
         <b>🏁 Only at the end</b>
         <div style="color:var(--muted);font-size:12.5px;font-weight:500">No hints while you work — real exam feel. Every answer &amp; explanation shows on the results screen.</div></button>
+    </div>
+
+    <div class="lbl">Hide the options first</div>
+    <p class="sub" style="margin:2px 0 0;font-size:12.5px">Answer from memory, then open the options. Never happens in a timed test, and never on a true/false or a "which of these statements is correct" — there is nothing to remember without the options in front of you. ${RECALL_N} of ${UNIQUE_N} questions can be asked this way.</p>
+    <div class="grid" style="gap:8px;margin:6px 0 16px">
+      <button class="btn ghost setopt ${rc==='weak'?'on':''}" onclick="setRecall('weak')">
+        <b>🧠 On what keeps catching you</b>
+        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Mistake practice, mistake sets and Ever wrong. Those are the questions recognising an answer is most likely to be flattering you about.</div></button>
+      <button class="btn ghost setopt ${rc==='all'?'on':''}" onclick="setRecall('all')">
+        <b>🧠 On everything untimed</b>
+        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Drills and sweeps too. Slower per question — worth it when coverage is not what you are short of.</div></button>
+      <button class="btn ghost setopt ${rc==='off'?'on':''}" onclick="setRecall('off')">
+        <b>Off</b>
+        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Options always visible, as before.</div></button>
     </div>
     <div class="lbl">Randomise</div>
     <label style="display:flex;gap:10px;align-items:center;padding:9px 0 2px;cursor:pointer;font-weight:600"><input type="checkbox" ${prefs.shufQ?'checked':''} onchange="prefs.shufQ=this.checked;savePrefs()"> Shuffle question order</label>
@@ -3595,6 +3742,9 @@ function setExamDate(v){
   clampAllDues();save();openSettings();
 }
 function setFeedback(v){prefs.feedback=v;savePrefs();openSettings()}
+/* Takes effect on the next session you start, like every other setting here —
+   sess.recall is fixed when the session is made. */
+function setRecall(v){prefs.recall=v;savePrefs();openSettings()}
 function closeSettings(){closeModal();if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard()}
 /* The page keeps its scroll position across a modal rather than being sent to
    the top: body.modal-open pins it, and the offset it was pinned at is put back
