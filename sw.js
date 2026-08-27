@@ -4,7 +4,7 @@
    as you visit it, or all at once via the hub's "Save for offline".
    Bump VERSION whenever the content changes.
    ============================================================ */
-const VERSION = "2026-08-27a";
+const VERSION = "2026-08-27b";
 const CORE_CACHE = "lituk-core-" + VERSION;
 const RUNTIME_CACHE = "lituk-runtime-" + VERSION;
 
