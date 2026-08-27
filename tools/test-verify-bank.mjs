@@ -23,6 +23,7 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadBanks, allQuestions } from "./lib/banks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -57,10 +58,6 @@ const has = (g, kind) => flagged.has(g) && flagged.get(g).has(kind);
 const MUST_FLAG = [
   [194, "contradiction", "Commonwealth: bank says 56 member states, chapters say 54"],
   [748, "contradiction", "Commonwealth: the second copy of the same disagreement"],
-  [170, "contradiction", "small claims: bank says £10,000, chapters say £5,000"],
-  [142, "contradiction", "small claims, second phrasing"],
-  [22, "contradiction", "small claims, third phrasing"],
-  [735, "contradiction", "small claims, fourth phrasing"],
   [112, "contradiction", "jury service: bank says 18-75, chapters say 18-70"],
   [7, "contradiction", "Brexit: bank asserts 2020, which the chapters never mention"],
 ];
@@ -72,6 +69,25 @@ for (const [g, kind, what] of MUST_FLAG) {
 /* ---------------- the false positives the review ruled out ----------------
    Grouped by what was wrong with them, because a regression will come back as a
    group and the group name is the diagnosis. */
+/* ---------------- the findings that were acted on ----------------
+   These four were real, they were read, and the repo was CORRECTED: the small
+   claims limits now read £10,000 and £5,000 consistently, answer key included.
+   So the flag going away is the fix landing, and the assertion has to flip with
+   it — a check still demanding the old flag would be demanding the old bug.
+
+   They stay named rather than deleted, because "this was a finding and here is
+   what happened to it" is the part a bare deletion throws away. If any of them
+   comes back, the correction has been reverted. */
+const WAS_FIXED = [
+  [170, "contradiction", "small claims: was £10,000 vs the chapters' £5,000 — corrected"],
+  [142, "contradiction", "small claims, second phrasing — corrected"],
+  [22, "contradiction", "small claims, third phrasing — corrected"],
+  [735, "contradiction", "small claims, fourth phrasing — corrected"],
+];
+for (const [g, kind, what] of WAS_FIXED) {
+  ok(!has(g, kind), `q${g} should no longer be flagged — ${what}. A flag here means the correction was reverted.`);
+}
+
 const MUST_NOT = [
   /* A lifespan or a birth year printed beside the answer, in a question that is
      not about dates at all. 92 questions carry one. */
@@ -132,7 +148,7 @@ ok(report.counts.unsupported <= 150,
 
 /* The four facts above are what the signal exists to find. If a change leaves
    the counts healthy but drops every real finding, the counts are lying. */
-const FACTS = [[194, 748], [170, 142, 22, 735], [112], [7]];
+const FACTS = [[194, 748], [112], [7]];
 const found = FACTS.filter((ids) => ids.some((g) => has(g, "contradiction"))).length;
 ok(found === FACTS.length,
   `all ${FACTS.length} reviewed findings should survive, ${found} did`);
@@ -145,8 +161,13 @@ for (const f of report.findings) {
   seen.add(k);
 }
 checks++;
-ok(report.findings.every((f) => Number.isInteger(f.g) && f.g >= 0 && f.g <= 1889),
-  "every flag should name a question id inside the bank's range");
+/* Derived, not typed. This was `f.g <= 1889` — correct in August, and wrong the
+   moment testprep and lituktestweb took the bank to 3,197. A check whose bound
+   has to be edited by hand every time the data grows is a check that reports the
+   data growing as a failure. */
+const MAX_G = Math.max(...allQuestions(loadBanks()).map((q) => q.g));
+ok(report.findings.every((f) => Number.isInteger(f.g) && f.g >= 0 && f.g <= MAX_G),
+  `every flag should name a question id inside the bank's range (0-${MAX_G})`);
 
 /* ---------------- report ---------------- */
 
@@ -160,7 +181,8 @@ if (fails.length) {
   process.exit(1);
 }
 console.log(`${checks} checks pass.`);
-console.log(`\nReviewed 2026-08-12: ${MUST_FLAG.length} findings kept, ${MUST_NOT.length} false positives ruled out.`);
-console.log(`The 4 findings are the Commonwealth's member count, the small-claims limit,`);
-console.log(`the jury age range and the Brexit date — in every case the bank is current`);
-console.log(`and the chapters are the handbook edition the exam is set from.`);
+console.log(`\nReviewed 2026-08-12: ${MUST_FLAG.length} findings still open, ${WAS_FIXED.length} fixed since, ${MUST_NOT.length} false positives ruled out.`);
+console.log(`Still open: the Commonwealth's member count, the jury age range and the`);
+console.log(`Brexit date. Fixed: the small-claims limit. In every case the bank is`);
+console.log(`current and the chapters are the handbook edition the exam is set from —`);
+console.log(`which is the direction of error that costs marks.`);

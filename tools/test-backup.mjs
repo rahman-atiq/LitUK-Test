@@ -81,6 +81,13 @@ function stubDom(store, log) {
     location: { hash: "", reload: () => log.push("reload") },
     URL: { createObjectURL: (b) => { log.push(b); return "blob:stub" }, revokeObjectURL() {} },
     Blob: class { constructor(parts) { this.parts = parts } },
+    /* exportData() asks the platform whether the share sheet is the only way to
+       save a file, which reads navigator. Without this the whole function throws
+       — and because it is async, that throw becomes a rejected promise nobody is
+       awaiting, so the failure arrives as "produced no Blob" and reads like the
+       export is broken. It was not; this stub was just missing. Desktop-shaped
+       on purpose: the download path is the one worth testing here. */
+    navigator: { userAgent: "node", platform: "Linux", maxTouchPoints: 0 },
     /* Synchronous stand-in: the file's text rides on the stub File itself. */
     FileReader: class {
       readAsText(f) { this.result = f._text; try { this.onload() } catch (e) { log.push("onload threw: " + e.message) } }
@@ -119,9 +126,9 @@ function boot(store) {
 }
 
 /** The JSON the download would have contained. */
-function exportedJson(app) {
+async function exportedJson(app) {
   app.log.length = 0;
-  app.ctx.exportData();
+  await app.ctx.exportData();
   const blob = app.log.find((x) => x && x.parts);
   if (!blob) throw new Error("exportData() produced no Blob");
   return blob.parts.join("");
@@ -157,7 +164,7 @@ function seed(app) {
   const store = {};
   const before = boot(store);
   seed(before);
-  const file = exportedJson(before);
+  const file = await exportedJson(before);
   const stateBefore = JSON.parse(JSON.stringify(before.ctx.S));
   const prefsBefore = JSON.parse(JSON.stringify(before.ctx.prefs));
 
@@ -189,10 +196,27 @@ function seed(app) {
     eq(JSON.stringify(s.flags), JSON.stringify(stateBefore.flags), "flagged questions lost in restore");
     eq(restored.ctx.prefs.dailyTarget, prefsBefore.dailyTarget, "settings (drill size) lost in restore");
 
+    /* The positive half of the `backup` exclusion below. Two things must hold,
+       and together they pin the behaviour rather than waving it through:
+       exporting stamps the LIVE state with a real time, and the FILE carries
+       the time from before that stamp. Get these the wrong way round and the
+       app starts claiming backups that a failed download never saved. */
+    ok(before.ctx.S.backup.at > 0, "exporting a backup did not stamp the live state — the nag would never clear");
+    eq(s.backup.at, 0, "the exported file carried the stamp its own export wrote — a restored device would think it had just backed up");
+
     /* Every key of the saved state, not just the ones named above — this is what
        catches a field added next month that export never learned about. */
     for (const k of Object.keys(stateBefore)) {
       if (k === "readiness") continue;         // recomputed, checked separately
+      /* `backup` is the one key that SHOULD differ, and the difference is the
+         design. noteBackup() only stamps the state after the file has actually
+         landed, so the file is serialised before the stamp and carries the
+         device's PREVIOUS backup time. That makes a restored device read as
+         older than the truth and nag for a backup, which is the safe direction
+         to be wrong in — the alternative is stamping first and claiming a
+         backup that the download then failed to save. Asserted positively
+         below, so this exclusion is not a hole. */
+      if (k === "backup") continue;
       eq(JSON.stringify(s[k]), JSON.stringify(stateBefore[k]), `state key "${k}" changed across the restore`);
     }
 
@@ -252,7 +276,7 @@ function seed(app) {
 {
   const modern = boot({});
   seed(modern);
-  const full = JSON.parse(exportedJson(modern));
+  const full = JSON.parse(await exportedJson(modern));
 
   const old = JSON.parse(JSON.stringify(full.lituk_v1));
   delete old.recent; delete old.readiness; delete old.mig; delete old.examDate;
@@ -316,7 +340,7 @@ function seed(app) {
 {
   const src = boot({});
   seed(src);
-  const state = JSON.parse(exportedJson(src)).lituk_v1;
+  const state = JSON.parse(await exportedJson(src)).lituk_v1;
   const app = boot({});
   const parsed = app.ctx.readBackup(JSON.stringify(state));   // no wrapper, older export
   ok(parsed && parsed.state && parsed.prefs === null, "readBackup() mishandled a bare lituk_v1 dump");
@@ -331,7 +355,7 @@ function seed(app) {
 {
   const src = boot({});
   seed(src);
-  const file = exportedJson(src);
+  const file = await exportedJson(src);
   const srcAnswered = src.ctx.S.answered;
 
   const dev = boot({});

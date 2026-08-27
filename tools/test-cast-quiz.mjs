@@ -133,6 +133,13 @@ ok(!/localStorage\.setItem\(\s*["']lituk_v1/.test(castPage), "the cast page must
 
 /* ---------------- live: play it ---------------- */
 
+/* Declared before the skip below, not beside the counters it belongs with.
+   report() reads `kinds`, and the skip path calls report() from here — with the
+   declaration further down, that read landed in the temporal dead zone and the
+   graceful "no browser, skipping" exit crashed instead. The one path that had
+   to work without a browser was the one path that never could. */
+const kinds = new Map();
+
 let playwright = null;
 try { playwright = await import(path.join(process.cwd(), "node_modules/playwright-core/index.mjs")); } catch {}
 if (!playwright) {
@@ -171,7 +178,6 @@ const MODES = ["roll", "weld", "duel", "cloze"];
 const ROUNDS = 6;                      // 4 modes x 6 rounds x 12 questions = 288 live questions
 let asked = 0, dupOpt = 0, emptyOpt = 0, tagLeak = 0, collide = 0, noRight = 0, autoAdvanced = 0, dwells = 0;
 const DWELL_N = 12;
-const kinds = new Map();
 
 for (const mode of MODES) {
   for (let r = 0; r < ROUNDS; r++) {

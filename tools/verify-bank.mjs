@@ -386,6 +386,13 @@ function jaccard(a, b) {
   return inter / (a.size + b.size - inter || 1);
 }
 
+/* Does the stem ask for the exception rather than the rule? Read off the raw
+   text, never the stemmed token set: "not" and "cannot" are the kind of short
+   function words stopword lists drop, so by the time a stem has become a set of
+   tokens its polarity is usually already gone. */
+const NEG = /\b(not|cannot|can't|never|incorrect|false|except|excluding|isn't|aren't|don't|doesn't|unable)\b/i;
+const negated = (q) => NEG.test(q.t || "");
+
 function conflicts() {
   const out = [];
   const byOpts = new Map();
@@ -399,10 +406,18 @@ function conflicts() {
     for (let a = 0; a < group.length; a++) for (let b = a + 1; b < group.length; b++) {
       const A = group[a], B = group[b];
       if (ansKey(A) === ansKey(B)) continue;
-      const jac = jaccard(stemSet(A), stemSet(B));
       /* Identical choices can still belong to opposite questions — "which of
          these is NOT a public holiday" over the same four days. Only the ones
-         asking the same thing are a contradiction. */
+         asking the same thing are a contradiction.
+
+         Polarity is checked before similarity because similarity cannot see it.
+         "Which TWO people CAN stand for public office" and "...CANNOT stand for
+         public office" share eight of nine words and every option, so they score
+         ~0.9 and sail past any threshold loose enough to be useful — while being
+         precisely the opposite-questions case this guard exists to exclude. Both
+         answers were right; the report called them a contradiction for a month. */
+      if (negated(A) !== negated(B)) continue;
+      const jac = jaccard(stemSet(A), stemSet(B));
       if (jac < 0.6) continue;
       out.push({ a: A, b: B, jac, why: "identical choices, different answer keyed" });
     }
