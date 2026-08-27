@@ -1,0 +1,39 @@
+# Runs every check in the repo on every push and pull request.
+#
+# This file is the answer to a specific thing that happened. Four checks were
+# written, each guarding something the sprint cannot afford to lose, and by
+# 27 August three of them had been failing for weeks. Nobody ignored a red
+# result — there was nowhere for one to appear. Running them was something to
+# remember, and remembering is not a control.
+name: checks
+
+on:
+  push:
+  pull_request:
+  # So a bank edit made through the GitHub web editor can be checked without
+  # waiting for the next push.
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # playwright-core is the only dependency, and it is optional: the cast
+      # quiz check skips its live pass without it rather than failing. Install
+      # it anyway, so the live pass actually runs here — that half had never
+      # once executed before this workflow existed.
+      - run: npm ci
+
+      # The CLI ships with playwright-core under its own name; `npx playwright`
+      # would go and fetch a different package.
+      - run: npx playwright-core install --with-deps chromium
+
+      - run: npm test

@@ -27,7 +27,11 @@ import http from "node:http";
 import path from "node:path";
 import { R } from "./lib/banks.mjs";
 
-const CHROME = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+/* Where a browser might be. These two are this machine's; anywhere else —
+   a laptop, CI — playwright knows its own install path and is asked for it
+   below, once it has been imported. Hardcoding only these two is what kept the
+   live pass skipped everywhere but here. */
+let CHROME = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "/opt/pw-browsers/chromium/chrome-linux/chrome"].find((p) => fs.existsSync(p));
 
 const fails = [];
@@ -146,8 +150,18 @@ if (!playwright) {
   try { playwright = await import("playwright-core"); } catch {}
 }
 
+/* Ask playwright where its own chromium lives, rather than guessing. Wrapped
+   because executablePath() throws outright when no browser has been downloaded,
+   and "no browser here" is a skip, not a crash. */
+if (playwright && !CHROME) {
+  try {
+    const p = playwright.chromium.executablePath();
+    if (p && fs.existsSync(p)) CHROME = p;
+  } catch {}
+}
+
 if (!playwright || !CHROME) {
-  report(`skipped the live pass (${!CHROME ? "no chromium binary" : "playwright-core not installed"})`);
+  report(`skipped the live pass (${!playwright ? "playwright-core not installed" : "no chromium binary — npx playwright-core install chromium"})`);
 }
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json",
