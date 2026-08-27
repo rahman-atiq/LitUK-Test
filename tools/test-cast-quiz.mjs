@@ -27,7 +27,11 @@ import http from "node:http";
 import path from "node:path";
 import { R } from "./lib/banks.mjs";
 
-const CHROME = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+/* Where a browser might be. These two are this machine's; anywhere else —
+   a laptop, CI — playwright knows its own install path and is asked for it
+   below, once it has been imported. Hardcoding only these two is what kept the
+   live pass skipped everywhere but here. */
+let CHROME = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "/opt/pw-browsers/chromium/chrome-linux/chrome"].find((p) => fs.existsSync(p));
 
 const fails = [];
@@ -133,14 +137,31 @@ ok(!/localStorage\.setItem\(\s*["']lituk_v1/.test(castPage), "the cast page must
 
 /* ---------------- live: play it ---------------- */
 
+/* Declared before the skip below, not beside the counters it belongs with.
+   report() reads `kinds`, and the skip path calls report() from here — with the
+   declaration further down, that read landed in the temporal dead zone and the
+   graceful "no browser, skipping" exit crashed instead. The one path that had
+   to work without a browser was the one path that never could. */
+const kinds = new Map();
+
 let playwright = null;
 try { playwright = await import(path.join(process.cwd(), "node_modules/playwright-core/index.mjs")); } catch {}
 if (!playwright) {
   try { playwright = await import("playwright-core"); } catch {}
 }
 
+/* Ask playwright where its own chromium lives, rather than guessing. Wrapped
+   because executablePath() throws outright when no browser has been downloaded,
+   and "no browser here" is a skip, not a crash. */
+if (playwright && !CHROME) {
+  try {
+    const p = playwright.chromium.executablePath();
+    if (p && fs.existsSync(p)) CHROME = p;
+  } catch {}
+}
+
 if (!playwright || !CHROME) {
-  report(`skipped the live pass (${!CHROME ? "no chromium binary" : "playwright-core not installed"})`);
+  report(`skipped the live pass (${!playwright ? "playwright-core not installed" : "no chromium binary — npx playwright-core install chromium"})`);
 }
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json",
@@ -171,7 +192,6 @@ const MODES = ["roll", "weld", "duel", "cloze"];
 const ROUNDS = 6;                      // 4 modes x 6 rounds x 12 questions = 288 live questions
 let asked = 0, dupOpt = 0, emptyOpt = 0, tagLeak = 0, collide = 0, noRight = 0, autoAdvanced = 0, dwells = 0;
 const DWELL_N = 12;
-const kinds = new Map();
 
 for (const mode of MODES) {
   for (let r = 0; r < ROUNDS; r++) {
