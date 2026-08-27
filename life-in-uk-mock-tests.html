@@ -1098,7 +1098,56 @@ function migrate(){
   n+=reshapeMistakes();      /* streak -> ok[] first, so the merge below sees one shape */
   n+=mergeDuplicateState();
   n+=clampAllDues();
+  n+=restampDrillDay();
   if(n)save();
+}
+/* A day already stamped from a finish time is still wrong on disk, and the fix
+   above only reaches the next session — so re-derive the one on record.
+
+   History keeps when a session was handed in, never when it began, but the
+   session left its start behind anyway: every question it asked stamped
+   sr[g].last, so it is the run of answers ending at the entry's own timestamp.
+   Walk back from there while the gaps stay conversational and no further than
+   the questions the session actually held — real sessions run a minute or two
+   a question and sit an hour or more apart, so the two together find the edge
+   without having to guess at it. Nothing found, or a session that genuinely did
+   start on the day it claimed, and the date stands.
+
+   Only ever applied to a `last` that IS the calendar day of the newest session
+   that could have written it: any other value came from somewhere this bug
+   cannot reach. That also makes it idempotent — one pass and the two no longer
+   match — which the mig flag then makes moot for a restored backup.
+
+   And only while the wrong date is still TODAY, which is the only day it can do
+   any harm on. Once it has passed, the tile is offering the drill anyway and the
+   date is doing nothing but holding the streak together — correcting it then
+   would break a run of days over a credit the app itself handed out, on a day
+   already gone. A correction nobody can see is not worth a streak.
+
+   The streak is never rebuilt either. It is eleven days long in the file this
+   came from, and taking a day off someone for a bug they did not write is the
+   wrong way round; moving the date back one is exactly what noteDrillDone()
+   needs to see to carry the count on when they drill later today. */
+const SESS_GAP=30*60000;
+function sessionStart(h){
+  const ts=Object.values(S.sr).map(e=>e&&e.last).filter(t=>t&&t<=h.t).sort((a,b)=>b-a);
+  let start=null;
+  for(let i=0;i<ts.length&&i<(h.total||0);i++){
+    if(i&&ts[i-1]-ts[i]>SESS_GAP)break;
+    start=ts[i];
+  }
+  return start;
+}
+function restampDrillDay(){
+  if(!S.mig)S.mig={};        /* a hand-edited file can arrive without one */
+  if(S.mig.drillStart)return 0;
+  S.mig.drillStart=1;
+  const h=S.drill&&S.drill.last===dayKey()&&S.history.find(x=>x.src==='drill'||TRAINING.has(x.src));
+  if(!h||dayKey(h.t)!==S.drill.last)return 1;
+  const t0=sessionStart(h);
+  if(!t0||dayKey(t0)===S.drill.last)return 1;
+  S.drill.last=dayKey(t0);
+  return 1;
 }
 /* Retirement moved from "right twice, ever" to "right on N separate days"
    (see recordAnswer). Already-retired mistakes stay retired: reopening
@@ -2049,10 +2098,22 @@ function startSweep(n){
   if(!qs.length){toast('Every question has been seen at least once 🎉');return}
   makeSession(qs,{title:`Sweep — ${qs.length} unseen`,timed:false,instant:true,source:'sweep',order:'keep'});
 }
-function noteDrillDone(){
-  const t=dayKey(),y=dayKey(Date.now()-DAY);
+/* `ts` is when the session STARTED, not when it was handed in. A sweep begun at
+   quarter past eleven and finished at one minute past midnight is that
+   evening's work: stamping it with the clock at the finish gave the day away to
+   a tomorrow that was sixty seconds old, and the tile then spent that whole day
+   saying the drill was done. Fifty questions do not get answered in a minute,
+   and the day credited should be the one they were answered in.
+
+   Days already banked are never re-credited or taken back, which is also what
+   keeps a long-abandoned session honest: resuming one started last week and
+   handing it in today credits nothing rather than dragging `last` backwards and
+   resetting a streak that has run since. */
+function noteDrillDone(ts){
+  ts=ts||Date.now();
+  const t=dayKey(ts),y=dayKey(ts-DAY);
   if(!S.drill)S.drill={last:null,streak:0,best:0};
-  if(S.drill.last===t)return;
+  if(S.drill.last&&S.drill.last>=t)return;     /* ISO dates sort as dates */
   S.drill.streak=S.drill.last===y?(S.drill.streak||0)+1:1;
   S.drill.last=t;
   S.drill.best=Math.max(S.drill.best||0,S.drill.streak);
@@ -2939,7 +3000,7 @@ function finishQuiz(){
   }
   /* A sweep or a gauntlet is the day's work as much as a drill is — it keeps
      the streak alive. */
-  if(sess.source==='drill'||TRAINING.has(sess.source))noteDrillDone();
+  if(sess.source==='drill'||TRAINING.has(sess.source))noteDrillDone(sess.startTs);
   S.history.unshift({t:Date.now(),title:sess.title,score,total,passed,src:sess.source});
   S.history=S.history.slice(0,50);
   save();
@@ -3860,6 +3921,23 @@ function route(){
   if(h==='mistakes'||h==='history'||h==='stats'||h==='cram')go(h);
 }
 addEventListener('hashchange',route);
+
+/* ---- The day turning over under an open app ----
+   The dashboard is drawn once and then only when something is tapped. An
+   installed PWA is not closed at night, it is put down — so a tile drawn at
+   half eleven is still on screen the next morning, still saying "done today"
+   about yesterday. Redraw when the date moves on, whether the app was away at
+   the time or sitting there awake. */
+let dashDay=dayKey();
+function checkDayRoll(){
+  if(dashDay===dayKey())return;
+  dashDay=dayKey();
+  /* Mid-quiz the dashboard is behind the quiz view; go() redraws it on the way
+     back, so there is nothing to do here but note the day. */
+  if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard();
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkDayRoll()});
+setInterval(checkDayRoll,60000);
 
 /* ============ INIT ============ */
 migrate();                 /* before anything reads S */
