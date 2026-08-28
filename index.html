@@ -643,7 +643,10 @@ var TOPIC_NAMES = [
   var readyAge = R ? Math.floor((Date.now() - (R.ts || 0)) / 864e5) : 0;
   var toFix = Object.keys(mistakes).filter(function (g) { return !mistakes[g].done; }).length;
   var streak = drill.streak || 0;
-  var doneToday = drill.last === dayKey();
+  /* `drill.drilled`, not `drill.last`: `last` is the day anything was studied,
+     which is what the streak counts, and a sweep is not the daily drill. This
+     tick means the drill itself was finished today. */
+  var doneToday = drill.drilled === dayKey();
 
   var now = Date.now();
   var due = Object.keys(sr).filter(function (g) { return sr[g].due <= now; }).length;
