@@ -26,11 +26,16 @@ const CLOSE = "<!-- /lituk:shared -->";
 const ACCENTS = ["gold", "rose", "oak", "slate", "heather"];
 
 const THEME_SNIPPET =
-  `<script>/* theme + accent before first paint — one key each, every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");` +
+  `<script>/* theme + skin + accent before first paint — one key each, every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");` +
   `if(_t!=="light"&&_t!=="dark")_t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";` +
   `document.documentElement.setAttribute("data-theme",_t);localStorage.setItem("lituk_theme",_t);` +
+  `var _s=localStorage.getItem("lituk_skin")==="news";` +
+  `if(_s)document.documentElement.setAttribute("data-skin","news");` +
   `var _a=localStorage.getItem("lituk_accent");` +
-  `if(/^(${ACCENTS.join("|")})$/.test(_a))document.documentElement.setAttribute("data-accent",_a)` +
+  /* Newsprint has no accent, and the attribute is what the accent rules match
+     on — so it is simply not written while the skin is on, here for the same
+     reason app.js takes it off there: nothing to outrank, nothing to undo. */
+  `if(!_s&&/^(${ACCENTS.join("|")})$/.test(_a))document.documentElement.setAttribute("data-accent",_a)` +
   `}catch(e){}</script>`;
 
 /* The ambient wash the hub has always had, now every page's. Inline for the

@@ -9,6 +9,7 @@
   var THEME_KEY = "lituk_theme";
   var LEGACY_THEME_KEYS = ["liuk-story-theme"];
   var ACCENT_KEY = "lituk_accent";
+  var SKIN_KEY = "lituk_skin";
 
   /* The colour half of the theme. Mode (light/dark) and accent are separate
      axes: every accent ships both modes, so the two never have to agree.
@@ -61,13 +62,59 @@
     return isAccent(a) ? a : "gold";
   }
 
+  /* Newsprint has no accent to show, so it does not merely outrank the accent
+     rules — it takes the attribute they gate on off the page entirely. That is
+     the whole of the interaction between the two axes: no specificity race, no
+     block that has to be written twice, and the choice itself survives in
+     localStorage ready for the moment the paper goes back to normal. */
+  function applyAccent(a) {
+    var root = document.documentElement;
+    if (currentSkin() === "news") root.removeAttribute("data-accent");
+    else root.setAttribute("data-accent", isAccent(a) ? a : currentAccent());
+  }
+
   function setAccent(a, quiet) {
     if (!isAccent(a)) return;
-    document.documentElement.setAttribute("data-accent", a);
     if (!quiet) { try { localStorage.setItem(ACCENT_KEY, a); } catch (e) {} }
+    applyAccent(a);
     syncThemeColor();
     document.dispatchEvent(new CustomEvent("lituk:accent", { detail: a }));
   }
+
+  /* ---------------- skin ----------------
+     The third axis. Mode and accent describe a colour scheme; this one decides
+     whether the app is in colour at all. "news" is the newsprint skin: every
+     token collapses to a neutral grey, the type turns serif and the lift comes
+     off everything, so the page reads as something printed rather than lit.
+
+     It is independent of mode on purpose, because the two editions are both
+     worth having — night is true #000, which on an OLED phone is pixels that
+     are actually off, and day is grey stock with black ink. */
+  function currentSkin() {
+    if (document.documentElement.getAttribute("data-skin") === "news") return "news";
+    var s = null;
+    try { s = localStorage.getItem(SKIN_KEY); } catch (e) {}
+    return s === "news" ? "news" : "normal";
+  }
+
+  function setSkin(s, quiet) {
+    if (s !== "news" && s !== "normal") return;
+    /* Study Quest declares no colour vocabulary, and the newsprint palettes gate
+       on that attribute exactly as the accents do. Its pink is the design rather
+       than a theme, so the skin does not follow the reader onto it — and does
+       not half-apply either, which is what leaving the attribute on would do:
+       the serif, the halftone and the grey emoji with none of the palette. */
+    if (!vocabulary()) return;
+    if (s === "news") document.documentElement.setAttribute("data-skin", "news");
+    else document.documentElement.removeAttribute("data-skin");
+    if (!quiet) { try { localStorage.setItem(SKIN_KEY, s); } catch (e) {} }
+    applyAccent();
+    if (s === "news") monoEmoji();
+    syncThemeColor();
+    document.dispatchEvent(new CustomEvent("lituk:skin", { detail: s }));
+  }
+
+  function toggleSkin() { setSkin(currentSkin() === "news" ? "normal" : "news"); return currentSkin(); }
 
   /* Keep the browser/status-bar chrome matching whatever the page actually paints. */
   function syncThemeColor() {
@@ -83,6 +130,7 @@
   addEventListener("storage", function (e) {
     if (e.key === THEME_KEY && e.newValue) setTheme(e.newValue, true);
     if (e.key === ACCENT_KEY && e.newValue) setAccent(e.newValue, true);
+    if (e.key === SKIN_KEY) setSkin(e.newValue === "news" ? "news" : "normal", true);
   });
 
   /* ---------------- shared shell ---------------- */
@@ -144,7 +192,7 @@
     "transform-origin:top right;animation:lituk-pop .13s ease-out}" +
     "@keyframes lituk-pop{from{opacity:0;transform:scale(.94) translateY(-4px)}}" +
     "@media (prefers-reduced-motion:reduce){.lituk-pal{animation:none}}" +
-    ".lituk-pal[hidden]{display:none}" +
+    ".lituk-pal[hidden],.lituk-pal [hidden]{display:none}" +
     ".lituk-pal h4{margin:0 0 7px;font:inherit;font-size:.62rem;letter-spacing:.14em;" +
     "text-transform:uppercase;color:var(--ink-3,var(--muted,#888))}" +
     ".lituk-pal h4+*{margin-bottom:13px}" +
@@ -205,6 +253,19 @@
       modeRow.appendChild(b);
     });
 
+    /* The skin. Above the colour row because it is the switch that turns the
+       colour row off — a control that disables another should be read first. */
+    var paperRow = document.createElement("div");
+    paperRow.className = "lituk-row lituk-mode lituk-paper";
+    [["normal", "Standard"], ["news", "Newsprint"]].forEach(function (k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = k[1];
+      b.setAttribute("data-paper", k[0]);
+      b.addEventListener("click", function () { setSkin(k[0]); });
+      paperRow.appendChild(b);
+    });
+
     var swRow = document.createElement("div");
     swRow.className = "lituk-row lituk-sw";
     /* A page that names its colours differently is not repainted by the accent
@@ -231,20 +292,34 @@
       h.textContent = text;
       pal.appendChild(h);
       pal.appendChild(row);
+      return h;
     }
     head("Mode", modeRow);
-    if (tinted) head("Colour", swRow);
-    pal.lastChild.style.marginBottom = "0";
+    /* Offered on the same terms as the swatches: a page the palettes cannot
+       reach would get a control that does nothing. */
+    if (tinted) head("Paper", paperRow);
+    var swHead = tinted ? head("Colour", swRow) : null;
     document.body.appendChild(pal);
 
     function sync() {
-      var t = current(), a = currentAccent();
+      var t = current(), a = currentAccent(), news = currentSkin() === "news";
       modeRow.querySelectorAll("button").forEach(function (b) {
         b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === t));
+      });
+      paperRow.querySelectorAll("button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String((b.getAttribute("data-paper") === "news") === news));
       });
       swRow.querySelectorAll("button").forEach(function (b) {
         b.setAttribute("aria-pressed", String(b.getAttribute("data-accent") === a));
       });
+      /* Newsprint has nothing for the swatches to tint, so they go rather than
+         sit there inert. */
+      if (swHead) { swHead.hidden = news; swRow.hidden = news; }
+      /* Whichever row is last on show owns no trailing gap — which row that is
+         changes with the line above, so it cannot be settled once at build. */
+      var rows = [modeRow, paperRow, swRow], last = null;
+      rows.forEach(function (r) { r.style.marginBottom = ""; if (!r.hidden && r.parentNode) last = r; });
+      if (last) last.style.marginBottom = "0";
     }
 
     /* Measured off the button rather than off the viewport insets: the two
@@ -270,6 +345,7 @@
     });
     document.addEventListener("lituk:theme", sync);
     document.addEventListener("lituk:accent", sync);
+    document.addEventListener("lituk:skin", sync);
     sync();
   }
 
@@ -348,9 +424,167 @@
     ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"heather\"]{--bg:#18101B;--panel:#221827;--panel-2:#2A1F2F;--line:#36293D;--chip:#2F2235;--brand:#C496D9;--accent:#D0A7E3;--ring:#C496D944;}" +
     ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"heather\"]{--bg:#FAF7FB;--panel:#FFFFFF;--panel-2:#F7F3F9;--line:#E8E0EC;--chip:#F0EAF3;--brand:#9355AD;--accent:#975FAF;--ring:#9355AD33;}";
 
+  /* ---------------- newsprint ----------------
+     The skin, as opposed to the accents above. Two differences of kind, and
+     both are why it could not simply be a sixth swatch:
+
+     It repaints the tokens an accent is forbidden to touch. --ink, the era
+     colours, --good/--bad/--warn and the five topic colours are left alone by
+     every accent on purpose, because they carry the contrast or they carry a
+     meaning. A monochrome skin has to take exactly those, so it takes them and
+     then puts the meaning back by other means — see the block after the
+     palettes, which is the real work here.
+
+     And it is not in a race with the accents at all: setSkin removes
+     data-accent while newsprint is on, so those rules stop matching rather than
+     losing on specificity. What is left below only has to beat the pages, and
+     four attributes on :root clears every page palette in the repo.
+
+     Wrapped in @media screen because the practice-test app already prints a
+     clean white sheet from a dark screen, and a printer handed #000 makes a
+     black rectangle. Print keeps whatever the page had planned.
+
+     Values: neutral greys throughout — no hue anywhere, which is the ask — but
+     not #000/#FFF at both ends. 21:1 at reading size glares and this is an app
+     people sit with for an hour, so night pairs true black paper with #EDEDED
+     ink at 17.4:1, and day is grey stock rather than white. The paper is the
+     part that stays absolute: #000 on an OLED phone is pixels that are off. */
+  var NEWS_FACE = "\"Baskerville\",\"Iowan Old Style\",\"Palatino Linotype\",\"Palatino\",Georgia,\"Times New Roman\",serif";
+
+  var NEWS_CSS = "@media screen{" +
+
+    /* ---- the hub vocabulary: night, then day ---- */
+    ":root[data-lituk-tokens=\"hub\"][data-skin=\"news\"][data-theme=\"dark\"]{" +
+    "--page:#000000;--card:#0B0B0B;--card-2:#151515;--chip:#1A1A1A;--line:#333333;" +
+    "--ink:#EDEDED;--ink-2:#ABABAB;--ink-3:#7E7E7E;--gold:#EDEDED;--gold-dim:#8F8F8F;" +
+    /* Six greys rather than six hues, spaced far enough apart to still read as
+       six different chapters at a glance. The darkest still clears 4.5:1 on the
+       card it sits on, which is what caps the range at the bottom. */
+    "--era1:#F2F2F2;--era2:#D9D9D9;--era3:#BFBFBF;--era4:#A6A6A6;--era5:#8F8F8F;--era6:#7A7A7A;" +
+    "--pink:#EDEDED;--sheen:rgba(255,255,255,.05);--shadow:none;--lift:none}" +
+
+    ":root[data-lituk-tokens=\"hub\"][data-skin=\"news\"][data-theme=\"light\"]{" +
+    "--page:#E9E9E9;--card:#FAFAFA;--card-2:#DCDCDC;--chip:#E3E3E3;--line:#B4B4B4;" +
+    "--ink:#111111;--ink-2:#4A4A4A;--ink-3:#6B6B6B;--gold:#111111;--gold-dim:#6E6E6E;" +
+    "--era1:#0F0F0F;--era2:#2E2E2E;--era3:#454545;--era4:#575757;--era5:#666666;--era6:#757575;" +
+    "--pink:#111111;--sheen:rgba(255,255,255,.9);--shadow:none;--lift:none}" +
+
+    /* ---- the practice-test vocabulary ---- */
+    ":root[data-lituk-tokens=\"tests\"][data-skin=\"news\"][data-theme=\"dark\"]{" +
+    "--bg:#000000;--panel:#0B0B0B;--panel-2:#151515;--chip:#1A1A1A;--line:#333333;" +
+    "--ink:#EDEDED;--muted:#ABABAB;--brand:#EDEDED;--brand-ink:#000000;--on-solid:#000000;--accent:#BFBFBF;" +
+    /* --bad sits a clear step below --muted rather than beside it: the two meet
+       on the same review badge, and two greys one percent apart is no signal. */
+    "--good:#EDEDED;--good-bg:#1F1F1F;--bad:#8C8C8C;--bad-bg:#131313;--warn:#D0D0D0;" +
+    "--t0:#F2F2F2;--t1:#D2D2D2;--t2:#B2B2B2;--t3:#949494;--t4:#7C7C7C;" +
+    "--ring:#EDEDED55;--radius:2px;--shadow:none}" +
+
+    ":root[data-lituk-tokens=\"tests\"][data-skin=\"news\"][data-theme=\"light\"]{" +
+    "--bg:#E9E9E9;--panel:#FAFAFA;--panel-2:#DCDCDC;--chip:#E3E3E3;--line:#B4B4B4;" +
+    "--ink:#111111;--muted:#4A4A4A;--brand:#111111;--brand-ink:#FFFFFF;--on-solid:#FFFFFF;--accent:#454545;" +
+    "--good:#111111;--good-bg:#D4D4D4;--bad:#5F5F5F;--bad-bg:#E4E4E4;--warn:#3A3A3A;" +
+    "--t0:#111111;--t1:#333333;--t2:#4C4C4C;--t3:#5E5E5E;--t4:#6E6E6E;" +
+    "--ring:#11111133;--radius:2px;--shadow:none}" +
+
+    /* ---- the character ----
+       Monochrome on its own is a dark mode with the colour drained out. What
+       makes it read as newsprint is the type and the flatness: one serif for
+       everything the way a paper sets everything, hairline rules instead of
+       soft edges, and nothing anywhere that glows or floats. */
+    "html[data-skin=\"news\"]{--sans:" + NEWS_FACE + "}" +
+
+    /* The ambient wash every hub page carries becomes the paper it is printed
+       on: a halftone dot screen at the size a newspaper actually screens at.
+       Reusing that layer is why this costs nothing — it is already fixed,
+       already behind the text, already on the page. The practice-test app has
+       no such layer, so it gets one here; nothing else claims its ::before. */
+    "html[data-skin=\"news\"] body::before{content:\"\";position:fixed;inset:0;z-index:-1;" +
+    "pointer-events:none;opacity:.07;" +
+    "background:radial-gradient(currentColor .6px,transparent .7px) 0 0/3px 3px}" +
+
+    /* Printed, not lit. Frosted glass and drop shadows are the two things that
+       give away a screen, and both survive the palette because they are set in
+       rgba() and blur() rather than in tokens. */
+    "html[data-skin=\"news\"] header,html[data-skin=\"news\"] .lituk-hub," +
+    "html[data-skin=\"news\"] .lituk-pal{-webkit-backdrop-filter:none;backdrop-filter:none}" +
+    "html[data-skin=\"news\"] header{background:var(--bg,var(--page))}" +
+    "html[data-skin=\"news\"] .lituk-hub,html[data-skin=\"news\"] .lituk-pal," +
+    "html[data-skin=\"news\"] .card,html[data-skin=\"news\"] .tile,html[data-skin=\"news\"] .ch{box-shadow:none}" +
+    "html[data-skin=\"news\"] .tcard:hover,html[data-skin=\"news\"] .tcard.pass:hover," +
+    "html[data-skin=\"news\"] .tcard.retry:hover,html[data-skin=\"news\"] .bankhd:hover{box-shadow:none}" +
+    /* The bank headers tint themselves from a hex handed to them inline. A
+       declaration here lands on the element that reads it, which shadows the
+       inherited value without having to out-shout an inline style. */
+    /* The section identity ramp: five hues, handed to the markup as raw hex and
+       read back through --acc and --tone. A hex cannot be re-pointed at a token,
+       so the properties that carry it are redeclared on the elements that read
+       them — which shadows the value inherited from the section above without
+       having to outrank it. .nextup is the exception that needs !important: it
+       is the one place the hex lands inline on the element itself. */
+    "html[data-skin=\"news\"] .bankhd{--acc:var(--ink-3,var(--muted))}" +
+    "html[data-skin=\"news\"] .tcard{--tone:var(--muted)}" +
+    "html[data-skin=\"news\"] .nextup{--tone:var(--ink)!important}" +
+    /* The scrim behind a dialog is mixed a shade of purple. */
+    "html[data-skin=\"news\"] .modal-bg{background:rgba(0,0,0,.62)}" +
+
+    /* ---- putting the meaning back ----
+       Everything below replaces a hue that was carrying information with a
+       shape that carries the same information: filled against hollow, solid
+       against hatched, a rule against a dashed rule. Where the markup already
+       ships a glyph — the tick and cross on a reviewed option, "✓ Correct" and
+       "✕ Not quite" on the verdict — the meaning was never in the colour to
+       begin with and nothing here needs to add it back. */
+    "html[data-skin=\"news\"] .opt.correct{border-color:var(--ink);border-width:2px}" +
+    "html[data-skin=\"news\"] .opt.wrong{border-style:dashed;border-color:var(--bad)}" +
+    "html[data-skin=\"news\"] .opt.wrong .mark{background:transparent;color:var(--bad);border-color:var(--bad)}" +
+
+    "html[data-skin=\"news\"] .qstrip > i.no{" +
+    "background:repeating-linear-gradient(45deg,var(--bad) 0 1.5px,transparent 1.5px 3px)}" +
+    "html[data-skin=\"news\"] .dot.ok{background:var(--ink);border-color:var(--ink);color:var(--bg)}" +
+    "html[data-skin=\"news\"] .dot.no{background:transparent;border-color:var(--ink);" +
+    "border-style:dashed;color:var(--ink)}" +
+    "html[data-skin=\"news\"] .dot.flag{border-style:dotted;border-width:2px}" +
+
+    "html[data-skin=\"news\"] .tcard.retry{border-style:dashed}" +
+    "html[data-skin=\"news\"] .tcard.retry::before," +
+    "html[data-skin=\"news\"] .bar.bad > i{" +
+    "background:repeating-linear-gradient(45deg,var(--bad) 0 3px,transparent 3px 6px)}" +
+    "html[data-skin=\"news\"] .rev .ic.no{background:transparent!important;color:var(--ink);" +
+    "border:1.5px dashed var(--ink)}" +
+
+    /* Six eras become six greys, and six greys a third of a stop apart is the
+       weakest thing in this skin — everywhere else in the app an era arrives on
+       its own, next to its own heading, and grey is plenty. The hub's chapter
+       list is the one place all five are read side by side, and there the rule
+       down the left edge can carry the difference instead: weight and style,
+       which is how a paper has always separated one section from the next.
+       Ordered markup, so nth-child addresses them; each still keeps its grey. */
+    "html[data-skin=\"news\"] .chapters .ch:nth-child(1){border-left-width:3px}" +
+    "html[data-skin=\"news\"] .chapters .ch:nth-child(2){border-left-width:4px;border-left-style:double}" +
+    "html[data-skin=\"news\"] .chapters .ch:nth-child(3){border-left-width:4px;border-left-style:dotted}" +
+    "html[data-skin=\"news\"] .chapters .ch:nth-child(4){border-left-width:4px;border-left-style:dashed}" +
+    "html[data-skin=\"news\"] .chapters .ch:nth-child(5){border-left-width:7px}" +
+
+    /* The hub's two head-to-head stats are an era colour apart, and two
+       neighbouring greys is not a difference. */
+    /* The results headline is set in --bad when you have not passed, which in
+       colour is emphasis and in grey is the opposite — a 24px heading quieter
+       than the sentence under it. The words already say which it is. */
+    "html[data-skin=\"news\"] .verdict-big.good,html[data-skin=\"news\"] .verdict-big.bad{color:var(--ink)}" +
+    "html[data-skin=\"news\"] .st b.good{color:var(--ink)}" +
+    "html[data-skin=\"news\"] .st b.bad{color:var(--ink-2);text-decoration:underline dotted;" +
+    "text-underline-offset:3px}" +
+
+    /* Anything that arrives already coloured — every emoji on these pages, the
+       flag, the icons. .lituk-emo is put around the characters by monoEmoji(),
+       because a filter cannot be aimed at a character any other way. */
+    "html[data-skin=\"news\"] img,html[data-skin=\"news\"] svg,html[data-skin=\"news\"] video," +
+    "html[data-skin=\"news\"] .lituk-emo{filter:grayscale(1)}" +
+    "}";
+
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + PICKER_CSS + HUB_CSS + EGG_CSS;
+    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + NEWS_CSS + PICKER_CSS + HUB_CSS + EGG_CSS;
     document.head.appendChild(s);
   }
 
@@ -361,6 +595,98 @@
      it is never what keeps a palette off a page. */
   function vocabulary() {
     return document.documentElement.getAttribute("data-lituk-tokens");
+  }
+
+  /* ---------------- monochrome emoji ----------------
+     An emoji is a character in a text node, and a filter has to go on an
+     element. The obvious move — filter the body — is the one thing that cannot
+     be done here: a filtered element becomes the containing block for every
+     fixed descendant inside it, and these pages hang the theme pill, the hub
+     pill and the HUD off the viewport. Filtering their ancestor would tear all
+     three off the corner and scroll them away with the page.
+
+     So the characters are wrapped one span each and the filter goes there.
+     Same TreeWalker shape as highlight() below, for the same reason it uses one.
+
+     Started the first time newsprint is switched on and never stopped: an empty
+     span is inert the moment the CSS stops matching it, so there is nothing to
+     unwind when the reader switches back. */
+  var EMOJI = null;
+  try {
+    /* Built rather than written as a literal: a browser without Unicode
+       property escapes throws on the pattern at parse time, and a parse error
+       in this file is the whole shared runtime gone rather than one page of
+       colourful emoji. */
+    EMOJI = new RegExp(
+      "(?:\\p{Regional_Indicator}{2}" +          /* 🇬🇧 — a flag is two of these */
+      "|[0-9#*]\\uFE0F?\\u20E3" +               /* 1️⃣ — a keycap starts on a digit */
+      "|\\p{Extended_Pictographic}\\uFE0F?(?:\\u200D\\p{Extended_Pictographic}\\uFE0F?)*)+", "gu");
+  } catch (e) {}
+
+  var emoOn = false, emoBusy = false, emoQueue = [], emoTick = 0;
+  var EMO_SKIP = /^(script|style|noscript|textarea|option|title|svg|canvas)$/i;
+
+  function wrapEmojiIn(root) {
+    if (!EMOJI || !root) return;
+    var texts = [], walker;
+    if (root.nodeType === 3) texts.push(root);
+    else if (root.nodeType === 1) {
+      walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: function (n) {
+          var p = n.parentNode;
+          if (!n.nodeValue || !p || EMO_SKIP.test(p.nodeName)) return NodeFilter.FILTER_REJECT;
+          if (p.classList && p.classList.contains("lituk-emo")) return NodeFilter.FILTER_REJECT;
+          EMOJI.lastIndex = 0;
+          return EMOJI.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
+      });
+      var n;
+      while ((n = walker.nextNode())) texts.push(n);
+    }
+    if (!texts.length) return;
+
+    emoBusy = true;
+    texts.forEach(function (node) {
+      var text = node.nodeValue, frag = document.createDocumentFragment(), i = 0, m;
+      EMOJI.lastIndex = 0;
+      while ((m = EMOJI.exec(text))) {
+        if (m.index > i) frag.appendChild(document.createTextNode(text.slice(i, m.index)));
+        var span = document.createElement("span");
+        span.className = "lituk-emo";
+        span.textContent = m[0];
+        frag.appendChild(span);
+        i = m.index + m[0].length;
+      }
+      if (!i) return;
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    emoBusy = false;
+  }
+
+  function monoEmoji() {
+    if (emoOn || !EMOJI || !document.body) return;
+    emoOn = true;
+    wrapEmojiIn(document.body);
+    if (!window.MutationObserver) return;
+    /* Both apps render their screens from JS, so the walk above only covers
+       what is on the page this second. Drained on a frame rather than per
+       record: a re-render arrives as hundreds of mutations describing one
+       screen, and wrapping is cheap only if it happens once for the lot. */
+    new MutationObserver(function (recs) {
+      if (emoBusy) return;
+      for (var i = 0; i < recs.length; i++) {
+        var added = recs[i].addedNodes;
+        for (var j = 0; j < added.length; j++) emoQueue.push(added[j]);
+      }
+      if (!emoQueue.length || emoTick) return;
+      emoTick = requestAnimationFrame(function () {
+        emoTick = 0;
+        var batch = emoQueue;
+        emoQueue = [];
+        batch.forEach(wrapEmojiIn);
+      });
+    }).observe(document.body, { childList: true, subtree: true });
   }
 
   /* ---------------- ?find= highlighting ---------------- */
@@ -1581,6 +1907,7 @@
   injectCSS();
   injectHub();
   setTheme(current(), true);
+  setSkin(currentSkin(), true);
   setAccent(currentAccent(), true);
   buildPicker();
   syncThemeColor();
@@ -1603,6 +1930,10 @@
     accents: ACCENTS.map(function (a) { return a.id; }),
     getAccent: currentAccent,
     setAccent: setAccent,
+    SKIN_KEY: SKIN_KEY,
+    getSkin: currentSkin,
+    setSkin: setSkin,
+    toggleSkin: toggleSkin,
     highlight: highlight,
     eggs: eggsAPI,
     reading: {
