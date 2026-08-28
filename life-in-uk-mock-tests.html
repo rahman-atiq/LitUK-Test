@@ -907,7 +907,9 @@ const LS='lituk_v1';
 const EXAM_DEFAULT='2026-09-05';
 const DEFAULT={tests:{},topics:{},mistakes:{},flags:{},answered:0,correct:0,attempts:0,passes:0,history:[],
   sr:{},                                   /* g -> {box,due,seen,last,unsure} spaced repetition */
-  drill:{last:null,streak:0,best:0},       /* daily drill streak */
+  /* `last`/`streak`/`best` count days STUDIED, in anything; `drilled` is the day
+     the daily drill itself was last finished. See drillDoneToday(). */
+  drill:{last:null,streak:0,best:0,drilled:null},
   examDate:EXAM_DEFAULT,                   /* '' = no date: standard ladder, coverage mode */
   recent:[],                               /* rolling 0/1 ring, last RECENT_N answers */
   readiness:null,                          /* last computed pass probability, for the hub to read */
@@ -1126,8 +1128,8 @@ function migrate(){
 
    The streak is never rebuilt either. It is eleven days long in the file this
    came from, and taking a day off someone for a bug they did not write is the
-   wrong way round; moving the date back one is exactly what noteDrillDone()
-   needs to see to carry the count on when they drill later today. */
+   wrong way round; moving the date back one is exactly what noteStudyDone()
+   needs to see to carry the count on when they study later today. */
 const SESS_GAP=30*60000;
 function sessionStart(h){
   const ts=Object.values(S.sr).map(e=>e&&e.last).filter(t=>t&&t<=h.t).sort((a,b)=>b-a);
@@ -2074,7 +2076,18 @@ function drillPlan(){
 }
 function dayKey(d){d=d?new Date(d):new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function drillDoneToday(){return S.drill&&S.drill.last===dayKey()}
+/* ---- Two days, not one ----
+   `last` is the day something was studied: a sweep and a gauntlet are the day's
+   work as much as a drill is, and that is what the streak counts. `drilled` is
+   the day the daily drill itself was finished, and it is the only thing the
+   tile's tick may speak for — a mistake set is not the drill, and neither is a
+   drill walked out of at question nine. They used to be the same field, so any
+   session in the app closed the drill for the day. */
+function drillDoneToday(){return S.drill&&S.drill.drilled===dayKey()}
+/* Every question answered. Reaching the last one and pressing Finish is not the
+   same as having done the drill, and the button says so — it counts up to the
+   total precisely so it can be left short. */
+function drillComplete(s){return !!s&&s.items.every(it=>it.picked.length>0)}
 function startDrill(){
   const plan=drillPlan();
   if(!plan.length){toast('Nothing to drill yet');return}
@@ -2109,14 +2122,22 @@ function startSweep(n){
    keeps a long-abandoned session honest: resuming one started last week and
    handing it in today credits nothing rather than dragging `last` backwards and
    resetting a streak that has run since. */
-function noteDrillDone(ts){
+function noteStudyDone(ts){
   ts=ts||Date.now();
   const t=dayKey(ts),y=dayKey(ts-DAY);
-  if(!S.drill)S.drill={last:null,streak:0,best:0};
+  if(!S.drill)S.drill={last:null,streak:0,best:0,drilled:null};
   if(S.drill.last&&S.drill.last>=t)return;     /* ISO dates sort as dates */
   S.drill.streak=S.drill.last===y?(S.drill.streak||0)+1:1;
   S.drill.last=t;
   S.drill.best=Math.max(S.drill.best||0,S.drill.streak);
+}
+/* A finished drill is the day's study too, so it does both. Kept as its own
+   stamp rather than a second streak: the tick answers "have I drilled today",
+   which is a question about today and needs no history behind it. */
+function noteDrillDone(ts){
+  noteStudyDone(ts);
+  const t=dayKey(ts||Date.now());
+  if(!S.drill.drilled||S.drill.drilled<t)S.drill.drilled=t;
 }
 
 /* ============ CLUSTERS ============
@@ -2999,13 +3020,22 @@ function finishQuiz(){
     if(passed)justPassed=sess.testN;
   }
   /* A sweep or a gauntlet is the day's work as much as a drill is — it keeps
-     the streak alive. */
-  if(sess.source==='drill'||TRAINING.has(sess.source))noteDrillDone(sess.startTs);
+     the streak alive. Only the drill, answered all the way through, closes the
+     drill for the day. */
+  if(sess.source==='drill'&&drillComplete(sess))noteDrillDone(sess.startTs);
+  else if(sess.source==='drill'||TRAINING.has(sess.source))noteStudyDone(sess.startTs);
   S.history.unshift({t:Date.now(),title:sess.title,score,total,passed,src:sess.source});
   S.history=S.history.slice(0,50);
   save();
   renderResults(score,total,passed);
   go('results');
+}
+/* A drill that did not close the day leaves the tile still offering it, which is
+   a surprise unless the screen that ended it says why. */
+function drillOpenNote(){
+  if(!sess||sess.source!=='drill'||drillComplete(sess))return '';
+  const left=sess.items.filter(it=>!it.picked.length).length;
+  return ` <b>${left}</b> question${left===1?'':'s'} went unanswered, so today's drill stays open.`;
 }
 function renderResults(score,total,passed){
   const pct=Math.round(score/total*100);
@@ -3042,7 +3072,9 @@ function renderResults(score,total,passed){
             :sess.source==='hset'
             ?`📓 ${esc(sess.title)} done`
             :sess.source==='drill'
-            ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+            ?(drillComplete(sess)
+              ?`🔥 Drill done${S.drill&&S.drill.streak>1?` — ${S.drill.streak}-day streak`:''}`
+              :`🔥 Drill left unfinished`)
             :(passed?'🎉 Passed!':'Keep practising')}</div>
           <p class="sub" style="margin:6px 0 12px">${sess.source==='sweep'
             ?`You got <b>${score}</b> of <b>${total}</b> first time. <b>${srUnseen()}</b> of ${UNIQUE_N} still never seen — a low score here is the point, not a problem.`
@@ -3064,7 +3096,7 @@ function renderResults(score,total,passed){
                  : `None of them caught you this time.`} ${p.lapDone
                  ? `That's all ${p.total} through once today — go round again whenever you like.`
                  : `<b>${p.fresh}</b> still to come round today, ${Math.ceil(p.fresh/HISTORY_SET_N)} more set${Math.ceil(p.fresh/HISTORY_SET_N)===1?'':'s'}' worth.`} Doesn't count towards your pass rate — these are your worst questions by construction.`})()
-            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`} ${took}${readinessMove()}</p>
+            :`You scored <b>${score}</b> of <b>${total}</b>. ${passed?`That's above the ${Math.round(PASSMARK/24*total)} needed.`:`You need <b>${Math.round(PASSMARK/24*total)}</b> to pass — ${Math.round(PASSMARK/24*total)-score} more.`}`}${drillOpenNote()} ${took}${readinessMove()}</p>
           <div class="btn-row">
             <button class="btn primary" onclick="retrySame()">${training?'↻ Next batch':'↻ Retry'}</button>
             ${wrongItems.length?`<button class="btn" onclick="practiceMistakes()">🎯 Fix ${wrongItems.length} mistake${wrongItems.length===1?'':'s'}</button>`:''}
