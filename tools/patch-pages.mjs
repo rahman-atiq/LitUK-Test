@@ -23,7 +23,7 @@ const CLOSE = "<!-- /lituk:shared -->";
    repaints the paper as well as the trim, so leaving it to the deferred app.js
    would flash the default palette on every single navigation. The id list is
    the one in app.js — an unknown value is ignored and the page stays gold. */
-const ACCENTS = ["gold", "rose", "oak", "slate", "heather"];
+const ACCENTS = ["gold", "rose", "oak", "slate", "heather", "poppy", "bluebell", "ivy", "mint", "gorse", "blossom"];
 
 const THEME_SNIPPET =
   `<script>/* theme + skin + accent before first paint — one key each, every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");` +
