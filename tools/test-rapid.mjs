@@ -15,9 +15,13 @@
  *   wrong is ordinary, and the fix is to deselect it — a tap that no longer
  *   exists if the second pick has already graded you.
  *
- *   A timed sit must never be rapid, at any setting. The one session that has
- *   to behave like the real exam is the timed one, and in the real exam you can
- *   change an answer before you commit it.
+ *   A session with feedback held to the end must never be rapid. That is the
+ *   load-bearing one, and it is the whole of exam realism: `feedback:'end'` is
+ *   what the real test is, and rapid has nothing to fold into it. Timed sits
+ *   are deliberately NOT excluded any more — a timed test showing you the
+ *   answer after every question was never the real exam either, and the app
+ *   already prices it that way — so this assertion is the only thing standing
+ *   between the fast mode and the one session that has to be slow.
  *
  *   The recall fold must still get its honesty tap first. "Did you have it?"
  *   answered after the tick is on screen is not the question it asked.
@@ -31,6 +35,11 @@
  * setTimeout is a stub in the node pass, so the advance never fires and the
  * cancel listeners never run — and the cancel listeners are the whole reason
  * this mode is safe to leave switched on.
+ *
+ * One case exists only because timed sits joined: an advance armed at 44:59
+ * would fire 600ms into the time's-up modal and move the question underneath a
+ * dialogue asking you to decide something. stopTimer() does not cover it — the
+ * timer and the advance are two different clocks.
  */
 import fs from "node:fs";
 import vm from "node:vm";
@@ -95,7 +104,8 @@ const BRIDGE = `globalThis.__api={
   get S(){return S}, get prefs(){return prefs}, get sess(){return sess}, set sess(v){sess=v},
   POOL, QByG, UNIQUE_N, ADV_MS,
   rapidOn, rapidPick, shouldAdvance, pick, checkQ, makeSession, recallable,
-  revealOpts, recallSay, correctIdx, canon, slimSess, hydrate, srUpdate, save, savePrefs
+  revealOpts, recallSay, correctIdx, canon, slimSess, hydrate, srUpdate, save, savePrefs,
+  advArmed, armAdvance, cancelAdvance, expiredPrompt
 }`;
 
 function boot(store = {}) {
@@ -115,12 +125,10 @@ const wrongOf = (q) => q.o.map((_, i) => i).find((i) => !app.correctIdx(q).inclu
 /* ================= 1. where rapid switches on ================= */
 {
   app.prefs.rapid = true;
-  ok(app.rapidOn(false, true), "an untimed session with feedback on must be rapid");
-  ok(!app.rapidOn(true, true), "a TIMED sit must never be rapid — that is the session that has to be the real exam");
-  ok(!app.rapidOn(false, false), "feedback held to the end has no check to fold in and no verdict to move off");
-  ok(!app.rapidOn(true, false), "a timed exam-mode sit must be doubly excluded");
+  ok(app.rapidOn(true), "a session with feedback on must be rapid");
+  ok(!app.rapidOn(false), "feedback held to the end has no check to fold in and no verdict to move off");
   app.prefs.rapid = false;
-  ok(!app.rapidOn(false, true), "the setting off must mean off");
+  ok(!app.rapidOn(true), "the setting off must mean off");
   app.prefs.rapid = true;
 }
 
@@ -133,8 +141,40 @@ const wrongOf = (q) => q.o.map((_, i) => i).find((i) => !app.correctIdx(q).inclu
   ok(app.sess.rapid, "turning the setting off changed the rules of a session already in progress");
   app.prefs.rapid = true;
 
+  /* A timed test follows the feedback setting, like everything else. */
+  app.prefs.feedback = "instant";
   app.makeSession(single.slice(0, 3), { title: "Test 1", timed: true, testN: 1, source: "test" });
-  ok(!app.sess.rapid, "a timed test came out rapid");
+  ok(app.sess.rapid, "a timed test with feedback on did not come out rapid");
+
+  /* And the one that must never be. Holding feedback to the end is how you sit
+     the real thing, and it switches rapid off without being asked to. */
+  app.prefs.feedback = "end";
+  app.makeSession(single.slice(0, 3), { title: "Test 1", timed: true, testN: 1, source: "test" });
+  ok(!app.sess.rapid, "an exam-mode timed sit came out rapid — that is the session that has to be the real exam");
+  app.makeSession(single.slice(0, 3), { title: "Drill", timed: false, source: "drill" });
+  ok(!app.sess.rapid, "an untimed exam-mode session came out rapid");
+  app.prefs.feedback = "instant";
+}
+
+/* ============= 2b. a timed sit answers on the pick, like anything else ============= */
+{
+  app.prefs.rapid = true; app.prefs.feedback = "instant"; app.prefs.recall = "off";
+  const q = single[0];
+  app.makeSession([q, single[1]], { title: "Test 1", timed: true, testN: 1, source: "test", order: "keep" });
+  app.pick(app.correctIdx(q)[0]);
+  ok(app.sess.items[0].checked, "a timed test still charged a tap for the check");
+  ok(app.shouldAdvance(app.sess.items[0]), "a right answer in a timed test did not arm the advance");
+}
+
+/* ============= 2c. time's up must not move the question under the modal ============= */
+{
+  app.prefs.rapid = true; app.prefs.feedback = "instant"; app.prefs.recall = "off";
+  const q = single[0];
+  app.makeSession([q, single[1]], { title: "Test 1", timed: true, testN: 1, source: "test", order: "keep" });
+  app.pick(app.correctIdx(q)[0]);
+  ok(app.advArmed(), "setup: the advance was not armed, so this case proves nothing");
+  app.expiredPrompt();
+  ok(!app.advArmed(), "the time's-up modal left an advance armed — it would move the question under a dialogue asking you to decide something");
 }
 
 /* ================= 3. the pick is the answer — and when it is not ================= */

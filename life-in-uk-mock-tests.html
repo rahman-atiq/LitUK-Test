@@ -1836,6 +1836,13 @@ function resumeSess(sid){
    it offers — it never acts. No third option, no default, nothing on a timer. */
 function expiredPrompt(){
   const s=sess;if(!s)return;
+  /* An advance armed at 44:59 would otherwise fire 600ms into this modal and
+     move the question underneath it — the screen changing under a dialogue that
+     is asking you to decide something, which is the one thing the countdown is
+     designed never to do. Reachable only since rapid stopped excluding timed
+     sits; stopTimer() does not cover it, because the timer and the advance are
+     two different clocks. */
+  cancelAdvance();
   const answered=s.items.filter(x=>x.picked.length).length;
   modal(`<h3 style="margin:0 0 4px">Time's up — ${esc(s.title)}</h3>
     <p class="sub" style="margin:0 0 14px">The ${TEST_MINUTES} minutes ran out. You answered <b>${answered}</b> of <b>${s.items.length}</b>, and nothing has been recorded yet.</p>
@@ -1900,8 +1907,9 @@ function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,ord
     recall:recallOn(source,timed),
     /* Fixed at the start for the same reason: turning rapid on halfway through
        would change what a tap means on question 40 of a session that has spent
-       39 questions teaching you it means something else. */
-    rapid:rapidOn(timed,instant),
+       39 questions teaching you it means something else. Timed sits included —
+       what governs is `instant`, decided on the line above. */
+    rapid:rapidOn(instant),
     readyBefore:readiness().p,             /* so the results screen can show what the session moved */
     items:list.map(q=>{
       let order=q.o.map((_,i)=>i);
@@ -2341,12 +2349,22 @@ function recallOn(source,timed){
    itself after a beat. A wrong one never does: that is the one explanation
    worth the stop, and stopping there is the whole point of the mode.
 
-   Never in a timed sit, for the same reason the recall fold never is — the one
-   session that has to behave like the real exam is the timed one, where
-   changing your mind before you commit is part of the exam. And never with
-   feedback held to the end: there is no check to fold into the pick, and no
-   verdict to advance off. */
-function rapidOn(timed,instant){return !!(prefs.rapid&&instant&&!timed)}
+   Feedback is the whole gate, and it is a stronger one than it looks. Rapid
+   folds the check into the pick and advances off the verdict, so a session that
+   holds both to the end has nothing for it to do — which means the mode cannot
+   reach `feedback:'end'` at all, and `feedback:'end'` is what the real exam is.
+
+   That is why timed sits are no longer excluded. The first version of this
+   barred them by name, borrowing the recall fold's rule, and the reasoning did
+   not survive being written down: a timed test showing you the answer after
+   every question was never the real exam either. The app has always said so —
+   its best score is labelled "answers shown" on the tile and weighed at
+   REVEALED_W of a blind one. Barring rapid there protected exam realism in the
+   one mode that had already given it up, and charged a tap a question for it.
+
+   Sit the real thing by holding feedback to the end. Everything else is
+   practice, and practice should be fast. */
+function rapidOn(instant){return !!(prefs.rapid&&instant)}
 /* Is the fold standing in front of this question right now? */
 function recallHidden(it){
   return !!(sess&&sess.recall&&it&&!it.shown&&!it.checked&&recallable(it.q));
@@ -3905,7 +3923,7 @@ function openSettings(){
     <div class="grid" style="gap:8px;margin:6px 0 16px">
       <button class="btn ghost setopt ${rp?'on':''}" onclick="setRapid(1)">
         <b>⚡ Rapid — the pick is the answer</b>
-        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Picking marks it on the spot, and a right answer moves on by itself after ${(ADV_MS/1000).toFixed(1)}s. Wrong ones stop and stay stopped. Touch the screen while the green bar is running to keep the question; swipe right to go back to one that has already gone. Never in a timed test, and never on a &ldquo;select two&rdquo; &mdash; deselecting a first wrong pick is worth its tap.</div></button>
+        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Picking marks it on the spot, and a right answer moves on by itself after ${(ADV_MS/1000).toFixed(1)}s. Wrong ones stop and stay stopped. Touch the screen while the green bar is running to keep the question; swipe right to go back to one that has already gone. Timed tests included &mdash; but never on a &ldquo;select two&rdquo;, where deselecting a first wrong pick is worth its tap. To sit one as the real thing, hold feedback to the end above: that turns rapid off by itself, because there is no verdict left for it to move off.</div></button>
       <button class="btn ghost setopt ${rp?'':'on'}" onclick="setRapid(0)">
         <b>🚶 Steady — check, then next</b>
         <div style="color:var(--muted);font-size:12.5px;font-weight:500">Every answer waits for you. The explanation is on screen until you move off it yourself.</div></button>
