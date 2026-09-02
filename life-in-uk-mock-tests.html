@@ -676,6 +676,14 @@ h1{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:-.015e
 .btn.unsure.on{color:var(--warn);border-color:var(--warn);opacity:1}
 .explain .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-bottom:2px}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+/* The countdown on a correct answer that is about to advance itself. It is here
+   so the advance is something you watch arrive and can stop, rather than the
+   screen changing under your thumb for a reason you have to work out. Touch
+   anything and it cancels; the bar going with it is the confirmation. */
+.advbar{height:3px;border-radius:2px;background:var(--good);margin:10px 0 0;
+  transform-origin:left center;animation:advrun var(--adv,600ms) linear forwards}
+@keyframes advrun{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media(prefers-reduced-motion:reduce){.advbar{animation:none;opacity:.4}}
 /* Pinned to the bottom of the screen for as long as the question is taller than
    the viewport. Checking an answer used to push Next below the explanation, so
    every question cost a scroll down to advance and a scroll back up to read the
@@ -1233,7 +1241,7 @@ function go(v){
   /* A clock only runs while you are looking at it. A timed session left behind
      on another screen used to keep ticking and then grade itself (INV-9/INV-10);
      the deadline is absolute, so nothing is gained by counting in the dark. */
-  if(v!=='quiz')stopTimer();
+  if(v!=='quiz'){stopTimer();cancelAdvance()}
   window.scrollTo(0,0);
   if(v==='dashboard')renderDashboard();
   if(v==='mistakes')renderMistakes();
@@ -1622,7 +1630,7 @@ document.addEventListener('keydown',e=>{
    four-week sprint means 60 a day is the floor for seeing the bank once with
    room for a second pass. 20 was a habit-builder, not a study plan. */
 const DRILL_MIN=5,DRILL_MAX=200,DRILL_DEFAULT=60,DRILL_SIZES=[20,40,60,100];
-let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant',dailyTarget:DRILL_DEFAULT,recall:'weak'},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
+let prefs=Object.assign({shufQ:true,shufO:true,feedback:'instant',dailyTarget:DRILL_DEFAULT,recall:'weak',rapid:true},JSON.parse(localStorage.getItem('lituk_prefs')||'{}'));
 /* Same reasoning as save(): a settings write must not throw out of an onchange
    handler. Prefs are small and re-derivable, so a lost one is a nuisance, not a
    loss — it does not deserve the full reclaim dance. */
@@ -1708,7 +1716,7 @@ function sessOk(s){
 function slimSess(s){
   return {sid:s.sid,instant:s.instant,title:s.title,timed:s.timed,testN:s.testN,
     source:s.source,idx:s.idx,readyBefore:s.readyBefore,startTs:s.startTs,
-    recall:!!s.recall,deadline:s.deadline,items:s.items.map(slimItem)};
+    recall:!!s.recall,rapid:!!s.rapid,deadline:s.deadline,items:s.items.map(slimItem)};
 }
 function hydrate(s){
   if(!sessOk(s))return null;
@@ -1716,6 +1724,10 @@ function hydrate(s){
   if(items.some(x=>!x))return null;        /* all or nothing (INV-12) */
   return {sid:s.sid,instant:!!s.instant,title:s.title,timed:!!s.timed,
     recall:!!s.recall,
+    /* A session stored before rapid existed resumes without it, which is the
+       right answer twice over: the rules do not change mid-session, and a
+       half-finished exam-mode sit does not silently acquire a new one. */
+    rapid:!!s.rapid,
     testN:s.testN==null?null:s.testN,source:s.source,idx:s.idx,
     readyBefore:s.readyBefore,startTs:s.startTs,deadline:s.deadline,items};
 }
@@ -1886,6 +1898,10 @@ function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,ord
        setting mid-session would otherwise fold the options away on question 40
        of a session that has not asked for them once. */
     recall:recallOn(source,timed),
+    /* Fixed at the start for the same reason: turning rapid on halfway through
+       would change what a tap means on question 40 of a session that has spent
+       39 questions teaching you it means something else. */
+    rapid:rapidOn(timed,instant),
     readyBefore:readiness().p,             /* so the results screen can show what the session moved */
     items:list.map(q=>{
       let order=q.o.map((_,i)=>i);
@@ -1898,6 +1914,7 @@ function makeSession(qs,{title,timed,testN=null,source='custom',instant=null,ord
        backgrounded PWA stops firing — every timed test was quietly longer than
        45 minutes by however long you had looked away. */
     deadline:timed?startTs+TEST_MINUTES*60000:null};
+  if(sess.rapid&&(prefs.rapidSeen||0)<=3){prefs.rapidSeen=(prefs.rapidSeen||0)+1;savePrefs()}
   touchSess();
   go('quiz');renderQuiz();
   if(timed)startTimer();
@@ -2314,6 +2331,22 @@ function recallOn(source,timed){
   const m=prefs.recall||'weak';
   return m==='off'?false:m==='all'?true:RECALL_WEAK.has(source);
 }
+/* ---- Rapid ----
+   Three taps a question is what the ordinary loop costs: pick, check, next. At
+   a 60-question drill that is 180 aimed taps to answer 60 questions, and two of
+   the three carry no information — you already answered when you picked, and
+   you already knew you were right when the tick appeared.
+
+   Rapid deletes both. The pick is the answer, and a correct answer moves on by
+   itself after a beat. A wrong one never does: that is the one explanation
+   worth the stop, and stopping there is the whole point of the mode.
+
+   Never in a timed sit, for the same reason the recall fold never is — the one
+   session that has to behave like the real exam is the timed one, where
+   changing your mind before you commit is part of the exam. And never with
+   feedback held to the end: there is no check to fold into the pick, and no
+   verdict to advance off. */
+function rapidOn(timed,instant){return !!(prefs.rapid&&instant&&!timed)}
 /* Is the fold standing in front of this question right now? */
 function recallHidden(it){
   return !!(sess&&sess.recall&&it&&!it.shown&&!it.checked&&recallable(it.q));
@@ -2524,6 +2557,11 @@ function renderQuiz(){
         (()=>{const bits=[];
           if(multi)bits.push(`This question needs <b>${ci.length}</b> answers.`);
           if(!sess.instant&&sess.idx===0)bits.push('Answers stay hidden until you finish.');
+          /* Rapid changes what a tap means, so it says so — for three sessions,
+             which is long enough to learn it and short enough not to become the
+             next thing you read sixty times and stopped seeing. */
+          if(sess.rapid&&sess.idx===0&&(prefs.rapidSeen||0)<=3)
+            bits.push('Picking answers it. Right ones move on by themselves — touch the screen to stay on one.');
           return bits.length?`<div class="hint">${bits.join(' ')}</div>`:''})()}
       ${recallHidden(it)?`<div class="recall">
         <div class="rlbl">Answer it from memory first</div>
@@ -2547,7 +2585,11 @@ function renderQuiz(){
     </div>
     <button class="jtog" onclick="toggleJump()" aria-expanded="${open}">Jump to question ${open?'▴':`▾ (${sess.items.length})`}</button>
     <div class="dots${open?'':' hidden'}">
-      ${sess.items.map((x,i)=>`<button class="dot${dotClass(x,i)}${flagged(x.q.g)?' flag':''}" onclick="jump(${i})">${i+1}</button>`).join('')}
+      ${/* Folded means not built. It was 200 buttons of markup thrown away on
+            every single question of a 200-question gauntlet, to be display:none
+            behind a label nobody had opened. toggleJump() re-renders, so opening
+            it still gets a grid. */
+        open?sess.items.map((x,i)=>`<button class="dot${dotClass(x,i)}${flagged(x.q.g)?' flag':''}" onclick="jump(${i})">${i+1}</button>`).join(''):''}
     </div>
     <div class="qnav">
       <button class="btn" onclick="prevQ()" ${sess.idx===0?'disabled':''}>← Prev</button>
@@ -2572,9 +2614,23 @@ function pick(oi){
     const s=it.picked.includes(+o.dataset.oi);o.classList.toggle('sel',s);
     if(multi)o.querySelector('.mark').textContent=s?'✓':'';
   });
-  // auto-advance in exam single-choice? no — let user move. But refresh dot + finish count
   refreshDots();
   touchSess();
+  if(rapidPick(it,multi))checkQ();
+}
+/* Should this pick check itself? Two questions get to say no.
+
+   A "select 2" never does. Getting the first of the two wrong is an ordinary
+   thing to do and the fix is to deselect it — a tap that no longer exists once
+   the second pick has already graded you. 432 of the 3,627 questions are these,
+   and they are the ones where a review before committing is worth its tap.
+
+   Neither does a question still waiting on "Did you have it?". Answering that
+   after you have picked is answering it with the tick in front of you, which is
+   not the question it asked. */
+function rapidPick(it,multi){
+  return !!(sess&&sess.rapid&&!multi&&it.picked.length===1
+    &&!(recallAsking(it)&&!it.recall));
 }
 function refreshDots(){
   document.querySelectorAll('.dots .dot').forEach((d,i)=>{
@@ -2599,7 +2655,13 @@ function revealOpts(){
 function recallSay(hit){
   const it=sess&&sess.items[sess.idx];
   if(!it||it.checked)return;
-  it.recall=hit?'hit':'miss';touchSess();renderQuiz();
+  it.recall=hit?'hit':'miss';touchSess();
+  /* Picked first and answered this second: the pick is still the answer, it was
+     only ever waiting on this. Without it, that order leaves you holding a
+     selected option and a Check button in a mode whose whole claim is that
+     there is no Check button. */
+  if(rapidPick(it,correctIdx(it.q).length>1)){checkQ();return}
+  renderQuiz();
 }
 function checkQ(){
   const it=sess.items[sess.idx];if(!it.picked.length){toast('Pick an answer first');return}
@@ -2615,13 +2677,19 @@ function checkQ(){
      already a miss and needs no help. */
   if(it.recall==='miss')applyUnsure(it);
   touchSess();
+  /* Armed before the render, not after: paintCheck() draws the countdown off
+     advArmed(), and a render that ran first would paint a verdict with no bar
+     under it and then never be asked again. */
+  const adv=shouldAdvance(it);
+  if(adv)armAdvance();
   /* renderQuiz() reassigns innerHTML and paints the check itself, so painting
      here first only ever decorated a DOM that was about to be thrown away (F-9). */
   renderQuiz();
   /* Four options push the verdict below the fold on a phone. `nearest` means
-     this does nothing at all when it is already on screen. */
-  const ex=document.getElementById('explain');
-  if(ex)ex.scrollIntoView({block:'nearest',behavior:'smooth'});
+     this does nothing at all when it is already on screen — and a question that
+     is leaving in 600ms is not worth scrolling to at all. */
+  if(!adv){const ex=document.getElementById('explain');
+    if(ex)ex.scrollIntoView({block:'nearest',behavior:'smooth'})}
 }
 function paintCheck(){
   const it=sess.items[sess.idx],ci=correctIdx(it.q);
@@ -2638,7 +2706,8 @@ function paintCheck(){
       ${it._correct?`<button class="btn sm ghost unsure${it.unsure?' on':''}" onclick="markUnsure()"${it.unsure?' disabled':''}>${it.unsure?'🤔 Marked unsure':'🤔 Wasn’t sure'}</button>`:''}
     </div>
     <div class="lbl">Explanation</div><div>${esc(it.q.e||'—')}</div>
-    ${it.unsure?`<div class="sub" style="margin:8px 0 0;font-size:12.5px">${it.recall==='miss'?'You had the answer in front of you, not in your head. ':''}No promotion, no credit towards clearing it — back tomorrow, and added to your mistakes list to practise.</div>`:''}`;
+    ${it.unsure?`<div class="sub" style="margin:8px 0 0;font-size:12.5px">${it.recall==='miss'?'You had the answer in front of you, not in your head. ':''}No promotion, no credit towards clearing it — back tomorrow, and added to your mistakes list to practise.</div>`:''}
+    ${advArmed()?`<div class="advbar" style="--adv:${ADV_MS}ms"></div>`:''}`;
 }
 /* ---- "Wasn't sure" ----
    A right answer you did not know is a lucky guess, and 509 questions here are
@@ -2655,7 +2724,7 @@ function paintCheck(){
    Clearing one is the ordinary rule: right on N separate days, confidently.
    `miss` is set to today for the same reason a real miss sets it — answering
    confidently ten minutes after admitting you guessed is not a separate day. */
-function markUnsure(){if(applyUnsure(sess&&sess.items[sess.idx]))paintCheck()}
+function markUnsure(){cancelAdvance();if(applyUnsure(sess&&sess.items[sess.idx]))paintCheck()}
 /* The state half, so a failed recall can take the same road without going
    through the button. Returns whether anything changed. */
 function applyUnsure(it){
@@ -2689,9 +2758,12 @@ function toQuestionTop(){
     -((hd?hd.offsetHeight:0)+8);
   window.scrollTo(0,Math.max(0,top));
 }
-function prevQ(){if(sess.idx>0){sess.idx--;touchSess();renderQuiz();toQuestionTop()}}
-function nextQ(){if(sess.idx<sess.items.length-1){sess.idx++;touchSess();renderQuiz();toQuestionTop()}}
-function jump(i){sess.idx=i;touchSess();renderQuiz();toQuestionTop()}
+/* Every one of these disarms first. A pending advance that survives a Prev tap
+   would move you forward one question after you asked to go back — and the tap
+   that fired it is long gone, so there would be nothing to blame it on. */
+function prevQ(){cancelAdvance();if(sess.idx>0){sess.idx--;touchSess();renderQuiz();toQuestionTop()}}
+function nextQ(){cancelAdvance();if(sess.idx<sess.items.length-1){sess.idx++;touchSess();renderQuiz();toQuestionTop()}}
+function jump(i){cancelAdvance();sess.idx=i;touchSess();renderQuiz();toQuestionTop()}
 
 /* ---- Swipe between questions ----
    Next is a small target at the bottom of the screen that you aim at sixty
@@ -2740,6 +2812,43 @@ function swipeForward(){
      tap on a button that names the score. */
   nextQ();
 }
+
+/* ---- Auto-advance on a right answer ----
+   The explanation under a question you just got right is the most-skipped text
+   in the app, and it costs a tap to skip it sixty times a session. So a correct
+   answer leaves by itself after long enough to read the tick.
+
+   600ms. Short enough that sixty of them cost 36 seconds rather than the two
+   minutes of tapping they replace; long enough that the green registers as an
+   answer rather than a flicker. A wrong answer never auto-advances, and neither
+   does the last question — finishing stays an aimed tap on a button that names
+   the score, the same rule the forward swipe follows.
+
+   Anything you do cancels it. That is the contract that makes the mode safe to
+   leave on: if you want this explanation, touch the screen and it is yours. */
+const ADV_MS=600;
+let _advT=null;
+const advArmed=()=>_advT!==null;
+function shouldAdvance(it){
+  return !!(sess&&sess.rapid&&it&&it.checked&&it._correct&&!it.unsure
+    &&sess.idx<sess.items.length-1);
+}
+function armAdvance(){
+  cancelAdvance();
+  _advT=setTimeout(()=>{_advT=null;if(sess&&!quizHidden())nextQ()},ADV_MS);
+}
+function cancelAdvance(){
+  if(_advT===null)return;
+  clearTimeout(_advT);_advT=null;
+  const b=document.querySelector('.advbar');if(b)b.remove();
+}
+/* Capture phase, deliberately. The tap or keypress that answers the question is
+   still on its way down to the handler that arms the timer when these run, so
+   the same gesture would otherwise cancel the advance it just asked for. In
+   capture they fire first, find nothing armed, and do nothing — and every
+   gesture after the arming is a real "wait, I want to read this". */
+['pointerdown','keydown','wheel','touchmove'].forEach(ev=>
+  document.addEventListener(ev,cancelAdvance,{capture:true,passive:true}));
 
 /* ============ SPACED REPETITION ============
    Leitner boxes. Get it right, it comes back later; get it wrong, it drops to
@@ -2987,7 +3096,7 @@ function explainReadiness(){
    All six still count as the day's work and keep the streak alive. */
 const TRAINING=new Set(['sweep','twist','dates','examq','mset','hset']);
 function finishQuiz(){
-  stopTimer();
+  stopTimer();cancelAdvance();
   /* Graded is finished: the store entry goes here and on an explicit discard,
      and nowhere else (INV-13). `sess` stays live — the results screen and
      retrySame() are still reading it. */
@@ -3768,7 +3877,7 @@ function topicPicker(){
     </div>`);
 }
 function openSettings(){
-  const fb=prefs.feedback,rc=prefs.recall||'weak',n=drillSize();
+  const fb=prefs.feedback,rc=prefs.recall||'weak',rp=prefs.rapid!==false,n=drillSize();
   const seen=srSeen(),left=UNIQUE_N-seen;
   modal(`<h3 style="margin:0 0 4px">Settings</h3><p class="sub" style="margin:0 0 14px">Applies to every test and practice you start next.</p>
     <div class="lbl">Questions per drill</div>
@@ -3789,6 +3898,17 @@ function openSettings(){
       <button class="btn ghost setopt ${fb==='end'?'on':''}" onclick="setFeedback('end')">
         <b>🏁 Only at the end</b>
         <div style="color:var(--muted);font-size:12.5px;font-weight:500">No hints while you work — real exam feel. Every answer &amp; explanation shows on the results screen.</div></button>
+    </div>
+
+    <div class="lbl">Pace</div>
+    <p class="sub" style="margin:2px 0 0;font-size:12.5px">Pick, check, next is three taps a question — 180 of them in a 60-question drill, and two in three carry nothing you did not already know. ${fb==='instant'?'':'<b>Needs the answer shown after each question</b>, above — with feedback held to the end there is no check to fold in and no verdict to move off.'}</p>
+    <div class="grid" style="gap:8px;margin:6px 0 16px">
+      <button class="btn ghost setopt ${rp?'on':''}" onclick="setRapid(1)">
+        <b>⚡ Rapid — the pick is the answer</b>
+        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Picking marks it on the spot, and a right answer moves on by itself after ${(ADV_MS/1000).toFixed(1)}s. Wrong ones stop and stay stopped. Touch the screen while the green bar is running to keep the question; swipe right to go back to one that has already gone. Never in a timed test, and never on a &ldquo;select two&rdquo; &mdash; deselecting a first wrong pick is worth its tap.</div></button>
+      <button class="btn ghost setopt ${rp?'':'on'}" onclick="setRapid(0)">
+        <b>🚶 Steady — check, then next</b>
+        <div style="color:var(--muted);font-size:12.5px;font-weight:500">Every answer waits for you. The explanation is on screen until you move off it yourself.</div></button>
     </div>
 
     <div class="lbl">Hide the options first</div>
@@ -3843,6 +3963,9 @@ function setFeedback(v){prefs.feedback=v;savePrefs();openSettings()}
 /* Takes effect on the next session you start, like every other setting here —
    sess.recall is fixed when the session is made. */
 function setRecall(v){prefs.recall=v;savePrefs();openSettings()}
+/* Same rule, same reason: sess.rapid is fixed when the session is made, so a
+   drill in progress keeps the bargain it started with. */
+function setRapid(v){prefs.rapid=!!v;savePrefs();openSettings()}
 function closeSettings(){closeModal();if(!document.getElementById('view-dashboard').classList.contains('hidden'))renderDashboard()}
 /* The page keeps its scroll position across a modal rather than being sent to
    the top: body.modal-open pins it, and the offset it was pinned at is put back

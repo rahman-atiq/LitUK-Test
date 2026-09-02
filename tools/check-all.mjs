@@ -31,6 +31,7 @@ const CHECKS = [
   ["check-toughest-source.mjs", "the one authored bank, and whether its build is current"],
   ["test-verify-bank.mjs", "the answers that disagree with the handbook chapters"],
   ["test-recall.mjs", "the recall fold — which questions hide their options, and how a miss scores"],
+  ["test-rapid.mjs", "rapid mode — the pick that answers, and the advance you can stop"],
   ["test-backup.mjs", "export and restore — your progress surviving a lost phone"],
   ["test-cast-quiz.mjs", "the cast quiz"],
 ];
