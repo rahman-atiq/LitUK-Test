@@ -111,7 +111,7 @@ const BRIDGE = `globalThis.__api={
   get prefs(){return prefs},
   get pendingRestore(){return pendingRestore}, set pendingRestore(v){pendingRestore=v},
   POOL, correctIdx, recordAnswer, noteRecent, readiness, save, savePrefs, dayKey,
-  migrate, exportData, readBackup, importData, applyRestore, confirmRestore, summarise,
+  migrate, clampDue, exportData, readBackup, importData, applyRestore, confirmRestore, summarise,
   toastText:()=>document.getElementById('toast').textContent
 }`;
 
@@ -323,7 +323,18 @@ function seed(app) {
       if (g !== undefined) {
         const before = { ok: [20260810, 20260811], done: false, count: 2, leech: false };
         Object.assign(restored.ctx.S.mistakes[g], before);
-        restored.ctx.S.sr[g] = { box: 3, due: Date.now() + 3 * 864e5, seen: 5, last: Date.now(), unsure: 1 };
+        /* Through clampDue(), because the due date has to be one the engine
+           would itself have written. INV-8 files nothing after the last useful
+           review — two days before the exam — and clampAllDues() re-applies
+           that on every load, so a raw now+3d is only a legal due date while
+           the exam is more than five days out. Hard-coded, it made this check
+           pass all August and fail from the 31st, and the drift was the
+           fixture's rather than migrate()'s: the state under test was not
+           state the app can hold. */
+        restored.ctx.S.sr[g] = {
+          box: 3, due: restored.ctx.clampDue(Date.now() + 3 * 864e5),
+          seen: 5, last: Date.now(), unsure: 1,
+        };
         restored.ctx.save();
         const studied = JSON.stringify(restored.ctx.S);
         restored.ctx.migrate();
