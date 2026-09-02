@@ -22,6 +22,10 @@
 <style>:root{--aurora:.55}:root[data-theme="light"]{--aurora:.34}html[data-lituk-tokens="hub"] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:var(--aurora);background:radial-gradient(58% 40% at 10% -8%,color-mix(in srgb,var(--era4) 26%,transparent),transparent 70%),radial-gradient(50% 36% at 94% 2%,color-mix(in srgb,var(--era3) 20%,transparent),transparent 70%),radial-gradient(72% 44% at 50% 106%,color-mix(in srgb,var(--gold,var(--era1)) 16%,transparent),transparent 74%)}</style>
 <script src="app.js" defer></script>
 <!-- /lituk:shared -->
+<!-- Outside the shared block on purpose: tools/patch-pages.mjs rebuilds
+     everything between the lituk:shared markers from its own list, so a
+     tag parked in there is silently dropped the next time it runs. -->
+<script src="cheer.js" defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
@@ -418,6 +422,10 @@
     <div class="rule"></div>
   </header>
 
+  <!-- The warm layer (cheer.js). Empty until it boots, so the page is
+       unchanged for anyone who loads it without JavaScript. -->
+  <div id="cheer"></div>
+
   <section id="progress" hidden>
     <h2 class="sec">Where you're up to</h2>
     <div class="stats" id="stats"></div>
@@ -428,6 +436,8 @@
     </a>
     <p class="weakline" id="weakline" hidden></p>
   </section>
+
+  <div id="cheerShelf"></div>
 
   <div class="searchbox">
     <span class="mag">⌕</span>

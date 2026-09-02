@@ -4,7 +4,7 @@
    as you visit it, or all at once via the hub's "Save for offline".
    Bump VERSION whenever the content changes.
    ============================================================ */
-const VERSION = "2026-09-01a";
+const VERSION = "2026-09-02a";
 const CORE_CACHE = "lituk-core-" + VERSION;
 const RUNTIME_CACHE = "lituk-runtime-" + VERSION;
 
@@ -12,6 +12,7 @@ const CORE = [
   "./",
   "./index.html",
   "./app.js",
+  "./cheer.js",
   "./manifest.webmanifest",
   "./icons/flag-gb.svg",
   "./icons/icon-32.png",
