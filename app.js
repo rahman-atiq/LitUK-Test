@@ -16,32 +16,34 @@
      "gold" is what the pages already paint, so it declares nothing at all —
      picking it means no rule matches and each page's own palette stands.
 
-     The two hex values per row are the swatch on the picker button, and they
-     are not chosen here — each is the --gold that accent's palette below
-     resolves to in that mode, copied up. So the dot on the button is always
-     literally the colour the page is about to paint.
+     The other five are the four nations and the Union, and each is two things:
+     a *field* — the paper, hue-turned from the default by the method the
+     palettes below describe, so it reads as a tint rather than a colour — and
+     a *charge*, the accent that carries text, solved per hue for contrast
+     against its own card. Northern Ireland is the one whose field and charge
+     differ in hue on purpose: flax blue on linen, because a flax field is what
+     it has instead of a flag everyone agrees on.
 
-     The last six are the brighter set. They are built by exactly the method
-     the palettes below describe, with one deliberate difference: where the
-     first five hold the default's chroma on the text-bearing accent, these
-     hold their own — the colours they were asked for are vivid, and two of
-     them (poppy and ivy) sit within nine degrees of rose and oak, so matching
-     chroma as well as method would have put two pairs of indistinguishable
-     dots in the row. Saturation is what tells them apart; the contrast targets
-     are unchanged, so nothing about legibility is traded for it. */
+     "disc" is the flag on the picker button, in flag colours and the same in
+     both modes — a split disc of field and charge. Gold has none: its button
+     paints the live --gold, so the default's dot is still literally the colour
+     in force. */
   var ACCENTS = [
-    { id: "gold",     name: "Gold",     dark: "#D4A94E", light: "#9A7420" },
-    { id: "rose",     name: "Rose",     dark: "#F6939F", light: "#AC5965" },
-    { id: "oak",      name: "Oak",      dark: "#7AC07C", light: "#437F46" },
-    { id: "slate",    name: "Slate",    dark: "#69B7F6", light: "#3377AD" },
-    { id: "heather",  name: "Heather",  dark: "#D09CE8", light: "#8E61A2" },
-    { id: "poppy",    name: "Poppy",    dark: "#FF8F91", light: "#DD2341" },
-    { id: "bluebell", name: "Bluebell", dark: "#BD9FFF", light: "#9045F6" },
-    { id: "ivy",      name: "Ivy",      dark: "#00C96E", light: "#008346" },
-    { id: "mint",     name: "Mint",     dark: "#4CC3A0", light: "#008165" },
-    { id: "gorse",    name: "Gorse",    dark: "#ACB800", light: "#6F7800" },
-    { id: "blossom",  name: "Blossom",  dark: "#EF94BB", light: "#AB567D" }
+    { id: "gold",     name: "Gold" },
+    { id: "england",  name: "England",          disc: ["#FFFFFF", "#CE1124"] },
+    { id: "scotland", name: "Scotland",         disc: ["#005EB8", "#FFFFFF"] },
+    { id: "wales",    name: "Wales",            disc: ["#00B140", "#D30731"] },
+    { id: "ni",       name: "Northern Ireland", disc: ["#FAF0E6", "#7C8FDB"] },
+    { id: "union",    name: "Union",            disc: ["#012169", "#C8102E"] }
   ];
+
+  /* Ten accents were named for plants and weather before they were named for
+     the nations. A stored one of those is mapped to its nearest nation on the
+     way out of localStorage and written back, so the walk happens once. The
+     same map is in the pre-paint snippet in tools/patch-pages.mjs; this is the
+     belt for its braces, because an installed PWA can serve one stale cached
+     page after an update. */
+  var LEGACY_ACCENTS = { rose: "england", poppy: "england", blossom: "england", oak: "wales", ivy: "wales", mint: "wales", slate: "scotland", heather: "union", bluebell: "union", gorse: "gold" };
 
   /* ---------------- theme ---------------- */
 
@@ -79,6 +81,7 @@
     var a = document.documentElement.getAttribute("data-accent");
     if (isAccent(a)) return a;
     try { a = localStorage.getItem(ACCENT_KEY); } catch (e) { a = null; }
+    if (LEGACY_ACCENTS[a]) { a = LEGACY_ACCENTS[a]; try { localStorage.setItem(ACCENT_KEY, a); } catch (e) {} }
     return isAccent(a) ? a : "gold";
   }
 
@@ -224,17 +227,20 @@
     ".lituk-mode button{flex:1;padding:7px 4px}" +
     ".lituk-mode button[aria-pressed=\"true\"]{border-color:var(--gold,var(--brand,currentColor));" +
     "background:color-mix(in srgb,var(--gold,var(--brand,currentColor)) 13%,transparent)}" +
-    /* Eleven dots are 368px in a line, which is wider than the phone the panel
-       opens on. So the colour row alone leaves the flex row behind for a fixed
-       six-wide grid — inheriting the same 6px gap — and the panel sizes itself
-       to that grid rather than to the viewport. min-width is a floor, not a
-       cap, so it simply gives way. A twelfth accent costs a row, not width. */
+    /* Six discs fill the fixed six-wide grid exactly, one row. The grid stays
+       anyway: it was put here because dots in a flex line grew wider than the
+       phone the panel opens on, and it is what keeps a seventh swatch costing
+       a row rather than width. min-width is a floor, not a cap, so the panel
+       sizes itself to the grid.
+
+       The disc is the flag — field and charge split on the diagonal, the same
+       in both modes, so the row reads as flags rather than as paint. The
+       pressed ring is the live accent instead, as the mode buttons already do:
+       a white charge could not have drawn a ring anyone would see. */
     ".lituk-sw{display:grid;grid-template-columns:repeat(6,28px)}" +
     ".lituk-sw button{width:28px;height:28px;padding:0;display:grid;place-items:center;border-radius:50%}" +
-    ".lituk-sw i{width:16px;height:16px;border-radius:50%;background:var(--sw-light)}" +
-    "html[data-theme=\"dark\"] .lituk-sw i{background:var(--sw-dark)}" +
-    ".lituk-sw button[aria-pressed=\"true\"]{border-width:2px;border-color:var(--sw-light)}" +
-    "html[data-theme=\"dark\"] .lituk-sw button[aria-pressed=\"true\"]{border-color:var(--sw-dark)}" +
+    ".lituk-sw i{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--sw-a) 50%,var(--sw-b) 50%)}" +
+    ".lituk-sw button[aria-pressed=\"true\"]{border-width:2px;border-color:var(--gold,var(--brand,currentColor))}" +
     ".lituk-pal button:focus-visible,.themeToggle:focus-visible{outline:2px solid var(--gold,var(--brand,currentColor));outline-offset:2px}" +
     "@media print{.lituk-pal,.themeToggle{display:none}}";
 
@@ -305,8 +311,9 @@
         b.setAttribute("data-accent", a.id);
         b.setAttribute("aria-label", a.name);
         b.title = a.name;
-        b.style.setProperty("--sw-light", a.light);
-        b.style.setProperty("--sw-dark", a.dark);
+        var live = "var(--gold,var(--brand,currentColor))";
+        b.style.setProperty("--sw-a", a.disc ? a.disc[0] : live);
+        b.style.setProperty("--sw-b", a.disc ? a.disc[1] : live);
         b.appendChild(document.createElement("i"));
         b.addEventListener("click", function () { setAccent(a.id); });
         swRow.appendChild(b);
@@ -420,64 +427,50 @@
      and --gold-dim — are instead solved per hue for a fixed contrast against
      their own --card, because contrast at a fixed lightness varies with hue.
      That lands every accent at 4.6:1 on light, where the default gold reaches
-     only 4.14:1. The six added after heather take their own chroma on those
-     two rather than the default's, for the reason given up at ACCENTS; the
-     lightness is still solved to the same targets, so the 4.6:1 holds across
-     all eleven. --ink, --era1..6, --good/--bad and --trap-* are deliberately
-     absent: they carry meaning (chapter colours, right and wrong) or carry the
-     contrast, and an accent has no business repainting either. */
+     only 4.14:1, and 7.9:1 on dark.
+
+     Two rows depart from a plain hue-turn, and both on purpose. The Union's
+     field takes 1.6× the default's chroma, or the navy would have come out as
+     the grey it started as. Northern Ireland turns its field warm (linen) and
+     its charge cool (flax), the only accent whose two halves disagree — it is
+     a flax field, not a flag.
+
+     --ink, --era1..6, --good/--bad and --trap-* are deliberately absent: they
+     carry meaning (chapter colours, right and wrong) or carry the contrast,
+     and an accent has no business repainting either. */
   var ACCENT_CSS =
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"rose\"]{--page:#140D0E;--card:#221819;--card-2:#2E1D1F;--line:#3E2A2C;--chip:#342526;--gold:#F6939F;--gold-dim:#A3636B;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"rose\"]{--page:#F7EFEF;--card:#FFF9FA;--card-2:#F7E9EA;--line:#E8D8DA;--chip:#F3E6E7;--gold:#AC5965;--gold-dim:#D9A3A9;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"oak\"]{--page:#0C100C;--card:#161D16;--card-2:#1A261A;--line:#273527;--chip:#222C22;--gold:#7AC07C;--gold-dim:#538054;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"oak\"]{--page:#EDF3ED;--card:#F8FCF8;--card-2:#E7F0E7;--line:#D6E0D6;--chip:#E4ECE4;--gold:#437F46;--gold-dim:#9BBF9B;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"slate\"]{--page:#0B1014;--card:#141C22;--card-2:#17242F;--line:#24323F;--chip:#202B34;--gold:#69B7F6;--gold-dim:#497AA2;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"slate\"]{--page:#ECF2F7;--card:#F7FBFF;--card-2:#E5EEF7;--line:#D3DEE8;--chip:#E3EBF2;--gold:#3377AD;--gold-dim:#92B8DA;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"heather\"]{--page:#110E12;--card:#1E1920;--card-2:#281F2C;--line:#362C3B;--chip:#2E2631;--gold:#D09CE8;--gold-dim:#8A6999;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"heather\"]{--page:#F3EFF6;--card:#FDFAFE;--card-2:#F1EAF4;--line:#E1D9E5;--chip:#EDE7F0;--gold:#8E61A2;--gold-dim:#C3A8D0;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"poppy\"]{--page:#140D0D;--card:#221818;--card-2:#2F1D1D;--line:#3F2A2A;--chip:#342525;--gold:#FF8F91;--gold-dim:#A36463;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"poppy\"]{--page:#F8EFEE;--card:#FFF9F9;--card-2:#F7E9E9;--line:#E8D8D8;--chip:#F3E6E6;--gold:#DD2341;--gold-dim:#D9A4A3;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"bluebell\"]{--page:#100E13;--card:#1C1922;--card-2:#24202E;--line:#322D3E;--chip:#2A2733;--gold:#BD9FFF;--gold-dim:#7C6DA2;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"bluebell\"]{--page:#F2F0F7;--card:#FBFAFF;--card-2:#EEEBF6;--line:#DDDAE7;--chip:#EAE8F2;--gold:#9045F6;--gold-dim:#B8ABD8;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"ivy\"]{--page:#0C110D;--card:#151D17;--card-2:#18261C;--line:#253529;--chip:#212D24;--gold:#00C96E;--gold-dim:#4A815C;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"ivy\"]{--page:#ECF3EE;--card:#F8FCF9;--card-2:#E6F0E8;--line:#D4E0D7;--chip:#E3ECE5;--gold:#008346;--gold-dim:#95C0A1;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"mint\"]{--page:#0A110E;--card:#131D1A;--card-2:#142721;--line:#20362E;--chip:#1E2D28;--gold:#4CC3A0;--gold-dim:#38826C;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"mint\"]{--page:#EBF3F0;--card:#F7FCFA;--card-2:#E4F0EB;--line:#D2E1DB;--chip:#E1EDE8;--gold:#008165;--gold-dim:#8AC1AD;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"gorse\"]{--page:#0F100A;--card:#1B1C13;--card-2:#222415;--line:#303221;--chip:#292B1E;--gold:#ACB800;--gold-dim:#737B3F;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"gorse\"]{--page:#F1F2EB;--card:#FAFBF6;--card-2:#ECEEE3;--line:#DCDED1;--chip:#E9EBE1;--gold:#6F7800;--gold-dim:#B2B98A;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"blossom\"]{--page:#130D0F;--card:#21181C;--card-2:#2D1D24;--line:#3D2A32;--chip:#33252A;--gold:#EF94BB;--gold-dim:#9E637C;}" +
-    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"blossom\"]{--page:#F7EFF1;--card:#FFF9FB;--card-2:#F6E9EE;--line:#E7D8DD;--chip:#F2E6EA;--gold:#AB567D;--gold-dim:#D5A3B7;}";
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"england\"]{--page:#0D0F12;--card:#181B20;--card-2:#1D232A;--line:#2A3139;--chip:#242A30;--gold:#FF908D;--gold-dim:#A0615F;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"england\"]{--page:#EEF1F5;--card:#F9FBFE;--card-2:#E9EEF3;--line:#D8DDE4;--chip:#E6EAEF;--gold:#DD243B;--gold-dim:#D9A4A1;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"scotland\"]{--page:#0C1014;--card:#151C23;--card-2:#18242F;--line:#25323F;--chip:#212A34;--gold:#69B7F6;--gold-dim:#497AA3;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"scotland\"]{--page:#ECF2F7;--card:#F8FBFF;--card-2:#E6EEF7;--line:#D4DEE8;--chip:#E3EBF3;--gold:#3277AD;--gold-dim:#92B8DA;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"wales\"]{--page:#0C100C;--card:#161D16;--card-2:#1A261B;--line:#263528;--chip:#222C23;--gold:#42C85D;--gold-dim:#538258;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"wales\"]{--page:#EDF3ED;--card:#F8FCF8;--card-2:#E7F0E7;--line:#D6E0D6;--chip:#E4ECE5;--gold:#29833C;--gold-dim:#99BF9C;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"ni\"]{--page:#120E0A;--card:#201A13;--card-2:#2B2014;--line:#3B2E20;--chip:#31271D;--gold:#96B0EA;--gold-dim:#5E74A6;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"ni\"]{--page:#F5F0EA;--card:#FEFAF6;--card-2:#F4EBE3;--line:#E5DBD1;--chip:#F0E8E0;--gold:#5871AE;--gold-dim:#A1B3DD;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"dark\"][data-accent=\"union\"]{--page:#0B0F17;--card:#151B28;--card-2:#172238;--line:#243049;--chip:#20293C;--gold:#89AFFF;--gold-dim:#5C75A6;}" +
+    ":root[data-lituk-tokens=\"hub\"][data-theme=\"light\"][data-accent=\"union\"]{--page:#ECF1FC;--card:#F9FBFF;--card-2:#E5EDFE;--line:#D3DDF0;--chip:#E2EAF9;--gold:#366AE9;--gold-dim:#9FB4DD;}";
 
   /* The practice-test app names its colours differently — --bg/--panel/--brand
      rather than --page/--card/--gold — so it needs its own block against the
-     same eleven accents. Same method: each token keeps its own OKLCH lightness
+     same five nations. Same method: each token keeps its own OKLCH lightness
      and chroma and only turns its hue, except --brand, which is both a fill
      with --on-solid on it and a link colour on --panel, so it is solved per hue
-     against the tighter of the two — and, for the six added after heather,
-     at their own chroma rather than the default's. --ink, --muted,
-     --good/--bad/--warn and the five topic colours stay put: they carry
-     contrast or meaning. */
+     against the tighter of the two. --ink, --muted, --good/--bad/--warn and the
+     five topic colours stay put: they carry contrast or meaning.
+
+     No flag wash reaches this page — it has no wash layer to take one. Its
+     nation character is the palette and the ribbon, and that is enough. */
   var TESTS_ACCENT_CSS =
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"rose\"]{--bg:#1D0F11;--panel:#291619;--panel-2:#321D20;--line:#412629;--chip:#391F22;--brand:#E68E98;--accent:#EEA0A9;--ring:#E68E9844;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"rose\"]{--bg:#FCF7F7;--panel:#FFFFFF;--panel-2:#FBF3F3;--line:#EFDFE0;--chip:#F6E9EA;--brand:#B8495E;--accent:#BA5465;--ring:#B8495E33;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"oak\"]{--bg:#0C160D;--panel:#132013;--panel-2:#1A281A;--line:#223422;--chip:#1B2D1B;--brand:#78B77A;--accent:#93C994;--ring:#78B77A44;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"oak\"]{--bg:#F6F9F6;--panel:#FFFFFF;--panel-2:#F2F6F1;--line:#DCE7DC;--chip:#E8F0E7;--brand:#247F2F;--accent:#408E45;--ring:#247F2F33;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"slate\"]{--bg:#0A151E;--panel:#0F1E2A;--panel-2:#162633;--line:#1D3142;--chip:#162A3A;--brand:#69AEE6;--accent:#85C0F2;--ring:#69AEE644;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"slate\"]{--bg:#F5F9FC;--panel:#FFFFFF;--panel-2:#F0F6FA;--line:#D9E5EF;--chip:#E6EEF6;--brand:#0072BA;--accent:#2280C2;--ring:#0072BA33;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"heather\"]{--bg:#18101B;--panel:#221827;--panel-2:#2A1F2F;--line:#36293D;--chip:#2F2235;--brand:#C496D9;--accent:#D0A7E3;--ring:#C496D944;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"heather\"]{--bg:#FAF7FB;--panel:#FFFFFF;--panel-2:#F7F3F9;--line:#E8E0EC;--chip:#F0EAF3;--brand:#9355AD;--accent:#975FAF;--ring:#9355AD33;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"poppy\"]{--bg:#1D0F0F;--panel:#291616;--panel-2:#321D1D;--line:#412726;--chip:#392020;--brand:#FF8083;--accent:#FF9797;--ring:#FF808344;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"poppy\"]{--bg:#FCF7F7;--panel:#FFFFFF;--panel-2:#FBF3F2;--line:#F0DFDE;--chip:#F6E9E9;--brand:#D81B3D;--accent:#DC2340;--ring:#D81B3D33;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"bluebell\"]{--bg:#15111D;--panel:#1E1929;--panel-2:#262132;--line:#312A41;--chip:#2A2439;--brand:#B795FF;--accent:#C2A7FF;--ring:#B795FF44;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"bluebell\"]{--bg:#F9F8FC;--panel:#FFFFFF;--panel-2:#F5F4FA;--line:#E4E1EE;--chip:#EEEBF5;--brand:#8C40F1;--accent:#8F44F5;--ring:#8C40F133;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"ivy\"]{--bg:#0B170E;--panel:#102115;--panel-2:#17291C;--line:#1E3525;--chip:#172E1F;--brand:#00C269;--accent:#26DB7C;--ring:#00C26944;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"ivy\"]{--bg:#F6F9F6;--panel:#FFFFFF;--panel-2:#F1F7F2;--line:#DBE7DE;--chip:#E6F0E9;--brand:#007F43;--accent:#00924E;--ring:#007F4333;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"mint\"]{--bg:#071712;--panel:#0B211A;--panel-2:#122922;--line:#18352C;--chip:#112E25;--brand:#52BA9A;--accent:#77CDB0;--ring:#52BA9A44;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"mint\"]{--bg:#F5FAF8;--panel:#FFFFFF;--panel-2:#F0F7F4;--line:#D8E8E1;--chip:#E4F0EB;--brand:#007D62;--accent:#008F70;--ring:#007D6233;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"gorse\"]{--bg:#131508;--panel:#1C1E0C;--panel-2:#232613;--line:#2E3119;--chip:#272A12;--brand:#A4B005;--accent:#B7C500;--ring:#A4B00544;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"gorse\"]{--bg:#F8F9F5;--panel:#FFFFFF;--panel-2:#F5F6EF;--line:#E3E5D7;--chip:#ECEEE4;--brand:#6C7500;--accent:#798200;--ring:#6C750033;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"blossom\"]{--bg:#1C0F14;--panel:#28161E;--panel-2:#311D25;--line:#3F2630;--chip:#371F29;--brand:#E58BB2;--accent:#F498BF;--ring:#E58BB244;}" +
-    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"blossom\"]{--bg:#FCF7F8;--panel:#FFFFFF;--panel-2:#FAF3F5;--line:#EEDFE4;--chip:#F5E9EE;--brand:#B14A7B;--accent:#B45580;--ring:#B14A7B33;}";
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"england\"]{--bg:#0F141A;--panel:#161D25;--panel-2:#1D252D;--line:#26303B;--chip:#1F2933;--brand:#F68885;--accent:#FF9A97;--ring:#F6888544;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"england\"]{--bg:#F7F9FB;--panel:#FFFFFF;--panel-2:#F2F5F8;--line:#DEE4EB;--chip:#E9EDF2;--brand:#D81C37;--accent:#DB3140;--ring:#D81C3733;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"scotland\"]{--bg:#0B141E;--panel:#111E2B;--panel-2:#172533;--line:#1F3042;--chip:#18293A;--brand:#61AFED;--accent:#73BDF9;--ring:#61AFED44;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"scotland\"]{--bg:#F6F9FC;--panel:#FFFFFF;--panel-2:#F1F5FB;--line:#DAE5F0;--chip:#E6EEF6;--brand:#2D73A9;--accent:#3979AD;--ring:#2D73A933;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"wales\"]{--bg:#0C170D;--panel:#122114;--panel-2:#19281B;--line:#213423;--chip:#1A2D1C;--brand:#39C156;--accent:#54CE69;--ring:#39C15644;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"wales\"]{--bg:#F6FAF6;--panel:#FFFFFF;--panel-2:#F1F7F2;--line:#DCE7DC;--chip:#E7F0E8;--brand:#247E37;--accent:#328441;--ring:#247E3733;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"ni\"]{--bg:#1B1107;--panel:#261A0C;--panel-2:#2E2112;--line:#3C2B18;--chip:#342411;--brand:#8DA7E1;--accent:#9CB5EE;--ring:#8DA7E144;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"ni\"]{--bg:#FBF8F4;--panel:#FFFFFF;--panel-2:#F9F4EF;--line:#ECE1D6;--chip:#F3ECE4;--brand:#546DAA;--accent:#5B73AE;--ring:#546DAA33;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"dark\"][data-accent=\"union\"]{--bg:#0A1325;--panel:#101C34;--panel-2:#17233D;--line:#1E2E4F;--chip:#172646;--brand:#7CA6FF;--accent:#92B5FF;--ring:#7CA6FF44;}" +
+    ":root[data-lituk-tokens=\"tests\"][data-theme=\"light\"][data-accent=\"union\"]{--bg:#F5F9FF;--panel:#FFFFFF;--panel-2:#F0F5FE;--line:#D9E4F8;--chip:#E6EDFC;--brand:#3265E4;--accent:#3B6DE5;--ring:#3265E433;}";
 
   /* ---------------- newsprint ----------------
      The skin, as opposed to the accents above. Two differences of kind, and

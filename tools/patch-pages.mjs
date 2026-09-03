@@ -23,7 +23,7 @@ const CLOSE = "<!-- /lituk:shared -->";
    repaints the paper as well as the trim, so leaving it to the deferred app.js
    would flash the default palette on every single navigation. The id list is
    the one in app.js — an unknown value is ignored and the page stays gold. */
-const ACCENTS = ["gold", "rose", "oak", "slate", "heather", "poppy", "bluebell", "ivy", "mint", "gorse", "blossom"];
+const ACCENTS = ["gold", "england", "scotland", "wales", "ni", "union"];
 
 const THEME_SNIPPET =
   `<script>/* theme + skin + accent before first paint — one key each, every page */try{var _t=localStorage.getItem("lituk_theme")||localStorage.getItem("liuk-story-theme");` +
@@ -32,6 +32,14 @@ const THEME_SNIPPET =
   `var _s=localStorage.getItem("lituk_skin")==="news";` +
   `if(_s)document.documentElement.setAttribute("data-skin","news");` +
   `var _a=localStorage.getItem("lituk_accent");` +
+  /* Ten accents named for plants and weather became the four nations and the
+     Union. A stored one of those is walked over to its nearest nation and
+     written back rather than ignored, which would have silently dropped a
+     choice someone made. Idempotent — no value in the map is also a key — so
+     this costs one read on every later visit and nothing else. The same map is
+     in app.js, for the page an update serves from a stale cache. */
+  `var _m={rose:"england",poppy:"england",blossom:"england",oak:"wales",ivy:"wales",mint:"wales",slate:"scotland",heather:"union",bluebell:"union",gorse:"gold"};` +
+  `if(_m[_a]){_a=_m[_a];localStorage.setItem("lituk_accent",_a)}` +
   /* Newsprint has no accent, and the attribute is what the accent rules match
      on — so it is simply not written while the skin is on, here for the same
      reason app.js takes it off there: nothing to outrank, nothing to undo. */
