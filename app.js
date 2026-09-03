@@ -140,10 +140,16 @@
   function toggleSkin() { setSkin(currentSkin() === "news" ? "normal" : "news"); return currentSkin(); }
 
   /* ---------------- the seal ----------------
-     The hub's masthead flag follows the nation. Three of them are the emoji
+     The masthead flag follows the nation. Three of them are the emoji
      subdivision flags, which iOS draws properly (the dragon included); Northern
      Ireland has no emoji flag and gets the flax, drawn. Gold, the Union and
      newsprint all show the Union flag the page shipped with.
+
+     Two pages carry one: the hub's 82px seal, and the practice-test app's 24px
+     header mark, which is the same idea at the size a toolbar allows. Both are
+     a container with an <img> in it and nothing else, so both are refilled the
+     same way. .brand exists on the tests page alone, which is what keeps this
+     off the half-dozen other pages that happen to have a .flag.
 
      Written as escapes rather than as the characters themselves because the
      tag characters that spell "gbeng" are invisible — pasted through anything
@@ -156,7 +162,7 @@
   };
 
   function seal() {
-    var s = document.getElementById("flagSeal");
+    var s = document.getElementById("flagSeal") || document.querySelector(".brand .flag");
     if (!s) return;
     var a = currentSkin() === "news" ? "gold" : currentAccent();
     var want = SEALS[a] || "icons/flag-gb.svg";
@@ -687,9 +693,15 @@
     "html[data-accent=\"union\"] body::after{background:linear-gradient(90deg,#012169 0 34%,#FFFFFF 34% 42%,#C8102E 42% 58%,#FFFFFF 58% 66%,#012169 66%)}" +
     "@media print{html[data-accent] body::after{display:none}}";
 
+  /* The tests page sets line-height:0 on its header mark, which is right for the
+     <img> it was built around and wrong for a glyph — an emoji in a zero-height
+     box hangs out of it. seal() writes data-seal whenever it fills either host,
+     so that attribute is the one place to put this back. */
+  var SEAL_CSS = ".brand .flag[data-seal]{line-height:1}";
+
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + NEWS_CSS + PICKER_CSS + HUB_CSS + EGG_CSS + RIBBON_CSS;
+    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + NEWS_CSS + PICKER_CSS + HUB_CSS + EGG_CSS + RIBBON_CSS + SEAL_CSS;
     document.head.appendChild(s);
   }
 

@@ -56,6 +56,17 @@ const THEME_SNIPPET =
    the root stacking context paints next, and in-flow content paints over both.
    So the wash sits above the page colour and under every word without any page
    having to raise its own content. */
+/* The flag colours, shared by both washes below. Fixed values — a flag is not
+   a tint, so unlike the palettes these are not solved for anything. The charge
+   (--fc) is the one that flips per mode, because a white line drawn on light
+   paper is not a line. */
+const FLAG_VARS =
+  `:root[data-accent="england"]{--f1:#CE1124;--f2:#FFFFFF}` +
+  `:root[data-accent="scotland"]{--f1:#005EB8;--fc:#FFFFFF}:root[data-theme="light"][data-accent="scotland"]{--fc:#005EB8}` +
+  `:root[data-accent="wales"]{--f1:#00B140;--f2:#D30731;--fc:#FFFFFF}` +
+  `:root[data-accent="ni"]{--f1:#7C8FDB;--fc:#FAF0E6}:root[data-theme="light"][data-accent="ni"]{--fc:#7C8FDB}` +
+  `:root[data-accent="union"]{--f1:#012169;--f2:#C8102E;--fc:#FFFFFF}:root[data-theme="light"][data-accent="union"]{--fc:#012169}`;
+
 const WASH_SNIPPET =
   `<style>:root{--aurora:.55}:root[data-theme="light"]{--aurora:.34}` +
   `html[data-lituk-tokens="hub"] body::before{content:"";position:fixed;inset:0;z-index:-1;` +
@@ -69,16 +80,10 @@ const WASH_SNIPPET =
      has to know. Two attributes on <html> outrank the default above without
      !important, which is why gold and every non-hub page stay pixel-identical.
 
-     Flag colours are fixed; the charge (--fc) flips per mode where a white
-     line would vanish on light paper. Every flag is drawn in the top 60% of
-     the viewport so it crosses behind the masthead at (50%,30%) rather than
-     behind the body text — the layers that have to meet there are sized to
-     that box. */
-  `:root[data-accent="england"]{--f1:#CE1124;--f2:#FFFFFF}` +
-  `:root[data-accent="scotland"]{--f1:#005EB8;--fc:#FFFFFF}:root[data-theme="light"][data-accent="scotland"]{--fc:#005EB8}` +
-  `:root[data-accent="wales"]{--f1:#00B140;--f2:#D30731;--fc:#FFFFFF}` +
-  `:root[data-accent="ni"]{--f1:#7C8FDB;--fc:#FAF0E6}:root[data-theme="light"][data-accent="ni"]{--fc:#7C8FDB}` +
-  `:root[data-accent="union"]{--f1:#012169;--f2:#C8102E;--fc:#FFFFFF}:root[data-theme="light"][data-accent="union"]{--fc:#012169}` +
+     Every flag is drawn in the top 60% of the viewport so it crosses behind the
+     masthead at (50%,30%) rather than behind the body text — the layers that
+     have to meet there are sized to that box. */
+  FLAG_VARS +
   /* England — the cross of St George: an upright, a crossbar, light where they meet */
   `html[data-lituk-tokens="hub"][data-accent="england"] body::before{background:` +
   `radial-gradient(42% 30% at 50% 30%,color-mix(in srgb,var(--f2) 26%,transparent),transparent 70%),` +
@@ -113,6 +118,72 @@ const WASH_SNIPPET =
   `background-size:auto,auto,100% 60%,100% 60%,auto;background-repeat:no-repeat}` +
   `</style>`;
 
+/* ---------- the practice-test wash ----------
+   The same idea as above and a different drawing, because the page underneath
+   is a different shape. The hub is open — text straight on the paper, a flag
+   behind it reads as a flag. This app is wall-to-wall opaque cards, and on a
+   phone they cover all but a 16px gutter either side, the 12px between them,
+   the tail below the last one, and the header.
+
+   So the device is not what carries a nation here; the field is. Every flag
+   below leads with a large soft radial at the top and another at the tail,
+   which is what actually reaches the eye through the lattice the cards leave.
+   The device is still drawn, high and soft, for the one surface that shows it
+   whole: the header is 88% --bg over a backdrop-filter, so it samples this
+   layer and the flag arrives through the glass.
+
+   Quieter than the hub on purpose — this is the page you sit in front of for
+   an hour, not one you pass through. Nothing here touches a card, so every
+   word on the page is still on solid --panel at the contrast §3.2 solved for.
+
+   Gold sets no data-accent and newsprint takes it off, so both simply do not
+   match — no wash, nothing to undo. */
+const TESTS_WASH =
+  `<style>` + FLAG_VARS +
+  `:root[data-lituk-tokens="tests"]{--flagwash:.46}` +
+  `:root[data-lituk-tokens="tests"][data-theme="light"]{--flagwash:.28}` +
+  `html[data-lituk-tokens="tests"][data-accent] body::before{content:"";position:fixed;inset:0;` +
+  `z-index:-1;pointer-events:none;opacity:var(--flagwash);background-repeat:no-repeat}` +
+  /* England — the red does the work; a white field on near-white paper is not
+     a thing anyone can see, so the bloom only lifts the crossing. */
+  `html[data-lituk-tokens="tests"][data-accent="england"] body::before{background:` +
+  `radial-gradient(60% 26% at 50% 0%,color-mix(in srgb,var(--f2) 34%,transparent),transparent 72%),` +
+  `linear-gradient(90deg,transparent 42%,color-mix(in srgb,var(--f1) 20%,transparent) 47% 53%,transparent 58%),` +
+  `linear-gradient(180deg,transparent 6%,color-mix(in srgb,var(--f1) 20%,transparent) 11% 17%,transparent 23%),` +
+  `radial-gradient(70% 40% at 50% 100%,color-mix(in srgb,var(--f1) 12%,transparent),transparent 74%)}` +
+  /* Scotland — azure under the glass and at the tail, the saltire in the top 46% */
+  `html[data-lituk-tokens="tests"][data-accent="scotland"] body::before{background:` +
+  `linear-gradient(56deg,transparent 44%,color-mix(in srgb,var(--fc) 16%,transparent) 48.5% 51.5%,transparent 56%),` +
+  `linear-gradient(-56deg,transparent 44%,color-mix(in srgb,var(--fc) 16%,transparent) 48.5% 51.5%,transparent 56%),` +
+  `radial-gradient(80% 34% at 50% 0%,color-mix(in srgb,var(--f1) 34%,transparent),transparent 74%),` +
+  `radial-gradient(74% 40% at 50% 100%,color-mix(in srgb,var(--f1) 18%,transparent),transparent 74%);` +
+  `background-size:100% 46%,100% 46%,auto,auto}` +
+  /* Wales — green rising from the tail, white off the top, the dragon's heat left of centre */
+  `html[data-lituk-tokens="tests"][data-accent="wales"] body::before{background:` +
+  `radial-gradient(52% 26% at 34% 4%,color-mix(in srgb,var(--f2) 24%,transparent),transparent 70%),` +
+  `linear-gradient(180deg,color-mix(in srgb,var(--fc) 14%,transparent),transparent 34%),` +
+  `linear-gradient(0deg,color-mix(in srgb,var(--f1) 30%,transparent),transparent 46%)}` +
+  /* Northern Ireland — flax at both ends, and the weave, which is the one
+     device that survives a 16px gutter: it reads as texture, not as a sliced shape. */
+  `html[data-lituk-tokens="tests"][data-accent="ni"] body::before{background:` +
+  `radial-gradient(64% 32% at 50% 0%,color-mix(in srgb,var(--f1) 32%,transparent),transparent 72%),` +
+  `radial-gradient(74% 40% at 50% 100%,color-mix(in srgb,var(--f1) 18%,transparent),transparent 74%),` +
+  `repeating-linear-gradient(0deg,color-mix(in srgb,var(--fc) 9%,transparent) 0 1px,transparent 1px 5px),` +
+  `repeating-linear-gradient(90deg,color-mix(in srgb,var(--fc) 9%,transparent) 0 1px,transparent 1px 5px)}` +
+  /* Union — navy at both ends, the red cross high, the white diagonals in the top 44% */
+  `html[data-lituk-tokens="tests"][data-accent="union"] body::before{background:` +
+  `linear-gradient(90deg,transparent 44%,color-mix(in srgb,var(--f2) 18%,transparent) 48% 52%,transparent 56%),` +
+  `linear-gradient(180deg,transparent 7%,color-mix(in srgb,var(--f2) 18%,transparent) 12% 17%,transparent 22%),` +
+  `linear-gradient(56deg,transparent 45%,color-mix(in srgb,var(--fc) 11%,transparent) 48.7% 51.3%,transparent 55%),` +
+  `linear-gradient(-56deg,transparent 45%,color-mix(in srgb,var(--fc) 11%,transparent) 48.7% 51.3%,transparent 55%),` +
+  `radial-gradient(86% 40% at 50% 0%,color-mix(in srgb,var(--f1) 34%,transparent),transparent 74%),` +
+  `radial-gradient(76% 40% at 50% 100%,color-mix(in srgb,var(--f1) 20%,transparent),transparent 74%);` +
+  `background-size:auto,auto,100% 44%,100% 44%,auto,auto}` +
+  /* The cram sheet is printed. The page already resets every token to white and
+     black for it, and a flag on the paper would fight that and the toner. */
+  `@media print{html[data-lituk-tokens="tests"] body::before{display:none}}` +
+  `</style>`;
+
 /* Which set of colour token names a page speaks. app.js keys the accent
    palettes off this, so a page whose vocabulary has not been mapped cannot be
    reached by them at all — the gate is the selector, not a runtime check.
@@ -134,7 +205,10 @@ const SAFE_SNIPPET =
   `html:not([data-lituk-topbar]) body{padding-top:var(--lituk-sat)}` +
   `html[data-lituk-topbar] header{padding-top:var(--lituk-sat)}</style>`;
 
-function sharedHead({ theme = true, wash = true } = {}) {
+/* Which wash a page gets is its colour vocabulary, not a yes/no: the two are
+   different drawings of the same flags against different page shapes, and a
+   page with no vocabulary gets neither. */
+function sharedHead({ theme = true, wash = null } = {}) {
   return [
     OPEN,
     `<link rel="manifest" href="manifest.webmanifest">`,
@@ -149,7 +223,7 @@ function sharedHead({ theme = true, wash = true } = {}) {
     `<meta name="robots" content="noindex">`,
     theme ? THEME_SNIPPET : null,
     SAFE_SNIPPET,
-    wash ? WASH_SNIPPET : null,
+    wash === "hub" ? WASH_SNIPPET : wash === "tests" ? TESTS_WASH : null,
     `<script src="app.js" defer></script>`,
     CLOSE,
   ].filter(Boolean).join("\n");
@@ -181,7 +255,7 @@ function edit(file, fn) {
 
 /* ---------- 1. shared head block ---------- */
 function injectHead(src, file) {
-  const block = sharedHead({ theme: file !== "lituk.html", wash: tokensOf(file) === "hub" });
+  const block = sharedHead({ theme: file !== "lituk.html", wash: tokensOf(file) });
   const existing = new RegExp(`${OPEN}[\\s\\S]*?${CLOSE}\\n?`);
   if (existing.test(src)) return src.replace(existing, block + "\n");
   const m = src.match(/<\/title>/i);
