@@ -139,6 +139,44 @@
 
   function toggleSkin() { setSkin(currentSkin() === "news" ? "normal" : "news"); return currentSkin(); }
 
+  /* ---------------- the seal ----------------
+     The hub's masthead flag follows the nation. Three of them are the emoji
+     subdivision flags, which iOS draws properly (the dragon included); Northern
+     Ireland has no emoji flag and gets the flax, drawn. Gold, the Union and
+     newsprint all show the Union flag the page shipped with.
+
+     Written as escapes rather than as the characters themselves because the
+     tag characters that spell "gbeng" are invisible — pasted through anything
+     that trims them, the flag silently becomes a black rectangle. */
+  var SEALS = {
+    england:  "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F",
+    scotland: "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74\uDB40\uDC7F",
+    wales:    "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73\uDB40\uDC7F",
+    ni:       "icons/flag-ni.svg"
+  };
+
+  function seal() {
+    var s = document.getElementById("flagSeal");
+    if (!s) return;
+    var a = currentSkin() === "news" ? "gold" : currentAccent();
+    var want = SEALS[a] || "icons/flag-gb.svg";
+    /* The egg code only ever toggles classes on this div, so replacing its
+       children is safe — but only if it happens once per change, or a tap
+       animation would be cut off by a rebuild that changed nothing. */
+    if (s.getAttribute("data-seal") === want) return;
+    s.setAttribute("data-seal", want);
+    s.textContent = "";
+    if (/\.svg$/.test(want)) {
+      var img = document.createElement("img");
+      img.src = want; img.alt = ""; img.width = 60; img.height = 30;
+      s.appendChild(img);
+    } else {
+      s.appendChild(document.createTextNode(want));
+    }
+  }
+  document.addEventListener("lituk:accent", seal);
+  document.addEventListener("lituk:skin", seal);
+
   /* Keep the browser/status-bar chrome matching whatever the page actually paints. */
   function syncThemeColor() {
     if (!document.body) return;
@@ -630,9 +668,28 @@
     "html[data-skin=\"news\"] .lituk-emo{filter:grayscale(1)}" +
     "}";
 
+  /* ---------------- the ribbon ----------------
+     A 3px bar of the nation's flag under the status bar, on every page the
+     palettes reach. It is the one piece of the theme that is the same on the
+     hub and in the practice-test app, which is the point: the tests page has no
+     wash layer to take a flag, so this is where its nation shows.
+
+     Gated twice over. On [data-lituk-tokens] so Study Quest, which declares no
+     vocabulary, never gets one; and on [data-accent], which gold does not set
+     and newsprint takes off — so both are simply not matched rather than having
+     to undo it. body::after is unclaimed on every page in the repo. */
+  var RIBBON_CSS =
+    "html[data-lituk-tokens][data-accent] body::after{content:\"\";position:fixed;left:0;right:0;top:var(--lituk-sat);height:3px;z-index:65;pointer-events:none;opacity:.9}" +
+    "html[data-accent=\"england\"] body::after{background:#CE1124}" +
+    "html[data-accent=\"scotland\"] body::after{background:#005EB8}" +
+    "html[data-accent=\"wales\"] body::after{background:linear-gradient(90deg,#00B140 0 50%,#D30731 50%)}" +
+    "html[data-accent=\"ni\"] body::after{background:#7C8FDB}" +
+    "html[data-accent=\"union\"] body::after{background:linear-gradient(90deg,#012169 0 34%,#FFFFFF 34% 42%,#C8102E 42% 58%,#FFFFFF 58% 66%,#012169 66%)}" +
+    "@media print{html[data-accent] body::after{display:none}}";
+
   function injectCSS() {
     var s = document.createElement("style");
-    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + NEWS_CSS + PICKER_CSS + HUB_CSS + EGG_CSS;
+    s.textContent = SAFE_CSS + ACCENT_CSS + TESTS_ACCENT_CSS + NEWS_CSS + PICKER_CSS + HUB_CSS + EGG_CSS + RIBBON_CSS;
     document.head.appendChild(s);
   }
 
@@ -668,7 +725,12 @@
     EMOJI = new RegExp(
       "(?:\\p{Regional_Indicator}{2}" +          /* 🇬🇧 — a flag is two of these */
       "|[0-9#*]\\uFE0F?\\u20E3" +               /* 1️⃣ — a keycap starts on a digit */
-      "|\\p{Extended_Pictographic}\\uFE0F?(?:\\u200D\\p{Extended_Pictographic}\\uFE0F?)*)+", "gu");
+      /* The tag characters are what spell out a subdivision flag — 🏴 plus
+         "gbeng" written invisibly. They are not Extended_Pictographic, so
+         without them the match ends at the black flag and the tags are left
+         behind in a sibling text node, which renders as a black rectangle from
+         then on. The seal is a subdivision flag under three of the accents. */
+      "|\\p{Extended_Pictographic}\\uFE0F?[\\u{E0020}-\\u{E007F}]*(?:\\u200D\\p{Extended_Pictographic}\\uFE0F?)*)+", "gu");
   } catch (e) {}
 
   var emoOn = false, emoBusy = false, emoQueue = [], emoTick = 0;
@@ -1957,6 +2019,7 @@
   setTheme(current(), true);
   setSkin(currentSkin(), true);
   setAccent(currentAccent(), true);
+  seal();
   buildPicker();
   syncThemeColor();
   registerSW();
