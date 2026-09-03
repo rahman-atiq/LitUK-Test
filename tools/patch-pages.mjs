@@ -62,7 +62,56 @@ const WASH_SNIPPET =
   `pointer-events:none;opacity:var(--aurora);background:` +
   `radial-gradient(58% 40% at 10% -8%,color-mix(in srgb,var(--era4) 26%,transparent),transparent 70%),` +
   `radial-gradient(50% 36% at 94% 2%,color-mix(in srgb,var(--era3) 20%,transparent),transparent 70%),` +
-  `radial-gradient(72% 44% at 50% 106%,color-mix(in srgb,var(--gold,var(--era1)) 16%,transparent),transparent 74%)}</style>`;
+  `radial-gradient(72% 44% at 50% 106%,color-mix(in srgb,var(--gold,var(--era1)) 16%,transparent),transparent 74%)}` +
+
+  /* The nations. Under a nation the wash stops being weather and becomes the
+     flag — same layer, same opacity, same z-index, so nothing else on the page
+     has to know. Two attributes on <html> outrank the default above without
+     !important, which is why gold and every non-hub page stay pixel-identical.
+
+     Flag colours are fixed; the charge (--fc) flips per mode where a white
+     line would vanish on light paper. Every flag is drawn in the top 60% of
+     the viewport so it crosses behind the masthead at (50%,30%) rather than
+     behind the body text — the layers that have to meet there are sized to
+     that box. */
+  `:root[data-accent="england"]{--f1:#CE1124;--f2:#FFFFFF}` +
+  `:root[data-accent="scotland"]{--f1:#005EB8;--fc:#FFFFFF}:root[data-theme="light"][data-accent="scotland"]{--fc:#005EB8}` +
+  `:root[data-accent="wales"]{--f1:#00B140;--f2:#D30731;--fc:#FFFFFF}` +
+  `:root[data-accent="ni"]{--f1:#7C8FDB;--fc:#FAF0E6}:root[data-theme="light"][data-accent="ni"]{--fc:#7C8FDB}` +
+  `:root[data-accent="union"]{--f1:#012169;--f2:#C8102E;--fc:#FFFFFF}:root[data-theme="light"][data-accent="union"]{--fc:#012169}` +
+  /* England — the cross of St George: an upright, a crossbar, light where they meet */
+  `html[data-lituk-tokens="hub"][data-accent="england"] body::before{background:` +
+  `radial-gradient(42% 30% at 50% 30%,color-mix(in srgb,var(--f2) 26%,transparent),transparent 70%),` +
+  `linear-gradient(90deg,transparent 40%,color-mix(in srgb,var(--f1) 24%,transparent) 47% 53%,transparent 60%),` +
+  `linear-gradient(180deg,transparent 20%,color-mix(in srgb,var(--f1) 24%,transparent) 27% 33%,transparent 40%);` +
+  `background-repeat:no-repeat}` +
+  /* Scotland — the saltire on an azure field */
+  `html[data-lituk-tokens="hub"][data-accent="scotland"] body::before{background:` +
+  `linear-gradient(56deg,transparent 42%,color-mix(in srgb,var(--fc) 18%,transparent) 48.5% 51.5%,transparent 58%),` +
+  `linear-gradient(-56deg,transparent 42%,color-mix(in srgb,var(--fc) 18%,transparent) 48.5% 51.5%,transparent 58%),` +
+  `radial-gradient(70% 50% at 50% 30%,color-mix(in srgb,var(--f1) 30%,transparent),transparent 72%);` +
+  `background-size:100% 60%,100% 60%,auto;background-repeat:no-repeat}` +
+  /* Wales — white over green, and the dragon's heat left of centre */
+  `html[data-lituk-tokens="hub"][data-accent="wales"] body::before{background:` +
+  `radial-gradient(40% 30% at 32% 40%,color-mix(in srgb,var(--f2) 30%,transparent),transparent 70%),` +
+  `linear-gradient(180deg,color-mix(in srgb,var(--fc) 16%,transparent),transparent 46%),` +
+  `linear-gradient(0deg,color-mix(in srgb,var(--f1) 28%,transparent),transparent 54%);` +
+  `background-repeat:no-repeat}` +
+  /* Northern Ireland — a flax field in bloom on linen; the weave is a 5px crosshatch */
+  `html[data-lituk-tokens="hub"][data-accent="ni"] body::before{background:` +
+  `radial-gradient(56% 40% at 50% 26%,color-mix(in srgb,var(--f1) 32%,transparent),transparent 70%),` +
+  `radial-gradient(72% 44% at 50% 108%,color-mix(in srgb,var(--f1) 16%,transparent),transparent 74%),` +
+  `repeating-linear-gradient(0deg,color-mix(in srgb,var(--fc) 10%,transparent) 0 1px,transparent 1px 5px),` +
+  `repeating-linear-gradient(90deg,color-mix(in srgb,var(--fc) 10%,transparent) 0 1px,transparent 1px 5px)}` +
+  /* Union — red cross over white diagonals over a navy field, all crossing at (50%,30%) */
+  `html[data-lituk-tokens="hub"][data-accent="union"] body::before{background:` +
+  `linear-gradient(90deg,transparent 43%,color-mix(in srgb,var(--f2) 22%,transparent) 48% 52%,transparent 57%),` +
+  `linear-gradient(180deg,transparent 23%,color-mix(in srgb,var(--f2) 22%,transparent) 28% 32%,transparent 37%),` +
+  `linear-gradient(56deg,transparent 44%,color-mix(in srgb,var(--fc) 14%,transparent) 48.7% 51.3%,transparent 56%),` +
+  `linear-gradient(-56deg,transparent 44%,color-mix(in srgb,var(--fc) 14%,transparent) 48.7% 51.3%,transparent 56%),` +
+  `radial-gradient(80% 58% at 50% 30%,color-mix(in srgb,var(--f1) 36%,transparent),transparent 72%);` +
+  `background-size:auto,auto,100% 60%,100% 60%,auto;background-repeat:no-repeat}` +
+  `</style>`;
 
 /* Which set of colour token names a page speaks. app.js keys the accent
    palettes off this, so a page whose vocabulary has not been mapped cannot be
